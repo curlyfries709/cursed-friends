@@ -1,0 +1,213 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-214481544968893642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 7c63ec3d-f292-4908-b126-8adf8cde4b2c
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: 'OH MY GOSH! '
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 350
+    y: 250
+    width: 300
+    height: 144
+  childNodes:
+  - {fileID: 5309149644206477964}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7018739a99316c8438c015ac1537ba08, type: 3}
+  m_Name: Not the wagon
+  m_EditorClassIdentifier: 
+  nodes:
+  - {fileID: 499975097207677206}
+  - {fileID: -214481544968893642}
+  - {fileID: 5309149644206477964}
+  - {fileID: 3660150125259876988}
+  newNodeOffset: {x: 250, y: 0}
+--- !u!114 &499975097207677206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 94f22600-2def-410c-b843-f79fd18a2275
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 0}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: Dialogue Text
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 100
+    y: 250
+    width: 250
+    height: 75
+  childNodes:
+  - {fileID: -214481544968893642}
+--- !u!114 &1794105724265302627
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: e5633a6d-cced-455d-9506-08be16fb3d3e
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 0}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: Dialogue Text
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 100
+    y: 250
+    width: 250
+    height: 75
+  childNodes: []
+--- !u!114 &3660150125259876988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 3a3cafe0-aa41-45a0-9763-7d4fbe3e1a91
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: b1a33d0c70ef4c649a1fa0462134f4ce, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: AHHHHH! MY BELOVED WAGON!
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 1011
+    y: 247
+    width: 300
+    height: 144
+  childNodes: []
+--- !u!114 &5309149644206477964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 9ef0616d-86f0-457d-8479-cee8fe910534
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: dcaf73e9c9034ff4082c1b2c8f2894e4, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: HOLLY SHITTT!
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 671
+    y: 250
+    width: 300
+    height: 144
+  childNodes:
+  - {fileID: 3660150125259876988}

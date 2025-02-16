@@ -4,12 +4,10 @@ using UnityEngine;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine.SceneManagement;
-using System.Linq;
 
 public class SavingSystem : MonoBehaviour
 {
-    Dictionary<string, object> previousSceneState = new Dictionary<string, object>();
-    Dictionary<string, object> currentLoadedData = new Dictionary<string, object>();
+    Dictionary<string, object> currentGameSessionData = new Dictionary<string, object>();
 
     const string lastSavedSceneKey = "lastSceneBuildIndex";
 
@@ -46,23 +44,16 @@ public class SavingSystem : MonoBehaviour
 
     public void StoreCurrentSceneData()
     {
-        CaptureState(previousSceneState);
+        CaptureState(currentGameSessionData);
     }
 
 
     public void Save(string saveFile)
     {
-        Dictionary<string, object> state = LoadFile(saveFile);
-
-        if (previousSceneState.Count > 0)
-        {
-            Debug.Log("Saving Previous Scene Data too");
-            state = state.Concat(previousSceneState).ToDictionary(x => x.Key, x => x.Value);
-        }
-
+        //Dictionary<string, object> state = LoadFile(saveFile);
+        Dictionary<string, object> state = currentGameSessionData;
         CaptureState(state);
         SaveFile(saveFile, state);
-        previousSceneState.Clear();
     }
 
     public void SavePersistentData(string saveFile, string key, object data)
@@ -94,7 +85,7 @@ public class SavingSystem : MonoBehaviour
     }
 
 
-    public void Load(string saveFile)
+    public void LoadFromFile(string saveFile)
     {
         RestoreState(LoadFile(saveFile));
     }
@@ -129,7 +120,7 @@ public class SavingSystem : MonoBehaviour
 
     private void RestoreState(Dictionary<string, object> state)
     {
-        currentLoadedData = state;
+        currentGameSessionData = state;
 
         foreach (SaveableEntity saveable in FindObjectsOfType<SaveableEntity>(true))
         {
@@ -142,25 +133,29 @@ public class SavingSystem : MonoBehaviour
         }
     }
 
-    public void NewGameRestore()
+    /*public void NewGameRestore()
     {
-        currentLoadedData = null;
-
         foreach (SaveableEntity saveable in FindObjectsOfType<SaveableEntity>(true))
         {
             saveable.NewGameRestore();
         }
-    }
+    }*/
 
-    public void NewTerritoryRestore()
+    public void NewTerritoryRestore(bool fullRestore) //Full Restore also restores Manager data
     {
+        Debug.Log("New Territory Restore called");
+
         foreach (SaveableEntity saveable in FindObjectsOfType<SaveableEntity>(true))
         {
             string id = saveable.GetUID();
 
-            if (currentLoadedData.ContainsKey(id))
+            if (currentGameSessionData.ContainsKey(id))
             {
-                saveable.OnNewTerritoryRestoreState(currentLoadedData[id]);
+                saveable.RestoreState(currentGameSessionData[id], fullRestore);
+            }
+            else
+            {
+                saveable.RestoreState(null, fullRestore);
             }
         }
     }
@@ -169,9 +164,13 @@ public class SavingSystem : MonoBehaviour
     {
         string id = saveable.GetUID();
 
-        if (currentLoadedData != null && currentLoadedData.ContainsKey(id))
+        if (currentGameSessionData.ContainsKey(id))
         {
-            saveable.RestoreState(currentLoadedData[id]);
+            saveable.RestoreState(currentGameSessionData[id]);
+        }
+        else
+        {
+            saveable.RestoreState(null);
         }
     }
     public void DeleteFile(string file)

@@ -1,0 +1,133 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-4975468067231320607
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: a419d5e3-3fb6-44b7-a332-c2e1b7e0d37d
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: dcaf73e9c9034ff4082c1b2c8f2894e4, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: 'We have more battles to come. '
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 350
+    y: 250
+    width: 300
+    height: 144
+  childNodes: []
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7018739a99316c8438c015ac1537ba08, type: 3}
+  m_Name: More battles to come
+  m_EditorClassIdentifier: 
+  nodes:
+  - {fileID: 8542270209723081110}
+  - {fileID: -4975468067231320607}
+  newNodeOffset: {x: 250, y: 0}
+--- !u!114 &5362459417402079852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: f375bf88-2cc7-4121-88fd-7270d0c3cf73
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 0}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: Dialogue Text
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 100
+    y: 250
+    width: 250
+    height: 75
+  childNodes: []
+--- !u!114 &8542270209723081110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 1f127243-0b2b-4c40-bb05-b4396623e688
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 0}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: Dialogue Text
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 100
+    y: 250
+    width: 250
+    height: 75
+  childNodes:
+  - {fileID: -4975468067231320607}

@@ -1,7 +1,10 @@
+using Pathfinding;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEngine.UI.CanvasScaler;
 
 public class FantasyCombatMovement : MonoBehaviour
 {
@@ -78,13 +81,10 @@ public class FantasyCombatMovement : MonoBehaviour
 
     //Cache
     PlayerInput playerInput; 
-    GridSystem<GridObject> gridSystem;
-    Camera mainCam;
 
     private void Awake()
     {
         playerInput = ControlsManager.Instance.GetPlayerInput();
-        mainCam = Camera.main;
     }
 
     private void OnEnable()
@@ -96,8 +96,6 @@ public class FantasyCombatMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        gridSystem = LevelGrid.Instance.gridSystem;
-
         // reset our timeouts on start
         jumpTimeoutDelta = JumpTimeout;
         fallTimeoutDelta = FallTimeout;
@@ -129,9 +127,14 @@ public class FantasyCombatMovement : MonoBehaviour
         rotationOnlyMode = false;
 
         SetMovingUnit(selectedUnit);
-        GridSystemVisual.Instance.ShowValidMovementGridPositions(GetValidMovementGridPositions(selectedUnit), currentUnit, currentUnit is PlayerGridUnit);
+        //GridSystemVisual.Instance.ShowValidMovementGridPositions(GetValidMovementGridPositions(selectedUnit), currentUnit, currentUnit is PlayerGridUnit);
+        PathFinding.Instance.QueryPathNodesWithinUnitMoveRange(currentUnit, OnMovePositionsCalculated);
     }
 
+    private void OnMovePositionsCalculated(Path path)
+    {
+        GridSystemVisual.Instance.ShowValidMovementGridPositions(PathFinding.Instance.GetGridPositionsFromPath(path), currentUnit, currentUnit is PlayerGridUnit);
+    }
     private void RotateSelectedUnit()
     {
 
@@ -141,6 +144,7 @@ public class FantasyCombatMovement : MonoBehaviour
 
         if (inputMoveValue == Vector2.zero) { return; }
 
+        Camera mainCam = Camera.main;
         targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg + mainCam.transform.eulerAngles.y;
         float rotation = Mathf.SmoothDampAngle(currentPlayerUnit.transform.eulerAngles.y, targetRotation, ref rotationVelocity, RotationSmoothTime);
 
@@ -157,7 +161,7 @@ public class FantasyCombatMovement : MonoBehaviour
             return;
         }
 
-
+        Camera mainCam = Camera.main;
         PlayerGridUnit currentPlayerUnit = currentUnit as PlayerGridUnit;
 
         CharacterController controller = currentPlayerUnit.unitController;
@@ -368,16 +372,13 @@ public class FantasyCombatMovement : MonoBehaviour
     }
 
 
-
-
-
     //Getters && Setters
     /*public bool IsValidMovementGridPosition(GridPosition gridPosition)
     {
         return GetValidMovementGridPositions().Contains(gridPosition);
     }*/
 
-    public List<GridPosition> GetValidMovementGridPositions(CharacterGridUnit unit)
+   /* public void GetValidMovementGridPositions(CharacterGridUnit unit)
     {
         List<GridPosition> validGridPositionsList = new List<GridPosition>();
         List<GridPosition> unitGridPositions = unit.GetGridPositionsOnTurnStart();
@@ -393,12 +394,12 @@ public class FantasyCombatMovement : MonoBehaviour
                 foreach (GridPosition unitGridPosition in unitGridPositions)
                 {
                     GridPosition testGridPosition = unitGridPosition + offsetGridPosition;
-                    if (!gridSystem.IsValidGridPosition(testGridPosition)) 
+                    if (!LevelGrid.Instance.gridSystem.IsValidGridPosition(testGridPosition)) 
                     {
                         continue; 
                     }
 
-                    GridObject gridObject = gridSystem.GetGridObject(testGridPosition);
+                    GridObject gridObject = LevelGrid.Instance.gridSystem.GetGridObject(testGridPosition);
 
                     if (PathFinding.Instance.IsMovementGridPositionOccupiedByAnotherUnit(testGridPosition, unit))
                     {
@@ -434,7 +435,7 @@ public class FantasyCombatMovement : MonoBehaviour
             }
         }
         return validGridPositionsList;
-    }
+    }*/
 
 
 

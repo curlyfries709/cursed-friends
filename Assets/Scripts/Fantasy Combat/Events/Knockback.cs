@@ -144,7 +144,7 @@ public class Knockback : MonoBehaviour, ITurnEndEvent
                 Vector3 castPos = new Vector3(target.transform.position.x, target.transform.position.y + 0.15f, target.transform.position.z);
                 //Debug.DrawRay(castPos, direction.normalized * raycastLength, Color.red, 999);
 
-                if (Physics.Raycast(castPos, direction.normalized, out RaycastHit hitInfo, raycastLength, LevelGrid.Instance.currentSceneData.GetTerrainLayerMask()))
+                if (Physics.Raycast(castPos, direction.normalized, out RaycastHit hitInfo, raycastLength, GameSystemsManager.Instance.GetSceneDataAsFantasyData().GetTerrainLayerMask()))
                 {
                     destination = hitInfo.point;
                 }
@@ -441,7 +441,7 @@ public class Knockback : MonoBehaviour, ITurnEndEvent
 
     private bool IsGridPositionOccupied(GridUnit currentUnit, GridPosition gridPosition)
     {
-        return LevelGrid.Instance.IsGridPositionOccupiedByDifferentUnit(currentUnit, gridPosition, true) || !PathFinding.Instance.IsWalkable(gridPosition);
+        return !LevelGrid.Instance.CanOccupyGridPosition(currentUnit, gridPosition);
     }
 
     private Vector3 GetKnockbackDirection(GridUnit attacker, GridUnit target)

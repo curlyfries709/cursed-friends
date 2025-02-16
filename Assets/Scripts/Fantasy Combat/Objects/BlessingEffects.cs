@@ -68,7 +68,7 @@ public class BlessingEffects : MonoBehaviour, ITurnStartEvent
         AlterAffinities(false);
 
         //Update Blessing Multipliers
-        foreach (PlayerGridUnit player in PartyData.Instance.GetActivePlayerParty())
+        foreach (PlayerGridUnit player in PartyManager.Instance.GetActivePlayerParty())
         {
             UpdateUnitBlessingMultipliers(player.stats, false);
         }
@@ -107,7 +107,7 @@ public class BlessingEffects : MonoBehaviour, ITurnStartEvent
         AlterAffinities(true);
 
         //Reset Blessing Multipliers
-        foreach (PlayerGridUnit player in PartyData.Instance.GetActivePlayerParty())
+        foreach (PlayerGridUnit player in PartyManager.Instance.GetActivePlayerParty())
         {
             UpdateUnitBlessingMultipliers(player.stats, true);
         }
@@ -139,7 +139,7 @@ public class BlessingEffects : MonoBehaviour, ITurnStartEvent
     //Doers
     private void ApplyAndActivateBuffs(PlayerGridUnit blesser)
     {
-        foreach (PlayerGridUnit player in PartyData.Instance.GetActivePlayerParty())
+        foreach (PlayerGridUnit player in PartyManager.Instance.GetActivePlayerParty())
         {
             foreach (ChanceOfInflictingStatusEffect buff in activeBlessing.statusEffectsToApply)
             {
@@ -210,22 +210,7 @@ public class BlessingEffects : MonoBehaviour, ITurnStartEvent
 
     private void AlterAffinities(bool reset)
     {
-        foreach (PlayerGridUnit player in PartyData.Instance.GetActivePlayerParty())
-        {
-            foreach (MaterialAffinity affinity in activeBlessing.materialAffinitiesToAlter)
-            {
-                if (reset)
-                {
-                    player.stats.ResetMaterialAffinity(affinity.material);
-                }
-                else
-                {
-                    player.stats.AlterMaterialAffinity(affinity);
-                }
-            }
-        }
-
-        foreach (PlayerGridUnit player in PartyData.Instance.GetActivePlayerParty())
+        foreach (PlayerGridUnit player in PartyManager.Instance.GetActivePlayerParty())
         {
             foreach (ElementAffinity affinity in activeBlessing.elementAffinitiesToAlter)
             {

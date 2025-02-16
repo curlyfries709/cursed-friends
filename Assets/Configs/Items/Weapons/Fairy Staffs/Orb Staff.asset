@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba0d2460658c9404196f995eb5b03562, type: 3}
+  m_Name: Orb Staff
+  m_EditorClassIdentifier: 
+  itemName: Orb Staff
+  UIIcon: {fileID: 0}
+  itemCatergory: 0
+  buyPrice: 345
+  sellPrice: 0
+  requiredLevel: 1
+  weight: 0
+  rarity: 0
+  description: 
+  category: 2
+  modelPrefab: {fileID: 0}
+  basePhysAttack: 5
+  baseMagAttack: 30
+  scalingPercentage: 100
+  scalingAttribute: 4
+  numOfEnchantmentSlots: 0
+  material: 0
+  element: 5
+  bonusAttributes: []
+  infusedEnchantments: []
+  embeddedEnchantments: []

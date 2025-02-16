@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c91c7e4210554f479cd09a6a15beb5a, type: 3}
+  m_Name: Hunter Wolf
+  m_EditorClassIdentifier: 
+  itemName: Hunter Wolf
+  UIIcon: {fileID: 0}
+  itemCatergory: 0
+  buyPrice: 0
+  sellPrice: 0
+  requiredLevel: 1
+  weight: 0
+  rarity: 0
+  description: 
+  art: {fileID: 0}
+  faction: 1
+  color: 0
+  cardType: 0
+  basePower: 1
+  baseHealth: 4
+  race: 9
+  isSpy: 0
+  abilityData:
+  - ability: {fileID: 3935667872417718061, guid: c540659de3b72ca45bb1c8e605af855b,
+      type: 3}
+    abilityVariable: 2

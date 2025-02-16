@@ -213,7 +213,7 @@ namespace AnotherRealm
                 {
                     GridPosition gridPosition = new GridPosition(x, z);
 
-                    if (!gridSystem.IsValidGridPosition(gridPosition) || !PathFinding.Instance.IsWalkable(gridPosition) || LevelGrid.Instance.IsGridPositionOccupied(gridPosition, true))
+                    if (!gridSystem.IsValidGridPosition(gridPosition) || !LevelGrid.Instance.IsWalkable(gridPosition) || LevelGrid.Instance.IsGridPositionOccupiedByUnit(gridPosition, true))
                     {
                         continue;
                     }
@@ -229,7 +229,7 @@ namespace AnotherRealm
         public static List<InflictedStatusEffectData> TryInflictStatusEffects(CharacterGridUnit attacker,  GridUnit target, List<ChanceOfInflictingStatusEffect> tryApplyStatusEffects)
         {
             List<InflictedStatusEffectData> successfulStatusEffects = new List<InflictedStatusEffectData>();
-            List<ChanceOfInflictingStatusEffect> allStatusEffects = tryApplyStatusEffects.Concat(attacker.stats.GetStatusEffectsToInflict()).ToList();
+            List<ChanceOfInflictingStatusEffect> allStatusEffects = tryApplyStatusEffects.Concat(attacker.stats.Equipment().GetStatusEffectsToInflict()).ToList();
 
             CharacterGridUnit targetCharacter = target as CharacterGridUnit;
 
@@ -457,19 +457,12 @@ namespace AnotherRealm
             return unit.stats.GetAttackElement();
         }
 
-        public static WeaponMaterial GetMaterial(CharacterGridUnit unit, WeaponMaterial skillMaterial, bool isMagicalAttack)
-        {
-            if (isMagicalAttack)
-            {
-                return skillMaterial;
-            }
 
-            return unit.stats.GetAttackMaterial();
-        }
-
-        public static int GetAffinityIndex(Element element, WeaponMaterial material)
+        public static int GetAffinityIndex(Element element)
         {
-            if (element != Element.None)
+            return ((int)element) - 1;
+
+            /*if (element != Element.None)
             {
                 switch (element)
                 {
@@ -486,19 +479,7 @@ namespace AnotherRealm
                     default:
                         return 8;
                 }
-            }
-            else
-            {
-                switch (material)
-                {
-                    case WeaponMaterial.Steel:
-                        return 2;
-                    case WeaponMaterial.Gold:
-                        return 1;
-                    default:
-                        return 0;
-                }
-            }
+            }*/
         }
 
         public static int GetNonAffinityIndex(OtherSkillType skillType)

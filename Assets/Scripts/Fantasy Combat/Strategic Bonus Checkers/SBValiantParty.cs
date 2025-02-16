@@ -13,7 +13,7 @@ public class SBValiantParty : StrategicBonusChecker
 
     protected override void ResetDataOnCombatBegin(BattleStarter.CombatAdvantage advantageType)
     {
-        partyMembersAtBattleStart = PartyData.Instance.GetActivePlayerParty().Count;
+        partyMembersAtBattleStart = PartyManager.Instance.GetActivePlayerParty().Count;
         FantasyHealth.CharacterUnitKOed += OnUnitKOed;
         playedKOED = false;
     }

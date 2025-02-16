@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba0d2460658c9404196f995eb5b03562, type: 3}
+  m_Name: Silver Flair
+  m_EditorClassIdentifier: 
+  itemName: 'Silver Flair '
+  UIIcon: {fileID: 21300000, guid: 51984a731de9f8f468acb1db10e16c05, type: 3}
+  itemCatergory: 0
+  buyPrice: 295
+  sellPrice: 162
+  requiredLevel: 3
+  weight: 2
+  rarity: 1
+  description: 
+  category: 0
+  modelPrefab: {fileID: 6885653922700743491, guid: a5989b0c4e722fd48a6136de4e9b5a5a,
+    type: 3}
+  basePhysAttack: 70
+  baseMagAttack: 0
+  scalingPercentage: 20
+  scalingAttribute: 0
+  numOfEnchantmentSlots: 1
+  element: 1
+  bonusAttributes:
+  - attribute: 1
+    attributeChange: 3
+  - attribute: 6
+    attributeChange: 2
+  infusedEnchantments: []
+  embeddedEnchantments: []

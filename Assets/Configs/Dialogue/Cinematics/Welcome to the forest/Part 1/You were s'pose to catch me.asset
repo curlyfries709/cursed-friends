@@ -1,0 +1,454 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6560129940747926216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: a9700d84-d0b5-431e-a1d3-7c4eb32c4f19
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: '*nervous laugh* Never been better!'
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 969
+    y: 257
+    width: 300
+    height: 144
+  childNodes:
+  - {fileID: -5446941160046900834}
+--- !u!114 &-5446941160046900834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 1d2c3a48-d73f-4021-bbad-69c06d76d30b
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: '*giggle* You were supposed to catch me! '
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 1282
+    y: 268
+    width: 300
+    height: 161
+  childNodes:
+  - {fileID: 4653450240694418985}
+--- !u!114 &-2089602606935773970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 3881b2fd-83b7-468e-a944-6492a2b7774d
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "*gasp*! \u2026Oh my gosh, Keenan! Are you ok?! "
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 677
+    y: 257
+    width: 300
+    height: 161
+  childNodes:
+  - {fileID: -6560129940747926216}
+--- !u!114 &-1821650853067370851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 0dfd6de9-0865-4111-84fe-06c680946e9a
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: dcaf73e9c9034ff4082c1b2c8f2894e4, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "Ay Kira, get off him! You\u2019re making him panic. "
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 2501
+    y: 284
+    width: 300
+    height: 161
+  childNodes:
+  - {fileID: -1136649544160592131}
+--- !u!114 &-1136649544160592131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 63d43bb8-4bb5-458d-8367-98bc1bfc3359
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: 'Oh my gosh, sorry! '
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 2799
+    y: 288
+    width: 300
+    height: 144
+  childNodes: []
+--- !u!114 &-733147040419439128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 21270a7e-2230-4f6f-b3fb-f14bbece8069
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 0}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: Dialogue Text
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 100
+    y: 250
+    width: 250
+    height: 75
+  childNodes:
+  - {fileID: 3972228959392707334}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7018739a99316c8438c015ac1537ba08, type: 3}
+  m_Name: You were s'pose to catch me
+  m_EditorClassIdentifier: 
+  nodes:
+  - {fileID: -733147040419439128}
+  - {fileID: 3972228959392707334}
+  - {fileID: -2089602606935773970}
+  - {fileID: -6560129940747926216}
+  - {fileID: -5446941160046900834}
+  - {fileID: 4653450240694418985}
+  - {fileID: 3065532051326550854}
+  - {fileID: 8138223213390527021}
+  - {fileID: -1821650853067370851}
+  - {fileID: -1136649544160592131}
+  newNodeOffset: {x: 250, y: 0}
+--- !u!114 &3065532051326550854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 508e402f-2c08-48ff-a53d-47a2eeaa6691
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: 'Uh, Keenan, are you ok? *gasp* *giggle* Are you blushing? '
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 1901
+    y: 276
+    width: 300
+    height: 161
+  childNodes:
+  - {fileID: 8138223213390527021}
+--- !u!114 &3972228959392707334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 8732234a-cabd-426f-91dd-eee49c27f780
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 1
+  soundOnPlay: {fileID: 0}
+  text: AH!
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 350
+    y: 250
+    width: 300
+    height: 144
+  childNodes:
+  - {fileID: -2089602606935773970}
+--- !u!114 &4653450240694418985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 08ede943-9b5c-493a-8dc1-607641a0db02
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "*nervous laugh* I\u2019m sorry. I\u2019m so sorry *uncomfortable laugh*
+    *uncomfortable laugh*"
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 1599
+    y: 279
+    width: 300
+    height: 177
+  childNodes:
+  - {fileID: 3065532051326550854}
+--- !u!114 &7827521710290929842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 514ad5ce-98bc-4718-badf-f3a1de6fee45
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 0}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: Dialogue Text
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 100
+    y: 250
+    width: 250
+    height: 75
+  childNodes: []
+--- !u!114 &8138223213390527021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: b7ed52aa-a753-478a-867b-1f31f45101ac
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: '*gasp* NOOO! Nooo! No. No. No. No. No. '
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 2199
+    y: 278
+    width: 300
+    height: 161
+  childNodes:
+  - {fileID: -1821650853067370851}

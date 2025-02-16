@@ -1,0 +1,213 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7153729306132794446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 1a06fad4-c5f8-4862-9fe0-73eb819886a4
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 0}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: Dialogue Text
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 100
+    y: 250
+    width: 250
+    height: 75
+  childNodes:
+  - {fileID: -1398380545722712302}
+--- !u!114 &-2837513730987766014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 226ca1d9-fc58-48c3-8389-b18c5780a2fa
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: 'Imani? '
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 1028
+    y: 245
+    width: 300
+    height: 144
+  childNodes: []
+--- !u!114 &-1398380545722712302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 2e900f4a-24b6-4b11-9547-1b70460c3467
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "Aww\u2026Nothing."
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 409
+    y: 246
+    width: 300
+    height: 144
+  childNodes:
+  - {fileID: 2034980060219728020}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7018739a99316c8438c015ac1537ba08, type: 3}
+  m_Name: No Magic for Kira and Keenan
+  m_EditorClassIdentifier: 
+  nodes:
+  - {fileID: -7153729306132794446}
+  - {fileID: -1398380545722712302}
+  - {fileID: 2034980060219728020}
+  - {fileID: -2837513730987766014}
+  newNodeOffset: {x: 250, y: 0}
+--- !u!114 &2034980060219728020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 11986b27-1dc1-48ce-89ee-92fd5d43b188
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: '*nervous laugh* Me too.'
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 722
+    y: 243
+    width: 300
+    height: 144
+  childNodes:
+  - {fileID: -2837513730987766014}
+--- !u!114 &7132673113908310214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 9d8bb095-3263-4b27-b829-f624db8833d8
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 0}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: Dialogue Text
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 100
+    y: 250
+    width: 250
+    height: 75
+  childNodes: []

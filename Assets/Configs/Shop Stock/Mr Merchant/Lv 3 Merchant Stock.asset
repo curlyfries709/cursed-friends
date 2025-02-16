@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bb3714270f33bb459de4d630ad2ecdf, type: 3}
+  m_Name: Lv 3 Merchant Stock
+  m_EditorClassIdentifier: 
+  levelToAddStockToShop: 3
+  levelToStopShowingStock: 100
+  stockCollection:
+  - item: {fileID: 11400000, guid: e723c01418cfd344c8b4a9b0d465fef2, type: 2}
+    dailyStockCount: 3
+  - item: {fileID: 11400000, guid: bbf74849910ce51469cfc42742ed468f, type: 2}
+    dailyStockCount: 1
+  - item: {fileID: 11400000, guid: 55b93408638e03c4e9444290a104f63b, type: 2}
+    dailyStockCount: 2
+  - item: {fileID: 11400000, guid: cf5dea1ad3ca138469cb5b876804f31e, type: 2}
+    dailyStockCount: 2
+  - item: {fileID: 11400000, guid: 156da67cd6973d1418ba45de576983d6, type: 2}
+    dailyStockCount: 1
+  - item: {fileID: 11400000, guid: a2a3c1f5dcd9aaf499c292aa9cc22823, type: 2}
+    dailyStockCount: 2
+  - item: {fileID: 11400000, guid: 4939f22f5aee21c49b48012e447a4df9, type: 2}
+    dailyStockCount: 2
+  - item: {fileID: 11400000, guid: e51347459c386ae4399b05bc34a9a772, type: 2}
+    dailyStockCount: 1
+  - item: {fileID: 11400000, guid: 6b0d5593aee744e4d8bfd5258bfcede4, type: 2}
+    dailyStockCount: 2
+  - item: {fileID: 11400000, guid: c08a71eb882a3fe43ac3b45c0db674ee, type: 2}
+    dailyStockCount: 3
+  - item: {fileID: 11400000, guid: 2273384142cb7fb41b0068248614b523, type: 2}
+    dailyStockCount: 5
+  - item: {fileID: 11400000, guid: 66602b766715d0647a7f049a077a831f, type: 2}
+    dailyStockCount: 5
+  - item: {fileID: 11400000, guid: 14e7d7e13079e15468cd41ec62f3da37, type: 2}
+    dailyStockCount: 3
+  - item: {fileID: 11400000, guid: c0662dd91bf6ef749ad52e03137541f5, type: 2}
+    dailyStockCount: 3

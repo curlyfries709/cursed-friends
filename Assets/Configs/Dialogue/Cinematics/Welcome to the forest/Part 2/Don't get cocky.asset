@@ -1,0 +1,496 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8952018922161502201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 299216dd-888a-44e3-b1c5-02892df2fe99
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 0}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: Dialogue Text
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 100
+    y: 250
+    width: 250
+    height: 75
+  childNodes: []
+--- !u!114 &-3131349744201171063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 3aff6dfa-2661-4b8e-b606-af570b773602
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 1
+  soundOnPlay: {fileID: 0}
+  text: No puking this time!
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 2779
+    y: 271
+    width: 300
+    height: 144
+  childNodes:
+  - {fileID: 5491033933529829863}
+--- !u!114 &-3060273310070673462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: b5d60612-37e7-4b4e-9f82-e137ab13f5c2
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: '*laugh*!'
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 967
+    y: 247
+    width: 300
+    height: 144
+  childNodes:
+  - {fileID: 3959139150481078570}
+--- !u!114 &-2971401463809094245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: d9b613c4-4441-4efa-99c7-78dec6fecd9c
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "Yeah! \u2026We\u2019ll sneak pass like yesterday, and Keenan\u2026 "
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 2477
+    y: 260
+    width: 300
+    height: 161
+  childNodes:
+  - {fileID: -3131349744201171063}
+--- !u!114 &-2390618718306205219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 4b27d8b9-c48a-4919-ac8a-5e3996e86d59
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 0}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: Dialogue Text
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 100
+    y: 250
+    width: 250
+    height: 75
+  childNodes:
+  - {fileID: 5727430324142539529}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7018739a99316c8438c015ac1537ba08, type: 3}
+  m_Name: Don't get cocky
+  m_EditorClassIdentifier: 
+  nodes:
+  - {fileID: -2390618718306205219}
+  - {fileID: 5727430324142539529}
+  - {fileID: 7905399620471686576}
+  - {fileID: -3060273310070673462}
+  - {fileID: 3959139150481078570}
+  - {fileID: 8622717310257905682}
+  - {fileID: 9191178246507398207}
+  - {fileID: 8608745123777586951}
+  - {fileID: -2971401463809094245}
+  - {fileID: -3131349744201171063}
+  - {fileID: 5491033933529829863}
+  newNodeOffset: {x: 250, y: 0}
+--- !u!114 &3959139150481078570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: b902f2f8-d41a-4ee7-8648-538e9561d282
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: dcaf73e9c9034ff4082c1b2c8f2894e4, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "It wasn\u2019t even a fair fight. Poor guy didn\u2019t have any arms or
+    legs\u2026 "
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 1264
+    y: 246
+    width: 300
+    height: 161
+  childNodes:
+  - {fileID: 8622717310257905682}
+--- !u!114 &5491033933529829863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: b02a7d2b-a1f6-4293-88bd-bf00b06374b6
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "*laugh* Sorry\u2026it was the poison\u2026"
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 3094
+    y: 280
+    width: 300
+    height: 144
+  childNodes: []
+--- !u!114 &5727430324142539529
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 69d63730-8bd4-4b7b-b365-15217be5068b
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: '*giggle* Bring it on!'
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 350
+    y: 250
+    width: 300
+    height: 144
+  childNodes:
+  - {fileID: 7905399620471686576}
+--- !u!114 &7905399620471686576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: d5dcc138-54f4-4e46-9ef3-bf2cde4ce7fb
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: dcaf73e9c9034ff4082c1b2c8f2894e4, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "Girl, don\u2019t get cocky. We beat a fucking one-eyed mushroom. "
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 671
+    y: 247
+    width: 300
+    height: 161
+  childNodes:
+  - {fileID: -3060273310070673462}
+--- !u!114 &8608745123777586951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 31ef3e1b-9944-4068-afda-dc2b9754f9bf
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: dcaf73e9c9034ff4082c1b2c8f2894e4, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "If we encounter something that seems outta our league, it\u2019s ok to use
+    less courageous methods like stealth. "
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 2181
+    y: 256
+    width: 300
+    height: 194
+  childNodes:
+  - {fileID: -2971401463809094245}
+--- !u!114 &8622717310257905682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 624b4950-d9f7-476a-9ca4-0d566d5b2cc2
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: 'Awwww, Imani, are you feeling bad for the mushroom? '
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 1582
+    y: 251
+    width: 300
+    height: 161
+  childNodes:
+  - {fileID: 9191178246507398207}
+--- !u!114 &9191178246507398207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: a80b202b-994d-4aa8-9f55-5203c5f7b13d
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: dcaf73e9c9034ff4082c1b2c8f2894e4, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "Nah. What I\u2019m tryna say is it\u2019s probably not a good example of
+    what\u2019s to come. Don\u2019t go running into fights. "
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isTalentChoice: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  talent: {fileID: 0}
+  lv1TalentSuccessChance: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 1888
+    y: 258
+    width: 300
+    height: 194
+  childNodes:
+  - {fileID: 8608745123777586951}

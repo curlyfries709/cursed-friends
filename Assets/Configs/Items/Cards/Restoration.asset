@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c91c7e4210554f479cd09a6a15beb5a, type: 3}
+  m_Name: Restoration
+  m_EditorClassIdentifier: 
+  itemName: Restoration
+  UIIcon: {fileID: 0}
+  itemCatergory: 8
+  buyPrice: 0
+  sellPrice: 0
+  requiredLevel: 1
+  weight: 0.1
+  rarity: 0
+  description: "Fully restore a unit\u2019s health. "
+  art: {fileID: 0}
+  faction: 0
+  color: 0
+  cardType: 1
+  basePower: 0
+  baseHealth: 0
+  race: 0
+  isSpy: 0
+  abilityData:
+  - ability: {fileID: 431745088657213409, guid: 9ad6ba4d0053e2546b438d461a7ad77b,
+      type: 3}
+    abilityVariable: 100

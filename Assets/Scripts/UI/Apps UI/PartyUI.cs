@@ -134,13 +134,14 @@ public class PartyUI : MonoBehaviour, IControls
         if(indexChange != 0)
             AudioManager.Instance.PlaySFX(SFXType.TabForward);
 
-        CombatFunctions.UpdateListIndex(indexChange, currentSeletedUnit, out currentSeletedUnit, PartyData.Instance.GetAllPlayerMembersInWorld().Count);
+        CombatFunctions.UpdateListIndex(indexChange, currentSeletedUnit, out currentSeletedUnit, PartyManager.Instance.GetAllPlayerMembersInWorld().Count);
         BuildUI();
     }
 
     private void BuildUI()
     {
-        PlayerGridUnit selectedPlayer = PartyData.Instance.GetAllPlayerMembersInWorld()[currentSeletedUnit];
+        //PlayerUnitStats selectedPlayerStats = PartyData.Instance.GetAllPartyMemberStats()[currentSeletedUnit];
+        PlayerGridUnit selectedPlayer = PartyManager.Instance.GetAllPlayerMembersInWorld()[currentSeletedUnit];
         selectedName.text = selectedPlayer.unitName;
 
         UpdateSelectedPotrait();
@@ -183,27 +184,20 @@ public class PartyUI : MonoBehaviour, IControls
 
         ResetAllAffinityUI();
 
-        foreach (MaterialAffinity affinity in data.materialAffinities)
-        {
-            switch (affinity.material)
-            {
-                case WeaponMaterial.Silver:
-                    UpdateAffinity(silverAffinity, affinity.affinity);
-                    break;
-                case WeaponMaterial.Gold:
-                    UpdateAffinity(goldAffinity, affinity.affinity);
-                    break;
-                default:
-                    UpdateAffinity(ironAffinity, affinity.affinity);
-                    break;
-            }
-        }
-
         //Update Element Affinities
         foreach (ElementAffinity affinity in data.elementAffinities)
         {
             switch (affinity.element)
             {
+                case Element.Silver:
+                    UpdateAffinity(silverAffinity, affinity.affinity);
+                    break;
+                case Element.Gold:
+                    UpdateAffinity(goldAffinity, affinity.affinity);
+                    break;
+                case Element.Steel:
+                    UpdateAffinity(ironAffinity, affinity.affinity);
+                    break;
                 case Element.Fire:
                     UpdateAffinity(fireAffinity, affinity.affinity);
                     break;
@@ -337,11 +331,11 @@ public class PartyUI : MonoBehaviour, IControls
         foreach(Image potrait in potraits)
         {
             int index = potrait.transform.GetSiblingIndex();
-            potrait.gameObject.SetActive(index < PartyData.Instance.GetAllPlayerMembersInWorld().Count);
+            potrait.gameObject.SetActive(index < PartyManager.Instance.GetAllPlayerMembersInWorld().Count);
 
             if (!potrait.gameObject.activeSelf) { continue; }
 
-            PlayerGridUnit selectedPlayer = PartyData.Instance.GetAllPlayerMembersInWorld()[index];
+            PlayerGridUnit selectedPlayer = PartyManager.Instance.GetAllPlayerMembersInWorld()[index];
             potrait.sprite = selectedPlayer.portrait;
         }
     }

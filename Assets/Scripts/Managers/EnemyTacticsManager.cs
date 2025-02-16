@@ -28,21 +28,17 @@ public class EnemyTacticsManager : MonoBehaviour
     Dictionary<Transform, List<EnemyStateMachine>> ambushPointAssignedGuardsDict = new Dictionary<Transform, List<EnemyStateMachine>>();
 
     //Caches
-    Transform player;
     bool playerInDanger = false;
 
     private void Awake()
     {
-        Instance = this;
-        
-        if(ambushPointsHeader)
+        if (!Instance)
+            Instance = this;
+
+        if (ambushPointsHeader)
             SetAmbushPoints();
     }
 
-    private void Start()
-    {
-        player = StoryManager.Instance.GetPlayerStateMachine().transform;
-    }
 
     // Update is called once per frame
     void Update()
@@ -102,14 +98,14 @@ public class EnemyTacticsManager : MonoBehaviour
 
         foreach(EnemyStateMachine guard in guardsChasingPlayer)
         {
-            Vector3 dir = (guard.transform.position - player.position).normalized;
-            float result = Vector3.Dot(player.TransformDirection(Vector3.forward), dir);
+            Vector3 dir = (guard.transform.position - GetPlayerTransform().position).normalized;
+            float result = Vector3.Dot(GetPlayerTransform().TransformDirection(Vector3.forward), dir);
 
             //If Guard In Front of Player or Not Chasing (perhaps attacking), continue.
             
             if (result > 0 || !guard.CanAmbushPlayer()) { continue; }
 
-            eligibleGuardsDistFromPlayer[guard] = Vector3.Distance(guard.transform.position, player.transform.position);
+            eligibleGuardsDistFromPlayer[guard] = Vector3.Distance(guard.transform.position, GetPlayerTransform().transform.position);
         }
 
         numOfGuardsToSendAway = Mathf.Clamp(numOfGuardsToSendAway, 1, eligibleGuardsDistFromPlayer.Count);
@@ -141,8 +137,8 @@ public class EnemyTacticsManager : MonoBehaviour
 
         foreach (Transform point in ambushPoints)
         {
-            Vector3 dir = (point.position - player.position).normalized;
-            float result = Vector3.Dot(player.TransformDirection(Vector3.forward), dir);
+            Vector3 dir = (point.position - GetPlayerTransform().position).normalized;
+            float result = Vector3.Dot(GetPlayerTransform().TransformDirection(Vector3.forward), dir);
 
             //Means the Ambush Point is Ahead of player
             if (result > 0)
@@ -206,5 +202,10 @@ public class EnemyTacticsManager : MonoBehaviour
     public List<EnemyStateMachine> GetAllChasingEnemies()
     {
         return guardsChasingPlayer;
+    }
+
+    private Transform GetPlayerTransform()
+    {
+        return PlayerSpawnerManager.Instance.GetPlayerStateMachine().transform; 
     }
 }

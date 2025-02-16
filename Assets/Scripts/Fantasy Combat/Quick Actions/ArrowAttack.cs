@@ -62,7 +62,7 @@ public class ArrowAttack : PlayerOffensiveSkill
         center.x = 0;
         center.z = 0;
 
-        Vector3 destinationWithOffset = skillTargets[0].GetClosestPointOnColliderToPosition(gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0])) + center;
+        Vector3 destinationWithOffset = skillTargets[0].GetClosestPointOnColliderToPosition(LevelGrid.Instance.gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0])) + center;
 
         arrowInHand.SetActive(false);
         GameObject arrow = Instantiate(arrowPrefab, arrowInHand.transform.position, arrowInHand.transform.rotation);

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d889d6cb61954044b54f06b7fdf2da7, type: 3}
+  m_Name: Intelligence Mastery
+  m_EditorClassIdentifier: 
+  masteryAttribute: 4
+  sequencedProgressions:
+  - {fileID: 11400000, guid: 641920363dbb4e44890897d7c51447b4, type: 2}
+  - {fileID: 11400000, guid: 18a1d4347cfd4ff469f14571404d61ed, type: 2}
+  - {fileID: 11400000, guid: b7240d683312436429cd43709b9cdfce, type: 2}
+  - {fileID: 11400000, guid: a7cb4b94b2a81ff44a3330656f907bc3, type: 2}
+  - {fileID: 11400000, guid: cdcd34983c7ffd3488b56a4dd509a1f3, type: 2}

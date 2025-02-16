@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f14d6fdfe68e8f448bd5e5b3d7787e0, type: 3}
+  m_Name: Sneak Barrel
+  m_EditorClassIdentifier: 
+  itemName: Sneak Barrel
+  UIIcon: {fileID: 21300000, guid: 1c1d29f153f98364ca23263a0c96c8a9, type: 3}
+  itemCatergory: 7
+  buyPrice: 0
+  sellPrice: 0
+  requiredLevel: 1
+  weight: 0
+  rarity: 0
+  description: "Hide in a barrel in an appropriate spot to avoid suspicion. Doesn\u2019t
+    work on monsters."
+  isPassive: 0
+  toolFunctionalityPrefab: {fileID: 8133795723136809461, guid: eb02ed314c3343e429331edacc72c24f,
+    type: 3}

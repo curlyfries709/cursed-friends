@@ -58,7 +58,11 @@ public class AudioManager : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;
+        if (!Instance)
+        {
+            Instance = this;
+        }
+
         savingManager = SavingLoadingManager.Instance;
         fadeOutDuration = musicFadeOutFeedback.GetFeedbackOfType<MMF_MMSoundManagerTrackFade>().FadeDuration;
     }
@@ -66,14 +70,14 @@ public class AudioManager : MonoBehaviour
     private void Start()
     {
         SettingsUI.GameSettingsUpdated += SaveNewSettings;
-        savingManager.DataAndSceneLoadComplete += SetRoamMusic;
+        savingManager.NewSceneLoadComplete += SetRoamMusic;
 
         LoadVolumes();
 
 #if UNITY_EDITOR
         if (!savingManager.LoadingEnabled && LevelGrid.Instance) //FOR TESTING
         {
-            SetRoamMusic();
+            //SetRoamMusic();
 
             if (FantasyCombatManager.Instance.InCombat()) { return; }
 
@@ -84,11 +88,13 @@ public class AudioManager : MonoBehaviour
         
     }
 
-    private void SetRoamMusic()
+    private void SetRoamMusic(SceneData newSceneData)
     {
-        SceneData sceneData = FindObjectOfType<SceneData>();
         MMF_Player roamMusic = music.First((item) => item.type == MusicType.Roam).musicFeedback;
-        roamMusic.GetFeedbackOfType<MMF_MMSoundManagerSound>().Sfx = sceneData.sceneMusic;
+        AudioClip audioClip = newSceneData.GetSceneMusic();
+
+        if (audioClip)
+            roamMusic.GetFeedbackOfType<MMF_MMSoundManagerSound>().Sfx = audioClip;
     }
 
     public void PlayMusic(MusicType musicType)

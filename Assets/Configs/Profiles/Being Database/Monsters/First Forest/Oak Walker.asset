@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0b8e104cfda32c49892a0cc91494377, type: 3}
+  m_Name: Oak Walker
+  m_EditorClassIdentifier: 
+  databaseName: 'Oak Walker '
+  race: 7
+  raceType: 1
+  proficientWeaponCategory: 0
+  lockedName: Oak Walker
+  description: 
+  elementAffinities:
+  - element: 2
+    affinity: 5
+  - element: 4
+    affinity: 5
+  - element: 6
+    affinity: 4
+  - element: 8
+    affinity: 2
+  itemAffinities: []
+  statusEffectsNullified: []
+  droppedIngridients:
+  - item: {fileID: 11400000, guid: b5c4c8ff11ceb7f4386098a62b545cf9, type: 2}
+    dropChance: 40

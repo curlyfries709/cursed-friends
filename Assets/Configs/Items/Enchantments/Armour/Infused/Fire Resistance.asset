@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30b6e4870aeb6b8419267a8a40d23b80, type: 3}
+  m_Name: Fire Resistance
+  m_EditorClassIdentifier: 
+  itemName: Fire Resistance
+  UIIcon: {fileID: 0}
+  itemCatergory: 5
+  buyPrice: 0
+  sellPrice: 0
+  requiredLevel: 1
+  weight: 0
+  rarity: 0
+  description: Resist Fire. Nullifies Burning
+  equipRestriction: 2
+  raceRestriction: 
+  inflictedStatusEffects: []
+  statusEffectsNulled:
+  - {fileID: 11400000, guid: f62d78cc9a3c2774c867972211d4f60f, type: 2}
+  passiveAbilities: []
+  bonusSubAttributes: []
+  elementAlteration:
+  - element: 1
+    affinity: 4
+  materialAlteration: []

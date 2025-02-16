@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14c94329eb9c11847a2ac6cfbc40ac5e, type: 3}
+  m_Name: Warm Robes
+  m_EditorClassIdentifier: 
+  itemName: 'Warm Robes '
+  UIIcon: {fileID: 21300000, guid: d12a8acca44219d41b4a2314c4ce9491, type: 3}
+  itemCatergory: 1
+  buyPrice: 440
+  sellPrice: 242
+  requiredLevel: 3
+  weight: 2
+  rarity: 1
+  description: 
+  armour: 9
+  raceRestriction: 00000000
+  numOfEnchantmentSlots: 1
+  bonusAttributes:
+  - attribute: 5
+    attributeChange: 6
+  - attribute: 4
+    attributeChange: 2
+  infusedEnchantments:
+  - {fileID: 11400000, guid: 57b8fbf56f1c0b24daa134213013ffd9, type: 2}
+  embeddedEnchantments: []

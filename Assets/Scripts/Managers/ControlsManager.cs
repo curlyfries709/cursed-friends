@@ -92,7 +92,9 @@ public class ControlsManager : MonoBehaviour
 
     public void RemoveIControls(IControls yourControls)
     {
-        subscribedControls.Remove(yourControls);
+        bool wasRemoved = subscribedControls.Remove(yourControls);
+
+        if (!wasRemoved) { return; }
 
         foreach (var item in controlsDict.Where(kvp => kvp.Value == yourControls).ToList())
         {
@@ -285,9 +287,8 @@ public class ControlsManager : MonoBehaviour
         if ((FantasyCombatManager.Instance && FantasyCombatManager.Instance.InCombat()) || newActionMap == "Player")
         {
             if(newActionMap == "Player")
-                HUDManager.Instance.EnableRoamHUD();
+                HUDManager.Instance.ShowActiveHud();
 
-            
             InteractionManager.Instance.ShowInteractCanvas?.Invoke(true);
             StoryManager.Instance.ActivateCinematicMode?.Invoke(false);
         }
@@ -306,7 +307,7 @@ public class ControlsManager : MonoBehaviour
             bool hasLookControl =  actionMapActions.Count > 0 && actionMapActions.IndexOf((action) => action.name == "Look") > -1;
             cinemachineInputProvider.enabled = hasLookControl;
 
-            if(cinemachineInputProvider.TryGetComponent(out RoamCameraController cameraController))
+            if(cinemachineInputProvider.TryGetComponent(out BaseCameraController cameraController))
             {
                 cameraController.enabled = hasLookControl;
             }

@@ -5,8 +5,9 @@ using UnityEngine.InputSystem;
 using MoreMountains.Feedbacks;
 using System;
 using Sirenix.OdinInspector;
+using UnityEditor;
 
-public class PlayerStateMachine : StateMachine, IControls
+public class PlayerStateMachine : CharacterStateMachine, IControls
 {
     [Title("Speeds")]
     public float walkSpeed;
@@ -55,10 +56,12 @@ public class PlayerStateMachine : StateMachine, IControls
     public float sprintingRadius = 15;
     public float inCombatRadius = 5;
     [Title("Components")]
-    [SerializeField] GameObject fwRoamCam;
+    [SerializeField] GameObject roamCam;
     public GameObject CinemachineCameraTarget;
     [Space(5)]
     [SerializeField] BoxCollider gridCollider;
+    [Space(5)]
+    [SerializeField] Transform throwOrigin;
     [Space(5)]
     [SerializeField] List<GameObject> freeRoamComponents = new List<GameObject>();
     [Title("CC Sneak Config")]
@@ -86,7 +89,6 @@ public class PlayerStateMachine : StateMachine, IControls
     [HideInInspector] public bool disableMovement = false;
 
     // Input Variables
-    public Vector2 lookValue { get; private set; }
     public Vector2 moveValue { get; private set; }
     public bool inputSprint { get; private set; }
 
@@ -106,7 +108,7 @@ public class PlayerStateMachine : StateMachine, IControls
     public float defaultCCHeight { get; private set; }
 
     //Caches
-    public GridUnitAnimator animator { get; private set; }
+    public CharacterAnimator animator { get; private set; }
 
     public MovementRestrictor moveRestrictor { get; private set; }
     public CharacterController controller { get; private set; }
@@ -121,8 +123,6 @@ public class PlayerStateMachine : StateMachine, IControls
     public PlayerStealthState stealthState { get; private set; }
 
     //Events
-    
-
     public Action<bool> PlayerIsSprinting;
     public Action<bool> SwitchToStealth;
     public Action<bool> HideCompanions;
@@ -144,7 +144,7 @@ public class PlayerStateMachine : StateMachine, IControls
             mainCam = GameObject.FindGameObjectWithTag("MainCamera");
         }
 
-        animator = GetComponentInChildren<GridUnitAnimator>();
+        animator = GetComponentInChildren<CharacterAnimator>();
         controller = GetComponent<CharacterController>();
         playerInput = ControlsManager.Instance.GetPlayerInput();
         moveRestrictor = GetComponent<MovementRestrictor>();
@@ -170,7 +170,7 @@ public class PlayerStateMachine : StateMachine, IControls
 
     private void SetStartState()
     {
-        if (FantasyCombatManager.Instance.InCombat()) { return; }
+        if (FantasyCombatManager.Instance && FantasyCombatManager.Instance.InCombat()) { return; }
 
         SwitchState(fantasyRoamState);
     }
@@ -247,6 +247,36 @@ public class PlayerStateMachine : StateMachine, IControls
             PlayerWarped?.Invoke(newPlayerState);
     }
 
+    public bool TryEnterStealth()
+    {
+        if (allowStealthMode)
+        {
+            if (currentState == fantasyRoamState)
+            {
+                SwitchState(stealthState);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public bool ExitStealth()
+    {
+        if (InStealth())
+        {
+            SwitchState(fantasyRoamState);
+            return true;
+        }
+
+        return false;
+    }
+
+    public void PrepareForDestruction()
+    {
+        OnDestroy();
+    }
+
     //SETTERS
     private void IntializeStates()
     {
@@ -262,17 +292,23 @@ public class PlayerStateMachine : StateMachine, IControls
             obj.SetActive(activate);
         }
 
-        gridCollider.enabled = !activate;
+        if(gridCollider)
+            gridCollider.enabled = !activate;
     }
 
     public void ActivateFreeRoamCam(bool activate)
     {
-        fwRoamCam.gameObject.SetActive(activate);
+        roamCam.gameObject.SetActive(activate);
     }
 
     public override void ShowWeapon(bool show)
     {
-        animator.ShowWeapon(show);
+        GridUnitAnimator unitAnimator = animator as GridUnitAnimator;
+
+        if (unitAnimator)
+        {
+            unitAnimator.ShowWeapon(show);
+        }
     }
     public void SetControllerConfig(Vector3 center, float radius, float height)
     {
@@ -283,6 +319,8 @@ public class PlayerStateMachine : StateMachine, IControls
 
     public void SetProximityRadius(bool inCombat)
     {
+        if (!proximityRadius) { return; }
+
         proximityRadius.radius = inCombat ? inCombatRadius : sprintingRadius;
     }
 
@@ -315,6 +353,7 @@ public class PlayerStateMachine : StateMachine, IControls
         moveValue = Vector2.zero;
     }
 
+
     //GETTERS
     public bool InStealth()
     {
@@ -326,56 +365,45 @@ public class PlayerStateMachine : StateMachine, IControls
         return controller.velocity.magnitude;
     }
 
+    public Transform GetThrowOrigin()
+    {
+        return throwOrigin;
+    }
 
     //Inputs
     private void OnMove(InputAction.CallbackContext context)
     {
-        if (context.action.name != "Move") { return; }
         moveValue = context.ReadValue<Vector2>();
-    }
-
-    private void OnLook(InputAction.CallbackContext context)
-    {
-        if (context.action.name != "Look") { return; }
-
-        lookValue = context.ReadValue<Vector2>();
     }
 
     private void OnInteract(InputAction.CallbackContext context)
     {
-        if (context.action.name != "Interact") { return; }
+        InteractionManager.Instance.HandleInteraction(false);
+    }
 
-        if (context.performed)
-        {
-            InteractionManager.Instance.HandleInteraction(false);
-        }
+    private void OnUseTool(InputAction.CallbackContext context)
+    {
+        RoamToolsManager.Instance.UseActiveTool();
     }
 
     private void OnPause(InputAction.CallbackContext context)
     {
-        if (context.action.name != "Pause") { return; }
-
-        if (context.performed)
-        {
-            Sprint(false);
-            GameManager.Instance.PauseGame(false);
-        }
+        Sprint(false);
+        GameManager.Instance.PauseGame(false);
     }
 
- 
+    private void OnWheel(InputAction.CallbackContext context)
+    {
+        RoamToolsManager.Instance.ActivateToolsWheelUI(true);
+    }
+
     private void OnMenu(InputAction.CallbackContext context)
     {
-        if (context.action.name != "Menu") { return; }
-
-        if (context.performed)
-        {
-            PhoneMenu.Instance.ActivateGameMenu(true);
-        }
+        PhoneMenu.Instance.ActivateGameMenu(true);
     }
 
     private void OnSprint(InputAction.CallbackContext context)
     {
-        if (context.action.name != "Sprint") { return; }
         if (context.performed)
         {
             Sprint(true);
@@ -388,18 +416,13 @@ public class PlayerStateMachine : StateMachine, IControls
 
     private void OnStealth(InputAction.CallbackContext context)
     {
-        if (context.action.name != "Stealth") { return; }
-
-        if (context.performed && allowStealthMode)
+        if (InStealth())
         {
-            if(currentState == fantasyRoamState)
-            {
-                SwitchState(stealthState);
-            }
-            else
-            {
-                SwitchState(fantasyRoamState);
-            }
+            ExitStealth();
+        }
+        else
+        {
+            TryEnterStealth();
         }
     }
 
@@ -407,25 +430,49 @@ public class PlayerStateMachine : StateMachine, IControls
     {
         if (listen)
         {
-            playerInput.onActionTriggered += OnMove;
-            playerInput.onActionTriggered += OnLook;
-            playerInput.onActionTriggered += OnSprint;
-            playerInput.onActionTriggered += OnStealth;
-            playerInput.onActionTriggered += OnInteract;
-            playerInput.onActionTriggered += OnPause;
-            playerInput.onActionTriggered += OnMenu;
+            //Movement
+            playerInput.actions.FindAction("Move").performed += OnMove;
+            playerInput.actions.FindAction("Move").canceled += OnMove;
+
+            playerInput.actions.FindAction("Sprint").performed += OnSprint;
+            playerInput.actions.FindAction("Sprint").canceled += OnSprint;
+
+            //Buttons
+            playerInput.actions.FindAction("Stealth").performed += OnStealth;
+            playerInput.actions.FindAction("Interact").performed += OnInteract;
+
+            //Tools
+            playerInput.actions.FindAction("Tool").performed += OnUseTool;
+
+            //Menus
+            playerInput.actions.FindAction("Pause").performed += OnPause;
+            playerInput.actions.FindAction("Menu").performed += OnMenu;
+            playerInput.actions.FindAction("Wheel").performed += OnWheel;
+
         }
         else
         {
             Sprint(false);
 
-            playerInput.onActionTriggered -= OnMove;
-            playerInput.onActionTriggered -= OnLook;
-            playerInput.onActionTriggered -= OnSprint;
-            playerInput.onActionTriggered -= OnStealth;
-            playerInput.onActionTriggered -= OnInteract;
-            playerInput.onActionTriggered -= OnPause;
-            playerInput.onActionTriggered -= OnMenu;
+            //Movement
+            playerInput.actions.FindAction("Move").performed -= OnMove;
+            playerInput.actions.FindAction("Move").canceled -= OnMove;
+
+            playerInput.actions.FindAction("Sprint").performed -= OnSprint;
+            playerInput.actions.FindAction("Sprint").canceled -= OnSprint;
+
+            //Buttons
+            playerInput.actions.FindAction("Stealth").performed -= OnStealth;
+            playerInput.actions.FindAction("Interact").performed -= OnInteract;
+
+            //Tool Contols
+            playerInput.actions.FindAction("Tool").performed -= OnUseTool;
+
+            //Menus
+            playerInput.actions.FindAction("Pause").performed -= OnPause;
+            playerInput.actions.FindAction("Wheel").performed -= OnWheel;
+            playerInput.actions.FindAction("Menu").performed -= OnMenu;
+            
         }
     }
 

@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Cinemachine;
 using System;
 using MoreMountains.Feedbacks;
 using Sirenix.OdinInspector;
@@ -14,7 +13,7 @@ public enum BodyPart
     Chest
 }
 
-public class GridUnitAnimator : MonoBehaviour
+public class GridUnitAnimator : CharacterAnimator
 {
     [Title("Speed")]
     [SerializeField] float animatorSlowMoSpeed = 0.3f;
@@ -30,12 +29,6 @@ public class GridUnitAnimator : MonoBehaviour
     [SerializeField] MMF_Player enjoyPotionFeedback;
 
     // animation IDs
-    [HideInInspector] public int animIDSpeed;
-    [HideInInspector] public int animIDGrounded;
-    [HideInInspector] public int animIDJump;
-    [HideInInspector] public int animIDFreeFall;
-    [HideInInspector] public int animIDMotionSpeed;
-    [HideInInspector] public int animIDIdle;
     [HideInInspector] public int animIDHit;
     [HideInInspector] public int animIDBackStep;
     [HideInInspector] public int animIDBurn;
@@ -45,7 +38,7 @@ public class GridUnitAnimator : MonoBehaviour
     [HideInInspector] public int animIDEvadeReturn;
     [HideInInspector] public int animIDCounter;
     [HideInInspector] public int animIDIdleReflect;
-    [HideInInspector] public int animIDStealth;
+
     [HideInInspector] public int animIDArm;
     [HideInInspector] public int animIDUnarm;
     [HideInInspector] public int animIDSearching;
@@ -56,15 +49,12 @@ public class GridUnitAnimator : MonoBehaviour
     [HideInInspector] public int animIDChain;
     [HideInInspector] public int animIDFiredUp;
     [HideInInspector] public int animIDAmbushed;
-    [HideInInspector] public int animIDTexting;
     [HideInInspector] public int animIDSleeping;
     [HideInInspector] public int animIDRevive;
 
     //Caches
-    Animator animator;
     public CharacterGridUnit myUnit { get; private set; }
 
-    List<GameObject> model = new List<GameObject>();
     List<GameObject> equipmentModels = new List<GameObject>();
 
     //Events
@@ -72,7 +62,7 @@ public class GridUnitAnimator : MonoBehaviour
     //Action activateArrowEvent;
 
     //Variables
-    bool isFrozen = false;
+
     bool cancelSkillFeedbackDisplay = false;
 
     bool isLeader = false;
@@ -86,20 +76,14 @@ public class GridUnitAnimator : MonoBehaviour
         public Transform bodyTransform;
     }
 
-    private void Awake()
+    protected override void Awake()
     {
-        animator = GetComponent<Animator>();
+        base.Awake();
+
         myUnit = GetComponentInParent<CharacterGridUnit>();
-
-        isLeader = (myUnit is PlayerGridUnit player) && PartyData.Instance.GetLeader() == player;
-
-        SetModels();
+        isLeader = (myUnit is PlayerGridUnit player) && PartyManager.Instance.GetLeader() == player;
     }
 
-    private void Start()
-    {
-        AssignAnimationIDs();
-    }
 
     //Animation Events
     public void ShowDamageFeedback(int disableSlowMo)
@@ -192,11 +176,6 @@ public class GridUnitAnimator : MonoBehaviour
     }
 
     //Methods
-    public void Freeze(bool freeze)
-    {
-        isFrozen = freeze;
-        animator.speed = freeze ? 0 : 1;
-    }
 
     public void ActivateSlowmo()
     {
@@ -235,54 +214,13 @@ public class GridUnitAnimator : MonoBehaviour
         return false;
     }
 
-    public void ChangeLayers(int newLayer)
-    {
-        for(int i = 0; i < animator.layerCount; i++)
-        {
-            if(i == newLayer)
-            {
-                animator.SetLayerWeight(i, 1);
-            }
-            else
-            {
-                animator.SetLayerWeight(i, 0);
-            }
-        }
-    }
 
-    //Setters
-
-    //Handy Dandy Animator Functions
-
-    //Set Speeds
-
-    public void SetSpeed(float value)
-    {
-        animator.SetFloat(animIDSpeed, value);
-    }
-
-    public void SetMotionSpeed(float value)
-    {
-        //animator.SetFloat(animIDMotionSpeed, value);
-    }
-
-    //Bools
-    public void SetBool(int animID, bool value)
-    {
-        animator.SetBool(animID, value);
-    }
-
+    //More Handy Dandy Animator Functions
     public void SetSearching(bool value)
     {
         animator.SetBool(animIDSearching, value);
     }
 
-    //Triggers
-    public void SetTrigger(int animID)
-    { 
-        if(!isFrozen)
-            animator.SetTrigger(animID);
-    }
 
     public void TriggerSkill(string triggerName)
     {
@@ -319,12 +257,6 @@ public class GridUnitAnimator : MonoBehaviour
         {
             animator.SetTrigger(animIDHit);
         }
-    }
-
-
-    public void Idle()
-    {
-        animator.SetTrigger(animIDIdle);
     }
 
     public void IdleBeforeReflect()
@@ -372,13 +304,7 @@ public class GridUnitAnimator : MonoBehaviour
         cancelSkillFeedbackDisplay = cancel;
     }
 
-    public void ShowModel(bool show)
-    {
-        foreach (GameObject obj in model)
-        {
-            obj.SetActive(show);
-        }
-    }
+
 
     public void HideStatusEffectsVFX()
     {
@@ -388,12 +314,9 @@ public class GridUnitAnimator : MonoBehaviour
         }
     }
 
-    private void SetModels()
+    protected override void SetModels()
     {
-        foreach (Transform child in transform)
-        {
-            model.Add(child.gameObject);
-        }
+        base.SetModels();
 
         if (!HasWeapon()) { return; }
         //Equipment Models
@@ -426,14 +349,12 @@ public class GridUnitAnimator : MonoBehaviour
     }
 
     //Animation IDs
-    private void AssignAnimationIDs()
+    
+
+    protected override void AssignAnimationIDs()
     {
-        animIDSpeed = Animator.StringToHash("Speed");
-        animIDGrounded = Animator.StringToHash("Grounded");
-        animIDJump = Animator.StringToHash("Jump");
-        animIDFreeFall = Animator.StringToHash("FreeFall");
-        animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
-        animIDIdle = Animator.StringToHash("Idle");
+        base.AssignAnimationIDs();
+
         animIDHit = Animator.StringToHash("Hit");
         animIDBackStep = Animator.StringToHash("BackStep");
         animIDBurn = Animator.StringToHash("Burn");
@@ -443,7 +364,6 @@ public class GridUnitAnimator : MonoBehaviour
         animIDEvadeReturn = Animator.StringToHash("EvadeReturn");
         animIDCounter = Animator.StringToHash("Counter");
         animIDIdleReflect = Animator.StringToHash("IdleReflect");
-        animIDStealth = Animator.StringToHash("Stealth");
         animIDArm = Animator.StringToHash("Arm");
         animIDUnarm = Animator.StringToHash("Unarm");
         animIDSearching = Animator.StringToHash("Searching");
@@ -454,7 +374,6 @@ public class GridUnitAnimator : MonoBehaviour
         animIDChain = Animator.StringToHash("Chain");
         animIDFiredUp = Animator.StringToHash("Fired");
         animIDAmbushed = Animator.StringToHash("Ambushed");
-        animIDTexting = Animator.StringToHash("Texting");
         animIDSleeping = Animator.StringToHash("Sleeping");
         animIDRevive = Animator.StringToHash("Revive");
     } 
@@ -487,7 +406,7 @@ public class GridUnitAnimator : MonoBehaviour
 
     public bool HasWeapon()
     {
-        return equipment.Weapon();
+        return equipment && equipment.Weapon();
     }
 
     public bool ShouldDrawWeapon()
@@ -521,6 +440,12 @@ public class GridUnitAnimator : MonoBehaviour
     public Transform GetStatusEffectVFXBodyTransform(BodyPart bodyPart)
     {
         return statusEffectVfxBodyTransforms.Find((item) => item.bodyPart == bodyPart).bodyTransform;
+    }
+
+    public void SetEquipment(Equipment equipment)
+    {
+        this.equipment = equipment;
+        SetModels();
     }
 
 }

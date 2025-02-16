@@ -37,7 +37,7 @@ public abstract class StoryBattle : MonoBehaviour, IBattleTrigger
         if (battleBordersHeader)
             battleBordersHeader.SetActive(false);
 
-        leader = PartyData.Instance.GetLeader();
+        leader = PartyManager.Instance.GetLeader();
     }
 
 

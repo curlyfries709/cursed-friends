@@ -36,7 +36,7 @@ public abstract class EnemyBaseState : State
 
         if (sussTarget && sussTarget.CompareTag("Player"))
         {
-            if (stateMachine.playerStateMachine.InStealth() && !stateMachine.ignorePlayerStealth)
+            if (stateMachine.GetPlayerStateMachine().InStealth() && !stateMachine.ignorePlayerStealth)
             {
                 stateMachine.SwitchState(stateMachine.sussState);
             }
@@ -63,20 +63,20 @@ public abstract class EnemyBaseState : State
             return;
         }
 
-        AlertNearbyAllies(stateMachine.playerStateMachine.transform.position, stateMachine.playerStateMachine.transform.rotation);
+        AlertNearbyAllies(stateMachine.GetPlayerStateMachine().transform.position, stateMachine.GetPlayerStateMachine().transform.rotation);
         stateMachine.SwitchState(stateMachine.chasingState);
     }
 
     protected bool CanAttackAndMove()
     {
-        if (!stateMachine.canMoveWhilstAttacking || stateMachine.playerStateMachine.controller.velocity.magnitude == 0)
+        if (!stateMachine.canMoveWhilstAttacking || stateMachine.GetPlayerStateMachine().controller.velocity.magnitude == 0)
         {
             return false;
         }
 
         //If Behind Player Always Move & Attack
-        Vector3 toTarget = (stateMachine.playerStateMachine.transform.position - transform.position).normalized;
-        float result = Vector3.Dot(toTarget, stateMachine.playerStateMachine.transform.forward);
+        Vector3 toTarget = (stateMachine.GetPlayerStateMachine().transform.position - transform.position).normalized;
+        float result = Vector3.Dot(toTarget, stateMachine.GetPlayerStateMachine().transform.forward);
 
         if (result > 0)
         {
@@ -84,7 +84,7 @@ public abstract class EnemyBaseState : State
         }
 
         //If Ahead, Only if slower than player
-        return stateMachine.navMeshAgent.velocity.magnitude < stateMachine.playerStateMachine.controller.velocity.magnitude;
+        return stateMachine.navMeshAgent.velocity.magnitude < stateMachine.GetPlayerStateMachine().controller.velocity.magnitude;
     }
     
 
@@ -107,7 +107,7 @@ public abstract class EnemyBaseState : State
 
     protected Collider CanSeeSuspiciousTarget()
     {
-        return stateMachine.fieldOfView.CanSeeSupiciousTarget(stateMachine.playerStateMachine.controller);
+        return stateMachine.fieldOfView.CanSeeSupiciousTarget(stateMachine.GetPlayerStateMachine().controller);
     }
     //Guard Point States
     protected void OnEnterGuardPointState()
@@ -196,7 +196,7 @@ public abstract class EnemyBaseState : State
 
     protected float CalculateStoppingDistance(bool setStoppingDistanceToo, bool clampStoppingDistance = true)
     {
-       float playerSpeed = stateMachine.playerStateMachine.GetSpeed();
+       float playerSpeed = stateMachine.GetPlayerStateMachine().GetSpeed();
 
         /*Vector3 playerVelocity = stateMachine.playerStateMachine.controller.velocity;
         Vector3 playerPredictedPos = stateMachine.playerStateMachine.transform.position + (playerVelocity * stateMachine.attackHitBoxActivationTime);
@@ -212,7 +212,7 @@ public abstract class EnemyBaseState : State
 
         //Speed * Time = Distance
         float distancePlayerHasMovedFromAttackStart = playerSpeed * stateMachine.attackHitBoxActivationTime; //8 * 0.35 = 2.8f 4*0.35 = 1.4f
-        float angle = Vector3.Angle(transform.forward, stateMachine.playerStateMachine.transform.forward);
+        float angle = Vector3.Angle(transform.forward, stateMachine.GetPlayerStateMachine().transform.forward);
 
         float attackRange = stateMachine.maxAttackRange; //(stateMachine.minAttackRange + stateMachine.maxAttackRange) * 0.5f;
         float stoppingDistance;
@@ -235,11 +235,11 @@ public abstract class EnemyBaseState : State
     {
         if (CanAttackAndMove())
         {
-            return Vector3.Distance(transform.position, stateMachine.playerStateMachine.transform.position) <= stateMachine.maxAttackRange;
+            return Vector3.Distance(transform.position, stateMachine.GetPlayerStateMachine().transform.position) <= stateMachine.maxAttackRange;
         }
 
-        Vector3 pointOnController = stateMachine.playerStateMachine.controller.ClosestPointOnBounds(transform.position);
-        Vector3 playerVelocity = stateMachine.playerStateMachine.controller.velocity;
+        Vector3 pointOnController = stateMachine.GetPlayerStateMachine().controller.ClosestPointOnBounds(transform.position);
+        Vector3 playerVelocity = stateMachine.GetPlayerStateMachine().controller.velocity;
         Vector3 playerPredictedPos = pointOnController + (playerVelocity * stateMachine.attackHitBoxActivationTime);
 
         return Vector3.Distance(transform.position, playerPredictedPos) <= stateMachine.maxAttackRange;

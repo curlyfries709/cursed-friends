@@ -1,23 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 using MoreMountains.Feedbacks;
-
-public enum WeaponMaterial
-{
-   None,
-   Silver,
-   Steel,
-   Iron,
-   Gold
-}
 
 public enum Element
 {
     None,
+    Silver,
+    Steel,
+    Gold,
     Fire,
     Ice,
     Air,
+    Lightning,
     Earth,
     Holy,
     Curse
@@ -41,12 +35,6 @@ public class ElementAffinity
     public Affinity affinity;
 }
 
-[System.Serializable]
-public class MaterialAffinity
-{
-    public WeaponMaterial material;
-    public Affinity affinity;
-}
 
 [System.Serializable]
 public class ItemAffinity

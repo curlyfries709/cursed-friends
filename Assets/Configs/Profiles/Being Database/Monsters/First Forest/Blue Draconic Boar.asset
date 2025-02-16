@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0b8e104cfda32c49892a0cc91494377, type: 3}
+  m_Name: Blue Draconic Boar
+  m_EditorClassIdentifier: 
+  databaseName: Blue Draconic Boar
+  race: 7
+  raceType: 8
+  proficientWeaponCategory: 0
+  lockedName: Blue Draconic Boar
+  description: 
+  elementAffinities:
+  - element: 4
+    affinity: 5
+  - element: 5
+    affinity: 4
+  - element: 3
+    affinity: 2
+  itemAffinities:
+  - item: {fileID: 11400000, guid: 0ee6f5a1d7e1211449ccb220f6cb4b62, type: 2}
+    affinity: 5
+  statusEffectsNullified:
+  - {fileID: 11400000, guid: 2dc60e246c4e75547b41aeb8d2340b54, type: 2}
+  droppedIngridients:
+  - item: {fileID: 11400000, guid: adc0cdf9569d29a4ca8ba74a996453d8, type: 2}
+    dropChance: 25
+  - item: {fileID: 11400000, guid: 133eb00ebd64bed4eaa22613131917fa, type: 2}
+    dropChance: 10
+  - item: {fileID: 11400000, guid: 0657585d9ce99254889869b2713f5972, type: 2}
+    dropChance: 5

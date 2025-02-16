@@ -50,8 +50,15 @@ public class FieldOfView : MonoBehaviour
     public bool ShowEditorUI()
     {
         if (playerController == null)
-            playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<CharacterController>();
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
 
+            if (playerObj)
+            {
+                playerController = playerObj.GetComponent<CharacterController>();
+            }
+        }
+            
         return playerController;
     }
 

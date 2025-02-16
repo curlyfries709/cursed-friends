@@ -24,7 +24,7 @@ public abstract class CompanionBaseState : State
         //Objects
         stateMachine.ShowWeapon(showWeapon);
 
-        GridUnitAnimator animator = stateMachine.animator;
+        CharacterAnimator animator = stateMachine.animator;
 
         //Animations
         animator.ChangeLayers(animatorLayer);
@@ -33,7 +33,7 @@ public abstract class CompanionBaseState : State
         //NavMeshAgent
         stateMachine.controller.enabled = !useNavMeshAgent;
         stateMachine.navMeshAgent.enabled = useNavMeshAgent;
-        stateMachine.navMeshAgent.acceleration = PartyData.Instance.GetAcceleration(isSneaking);
+        stateMachine.navMeshAgent.acceleration = stateMachine.followBehaviour.GetAcceleration(isSneaking);
     }
 
     protected void IsPlayerSprinting(bool isSprinting)
@@ -43,9 +43,9 @@ public abstract class CompanionBaseState : State
 
     protected void AlterRoamSpeed(Vector3 destination)
     {
-        if (Vector3.Distance(destination, transform.position) >= PartyData.Instance.GetLaggingBehindDistance(false))
-        {
-            stateMachine.navMeshAgent.speed = isPlayerSprinting ? PartyData.Instance.GetLagSpeed(false) : stateMachine.runSpeed;
+        if (Vector3.Distance(destination, transform.position) >= stateMachine.followBehaviour.GetLaggingBehindDistance(false))
+            {
+                stateMachine.navMeshAgent.speed = isPlayerSprinting ? stateMachine.followBehaviour.GetLagSpeed(false) : stateMachine.runSpeed;
         }
         else if (Vector3.Distance(destination, transform.position) < 1f && stateMachine.playerStateMachine.moveValue == Vector2.zero)
         {
@@ -58,9 +58,9 @@ public abstract class CompanionBaseState : State
     }
     protected void AlterStealthSpeed(Vector3 destination)
     {
-        if (Vector3.Distance(destination, transform.position) >= PartyData.Instance.GetLaggingBehindDistance(true))
+        if (Vector3.Distance(destination, transform.position) >= stateMachine.followBehaviour.GetLaggingBehindDistance(true))
         {
-            stateMachine.navMeshAgent.speed = PartyData.Instance.GetLagSpeed(true);
+            stateMachine.navMeshAgent.speed = stateMachine.followBehaviour.GetLagSpeed(true);
         }
         else if (Vector3.Distance(destination, transform.position) < 1f && stateMachine.playerStateMachine.moveValue == Vector2.zero)
         {
@@ -78,7 +78,7 @@ public abstract class CompanionBaseState : State
 
         if(stateMachine.raiseSwapPosEventDesignee && stateMachine.previousCCDir != Vector3.zero && ccDir != Vector3.zero && Vector3.Angle(ccDir, stateMachine.previousCCDir) >= 100)
         {
-            PartyData.Instance.SwapCompanionPositions();
+            PlayerSpawnerManager.Instance.SwapCompanionPositionsEvent?.Invoke();
         }
 
         if (ccDir != Vector3.zero)

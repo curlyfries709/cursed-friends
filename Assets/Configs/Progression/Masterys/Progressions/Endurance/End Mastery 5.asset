@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0590cb5e88ca46940ae86b9af0f0d775, type: 3}
+  m_Name: End Mastery 5
+  m_EditorClassIdentifier: 
+  progressionName: Potion
+  progressionType: 6
+  description: 'Use 50 Potions '
+  rewardAttribute: 2
+  rewardPoints: 5
+  requiredCountToComplete: 50
+  progressionIcon: {fileID: 21300000, guid: 0b59bfa1cc3e5f54ebee7ac99ebe0fb5, type: 3}
+  iconColor: {r: 1, g: 0.23921569, b: 0.14509805, a: 1}

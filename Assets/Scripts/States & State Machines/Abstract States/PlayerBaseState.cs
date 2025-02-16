@@ -30,7 +30,9 @@ public abstract class PlayerBaseState : State
 
         if (useFreeRoamCam)
         {
-            stateMachine.moveRestrictor.OnUnwalkableAreaDetected += DisableMovement;
+            if(stateMachine.moveRestrictor)
+                stateMachine.moveRestrictor.OnUnwalkableAreaDetected += DisableMovement;
+
             StoryManager.Instance.ActivateCinematicMode += DisableMovement;
         }
     }

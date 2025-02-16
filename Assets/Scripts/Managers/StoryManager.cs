@@ -3,31 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
-using System.Globalization;
 using Sirenix.Serialization;
-using UnityEngine.UI;
-using TMPro;
 using MoreMountains.Feedbacks;
 using UnityEngine.InputSystem;
 
-[System.Serializable]
-public struct GameDate
-{
-    public int day;
-    public int month;
-    public int year;
-}
 
-public enum Period
-{
-    Morning,
-    BreakTime,
-    LunchTime, 
-    Afternoon,
-    Afterschool,
-    Evening,
-    NightTime
-}
 
 public class StoryManager : MonoBehaviour, ISaveable, IControls
 {
@@ -36,12 +16,6 @@ public class StoryManager : MonoBehaviour, ISaveable, IControls
     [Header("New Game Config")]
     [SerializeField] CinematicTrigger openingCinematic;
     [SerializeField] float openingCinematicDelay = 0.5f;
-    [Header("Start Date")]
-    [SerializeField] int startDay = 07;
-    [SerializeField] int startMonth = 09;
-    [SerializeField] int startYear = 2021;
-    [Space(10)]
-    [SerializeField] Period startPeriod;
     [Header("Tutorial")]
     [SerializeField] Transform tutorialHeader;
     [SerializeField] bool enableTutorials = true;
@@ -55,16 +29,11 @@ public class StoryManager : MonoBehaviour, ISaveable, IControls
     //Saving Data
     [SerializeField, HideInInspector]
     private StoryState storyState = new StoryState();
-    public bool AutoRestoreOnNewTerritoryEntry { get; set; } = false;
+    bool isDataRestored = false;
 
     //Cache
-    public DateTime currentDate { get; private set; }
-    public Period currentPeriod { get; private set; }
-
     public bool isCursed { get; private set; } = false;
     public bool isTutorialPlaying { get; private set; } = false;
-
-    PlayerStateMachine player;
 
     bool isHudActive = false;
 
@@ -94,8 +63,8 @@ public class StoryManager : MonoBehaviour, ISaveable, IControls
 
     private void Awake()
     {
-        Instance = this;
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerStateMachine>();
+        if (!Instance)
+            Instance = this;
     }
 
     private void OnEnable()
@@ -107,12 +76,6 @@ public class StoryManager : MonoBehaviour, ISaveable, IControls
     private void Start()
     {
         DialogueManager.Instance.ChoiceWithReferenceSelected += StoreChoiceReference;
-    }
-
-    private void NewGameSetup()
-    {
-        currentDate = new DateTime(startYear, startMonth, startDay);
-        currentPeriod = startPeriod;
     }
 
     private void BeginNewGameCinematic()
@@ -131,10 +94,13 @@ public class StoryManager : MonoBehaviour, ISaveable, IControls
     //Story EVents
     public void CursePlayers()
     {
-        foreach(PlayerGridUnit player in PartyData.Instance.GetAllPlayerMembersInWorld())
+        foreach(PlayerGridUnit player in PartyManager.Instance.GetAllPlayerMembersInWorld())
         {
             player.GetComponent<PlayerUnitStats>().OverrideBeingData(isCursed);
         }
+
+        //TODO: ADD A CURSE PLAYER EVENT
+        Debug.Log("Add a cursed player event to this");
     }
 
     public void CompleteObjective(Objective objectiveToComplete)
@@ -264,10 +230,8 @@ public class StoryManager : MonoBehaviour, ISaveable, IControls
     private bool IsExpired(GameDate date)
     {
         DateTime dateToCheck = new DateTime(date.year, date.month, date.day);
-        return currentDate > dateToCheck;
+        return CalendarManager.Instance.currentDate > dateToCheck;
     }
-
-
 
     private void StoreChoiceReference(ChoiceReferences choiceRef)
     {
@@ -338,7 +302,7 @@ public class StoryManager : MonoBehaviour, ISaveable, IControls
 
         if (MMTimeManager.Instance.CurrentTimeScale != 0)
         {
-            MMTimeManager.Instance.SetTimeScaleTo(0);
+            GameManager.Instance.FreezeGame();
             isHudActive = HUDManager.Instance.IsHUDEnabled();
         }
             
@@ -402,29 +366,15 @@ public class StoryManager : MonoBehaviour, ISaveable, IControls
             tutorialQueue.Add(index);
     }
 
-    //GETTERS
-    public int GetDaysPassed(DateTime daysPassedSinceDate)
-    {
-        return (currentDate - daysPassedSinceDate).Days;
-    }
-
-    public string GetCurrentDayMonthInGameFormat()
-    {
-        string date = currentDate.Day.ToString() + " " + CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(currentDate.Month);
-        return date;
-    }
 
     public bool MadeDecision(ChoiceReferences choiceReference)
     {
         return StoredChoiceReferences.Contains((int)choiceReference);
     }
 
-    public PlayerStateMachine GetPlayerStateMachine()
+    private PlayerStateMachine GetPlayerStateMachine()
     {
-        if(!player)
-            player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerStateMachine>();
-
-        return player;
+        return PlayerSpawnerManager.Instance.GetPlayerStateMachine();
     }
 
     //Input
@@ -495,10 +445,6 @@ public class StoryManager : MonoBehaviour, ISaveable, IControls
         public int currentYear;
         public Period currentPeriod;
 
-        //Player
-        public Vector3 playerPosition = Vector3.zero;
-        public Quaternion playerRotation = Quaternion.identity;
-
         //Story
         public bool isCursed;
 
@@ -517,15 +463,12 @@ public class StoryManager : MonoBehaviour, ISaveable, IControls
 
     public object CaptureState()
     {
-        storyState.currentDay = currentDate.Day;
-        storyState.currentMonth = currentDate.Month;
-        storyState.currentYear = currentDate.Year;
+        //storyState.currentDay = currentDate.Day;
+        //storyState.currentMonth = currentDate.Month;
+        //storyState.currentYear = currentDate.Year;
 
-        storyState.currentPeriod = currentPeriod;
+        //storyState.currentPeriod = currentPeriod;
         storyState.isCursed = isCursed;
-
-        storyState.playerPosition = GetPlayerStateMachine().transform.position;
-        storyState.playerRotation = GetPlayerStateMachine().transform.rotation;
 
         storyState.discussionTopics = unlockedDiscussions.ConvertAll((topic) => topic.name);
 
@@ -542,9 +485,11 @@ public class StoryManager : MonoBehaviour, ISaveable, IControls
 
     public void RestoreState(object state)
     {
+        isDataRestored = true;
+
         if(state == null) 
         {
-            NewGameSetup();
+            //NewGameSetup();
             return; 
         }
 
@@ -552,8 +497,8 @@ public class StoryManager : MonoBehaviour, ISaveable, IControls
         storyState = SerializationUtility.DeserializeValue<StoryState>(bytes, DataFormat.Binary);
 
         //Restore Date
-        currentDate = new DateTime(storyState.currentYear, storyState.currentMonth, storyState.currentDay);
-        currentPeriod = storyState.currentPeriod;
+        //currentDate = new DateTime(storyState.currentYear, storyState.currentMonth, storyState.currentDay);
+        //currentPeriod = storyState.currentPeriod;
 
         //Restore Story Data
         isCursed = storyState.isCursed;
@@ -584,8 +529,10 @@ public class StoryManager : MonoBehaviour, ISaveable, IControls
 
         //Curse Player
         CursePlayers();
+    }
 
-        //Warp Player
-        GetPlayerStateMachine().WarpPlayer(storyState.playerPosition, storyState.playerRotation, PlayerStateMachine.PlayerState.FantasyRoam, true);
+    public bool IsDataRestored()
+    {
+        return isDataRestored;
     }
 }

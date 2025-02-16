@@ -11,7 +11,7 @@ public class CompanionStealthIdleState : CompanionBaseState
         OnNewStateConfig(false, true, true, 0);
         stateMachine.navMeshAgent.ResetPath();
 
-        PartyData.Instance.UpdateCompanionFollowBehaviour(stateMachine, true);
+        stateMachine.followBehaviour.UpdateCompanionFollowBehaviour(stateMachine, true);
     }
 
     public override void UpdateState()
@@ -31,6 +31,6 @@ public class CompanionStealthIdleState : CompanionBaseState
 
     private bool ShouldMove()
     {
-        return Vector3.Distance(stateMachine.player.position, transform.position) >= PartyData.Instance.GetDistanceToBeginFollow(stateMachine, true);
+        return Vector3.Distance(stateMachine.player.position, transform.position) >= stateMachine.followBehaviour.GetDistanceToBeginFollow(stateMachine, true);
     }
 }

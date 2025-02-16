@@ -9,7 +9,7 @@ public class CompanionFollowState : CompanionBaseState
     public override void EnterState()
     {
         OnNewStateConfig(false, false, true, 0);
-        PartyData.Instance.UpdateCompanionFollowBehaviour(stateMachine, false);
+        stateMachine.followBehaviour.UpdateCompanionFollowBehaviour(stateMachine, false);
 
 
         randNum = Random.Range(0.8f, stateMachine.walkSpeed);

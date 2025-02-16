@@ -19,11 +19,8 @@ public abstract class UnitStats : MonoBehaviour
     [SerializeField] protected int baseWisdom;
     [SerializeField] protected int baseCharisma;
     [Header("Default Data")]
-    [SerializeField] Equipment equipment;
-    [Space(10)]
-    public int naturalArmour;
+    [SerializeField] protected Equipment equipment;
     public Element defaultAttackElement;
-    public WeaponMaterial defaultWeaponMaterial;
     [Space(10)]
     [SerializeField] protected bool knockbackImmunity = false;
 
@@ -94,32 +91,24 @@ public abstract class UnitStats : MonoBehaviour
     [HideInInspector] public int blessingStatusEffectInflictChanceIncrease = 0;
 
     //Affinities
-    Dictionary<WeaponMaterial, Affinity> defaultMaterialAffinity = new Dictionary<WeaponMaterial, Affinity>();
     Dictionary<Element, Affinity> defaultElementAffinities = new Dictionary<Element, Affinity>();
 
-    public Dictionary<WeaponMaterial, Affinity> currentMaterialAffinities { get; protected set; }
     public Dictionary<Element, Affinity> currentElementAffinities { get; protected set; }
 
-    private void Awake()
+    protected virtual void Awake()
     {
-        currentMaterialAffinities = new Dictionary<WeaponMaterial, Affinity>();
         currentElementAffinities = new Dictionary<Element, Affinity>();
     }
 
-    private void OnEnable()
+    private void Start()
     {
-        SavingLoadingManager.Instance.DataAndSceneLoadComplete += SetData;
+        SetData();
     }
 
-    private void SetData()
+    protected void SetData()
     {
         SetAffinities();
         UpdateSubAndMainAttributes();
-    }
-
-    private void OnDisable()
-    {
-        SavingLoadingManager.Instance.DataAndSceneLoadComplete -= SetData;
     }
 
     //Current Stats
@@ -193,21 +182,12 @@ public abstract class UnitStats : MonoBehaviour
 
     //Affinity Alteration
 
-    public void AlterMaterialAffinity(MaterialAffinity newAffinity)
-    {
-        currentMaterialAffinities[newAffinity.material] = newAffinity.affinity;
-    }
 
     public void AlterElementAffinity(ElementAffinity newAffinity)
     {
         currentElementAffinities[newAffinity.element] = newAffinity.affinity;
     }
 
-
-    public void ResetMaterialAffinity(WeaponMaterial material)
-    {
-        currentMaterialAffinities[material] = defaultMaterialAffinity[material];
-    }
 
     public void ResetElementAffinity(Element element)
     {
@@ -216,30 +196,17 @@ public abstract class UnitStats : MonoBehaviour
 
     private void SetAffinities()//CALLED OUTSIDE COMBAT.
     {
-        List<MaterialAffinity> materialAffinities = equipment.GetMaterialAlteration().Concat(data.materialAffinities).ToList();
-        List<ElementAffinity> elementAffinities = equipment.GetElementAlteration().Concat(data.elementAffinities).ToList();
+        List<ElementAffinity> elementAffinities = new List<ElementAffinity>();
 
-        //Set Material
-        foreach (int i in Enum.GetValues(typeof(WeaponMaterial)))
+        if (equipment) 
         {
-            if((WeaponMaterial)i != WeaponMaterial.None)
-            {
-                Affinity affinity = Affinity.None;
-                foreach (MaterialAffinity materialAffinity in materialAffinities)
-                {
-                    //Is The Target Element a match
-                    if ((WeaponMaterial)i == materialAffinity.material)
-                    {
-                        affinity = materialAffinity.affinity;
-                        break;
-                    }
-                }
-
-                currentMaterialAffinities[(WeaponMaterial)i] = affinity;
-            }
+            elementAffinities = equipment.GetElementAlteration().Concat(data.elementAffinities).ToList();
         }
-
-
+        else
+        {
+            elementAffinities = data.elementAffinities;
+        }
+         
         //Set Elements
         foreach (int i in Enum.GetValues(typeof(Element)))
         {
@@ -261,12 +228,10 @@ public abstract class UnitStats : MonoBehaviour
         }
 
         defaultElementAffinities = currentElementAffinities.ToDictionary(entry => entry.Key, entry => entry.Value);
-        defaultMaterialAffinity = currentMaterialAffinities.ToDictionary(entry => entry.Key, entry => entry.Value);
     }
 
 
     //Stat Changers
-
     public void UpdateBuffMultiplier(ref float buffMultiplier, float multiplierValue, bool removeBuff)
     {
         if (removeBuff)
@@ -297,7 +262,9 @@ public abstract class UnitStats : MonoBehaviour
     {
         UpdateAttributes();
         UpdateSubStats();
-        equipment.AdjustWearerHealth();
+
+        if(equipment)
+            equipment.AdjustWearerHealth();
     }
 
     //Equipment
@@ -329,7 +296,6 @@ public abstract class UnitStats : MonoBehaviour
         return level >= item.requiredLevel;
     }
 
-
     public bool CanEquip(Weapon weapon)
     {
         return weapon.category == data.proficientWeaponCategory && CanUseItem(weapon);
@@ -340,10 +306,6 @@ public abstract class UnitStats : MonoBehaviour
         return armour.raceRestriction.Contains(data.race) && CanUseItem(armour);
     }
     
-    public void UpdateEnchantments()
-    {
-        equipment.SetEnchantments();
-    }
 
     public bool IsEquipped(Item item)
     {
@@ -351,7 +313,6 @@ public abstract class UnitStats : MonoBehaviour
 
         return equipment.IsEquipped(item);
     }
-
 
 
     //Other Getters
@@ -386,9 +347,9 @@ public abstract class UnitStats : MonoBehaviour
         return GetAttributeValue(attribute) - equipment.GetEquipmentAttributeBonus(attribute);
     }
 
-    public int GetArmour()
+    public virtual int GetArmour()
     {
-        int armour = equipment.Armour() ? equipment.Armour().armour : naturalArmour;
+        int armour = equipment.Armour() ? equipment.Armour().armour : 0;
         return Mathf.RoundToInt(armour * buffARMmultiplier);
     }
 
@@ -400,6 +361,16 @@ public abstract class UnitStats : MonoBehaviour
     public int GetStaminaWithoutBonus()
     {
         return TheCalculator.Instance.CalculateStamina(Endurance - equipment.GetEquipmentAttributeBonus(Attribute.Endurance));
+    }
+
+    public bool HasRequiredAttributeValue(Attribute attribute, int requiredValue, bool includeEquipmentBonuses)
+    {
+        if (includeEquipmentBonuses)
+        {
+            return GetAttributeValue(attribute) >= requiredValue;
+        }
+
+        return GetAttributeValueWithoutEquipmentBonuses(attribute) >= requiredValue;
     }
 
     public Element GetAttackElement()
@@ -414,18 +385,6 @@ public abstract class UnitStats : MonoBehaviour
         return defaultAttackElement;
     }
 
-    public WeaponMaterial GetAttackMaterial()
-    {
-        Weapon weapon = equipment.Weapon();
-
-        if (weapon)
-        {
-            return weapon.material;
-        }
-
-        return defaultWeaponMaterial;
-    }
-
     public bool IsImmuneToKnockback()
     {
         return knockbackImmunity || equipment.HasKnockbackImmunity();
@@ -436,29 +395,8 @@ public abstract class UnitStats : MonoBehaviour
         return data.statusEffectsNullified.Contains(statusEffect) || equipment.GetStatusEffectImmunity().Contains(statusEffect);
     }
 
-
-    public List<ChanceOfInflictingStatusEffect> GetStatusEffectsToInflict()
+    public Equipment Equipment()
     {
-        return equipment.GetStatusEffectsToInflict();
-    }
-
-    public Weapon Weapon()
-    {
-        return equipment.Weapon();
-    }
-
-    public Armour EquippedArmour()
-    {
-        return equipment.Armour();
-    }  
-
-    public void SpawnWeaponInModel(Transform spawnHeader)
-    {
-        equipment.SpawnWeaponModel(spawnHeader);
-    }
-
-    public void SpawnEnchantments()
-    {
-        equipment.SpawnEnchantments(BattleStarter.CombatAdvantage.Neutral);
+        return equipment;
     }
 }

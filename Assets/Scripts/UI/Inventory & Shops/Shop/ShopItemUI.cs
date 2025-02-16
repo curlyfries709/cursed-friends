@@ -126,7 +126,7 @@ public class ShopItemUI : MonoBehaviour
             affinityHeader.gameObject.SetActive(true);
             foreach (Transform child in affinityHeader)
             {
-                child.gameObject.SetActive(CombatFunctions.GetAffinityIndex(weapon.element, weapon.material) == child.GetSiblingIndex());
+                child.gameObject.SetActive(CombatFunctions.GetAffinityIndex(weapon.element) == child.GetSiblingIndex());
             }
         }
 

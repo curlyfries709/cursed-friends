@@ -13,7 +13,6 @@ public class EnemyPartialData
     public Race race;
     public RaceType type = RaceType.Unknown;
 
-    public List<MaterialAffinity> knownMaterialAffinities = new List<MaterialAffinity>();
     public List<ElementAffinity> knownElementAffinities = new List<ElementAffinity>();
 
     public List<string> knownDroppedItems = new List<string>();
@@ -27,7 +26,6 @@ public class EnemyPartialData
         race = dataToCopy.race;
         type = dataToCopy.type;
 
-        knownMaterialAffinities = new List<MaterialAffinity>(dataToCopy.knownMaterialAffinities);
         knownElementAffinities = new List<ElementAffinity>(dataToCopy.knownElementAffinities);
 
         knownDroppedItems = new List<string>(dataToCopy.knownDroppedItems);
@@ -79,7 +77,7 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
     //Saving Data
     [SerializeField, HideInInspector]
     private EnemyDataState enemyDataState = new EnemyDataState();
-    public bool AutoRestoreOnNewTerritoryEntry { get; set; } = true;
+    bool isDataRestored = false;
 
     //Event
     public Action AllEnemyAffinitiesUnlocked;
@@ -105,7 +103,9 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
 
     private void Awake()
     {
-        Instance = this;
+        if (!Instance)
+            Instance = this;
+
         playerInput = ControlsManager.Instance.GetPlayerInput();
 
         foreach (Transform controlHeader in controlHeaders)
@@ -180,16 +180,6 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
 
         EnemyPartialData partialData = enemyPartialDataDB[key];
 
-        if (damageData.attackMaterial != WeaponMaterial.None)
-        {
-            MaterialAffinity materialAffinity = new MaterialAffinity();
-
-            materialAffinity.material = damageData.attackMaterial;
-            materialAffinity.affinity = GetAffinity(damageData.attackMaterial, enemyData);
-
-            if (!partialData.knownMaterialAffinities.Any((item) => item.material == damageData.attackMaterial))
-                partialData.knownMaterialAffinities.Add(materialAffinity);
-        }
 
         if(damageData.attackElement != Element.None)
         {
@@ -209,7 +199,7 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
         }
 
         //Unlock Type when all Affinities unlocked.
-        if (partialData.knownMaterialAffinities.Distinct().Count() == numOfMaterialAffinities && partialData.knownElementAffinities.Distinct().Count() == numOfElementalAffinities)
+        if (partialData.knownElementAffinities.Distinct().Count() == numOfElementalAffinities)
         {
             partialData.type = enemyData.raceType;
             AllEnemyAffinitiesUnlocked?.Invoke();
@@ -408,7 +398,6 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
         unitsToShow.Add(enemy);
 
         //Lists
-        List<MaterialAffinity> materialAffinities = dataUnlocked ? enemyStats.data.materialAffinities : partialData.knownMaterialAffinities;
         List<ElementAffinity> elementAffinities = dataUnlocked ? enemyStats.data.elementAffinities : partialData.knownElementAffinities;
         //List<ItemAffinity> itemAffinities = dataUnlocked ? enemyStats.data.itemAffinities : partialData.otherKnownAffinities;
         //List<Item> droppredItems = dataUnlocked ? enemyStats.data.droppedIngridients : partialData.knownDroppedItems;
@@ -430,23 +419,6 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
         analysisType.text = dataUnlocked ? enemyStats.data.raceType.ToString() : GetRaceType(partialData.type);
 
         ResetAllAffinityUI(dataUnlocked);
-
-        //Update Material Affinities
-        foreach (MaterialAffinity affinity in materialAffinities)
-        {
-            switch (affinity.material)
-            {
-                case WeaponMaterial.Silver:
-                    UpdateAffinity(silverAffinity, affinity.affinity, false);
-                    break;
-                case WeaponMaterial.Gold:
-                    UpdateAffinity(goldAffinity, affinity.affinity, false);
-                    break;
-                default:
-                    UpdateAffinity(ironAffinity, affinity.affinity, false);
-                    break;
-            }
-        }
 
         //Update Element Affinities
         foreach (ElementAffinity affinity in elementAffinities)
@@ -470,6 +442,18 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
                     break;
                 case Element.Curse:
                     UpdateAffinity(curseAffinity, affinity.affinity, false);
+                    break;
+                case Element.Silver:
+                    UpdateAffinity(silverAffinity, affinity.affinity, false);
+                    break;
+                case Element.Steel:
+                    UpdateAffinity(ironAffinity, affinity.affinity, false);
+                    break;
+                case Element.Gold:
+                    UpdateAffinity(goldAffinity, affinity.affinity, false);
+                    break;
+                case Element.Lightning:
+                    Debug.Log("LIGHTNING HAS NOT BEEN IMPLEMENTED");
                     break;
             }
         }
@@ -532,7 +516,7 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
         FantasyCombatManager.Instance.BattleRestarted -= OnBattleRestart;
     }
 
-    public bool IsAffinityUnlocked(CharacterGridUnit target, Element attackElement, WeaponMaterial attackMaterial)
+    public bool IsAffinityUnlocked(CharacterGridUnit target, Element attackElement)
     {
         if (target is PlayerGridUnit || raceEncyclopedia.ContainsKey(target.stats.data.Key()))
         {
@@ -543,13 +527,7 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
         EnemyPartialData partialData = enemyPartialDataDB[enemyStats.data.Key()];
 
         //Lists
-        List<MaterialAffinity> materialAffinities =  partialData.knownMaterialAffinities;
         List<ElementAffinity> elementAffinities = partialData.knownElementAffinities;
-
-        if (attackMaterial != WeaponMaterial.None)
-        {
-            return materialAffinities.Where((affinity) => affinity.material == attackMaterial).Count() > 0;
-        }
 
         if (attackElement != Element.None)
         {
@@ -680,20 +658,6 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
     }
 
     //Get Affinity
-    private Affinity GetAffinity(WeaponMaterial material, BeingData data)
-    {
-        if (data.materialAffinities.Count == 0){ return Affinity.None; }
-
-        MaterialAffinity materialAffinity = data.materialAffinities.FirstOrDefault((item) => item.material == material);
-
-        if (materialAffinity != null)
-        {
-            return materialAffinity.affinity;
-        }
-
-        return Affinity.None;
-    }
-
     private Affinity GetAffinity(Element element, BeingData data)
     {
         if(data.elementAffinities.Count == 0) { return Affinity.None; }
@@ -732,7 +696,6 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
 
     }
 
-
     public object CaptureState()
     {
         enemyDataState.enemyPartialDataDB = enemyPartialDataDB;
@@ -750,6 +713,8 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
 
     public void RestoreState(object state)
     {
+        isDataRestored = true;
+
         if (state == null) { return; }
 
         byte[] bytes = state as byte[];
@@ -764,5 +729,10 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
         {
             raceEncyclopedia[key] = TheCache.Instance.GetBeingDataByKey(key);
         }
+    }
+
+    public bool IsDataRestored()
+    {
+        return isDataRestored;
     }
 }

@@ -40,7 +40,6 @@ public class Blessing : Item
     [Range(0, 100)] public int critChanceIncrease = 0;
     [Header("Affinity Manipulation")]
     public List<ElementAffinity> elementAffinitiesToAlter;
-    public List<MaterialAffinity> materialAffinitiesToAlter;
     [Header("STATUS EFFECTS & BUFFS")]
     public List<ChanceOfInflictingStatusEffect> statusEffectsToApply;
     [Header("OTHER ACTIVATE EFFECTS")]

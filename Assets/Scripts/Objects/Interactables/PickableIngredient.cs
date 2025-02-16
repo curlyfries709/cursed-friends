@@ -16,7 +16,7 @@ public class PickableIngredient : Interact, ISaveable
     //Saving Data
     [SerializeField, HideInInspector]
     private IngredientState ingredientState = new IngredientState();
-    public bool AutoRestoreOnNewTerritoryEntry { get; set; } = true;
+    bool isDataRestored = false;
 
     bool picked = false;
     DateTime pickedDate;
@@ -33,18 +33,18 @@ public class PickableIngredient : Interact, ISaveable
     {
         pickupFeedback?.PlayFeedbacks();
 
-        InventoryManager.Instance.AddToInventory(PartyData.Instance.GetLeader(), ingredient);
+        InventoryManager.Instance.AddToInventory(PartyManager.Instance.GetLeader(), ingredient);
         picked = true;
 
         //Set Picked Date
-        pickedDate = StoryManager.Instance.currentDate;
+        pickedDate = CalendarManager.Instance.currentDate;
 
         gameObject.SetActive(false);
     }
 
     private void Respawn()
     {
-        if (StoryManager.Instance.GetDaysPassed(pickedDate) >= daysToRespawn || !picked)
+        if (CalendarManager.Instance.GetDaysPassed(pickedDate) >= daysToRespawn || !picked)
         {
             picked = false;
             gameObject.SetActive(true);
@@ -82,6 +82,8 @@ public class PickableIngredient : Interact, ISaveable
 
     public void RestoreState(object state)
     {
+        isDataRestored = true;
+
         if (state == null) { return; }
 
         byte[] bytes = state as byte[];
@@ -92,5 +94,10 @@ public class PickableIngredient : Interact, ISaveable
         pickedDate = new DateTime(ingredientState.pickedYear, ingredientState.pickedMonth, ingredientState.pickedDay);
 
         Respawn();
+    }
+
+    public bool IsDataRestored()
+    {
+        return isDataRestored;
     }
 }

@@ -29,6 +29,20 @@ namespace AnotherRealm
             }
         }
 
+        public static void ResetTransform(Transform transformToReset, bool resetLocally)
+        {
+            if (resetLocally)
+            {
+                transformToReset.localPosition = Vector3.zero;
+                transformToReset.localEulerAngles = Vector3.zero;
+            }
+            else
+            {
+                transformToReset.position = Vector3.zero;
+                transformToReset.eulerAngles = Vector3.zero;
+            }
+        }
+
         public static void Scroll(ScrollRect scrollRect, bool up)
         {
             if (up)
@@ -70,7 +84,7 @@ namespace AnotherRealm
                     return false;
                 case EventCondition.ConditionType.StatusEffect:
                     if (condition.boolToAchieveCondition ==
-                        StatusEffectManager.Instance.UnitHasStatusEffect(PartyData.Instance.GetPlayerUnitViaName(condition.affectedCharacter.characterName), condition.statusEffect)) { return true; }
+                        StatusEffectManager.Instance.UnitHasStatusEffect(PartyManager.Instance.GetPlayerUnitViaName(condition.affectedCharacter.characterName), condition.statusEffect)) { return true; }
                     return false;
                 case EventCondition.ConditionType.Money:
                     if (condition.boolToAchieveCondition == InventoryManager.Instance.CanAfford(condition.requiredFunds, condition.isFantasyMoney)) { return true; }

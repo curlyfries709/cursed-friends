@@ -6,13 +6,15 @@ using Cinemachine;
 
 public class PlayerGridUnit : CharacterGridUnit
 {
+    [Header("Player Data")]
+    public PartyMemberData partyMemberData;
     [Header("Player Specific UI")]
     public Sprite transparentBackgroundPotrait;
     [Header("Player Unit Components")]
     public Transform raycastPoint;
     public CharacterController unitController;
     [Space(10)]
-    public Transform skillHeader;
+    [SerializeField] EquipmentTransforms equipmentTransforms;
     [Header("Player Menu Cams")]
     public GameObject collectionThinkCam;
     [Space(5)]
@@ -29,29 +31,21 @@ public class PlayerGridUnit : CharacterGridUnit
     [SerializeField] ChainSelectionEvent chainSelectionEvent;
 
     //Cache
+    public PlayerSkillset playerSkillset { get; private set; }
     [HideInInspector] public PlayerBaseSkill lastUsedSkill = null;
 
-    //Skills
-    List<PlayerBaseSkill> learnedSkills = new List<PlayerBaseSkill>();
-
-    private int activeSkillHeaderIndex = 0;
-
-    protected override void OnEnable()
+    protected override void Awake()
     {
-        base.OnEnable();
-        SavingLoadingManager.Instance.DataAndSceneLoadComplete += SetLearnedSkills;
+        base.Awake();
+
+        portrait = partyMemberData.portrait;
+        unitName = partyMemberData.memberName;
     }
 
     protected override void OnBeginTurn()
     {   
         base.OnBeginTurn();
         ShowActionMenu(true, false);
-    }
-
-    protected override void OnDisable()
-    {
-        base.OnDisable();
-        SavingLoadingManager.Instance.DataAndSceneLoadComplete -= SetLearnedSkills;
     }
 
     public override void Warp(Vector3 destination, Quaternion rotation)
@@ -93,11 +87,15 @@ public class PlayerGridUnit : CharacterGridUnit
         combatFreeLookComponent.m_Transitions.m_InheritPosition = inheritPosition;
     }
 
+    public void SetSkillData(PlayerSkillset skillData)
+    {
+        playerSkillset = skillData;
+    }
+
     public ChainSelectionEvent Chain()
     {
         return chainSelectionEvent;
     }
-
 
     //Quick Combat Actions
 
@@ -111,43 +109,11 @@ public class PlayerGridUnit : CharacterGridUnit
         return guard;
     }
 
-    //SKills
-    public List<PlayerBaseSkill> GetActiveLearnedSkills()
+    //SETTERS
+    public void SetPlayerUnitStats(PlayerUnitStats statsComp)
     {
-        if(activeSkillHeaderIndex <= 1) 
-        {
-            return learnedSkills;
-        }
-        else
-        {
-            //Means it must be a form change skill.
-            Transform activeSkillHeader = skillHeader.GetChild(activeSkillHeaderIndex);
-            return activeSkillHeader.GetComponentsInChildren<PlayerBaseSkill>().ToList();
-        }
-    }
-
-    public void LearnNewSkill(PlayerBaseSkill newSkill)
-    {
-        if (learnedSkills.Contains(newSkill)) { return; }
-        learnedSkills.Add(newSkill);
-    }
-
-    public void ForgetSkill(PlayerBaseSkill skill)
-    {
-        learnedSkills.Remove(skill);
-    }
-
-    public List<PlayerBaseSkill> GetSkillsWithinLevelRange(int currentLevel, int levelsGained, int skillHeaderIndex)
-    {
-        Transform activeSkillHeader = skillHeader.GetChild(skillHeaderIndex);
-        int endLevel = currentLevel + levelsGained;
-
-        return activeSkillHeader.GetComponentsInChildren<PlayerBaseSkill>().ToList().Where((skill) => skill.unlockLevel > currentLevel && skill.unlockLevel <= endLevel).ToList();
-    }
-
-    private void SetLearnedSkills()
-    {
-        Transform activeSkillHeader = skillHeader.GetChild(activeSkillHeaderIndex);
-        learnedSkills = activeSkillHeader.GetComponentsInChildren<PlayerBaseSkill>().ToList().Where((skill) => stats.level >= skill.unlockLevel).ToList();
+        stats = statsComp;
+        statsComp.Equipment().SetEquipmentTransforms(equipmentTransforms);
+        unitAnimator.SetEquipment(stats.Equipment());
     }
 }

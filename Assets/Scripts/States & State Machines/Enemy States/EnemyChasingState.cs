@@ -45,7 +45,7 @@ public class EnemyChasingState : EnemyBaseState
 
         if (canSeePlayer)
         {
-            UpdatePlayerLastKnownData(stateMachine.playerStateMachine.transform.position, stateMachine.playerStateMachine.transform.rotation);
+            UpdatePlayerLastKnownData(stateMachine.GetPlayerStateMachine().transform.position, stateMachine.GetPlayerStateMachine().transform.rotation);
         }
 
         stateMachine.animator.SetSpeed(stateMachine.navMeshAgent.velocity.magnitude);
@@ -158,7 +158,7 @@ public class EnemyChasingState : EnemyBaseState
         //ChaserPosition - RunnerPosition;
         Vector3 vectorFromRunner = transform.position - stateMachine.playerLastKnownPos;
         float distanceToRunner = Vector3.Distance(stateMachine.playerLastKnownPos, transform.position);
-        float runnerSpeed = stateMachine.playerStateMachine.GetSpeed();
+        float runnerSpeed = stateMachine.GetPlayerStateMachine().GetSpeed();
 
         float mySpeed = stateMachine.ChaseSpeed();
 
@@ -169,7 +169,7 @@ public class EnemyChasingState : EnemyBaseState
             return stateMachine.playerLastKnownPos;
         }
         
-        Vector3 runnerVelocity = stateMachine.playerStateMachine.controller.velocity;
+        Vector3 runnerVelocity = stateMachine.GetPlayerStateMachine().controller.velocity;
 
         // Now set up the quadratic formula coefficients
         float a = (mySpeed * mySpeed) - (runnerSpeed * runnerSpeed);

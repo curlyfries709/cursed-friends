@@ -25,13 +25,14 @@ public class HealthUIData
     public GameObject firedUpSun;
 }
 
-public class HUDManager : MonoBehaviour
+public class HUDManager : MonoBehaviour, IMultiWorldCombatContacter
 {
     public static HUDManager Instance { get; private set; }
 
     [Header("HUDs")]
     [SerializeField] FantasyRoamHUD fantasyRoamHud;
     [SerializeField] FantasyCombatHUD fantasyCombatHud;
+    [SerializeField] BaseHUD modernRoamHud;
     [Header("Colors")]
     public Color HPColor;
     public Color SPColor;
@@ -49,25 +50,55 @@ public class HUDManager : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;
+        if (!Instance)
+            Instance = this;
+
+        ListenForCombatManagerSet();
     }
 
     private void OnEnable()
     {
-        FantasyCombatManager.Instance.CombatEnded += OnCombatEnd;
-        SavingLoadingManager.Instance.DataAndSceneLoadComplete += RoamHUDSetup;
+        SavingLoadingManager.Instance.NewSceneLoadComplete += OnNewSceneLoaded;
     }
 
-    private void Start()
+    public void SubscribeToCombatManagerEvents(bool subscribe)
     {
-        RoamHUDSetup();
-        fantasyRoamHud.gameObject.SetActive(!FantasyCombatManager.Instance.InCombat());
+        if (subscribe)
+        {
+            FantasyCombatManager.Instance.CombatEnded += OnCombatEnd;
+        }
+        else
+        {
+            FantasyCombatManager.Instance.CombatEnded -= OnCombatEnd;
+        }
     }
 
-    private void RoamHUDSetup()
+    private void OnNewSceneLoaded(SceneData newSceneData)
     {
-        fantasyRoamHud.SetPartyHealthData(PartyData.Instance.GetActivePlayerParty());
+        ShowActiveHud();
     }
+
+
+    public void ShowActiveHud()
+    {
+        if (CinematicManager.Instance.isCinematicPlaying) { return; }
+
+        bool inCombat = FantasyCombatManager.Instance && FantasyCombatManager.Instance.InCombat();
+        RealmType currentRealmType = GameSystemsManager.Instance.GetCurrentSceneData().GetRealmType();
+
+        fantasyCombatHud.gameObject.SetActive(inCombat);
+        fantasyRoamHud.gameObject.SetActive(!inCombat && currentRealmType == RealmType.Fantasy);
+        //modernRoamHud.gameObject.SetActive(!inCombat && currentRealmType == RealmType.Modern);
+        
+    }
+
+    public void HideHUDs()
+    {
+        fantasyRoamHud.gameObject.SetActive(false);
+        fantasyCombatHud.gameObject.SetActive(false);
+        //modernRoamHud.gameObject.SetActive(false);
+    }
+
 
     //Actors
 
@@ -92,11 +123,9 @@ public class HUDManager : MonoBehaviour
             animator.SetLayerWeight(layerIndex, 1);
 
             Transform spawnTransform = actorSpawnWeaponTransforms[index];
-            selectedUnit.stats.SpawnWeaponInModel(spawnTransform);
+            selectedUnit.stats.Equipment().SpawnWeaponModel(spawnTransform);
         }
     }
-
-
 
 
     //Combat
@@ -110,35 +139,18 @@ public class HUDManager : MonoBehaviour
     {
         if (battleResult == BattleResult.Victory || battleResult == BattleResult.Fled)
         {
-            fantasyRoamHud.SetPartyHealthData(PartyData.Instance.GetActivePlayerParty());
+            fantasyRoamHud.SetPartyHealthData(PartyManager.Instance.GetActivePlayerParty());
         }
-    }
-
-    public void HideHUDs()
-    {
-        fantasyRoamHud.gameObject.SetActive(false);
-        fantasyCombatHud.gameObject.SetActive(false);
-    }
-
-    public void ShowActiveHud()
-    {
-        if (CinematicManager.Instance.isCinematicPlaying) { return; }
-
-        bool inCombat = FantasyCombatManager.Instance.InCombat();
-
-        fantasyCombatHud.gameObject.SetActive(inCombat);
-        fantasyRoamHud.gameObject.SetActive(!inCombat);
-    }
-
-    public void EnableRoamHUD() //Called by ControlsManager. Because anytime we switch to Player controls, we want HUD.
-    {
-        fantasyRoamHud.gameObject.SetActive(true);
     }
 
     private void OnDisable()
     {
-        FantasyCombatManager.Instance.CombatEnded -= OnCombatEnd;
-        SavingLoadingManager.Instance.DataAndSceneLoadComplete -= RoamHUDSetup;
+        SavingLoadingManager.Instance.NewSceneLoadComplete -= OnNewSceneLoaded;
+    }
+
+    public void ListenForCombatManagerSet()
+    {
+        GameSystemsManager.Instance.ListenForCombatManagerInitialization(this);
     }
 
     //Quests
@@ -201,7 +213,7 @@ public class HUDManager : MonoBehaviour
         if (effectData.canBeAppliedOutsideCombat)
         {
             //Ensure Affected Unit on Player Party Before Adding
-            if (PartyData.Instance.GetActivePlayerParty().Contains(affectedUnit))
+            if (PartyManager.Instance.GetActivePlayerParty().Contains(affectedUnit))
             {
                 GameObject roamHudPrefab = Instantiate(effectData.effectVisualPrefab, fantasyRoamHud.GetPlayerStatusEffectHeader(affectedUnit));
                 prefabList.Add(roamHudPrefab);
@@ -226,5 +238,30 @@ public class HUDManager : MonoBehaviour
         return fantasyCombatHud.gameObject.activeInHierarchy || fantasyRoamHud.gameObject.activeInHierarchy;
     }
 
+    public FantasyCombatHUD GetCombatHUD()
+    {
+        return fantasyCombatHud;
+    }
+
+    public BaseHUD GetActiveHUD()
+    {
+        if (fantasyCombatHud.gameObject.activeInHierarchy)
+        {
+            return fantasyCombatHud;
+        }
+
+        if (fantasyRoamHud.gameObject.activeInHierarchy)
+        {
+            return fantasyRoamHud;
+        }
+
+        /*if (modernRoamHud.gameObject.activeInHierarchy)
+        {
+            return modernRoamHud;
+        }*/
+
+        //Huds are deactivated.
+        return null;
+    }
 
 }

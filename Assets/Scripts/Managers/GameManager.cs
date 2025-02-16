@@ -37,8 +37,6 @@ public class GameManager : MonoBehaviour, IControls, ISaveable
     [SerializeField] Transform freeRoamMenuHeader;
     [SerializeField] Transform quitConfirmationHeader;
 
-
-
     const string persistentDataKey = "GameManager";
     const string myActionMap = "Menu";
 
@@ -53,7 +51,7 @@ public class GameManager : MonoBehaviour, IControls, ISaveable
     //Saving Data
     [SerializeField, HideInInspector]
     private GameSettingsState settingsState = new GameSettingsState();
-    public bool AutoRestoreOnNewTerritoryEntry { get; set; } = false;
+    private bool isDataRestored = false;
 
     SavingLoadingManager savingManager;
 
@@ -89,10 +87,12 @@ public class GameManager : MonoBehaviour, IControls, ISaveable
     //Cache
     GameObject activeMenu;
     IControls activeMenuControls;
+    
 
     private void Awake()
     {
-        Instance = this;
+        if (!Instance)
+            Instance = this;
 
         savingManager = SavingLoadingManager.Instance;
 
@@ -101,16 +101,17 @@ public class GameManager : MonoBehaviour, IControls, ISaveable
 
     private void OnEnable()
     {
-        ControlsManager.Instance.SubscribeToPlayerInput(myActionMap, this);  
+        ControlsManager.Instance.SubscribeToPlayerInput(myActionMap, this);
+        SavingLoadingManager.Instance.LoadGameDataComplete += SubscribeToPlayerEvent;
     }
     private void Start()
     {
         SettingsUI.GameSettingsUpdated += SaveNewSettings;
-        SubscribeToPlayerEvent();
+        SubscribeToPlayerEvent(null);
     }
 
 
-    private void SubscribeToPlayerEvent()
+    private void SubscribeToPlayerEvent(SceneData newSceneData)
     {
         if (PlayerStateMachine.PlayerInDanger != null && !subscibedToPlayerEvent)
         {
@@ -128,7 +129,7 @@ public class GameManager : MonoBehaviour, IControls, ISaveable
     private void OnDisable()
     {
         //SettingsUI.GameSettingsUpdated -= SaveNewSettings;
-        SavingLoadingManager.Instance.DataAndSceneLoadComplete -= SubscribeToPlayerEvent;
+        SavingLoadingManager.Instance.LoadGameDataComplete -= SubscribeToPlayerEvent;
 
         if (subscibedToPlayerEvent)
             PlayerStateMachine.PlayerInDanger -= SetPlayerInDanger;
@@ -216,7 +217,7 @@ public class GameManager : MonoBehaviour, IControls, ISaveable
 
         ResetData();
 
-        MMTimeManager.Instance.SetTimeScaleTo(0);
+        FreezeGame();
         HUDManager.Instance.HideHUDs();
 
         SetActiveMenu(inCombat ? combatPauseMenu : freeRoamPauseMenu, this);
@@ -233,6 +234,10 @@ public class GameManager : MonoBehaviour, IControls, ISaveable
         ActivateActiveMenu(false);
     }
 
+    public void FreezeGame()
+    {
+        MMTimeManager.Instance.SetTimeScaleTo(0);
+    }
 
     //Logic
     public void ResumeGame()
@@ -240,7 +245,7 @@ public class GameManager : MonoBehaviour, IControls, ISaveable
         ActivateActiveMenu(false);
         ResetTimeScale();
 
-        if (FantasyCombatManager.Instance.InCombat())
+        if (FantasyCombatManager.Instance && FantasyCombatManager.Instance.InCombat())
         {
             FantasyCombatManager.Instance.ShowHUD(true);
             ControlsManager.Instance.SwitchCurrentActionMap("FantasyCombat");
@@ -455,10 +460,16 @@ public class GameManager : MonoBehaviour, IControls, ISaveable
 
     public void RestoreState(object state)
     {
+        isDataRestored = true;
         if (state == null) { return; } //Means It's a New Game, Difficulty would be set via title screen.
 
         byte[] bytes = state as byte[];
         gameDifficulty = SerializationUtility.DeserializeValue<Difficulty>(bytes, DataFormat.Binary);
+    }
+
+    public bool IsDataRestored()
+    {
+        return isDataRestored;
     }
 
 

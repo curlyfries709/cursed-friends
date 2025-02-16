@@ -428,12 +428,12 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
         int numOfAvailablePlayers = availablePlayers.Count;
 
         //Keenan must be available & At Least 2 players required.
-        if (numOfAvailablePlayers <= 1 || !availablePlayers.Any((player) => player.unitName == PartyData.Instance.GetLeaderName()))
+        if (numOfAvailablePlayers <= 1 || !availablePlayers.Any((player) => player.unitName == PartyManager.Instance.GetLeaderName()))
         {
             return false;
         }
 
-        if(PartyData.Instance.GetActivePlayerParty().Count == unitsAlreadyTriggeredChainAttack.Count)
+        if(PartyManager.Instance.GetActivePlayerParty().Count == unitsAlreadyTriggeredChainAttack.Count)
         {
             Debug.Log("All Players Chained With. Chained With Count: " + unitsAlreadyTriggeredChainAttack.Count);
             return true;
@@ -580,7 +580,7 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
 
     private void SetPotraits()
     {
-        playerParty = PartyData.Instance.GetActivePlayerParty();
+        playerParty = PartyManager.Instance.GetActivePlayerParty();
 
         foreach (PlayerGridUnit player in playerParty)
         {

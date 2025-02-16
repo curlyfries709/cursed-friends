@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d889d6cb61954044b54f06b7fdf2da7, type: 3}
+  m_Name: Charisma Mastery
+  m_EditorClassIdentifier: 
+  masteryAttribute: 6
+  sequencedProgressions:
+  - {fileID: 11400000, guid: 02d4789fd54b9a04485dfbdf17653100, type: 2}
+  - {fileID: 11400000, guid: 93964f828bf34c343863d25616591ed4, type: 2}
+  - {fileID: 11400000, guid: ceff91dbc6c111a49aac35298dc7d860, type: 2}
+  - {fileID: 11400000, guid: 7787177f2c363004491a909c5df02d36, type: 2}
+  - {fileID: 11400000, guid: 49be32ece9d70644583cf4f5bedb3699, type: 2}

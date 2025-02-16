@@ -32,7 +32,6 @@ public class CinematicManager : MonoBehaviour, IControls
     public bool isCinematicPlaying { get; private set; } = false;
 
     //Cache
-    PlayerStateMachine player;
     CanvasGroup faderCanvasGroup;
     const string myActionkey = "Cinematic";
 
@@ -57,12 +56,10 @@ public class CinematicManager : MonoBehaviour, IControls
     private void Awake()
     {
         Instance = this;
-        player = StoryManager.Instance.GetPlayerStateMachine();
-
         fadeInTime = fader.fadeInTime;
         fadeOutTime = fader.fadeOutTime;
         faderCanvasGroup = fader.GetComponent<CanvasGroup>();
-        assetsHeader.gameObject.SetActive(false);
+        //assetsHeader.gameObject.SetActive(false);
 
         ControlsManager.Instance.SubscribeToPlayerInput(myActionkey, this);
     }
@@ -203,7 +200,7 @@ public class CinematicManager : MonoBehaviour, IControls
         //Warp Player, if not in combat.
         if (cinematicEvents.playerStateOnEnd != PlayerStateMachine.PlayerState.FantasyCombat)
         {
-            player.WarpPlayer(cinematicEvents.playerPostCinematicTransform, cinematicEvents.playerStateOnEnd, true);
+            PlayerSpawnerManager.Instance.GetPlayerStateMachine().WarpPlayer(cinematicEvents.playerPostCinematicTransform, cinematicEvents.playerStateOnEnd, true);
             //Play Roam Music
             AudioManager.Instance.PlayMusic(MusicType.Roam);
         }
@@ -264,10 +261,7 @@ public class CinematicManager : MonoBehaviour, IControls
 
     private void ShowPlayerParty(bool show)
     {
-        foreach(PlayerGridUnit player in PartyData.Instance.GetActivePlayerParty())
-        {
-            player.unitAnimator.ShowModel(show);
-        }
+        PlayerSpawnerManager.Instance.ShowPlayerParty(show);
     }
 
     public void SkipCurrentCinematic()

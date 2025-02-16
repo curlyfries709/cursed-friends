@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14c94329eb9c11847a2ac6cfbc40ac5e, type: 3}
+  m_Name: Wunderkind High Cool Uniform
+  m_EditorClassIdentifier: 
+  itemName: Wunderkind High's Cool Uniform
+  UIIcon: {fileID: 21300000, guid: 09d8afddbcf2e3447872bcb5359a8f91, type: 3}
+  itemCatergory: 1
+  buyPrice: 0
+  sellPrice: 0
+  requiredLevel: 1
+  weight: 0.6
+  rarity: 1
+  description: 
+  armour: 3
+  raceRestriction: 00000000
+  numOfEnchantmentSlots: 0
+  bonusAttributes:
+  - attribute: 6
+    attributeChange: 2
+  infusedEnchantments: []
+  embeddedEnchantments: []

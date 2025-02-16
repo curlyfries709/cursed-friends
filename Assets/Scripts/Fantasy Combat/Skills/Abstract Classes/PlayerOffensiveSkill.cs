@@ -20,7 +20,6 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
     [SerializeField] int knockbackDistance = 0;
     [Header("Element, Material & Effects")]
     [SerializeField] Element skillElement = Element.None;
-    [SerializeField] WeaponMaterial skillMaterial = WeaponMaterial.None;
     [Space(10)]
     [SerializeField] List<ChanceOfInflictingStatusEffect> inflictedStatusEffects;
     [Header("Behaviour")]
@@ -145,7 +144,7 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
 
             if (!isAttackDistanceAForwardOffset)
             {
-                destinationWithOffset = skillTargets[0].GetClosestPointOnColliderToPosition(gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0])) - (GetDirectionAsVector() * animationAttackDistance);
+                destinationWithOffset = skillTargets[0].GetClosestPointOnColliderToPosition(LevelGrid.Instance.gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0])) - (GetDirectionAsVector() * animationAttackDistance);
             }
             else
             {
@@ -165,8 +164,7 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
 
         List<InflictedStatusEffectData> successfulInflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(myUnit, target, inflictedStatusEffects);
 
-        AttackData damageData = new AttackData(myUnit, CombatFunctions.GetElement(myUnit, skillElement, isMagical), 
-            CombatFunctions.GetMaterial(myUnit, skillMaterial, isMagical), GetDamage(), isCritical, successfulInflictedStatusEffects, knockbackDistance, skillTargets.Count);
+        AttackData damageData = new AttackData(myUnit, CombatFunctions.GetElement(myUnit, skillElement, isMagical), GetDamage(), isCritical, successfulInflictedStatusEffects, knockbackDistance, skillTargets.Count);
 
         damageData.canEvade = canEvade;
 
@@ -200,35 +198,29 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
 
     public override int GetSkillIndex()
     {
-        if(CombatFunctions.GetElement(myUnit, skillElement, isMagical) != Element.None)
+        switch (CombatFunctions.GetElement(myUnit, skillElement, isMagical))
         {
-            switch (CombatFunctions.GetElement(myUnit, skillElement, isMagical))
-            {
-                case Element.Fire:
-                    return 3;
-                case Element.Ice:
-                    return 4;
-                case Element.Air:
-                    return 5;
-                case Element.Earth:
-                    return 6;
-                case Element.Holy:
-                    return 7;
-                default:
-                    return 8;
-            }
-        }
-        else
-        {
-            switch (CombatFunctions.GetMaterial(myUnit, skillMaterial, isMagical))
-            {
-                case WeaponMaterial.Steel:
-                    return 2;
-                case WeaponMaterial.Gold:
-                    return 1;
-                default:
-                    return 0;
-            }
+            case Element.Silver: 
+                return 0;
+            case Element.Steel: 
+                return 1;
+            case Element.Gold:
+                return 2;
+            case Element.Fire:
+                return 3;
+            case Element.Ice:
+                return 4;
+            case Element.Air:
+                return 5;
+            case Element.Earth:
+                return 6;
+            case Element.Holy:
+                return 7;
+            case Element.Curse: 
+                return 8;
+            default:
+                Debug.Log("SKILL INDEX NOT SET FOR ELEMENT");
+                return 0;
         }
     }
 

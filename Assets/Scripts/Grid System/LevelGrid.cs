@@ -1,4 +1,5 @@
-using System.Collections;
+using Pathfinding;
+using Pathfinding.Graphs.Grid;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,40 +9,112 @@ public class LevelGrid : MonoBehaviour
 
     [Header("Grid Data")]
     [SerializeField] float cellSize = 2;
-    [Space(10)]
-    [SerializeField] PathFinding pathFinding;
+    [SerializeField] Transform testTransform;
 
-    public GridSystem<GridObject> gridSystem;
+    public GridSystem<GridObject> gridSystem = null;
     List<GridUnit> allActiveGridUnits = new List<GridUnit>();
 
     //Cache
-    public SceneData currentSceneData { get; private set; }
+    Dictionary<BoxCollider, List<GridPosition>> setDynamicObstacleData = new Dictionary<BoxCollider, List<GridPosition>>();
 
     private int gridWidth;
     private int gridLength;
-    
 
     private void Awake()
     {
         Instance = this;
-        OnNewGridSceneLoaded();
     }
 
+    private void OnEnable()
+    {
+        SavingLoadingManager.Instance.EnteringNewTerritory += OnEnteringNewTerritory;
+    }
     private void Start()
     {
-        currentSceneData.BakeData();
-        GridSystemVisual.Instance.Setup(); 
+         GameObject cell = GridSystemVisual.Instance.DebugShowVisualAtPosition(gridSystem.GetGridPosition(testTransform.position));
+
+        GraphCollision graphCollision = AstarPath.active.data.gridGraph.collision;
+        Vector3 returnVal = graphCollision.CheckHeight(testTransform.position, out RaycastHit hit, out bool walkable);
+
+        Debug.DrawRay(testTransform.position, hit.normal * 15, Color.red, 100);
+        Debug.Log("Hit Normal " + hit.normal.ToString());
+        //Debug.Log("Hit Collider" + hit.collider.name.ToString());
+        Debug.Log("Hit Point: " + hit.point.ToString());
+        Debug.Log("return Val: " + returnVal.ToString());
+        cell.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+        //cell.transform.rotation = Quaternion.LookRotation(hit.normal);
     }
-
-    private void OnNewGridSceneLoaded()
+    public void OnNewGridSceneLoadedEarly(SceneData currentSceneData)
     {
-        currentSceneData = FindObjectOfType<SceneData>();
+        FantasySceneData fantasySceneData = currentSceneData as FantasySceneData;
 
-        gridWidth = currentSceneData.gridWidth;
-        gridLength = currentSceneData.gridLength;
+        if (!fantasySceneData) { return; }
+
+        gridWidth = fantasySceneData.gridWidth;
+        gridLength = fantasySceneData.gridLength;
 
         gridSystem = new GridSystem<GridObject>(gridWidth, gridLength, cellSize, (GridSystem<GridObject> g, GridPosition gridPosition) => new GridObject(g, gridPosition));
-        pathFinding.Setup(gridWidth, gridLength, cellSize);
+
+        GridSystemVisual.Instance.Setup();
+    }
+
+    private void OnEnteringNewTerritory()
+    {
+        gridSystem = null;
+    }
+
+    private void OnDisable()
+    {
+        SavingLoadingManager.Instance.EnteringNewTerritory -= OnEnteringNewTerritory;
+    }
+
+    public void SetDynamicObstacle(BoxCollider obstacleCollider, Collider modelCollider, bool set) //If set false, obstacle will be removed.
+    {
+        if (set && !setDynamicObstacleData.ContainsKey(obstacleCollider))
+        {
+            int minX = GetColliderBoundMinInGridPos(obstacleCollider).x;
+            int maxX = GetColliderBoundMaxInGridPos(obstacleCollider).x;
+
+            int minZ = GetColliderBoundMinInGridPos(obstacleCollider).z;
+            int maxZ = GetColliderBoundMaxInGridPos(obstacleCollider).z;
+
+            //Create in dictionary
+            setDynamicObstacleData[obstacleCollider] = new List<GridPosition>();
+
+            for (int x = minX; x <= maxX; x++)
+            {
+                for (int z = minZ; z <= maxZ; z++)
+                {
+                    GridPosition gridPosition = new GridPosition(x, z);
+
+                    //Set Data
+                    Debug.Log(obstacleCollider.name + " Setting dynamic obstacle at grid pos" + gridPosition.ToString());
+                    GridObject gridObject = GetGridObjectAtPosition(gridPosition);
+
+                    if (gridObject.SetObstacle(modelCollider))
+                    {
+                        //Add To Dict
+                        setDynamicObstacleData[obstacleCollider].Add(gridPosition);
+                        gridObject.SetPerformedObstacleCheck(true);
+                    }
+                }
+            }
+        }
+        else if(!set && setDynamicObstacleData.ContainsKey(obstacleCollider))
+        {
+            //Remove Obstacle From Grid Object
+            foreach (GridPosition gridPosition in setDynamicObstacleData[obstacleCollider])
+            {
+                //Set Data
+                Debug.Log(obstacleCollider.name + " removing dynamic obstacle at grid pos" + gridPosition.ToString());
+
+                GridObject gridObject = GetGridObjectAtPosition(gridPosition);
+                gridObject.RemoveObstacle(modelCollider);
+            }
+
+            //Remove From Dictionary
+            setDynamicObstacleData.Remove(obstacleCollider);
+        }
     }
 
     public void SetUnitAtGridPosistions(List<GridPosition> gridPositions, GridUnit unit)
@@ -86,15 +159,92 @@ public class LevelGrid : MonoBehaviour
     }
 
     //GETTERS
+    public bool IsWalkable(CharacterGridUnit unit, GridPosition gridPosition)
+    {
+        bool isWalkable = IsWalkable(gridPosition);
+
+        Debug.Log("Update function IsWalkable with Unit argument in LevelGrid to include hazard check");
+
+        return isWalkable;
+    }
+
+    public bool IsWalkable(GridPosition gridPosition)
+    {
+        return !TryGetObstacleAtPosition(gridPosition, out Collider obstacleData);
+    }
+
     public GridObject GetGridObjectAtPosition(GridPosition gridPosition)
     {
         return gridSystem.GetGridObject(gridPosition);
     }
 
-    public bool TryGetObstacleAtPosition(GridPosition gridPosition, out Collider obstacleData)
+    public bool TryGetObstacleAtPosition(GridPosition gridPosition, out Collider obstacleData) 
     {
         GridObject gridObject = GetGridObjectAtPosition(gridPosition);
+
+        if (!gridObject.testedForObstacle) //Check if point hasn't been tested for obstacle
+        {
+            PerformObstacleCheck(gridPosition, gridObject);
+        }
+
         return gridObject.TryGetObstacle(out obstacleData);
+    }
+
+    private void PerformObstacleCheck(GridPosition gridPosition, GridObject gridObject)
+    {
+        GridNodeBase gridNode = AstarPath.active.data.gridGraph.GetNode(gridPosition.x, gridPosition.z);
+
+        if (!gridNode.Walkable)//Check if node marked as unwalkable
+        {
+            Vector3 worldPos = gridSystem.GetWorldPosition(gridPosition);
+            worldPos.y = worldPos.y - 1;
+
+            Collider obstacleCollider = GameSystemsManager.Instance.GetSceneDataAsFantasyData().GetTerrainCollider();
+
+            Debug.DrawRay(worldPos, Vector3.up * 15, Color.red, 100);
+
+            float sphereCastRadius = 0.5f;
+            float sphereCastDistance = 11f;
+
+            LayerMask layerMask = AstarPath.active.data.gridGraph.collision.mask;
+
+            if (Physics.SphereCast(worldPos, sphereCastRadius, Vector3.up, out RaycastHit hitInfo, sphereCastDistance, layerMask, QueryTriggerInteraction.Ignore)) //If didn't hit, then assume it is terrain obstacle
+            {
+                obstacleCollider = hitInfo.collider;
+            }
+
+            gridObject.SetObstacle(obstacleCollider);
+
+            Debug.Log("Obstacle Check at Grid Position: " + gridPosition.ToString() + " Detected Collider: " + obstacleCollider.name);
+        }
+
+        gridObject.SetPerformedObstacleCheck(true);
+    }
+
+    public float GetGridHeightAtWorldPosition(GridPosition gridPosition, Vector3 worldPos)
+    {
+        GridObject gridObject = GetGridObjectAtPosition(gridPosition);
+
+        if (!gridObject.performedHeightCheck)
+        {
+            gridObject.SetHeightAtCentre(PerformHeightCheckAtWorldPos(worldPos).y);
+        }
+
+        return gridObject.heightAtCentre;
+    }
+
+    /*public Quaternion GetVisualRotation(GridPosition gridPosition)
+    {
+        Vector3 worldPosAtCentre = gridSystem.GetWorldPosition(gridPosition);
+
+
+
+    }*/
+
+    private Vector3 PerformHeightCheckAtWorldPos(Vector3 worldPos)
+    {
+        GraphCollision graphCollision = AstarPath.active.data.gridGraph.collision;
+        return graphCollision.CheckHeight(worldPos);
     }
 
     public List<GridUnit> GetAllActiveGridUnits()
@@ -102,7 +252,7 @@ public class LevelGrid : MonoBehaviour
         return allActiveGridUnits;
     }
 
-    public bool IsGridPositionOccupied(GridPosition gridPosition, bool includeKOedUnits)
+    public bool IsGridPositionOccupiedByUnit(GridPosition gridPosition, bool includeKOedUnits)
     {
         GridObject gridObject = gridSystem.GetGridObject(gridPosition);
 
@@ -128,7 +278,13 @@ public class LevelGrid : MonoBehaviour
 
     public bool IsGridPositionOccupiedByDifferentUnit(GridUnit myUnit, GridPosition gridPosition, bool includeKOedUnits)
     {
-        return IsGridPositionOccupied(gridPosition, includeKOedUnits) && GetUnitAtGridPosition(gridPosition) != myUnit;
+        return IsGridPositionOccupiedByUnit(gridPosition, includeKOedUnits) && GetUnitAtGridPosition(gridPosition) != myUnit;
+    }
+
+    public bool CanOccupyGridPosition(GridUnit unit, GridPosition gridPosition)
+    {
+        return !IsGridPositionOccupiedByDifferentUnit(unit, gridPosition, true) &&
+            IsWalkable(gridPosition);
     }
 
     public float GetCellSize()
@@ -144,5 +300,10 @@ public class LevelGrid : MonoBehaviour
     public int GetLength()
     {
         return gridLength;
+    }
+
+    public bool IsGridSystemValid()
+    {
+        return gridSystem != null;
     }
 }

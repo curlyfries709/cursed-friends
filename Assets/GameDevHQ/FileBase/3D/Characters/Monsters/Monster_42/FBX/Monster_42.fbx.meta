@@ -1,0 +1,218 @@
+fileFormatVersion: 2
+guid: 3b015f5ef858240a3b16092ce88062bf
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: Arm_L
+    100002: Arm_L_1
+    100004: Arm_L_2
+    100006: Arm_L_3
+    100008: Arm_L_4
+    100010: Arm_L_5
+    100012: Arm_L_6
+    100014: Arm_R
+    100016: Arm_R_1
+    100018: Arm_R_2
+    100020: Arm_R_3
+    100022: Arm_R_4
+    100024: Arm_R_5
+    100026: Arm_R_6
+    100028: Chest
+    100030: Head
+    100032: Hip
+    100034: Leg_L
+    100036: Leg_L_1
+    100038: Leg_L_2
+    100040: Leg_L_3
+    100042: Leg_L_4
+    100044: Leg_L_5
+    100046: Leg_R
+    100048: Leg_R_1
+    100050: Leg_R_2
+    100052: Leg_R_3
+    100054: Leg_R_4
+    100056: Leg_R_5
+    100058: Monster_042
+    100060: //RootNode
+    100062: Root
+    100064: Spine_1
+    100066: Spine_3
+    100068: Spine_5
+    100070: Tail
+    100072: Tail_1
+    100074: Tail_2
+    100076: Tail_2_2
+    100078: Tail_3
+    100080: Tail_3_2
+    100082: Tail_4
+    100084: Tail_4_2
+    100086: Tail_5
+    100088: Tail_5_2
+    100090: Tail_6
+    100092: Tail_6_2
+    100094: Tail_7
+    100096: Tail_7_2
+    100098: WingL
+    100100: WingL_1
+    100102: WingL_2
+    100104: WingL_3
+    100106: WingL_4
+    100108: WingR
+    100110: WingR_1
+    100112: WingR_2
+    100114: WingR_3
+    100116: WingR_4
+    400000: Arm_L
+    400002: Arm_L_1
+    400004: Arm_L_2
+    400006: Arm_L_3
+    400008: Arm_L_4
+    400010: Arm_L_5
+    400012: Arm_L_6
+    400014: Arm_R
+    400016: Arm_R_1
+    400018: Arm_R_2
+    400020: Arm_R_3
+    400022: Arm_R_4
+    400024: Arm_R_5
+    400026: Arm_R_6
+    400028: Chest
+    400030: Head
+    400032: Hip
+    400034: Leg_L
+    400036: Leg_L_1
+    400038: Leg_L_2
+    400040: Leg_L_3
+    400042: Leg_L_4
+    400044: Leg_L_5
+    400046: Leg_R
+    400048: Leg_R_1
+    400050: Leg_R_2
+    400052: Leg_R_3
+    400054: Leg_R_4
+    400056: Leg_R_5
+    400058: Monster_042
+    400060: //RootNode
+    400062: Root
+    400064: Spine_1
+    400066: Spine_3
+    400068: Spine_5
+    400070: Tail
+    400072: Tail_1
+    400074: Tail_2
+    400076: Tail_2_2
+    400078: Tail_3
+    400080: Tail_3_2
+    400082: Tail_4
+    400084: Tail_4_2
+    400086: Tail_5
+    400088: Tail_5_2
+    400090: Tail_6
+    400092: Tail_6_2
+    400094: Tail_7
+    400096: Tail_7_2
+    400098: WingL
+    400100: WingL_1
+    400102: WingL_2
+    400104: WingL_3
+    400106: WingL_4
+    400108: WingR
+    400110: WingR_1
+    400112: WingR_2
+    400114: WingR_3
+    400116: WingR_4
+    2100000: lambert2SG
+    4300000: Monster_042
+    9500000: //RootNode
+    13700000: Monster_042
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: lambert2SG
+    second: {fileID: 2100000, guid: c2447abcb10b8405ea6416f88e4dd1cc, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 0.01
+    hasPreviousCalculatedGlobalScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

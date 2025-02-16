@@ -16,7 +16,6 @@ public abstract class AIOffensiveSkill : AIBaseSkill
     [SerializeField] int knockbackDistance = 0;
     [Space(10)]
     public Element element;
-    public WeaponMaterial material;
     [Space(10)]
     [SerializeField] List<ChanceOfInflictingStatusEffect> inflictedStatusEffects;
     [Title("VFX & Spawn Points")]
@@ -75,7 +74,6 @@ public abstract class AIOffensiveSkill : AIBaseSkill
         }
     }
 
-
     protected void Attack()
     { 
         targetFeedbacksToPlay.Clear();
@@ -98,7 +96,7 @@ public abstract class AIOffensiveSkill : AIBaseSkill
             targetFeedbacksToPlay.Add(CombatFunctions.GetTargetFeedback(feedbacks, targetAffinity));
 
             //Update Affinity
-            myAI.UpdateAffinities(target, targetAffinity, CombatFunctions.GetElement(myUnit, element, isMagical), CombatFunctions.GetMaterial(myUnit, material, isMagical));
+            myAI.UpdateAffinities(target, targetAffinity, CombatFunctions.GetElement(myUnit, element, isMagical));
         }
 
         if (isSingleTarget)
@@ -140,7 +138,7 @@ public abstract class AIOffensiveSkill : AIBaseSkill
 
     IEnumerator MoveToTargetThenAttack()
     {
-        Vector3 destinationWithOffset = target.GetClosestPointOnColliderToPosition(gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0])) - (myUnitTransform.forward * animationAttackDistance);
+        Vector3 destinationWithOffset = target.GetClosestPointOnColliderToPosition(LevelGrid.Instance.gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0])) - (myUnitTransform.forward * animationAttackDistance);
         Vector3 destination = new Vector3(destinationWithOffset.x, myUnitTransform.position.y, destinationWithOffset.z);
 
         if (attackStartTransform)
@@ -171,10 +169,9 @@ public abstract class AIOffensiveSkill : AIBaseSkill
         if (!isMagical)
         {
             element = myUnit.stats.GetAttackElement();
-            material = myUnit.stats.GetAttackMaterial();
         }
 
-        AttackData damageData = new AttackData(myUnit, element, material, GetDamage(), isCritical, CombatFunctions.TryInflictStatusEffects(myUnit, target, inflictedStatusEffects), knockbackDistance, skillTargets.Count);
+        AttackData damageData = new AttackData(myUnit, element, GetDamage(), isCritical, CombatFunctions.TryInflictStatusEffects(myUnit, target, inflictedStatusEffects), knockbackDistance, skillTargets.Count);
         IDamageable damageable = target.GetComponent<IDamageable>();
 
         return damageable.TakeDamage(damageData); //(However Damage dealt & Status effects visual only shown much later)

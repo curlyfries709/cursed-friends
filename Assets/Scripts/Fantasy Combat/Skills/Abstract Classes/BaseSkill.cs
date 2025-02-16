@@ -5,6 +5,7 @@ using Sirenix.OdinInspector;
 using Cinemachine;
 using AnotherRealm;
 using System.Linq;
+using System;
 
 public abstract class BaseSkill : MonoBehaviour
 {
@@ -44,14 +45,20 @@ public abstract class BaseSkill : MonoBehaviour
     [HideIf("includeDiagonals")]
     [Tooltip("if not including diagonals, use this to define which cells should be removed. (Used when calculating ManhattenDistance)")]
     [SerializeField] int maxNumCellsFromUnit = 1;
+    [Header("Base Components")]
+    [SerializeField] protected Transform unitCameraRootTransform;
+
+    //Event
+    public Action<CharacterGridUnit> SkillOwnerSet;
 
     //Cache
     protected Transform myUnitMoveTransform;
     protected BoxCollider moveTransformGridCollider;
 
     protected LevelGrid levelGrid;
-    protected GridSystem<GridObject> gridSystem;
     protected CinemachineImpulseSource impulseSource;
+
+    protected SkillData mySkillData;
 
     //Storage
     protected List<GridPosition> selectedGridPositions = new List<GridPosition>();
@@ -71,17 +78,25 @@ public abstract class BaseSkill : MonoBehaviour
 
     protected virtual void Awake()
     {
-        if (myUnit && this is PlayerBaseSkill)
-        {
-            myUnitMoveTransform = myUnit.transform;
-            moveTransformGridCollider = myUnit.gridCollider;
-        }
-
         levelGrid = LevelGrid.Instance;
-        gridSystem = LevelGrid.Instance.gridSystem;
         impulseSource = GetComponent<CinemachineImpulseSource>();
         canTargetSelf = targets.Contains(FantasyCombatTarget.Self);
         isTargetSelfOnlySkill = canTargetSelf && targets.Count == 1;
+    }
+
+    public virtual void Setup(SkillPrefabSetter skillPrefabSetter, SkillData skillData)
+    {
+        mySkillData = skillData;
+        myUnit = skillPrefabSetter.characterGridUnit;
+        moveTransformGridCollider = myUnit.gridCollider;
+
+        unitCameraRootTransform.parent = skillPrefabSetter.cameraRootTransform;
+        HandyFunctions.ResetTransform(unitCameraRootTransform, true);
+
+        transform.parent = skillPrefabSetter.skillHeader;
+        HandyFunctions.ResetTransform(transform, true);
+
+        SkillOwnerSet?.Invoke(myUnit);
     }
 
     protected void OnSkillTriggered()
@@ -280,7 +295,7 @@ public abstract class BaseSkill : MonoBehaviour
             {
                 GridPosition gridPosition = new GridPosition(x, z);
 
-                if (!gridSystem.IsValidGridPosition(gridPosition) || !PathFinding.Instance.IsWalkable(gridPosition))
+                if (!LevelGrid.Instance.gridSystem.IsValidGridPosition(gridPosition) || !LevelGrid.Instance.IsWalkable(gridPosition))
                 {
                     continue;
                 }
@@ -493,7 +508,7 @@ public abstract class BaseSkill : MonoBehaviour
             GridPosition lastGridPosInList = listToReturn[listToReturn.Count - 1];
             GridPosition newGridPos = new GridPosition(lastGridPosInList.x + XAddition, lastGridPosInList.z + ZAddition);
 
-            if (!gridSystem.IsValidGridPosition(newGridPos))
+            if (!LevelGrid.Instance.gridSystem.IsValidGridPosition(newGridPos))
             {
                 continue;
             }
@@ -514,17 +529,21 @@ public abstract class BaseSkill : MonoBehaviour
     }
 
     //Getters
+
     protected bool GetTargetingCondition(GridPosition gridPosition)
     {
-        return canTargetSelf ? LevelGrid.Instance.IsGridPositionOccupied(gridPosition, false) : LevelGrid.Instance.IsGridPositionOccupiedByDifferentUnit(myUnit, gridPosition, canTargetKOEDUnits);
+        return canTargetSelf ? LevelGrid.Instance.IsGridPositionOccupiedByUnit(gridPosition, false) : LevelGrid.Instance.IsGridPositionOccupiedByDifferentUnit(myUnit, gridPosition, canTargetKOEDUnits);
     }
-
 
     protected bool IsCurrentGridPositionOccupiedByAnotherUnit(GridPosition gridPosition, bool includeKOedUnits)
     {
         return LevelGrid.Instance.IsGridPositionOccupiedByDifferentUnit(myUnit, gridPosition, includeKOedUnits);
     }
 
+    public SkillData GetSkillData()
+    {
+        return mySkillData;
+    }
 
     //Direction Methods
     protected virtual Direction GetDirection()

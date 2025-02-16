@@ -15,6 +15,9 @@ public class EventCondition
     public StatusEffectData statusEffect;
     [ShowIf("condition", ConditionType.StatusEffect)]
     public StoryCharacter affectedCharacter;
+    [ShowIf("condition", ConditionType.Talent)]
+    [Range(1, 12)]
+    public int minRequiredLevel = 1;
     [ShowIf("condition", ConditionType.Money)]
     public float requiredFunds = 0;
     [ShowIf("condition", ConditionType.Money)]
@@ -27,7 +30,7 @@ public class EventCondition
         PastDecision,
         Item,
         Money,
-        StatusEffect
+        StatusEffect,
+        Talent
     }
-
 }

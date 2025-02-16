@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fedd6c9a6fa426742ad8a0791a18f10a, type: 3}
+  m_Name: CRITBuff
+  m_EditorClassIdentifier: 
+  canBeAppliedOutsideCombat: 0
+  preventsUnitFromActing: 0
+  hasTurnEndEffect: 0
+  canBeGuarded: 0
+  banFPGain: 0
+  loseFPEachTurn: 0
+  buffMultiplier: 1
+  isStatBuffOrDebuff: 1
+  buffNickname: CRIT
+  effectVisualPrefab: {fileID: 7009216928462712428, guid: d3886e38c68004a4c8b1eec4bfb2df55,
+    type: 3}

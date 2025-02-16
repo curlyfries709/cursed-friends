@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &6092505195139032911
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1684368679845979021, guid: 21afedeaa3d3d2b488f8d69530add5d8,
+        type: 3}
+      propertyPath: TrailModule.colorOverLifetime.maxGradient.key0.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1684368679845979021, guid: 21afedeaa3d3d2b488f8d69530add5d8,
+        type: 3}
+      propertyPath: TrailModule.colorOverLifetime.maxGradient.key0.g
+      value: 0.3647059
+      objectReference: {fileID: 0}
+    - target: {fileID: 1684368679845979021, guid: 21afedeaa3d3d2b488f8d69530add5d8,
+        type: 3}
+      propertyPath: TrailModule.colorOverLifetime.maxGradient.key0.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1684368679845979021, guid: 21afedeaa3d3d2b488f8d69530add5d8,
+        type: 3}
+      propertyPath: TrailModule.colorOverLifetime.maxGradient.key1.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1684368679845979021, guid: 21afedeaa3d3d2b488f8d69530add5d8,
+        type: 3}
+      propertyPath: TrailModule.colorOverLifetime.maxGradient.key1.g
+      value: 0.3635726
+      objectReference: {fileID: 0}
+    - target: {fileID: 1684368679845979021, guid: 21afedeaa3d3d2b488f8d69530add5d8,
+        type: 3}
+      propertyPath: TrailModule.colorOverLifetime.maxGradient.key1.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1684368679845979022, guid: 21afedeaa3d3d2b488f8d69530add5d8,
+        type: 3}
+      propertyPath: m_Name
+      value: POF Blue Lightning
+      objectReference: {fileID: 0}
+    - target: {fileID: 1684368679845979023, guid: 21afedeaa3d3d2b488f8d69530add5d8,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1684368679845979023, guid: 21afedeaa3d3d2b488f8d69530add5d8,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1684368679845979023, guid: 21afedeaa3d3d2b488f8d69530add5d8,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1684368679845979023, guid: 21afedeaa3d3d2b488f8d69530add5d8,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 21afedeaa3d3d2b488f8d69530add5d8, type: 3}

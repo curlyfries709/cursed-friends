@@ -93,7 +93,7 @@ public class InventoryDetailUI : MonoBehaviour
     {
         gameObject.SetActive(true);
 
-        Weapon equipped = player.stats.Weapon();
+        Weapon equipped = player.stats.Equipment().Weapon();
         itemNameText.text = weapon.itemName;
 
         //Category
@@ -101,7 +101,7 @@ public class InventoryDetailUI : MonoBehaviour
 
         foreach (Transform affinity in affinityHeader)
         {
-            affinity.gameObject.SetActive(CombatFunctions.GetAffinityIndex(weapon.element, weapon.material) == affinity.GetSiblingIndex());
+            affinity.gameObject.SetActive(CombatFunctions.GetAffinityIndex(weapon.element) == affinity.GetSiblingIndex());
         }
 
         rarityText.text = weapon.rarity.ToString();
@@ -154,7 +154,7 @@ public class InventoryDetailUI : MonoBehaviour
         magDifference.text = Mathf.Abs(equipped.baseMagAttack - weapon.baseMagAttack).ToString();
         magDifference.color = isMagUpgrade ? upgradeColor : downgradeColor;
 
-        UpdateAttributes(weapon, player.stats.Weapon());
+        UpdateAttributes(weapon, player.stats.Equipment().Weapon());
         UpdateEnchantments(weapon);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
@@ -164,7 +164,7 @@ public class InventoryDetailUI : MonoBehaviour
     {
         gameObject.SetActive(true);
 
-        Armour equipped = player.stats.EquippedArmour();
+        Armour equipped = player.stats.Equipment().Armour();
         itemNameText.text = armour.itemName;
 
 
@@ -186,7 +186,7 @@ public class InventoryDetailUI : MonoBehaviour
 
         foreach (Transform race in raceRestrictionHeader)
         {
-            race.gameObject.SetActive(PartyData.Instance.GetAllPlayerMembersInWorld().Any((player) => player.stats.data.race.ToString() == race.name));
+            race.gameObject.SetActive(PartyManager.Instance.GetAllPlayerMembersInWorld().Any((player) => player.stats.data.race.ToString() == race.name));
             race.GetComponent<Image>().color = races.Contains(race.name) ? Color.white : ineligibleColor;
         }
 
@@ -203,7 +203,7 @@ public class InventoryDetailUI : MonoBehaviour
         armourDifference.text = Mathf.Abs(equipped.armour - armour.armour).ToString();
         armourDifference.color = isUpgrade ? upgradeColor : downgradeColor;
 
-        UpdateAttributes(armour, player.stats.EquippedArmour());
+        UpdateAttributes(armour, player.stats.Equipment().Armour());
         UpdateEnchantments(armour);
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);

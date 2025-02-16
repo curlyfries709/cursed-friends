@@ -35,7 +35,6 @@ public class SavingLoadingManager : MonoBehaviour, IControls
     [Header("Controls")]
     [SerializeField] List<Transform> controlHeaders = new List<Transform>();
 
-
     [SerializeField, HideInInspector]
     private SaveManagerState saveState = new SaveManagerState();
 
@@ -48,6 +47,9 @@ public class SavingLoadingManager : MonoBehaviour, IControls
     const string savingManagerKey = "SavingManager";
 
     const string myActionMap = "Menu";
+    const string playerActionMap = "Player";
+
+    bool enablePlayerControlsOnLoadComplete = true;
     public bool AllowSelfDataLoad { get; private set; } = false;
 
     //Test Bool 
@@ -55,13 +57,16 @@ public class SavingLoadingManager : MonoBehaviour, IControls
 
     //Cache
     SavingSystem savingSystem;
+    RealmType prevRealmType = RealmType.NotSet;
 
     //Events
     public Action BeginNewGameCinematic;
     public Action EnteringNewTerritory;
     public Action ReturnToDefaultPosition;
-    public Action DataAndSceneLoadComplete;
 
+    public Action<SceneData> LoadGameDataComplete;
+    public Action<SceneData> NewSceneLoadComplete;
+    public Action<RealmType> NewRealmEntered; 
 
     private void Awake()
     {
@@ -82,16 +87,39 @@ public class SavingLoadingManager : MonoBehaviour, IControls
 #if UNITY_EDITOR
         if (!LoadingEnabled)
         {
-            Debug.Log("New Game Restore Called for TESTING PURPOSES!");
-            savingSystem.NewGameRestore();
-            DataAndSceneLoadComplete?.Invoke();
-
-            if(FantasyCombatManager.Instance)
-                ControlsManager.Instance.SwitchCurrentActionMap("Player");
+            savingSystem.NewTerritoryRestore(true);
+            InvokeSceneLoadedEvents(true);
+            EnablePlayerControls();
         }
 #endif
     }
 
+    private void InvokeSceneLoadedEvents(bool loadedSaveFile)
+    {
+        SceneData currentSceneData = FindObjectOfType<SceneData>();
+
+        if (!currentSceneData)
+        {
+            Debug.Log("COULDN'T FIND SCENE DATA!");
+        }
+
+        GameSystemsManager.Instance.SetupNewSceneLoadedData(currentSceneData);//Players Spawned. Party Data Set. Level Grid Setup
+        RealmType newRealm = currentSceneData.GetRealmType();
+
+        if (loadedSaveFile)
+        {
+            //Called when loading of an old save file is complete.
+            LoadGameDataComplete?.Invoke(currentSceneData);
+        }
+        else if (prevRealmType != newRealm)
+        {
+            //Called when going from Modern to Fantasy realm and vice versa. 
+            NewRealmEntered?.Invoke(newRealm);
+        }
+        
+        //Called when a new scene/territory is loaded.
+        NewSceneLoadComplete?.Invoke(currentSceneData);
+    }
 
     //Saving Functionality
     private void RestoreNewScene()
@@ -120,7 +148,6 @@ public class SavingLoadingManager : MonoBehaviour, IControls
         string selectedSaveFile = saveFilePrepend + saveSlotIndex;
         savingSystem.DeleteFile(selectedSaveFile);
     }
-
 
     //Loading Functionalty
     public void LoadGame(int saveSlotIndex)
@@ -166,6 +193,11 @@ public class SavingLoadingManager : MonoBehaviour, IControls
         StartCoroutine(LoadTitleScreen());
     }
 
+    public void EnterNewTerritory(string sceneName)
+    {
+        StartCoroutine(EnterNewTerritoryRoutine(sceneName));
+    }
+
     IEnumerator BeginLoadRoutine(int saveSlotIndex)
     {
         ControlsManager.Instance.DisableControls();
@@ -190,8 +222,8 @@ public class SavingLoadingManager : MonoBehaviour, IControls
             ReturnToDefaultPosition?.Invoke();
         }
 
-        savingSystem.Load(selectedSaveFile);
-        DataAndSceneLoadComplete?.Invoke();
+        savingSystem.LoadFromFile(selectedSaveFile);
+        InvokeSceneLoadedEvents(true);
 
         yield return new WaitForSecondsRealtime(0.5f); //Short Delay to Hide Camera Transition when Warping Player.
         loadingScreen.Fade(false);
@@ -202,18 +234,23 @@ public class SavingLoadingManager : MonoBehaviour, IControls
         AllowSelfDataLoad = true;
     }
 
-    IEnumerator EnterNewTerritoryRoutine(int sceneIndex)
+    IEnumerator EnterNewTerritoryRoutine(string sceneName)
     {
         //Pause Game Or Whatever
 
         //Disable
         ControlsManager.Instance.DisableControls();
         AudioManager.Instance.StopMusic();
+        //Set Bools
         LoadingEnabled = true;
+        enablePlayerControlsOnLoadComplete = true;
 
         //Loading Screen
         loadingScreen.Fade(true);
         yield return new WaitForSecondsRealtime(loadingScreen.fadeInTime);
+
+        //Set Current Realm Type
+        prevRealmType = GameSystemsManager.Instance.GetCurrentSceneData().GetRealmType();
 
         //Allow A chance for territory only objects to be discarded or restored before saving current scene data.
         EnteringNewTerritory?.Invoke();
@@ -222,19 +259,21 @@ public class SavingLoadingManager : MonoBehaviour, IControls
         StoreCurrentSceneData();
 
         //Begin Loading Next Scene
-        yield return LoadScene(sceneIndex, LoadSceneMode.Single);
+        yield return LoadScene(sceneName, LoadSceneMode.Single);
 
         //Restore New Scene Data.
-        savingSystem.NewTerritoryRestore();
+        savingSystem.NewTerritoryRestore(false);
 
-        DataAndSceneLoadComplete?.Invoke();
+        InvokeSceneLoadedEvents(false);
         yield return new WaitForSecondsRealtime(0.5f); //Short Delay to Hide Camera Transition when Warping Player.
 
         loadingScreen.Fade(false);
         //GameManager.Instance.ResumeGame();
         AudioManager.Instance.PlayMusic(MusicType.Roam);
-    }
 
+        //Re-Enable Controls
+        EnablePlayerControls();
+    }
 
     IEnumerator LoadNewGameRoutine()
     {
@@ -248,8 +287,8 @@ public class SavingLoadingManager : MonoBehaviour, IControls
         yield return LoadScene(newGameStartSceneIndex, LoadSceneMode.Single);
 
         //Send Everyone Null Data so they can reset themselves
-        savingSystem.NewGameRestore();
-        DataAndSceneLoadComplete?.Invoke();
+        savingSystem.NewTerritoryRestore(true);
+        InvokeSceneLoadedEvents(true);
 
         yield return new WaitForSecondsRealtime(0.5f); //Short Delay to Hide Camera Transition when Warping Player.
 
@@ -276,19 +315,36 @@ public class SavingLoadingManager : MonoBehaviour, IControls
 
     IEnumerator LoadScene(int buildIndex, LoadSceneMode loadSceneMode)
     {
-        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(buildIndex, loadSceneMode);
+        string sceneName = SceneManager.GetSceneByBuildIndex(buildIndex).name;
+        yield return LoadScene(sceneName, loadSceneMode);
+    }
+
+    IEnumerator LoadScene(string sceneName, LoadSceneMode loadSceneMode)
+    {
+        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneName, loadSceneMode);
 
         yield return asyncOperation;
 
         if (loadSceneMode == LoadSceneMode.Additive)
         {
-            SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(buildIndex));
+            SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
         }
     }
 
     public bool IsLoading()
     {
         return loadingScreen.gameObject.activeInHierarchy;
+    }
+
+    private void EnablePlayerControls()
+    {
+        if (!enablePlayerControlsOnLoadComplete) { return; }
+        ControlsManager.Instance.SwitchCurrentActionMap(playerActionMap);
+    }
+
+    public void SetEnableControls(bool enable)
+    {
+        enablePlayerControlsOnLoadComplete = enable;
     }
 
     //UI Functionality
@@ -340,13 +396,13 @@ public class SavingLoadingManager : MonoBehaviour, IControls
 
         slotState.hasData = true;
 
-        slotState.weekday = StoryManager.Instance.currentDate.DayOfWeek.ToString();
-        slotState.date = StoryManager.Instance.GetCurrentDayMonthInGameFormat();
-        slotState.period = StoryManager.Instance.currentPeriod.ToString();
+        slotState.weekday = CalendarManager.Instance.currentDate.DayOfWeek.ToString();
+        slotState.date = CalendarManager.Instance.GetCurrentDayMonthInGameFormat();
+        slotState.period = CalendarManager.Instance.currentPeriod.ToString();
 
-        slotState.activeSceneName = LevelGrid.Instance.currentSceneData.sceneName;
+        slotState.activeSceneName = GameSystemsManager.Instance.GetCurrentSceneData().GetSceneName();
 
-        slotState.leaderLevel = PartyData.Instance.GetLeaderLevel();
+        slotState.leaderLevel = PartyManager.Instance.GetLeaderLevel();
         slotState.difficulty = GameManager.Instance.GetGameDifficulty().ToString();
 
         slotState.playTime = currentLoadedPlaytime + Time.unscaledTime; //Current Loaded Playtime.

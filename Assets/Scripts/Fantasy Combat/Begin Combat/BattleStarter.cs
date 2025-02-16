@@ -102,22 +102,28 @@ public class BattleStarter : MonoBehaviour
     //Events
     public Action<EnemyStateMachine> PlayerStartCombatAttackComplete;
     public Action TargetHit;
+ 
 
     private void Awake()
     {
-        Instance = this;
-        impulseSource = GetComponent<CinemachineImpulseSource>();
-    }
+        if(Instance == null)
+        {
+            Instance = this;
+        }
 
-    private void Start()
-    {
-        leader = PartyData.Instance.GetLeader();
-        playerStateMachine = leader.GetComponent<PlayerStateMachine>();
+        impulseSource = GetComponent<CinemachineImpulseSource>();
     }
 
     private void OnEnable()
     {
         TargetHit += OnTargetHit;
+    }
+
+    private void SetPlayerData()
+    {
+        leader = PartyManager.Instance.GetLeader();
+        playerStateMachine = PlayerSpawnerManager.Instance.GetPlayerStateMachine();
+
     }
 
     private void Setup(GridUnitAnimator attacker, IBattleTrigger battleTrigger, float canvasDelay, float battleDelay)
@@ -142,6 +148,7 @@ public class BattleStarter : MonoBehaviour
     {
         if (HasCombatIntiated()) { return; }
 
+        SetPlayerData();
         Setup(leader.unitAnimator, battleTrigger, playerAdvantageCanvasDelay, playerAdvantageBattleDelay);
 
         EnlistCombatants(attackedEnemy, CombatAdvantage.PlayerAdvantage);
@@ -173,6 +180,7 @@ public class BattleStarter : MonoBehaviour
     {
         if(HasCombatIntiated()) { return; }
 
+        SetPlayerData();
         Setup(enemyWhoTriggeredCombat.animator, battleTrigger, enemyAdvanatgeCanvasDelay, enemyAdvantageBattleDelay);
 
         EnlistCombatants(enemyWhoTriggeredCombat, CombatAdvantage.EnemyAdvantage);
@@ -189,6 +197,7 @@ public class BattleStarter : MonoBehaviour
     {
         if (HasCombatIntiated()) { return; }
 
+        SetPlayerData();
         Setup(leader.unitAnimator, battleTrigger, neutralCanvasDelay, neutralBattleDelay);
 
         EnlistCombatants(attackedEnemy, CombatAdvantage.Neutral);
@@ -228,7 +237,7 @@ public class BattleStarter : MonoBehaviour
         if (battleTrigger.battleType != BattleType.Story)
             PlayerStartCombatAttackComplete -= CombatAttackComplete;
 
-        FantasyCombatManager.Instance.BeginCombat(advantageType, battleTrigger, PartyData.Instance.GetActivePlayerParty(), assignedEnemies);
+        FantasyCombatManager.Instance.BeginCombat(advantageType, battleTrigger, PartyManager.Instance.GetActivePlayerParty(), assignedEnemies);
         playerHitVolume.SetActive(false);
 
         combatInitiated = false;
@@ -378,13 +387,16 @@ public class BattleStarter : MonoBehaviour
             }
         }
 
-        foreach (PlayerGridUnit player in PartyData.Instance.GetActivePlayerParty())
+        foreach (PlayerGridUnit player in PartyManager.Instance.GetActivePlayerParty())
         {
             FantasyCombatManager.Instance.IntializeUnit(player);
         }
 
         if(contactedEnemy)
             UpdateTargetGroup(ambushTargetGroup);
+
+        //Raise Event
+        FantasyCombatManager.Instance.BattleTriggered?.Invoke(advantageType);
     }
 
 
@@ -482,7 +494,7 @@ public class BattleStarter : MonoBehaviour
         unit.unitAnimator.ShowModel(true);
 
         unit.SetGridPositions();
-        unit.GetComponent<StateMachine>().BeginCombat();
+        unit.GetComponent<CharacterStateMachine>().BeginCombat();
 
         //Set Knockdown status.
         if (advantageType == CombatAdvantage.PlayerAdvantage && contactedEnemy && unit == contactedEnemy.myGridUnit)
@@ -497,7 +509,7 @@ public class BattleStarter : MonoBehaviour
 
     private void MoveCompanionsOutOfShot()
     {
-        foreach (PlayerGridUnit player in PartyData.Instance.GetActivePlayerParty())
+        foreach (PlayerGridUnit player in PartyManager.Instance.GetActivePlayerParty())
         {
             if(player.unitName == leader.unitName)
             {
@@ -505,7 +517,7 @@ public class BattleStarter : MonoBehaviour
             }
 
             Vector3 destination = player.transform.position +  -player.transform.forward * companionsMoveOutOfShotDistance;
-            player.GetComponent<StateMachine>().BeginCombat();
+            player.GetComponent<CharacterStateMachine>().BeginCombat();
             player.transform.DOJump(destination, unitJumpPower, 1, companionsMoveOutOfShotTime);
         }
     }
@@ -519,7 +531,7 @@ public class BattleStarter : MonoBehaviour
                 continue;
             }
 
-            GridPosition gridPos = centreGridPos + PartyData.Instance.GetPlayerRelativeGridPosToCentrePos(player, combatDirectionAsVector);
+            GridPosition gridPos = centreGridPos + PartyManager.Instance.GetPlayerRelativeGridPosToCentrePos(player, combatDirectionAsVector);
             Quaternion lookRotation = Quaternion.LookRotation(combatDirectionAsVector);
 
             if (warpUnits)
@@ -574,7 +586,7 @@ public class BattleStarter : MonoBehaviour
     //Suitable Grid Pos
     public GridPosition FindSuitableBattleStartGridPos(GridPosition desiredGridPos, List<GridPosition> bannedPositions = null)
     {
-        if (LevelGrid.Instance.TryGetObstacleAtPosition(desiredGridPos, out Collider obstacleData) || LevelGrid.Instance.IsGridPositionOccupied(desiredGridPos, true))
+        if (LevelGrid.Instance.TryGetObstacleAtPosition(desiredGridPos, out Collider obstacleData) || LevelGrid.Instance.IsGridPositionOccupiedByUnit(desiredGridPos, true))
         {
             //Theres an Obstacle at Position.
             Collider obstacleCollider;
@@ -680,12 +692,12 @@ public class BattleStarter : MonoBehaviour
         List<PlayerGridUnit> partyPosFree = new List<PlayerGridUnit>();
         List<PlayerGridUnit> partyPosOccupied = new List<PlayerGridUnit>();
 
-        foreach (PlayerGridUnit player in PartyData.Instance.GetPartyFormationOrder())
+        foreach (PlayerGridUnit player in PartyManager.Instance.GetPartyFormationOrder())
         {
             Vector3 direction = CombatFunctions.GetDirectionAsVector(leader.transform);
-            GridPosition gridPos = centreGridPos + PartyData.Instance.GetPlayerRelativeGridPosToCentrePos(player, direction);
+            GridPosition gridPos = centreGridPos + PartyManager.Instance.GetPlayerRelativeGridPosToCentrePos(player, direction);
 
-            if (LevelGrid.Instance.TryGetObstacleAtPosition(gridPos, out Collider obstacleData) || LevelGrid.Instance.IsGridPositionOccupied(gridPos, true))
+            if (LevelGrid.Instance.TryGetObstacleAtPosition(gridPos, out Collider obstacleData) || LevelGrid.Instance.IsGridPositionOccupiedByUnit(gridPos, true))
             {
                 partyPosOccupied.Add(player);
             }

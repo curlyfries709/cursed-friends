@@ -41,19 +41,18 @@ public class PhoneMenu : MonoBehaviour, IControls
         gameMenuFader.transform.parent = transform;
     }
 
-
     private void OnEnable()
     {
         ControlsManager.Instance.SubscribeToPlayerInput(myActionMap, this);
-        SavingLoadingManager.Instance.DataAndSceneLoadComplete += SubscribeToPlayerEvent;
+        SavingLoadingManager.Instance.LoadGameDataComplete += SubscribeToPlayerEvent;
     }
 
     private void Start()
     {
-        SubscribeToPlayerEvent();
+        SubscribeToPlayerEvent(null);
     }
 
-    private void SubscribeToPlayerEvent()
+    private void SubscribeToPlayerEvent(SceneData newSceneData)
     {
         if (PlayerStateMachine.PlayerInDanger != null && !subscibedToPlayerEvent)
         {
@@ -69,7 +68,7 @@ public class PhoneMenu : MonoBehaviour, IControls
 
     private void OnDisable()
     {
-        SavingLoadingManager.Instance.DataAndSceneLoadComplete -= SubscribeToPlayerEvent;
+        SavingLoadingManager.Instance.LoadGameDataComplete -= SubscribeToPlayerEvent;
 
         if (subscibedToPlayerEvent)
             PlayerStateMachine.PlayerInDanger -= SetPlayerInDanger;
@@ -102,8 +101,8 @@ public class PhoneMenu : MonoBehaviour, IControls
         gameMenuCam.SetActive(activate);
         gameMenuFader.Fade(activate, EnableControls);
 
-        PlayerGridUnit leader = PartyData.Instance.GetLeader();
-        leader.unitAnimator.SetBool(leader.unitAnimator.animIDTexting, activate);
+        PlayerStateMachine player = PlayerSpawnerManager.Instance.GetPlayerStateMachine();
+        player.animator.SetBool(player.animator.animIDTexting, activate);
     }
 
     public void OpenApp(bool open)

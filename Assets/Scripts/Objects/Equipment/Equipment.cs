@@ -11,12 +11,7 @@ public class Equipment : MonoBehaviour
     [SerializeField] Armour equippedArmour;
     [Space(10)]
     [SerializeField] bool spawnEquippedWeaponModel = false;
-    [Space(10)]
-    [SerializeField] Transform enchantmentHeader;
-    [Header("Transforms")]
-    [SerializeField] Transform weaponHeaderTransform;
-    [Tooltip("Things Such as Quivers, Dual wielding weapons, etc")]
-    [SerializeField] List<Transform> otherEquipmentHeaders;
+  
     [Header("TEST")]
     [SerializeField] Enchantment equippedEnchantment;
 
@@ -24,17 +19,11 @@ public class Equipment : MonoBehaviour
     List<Enchantment> equippedArmourEnchantments = new List<Enchantment>();
 
     CharacterGridUnit myWearer;
+    EquipmentTransforms equipmentTransforms;
 
     private void Awake()
     {
-        myWearer = GetComponentInParent<CharacterGridUnit>();
-
-        if (FantasyCombatManager.Instance && FantasyCombatManager.Instance.CombatCinematicPlaying) { return; }
-
-        SetEnchantments();
-
-      /*  if (equippedEnchantment)
-            InventoryManager.Instance.TryEnchantWeapon(myWearer as PlayerGridUnit, myWearer as PlayerGridUnit, equippedWeapon, equippedEnchantment);*/
+        SetWearer(GetComponentInParent<CharacterGridUnit>());
     }
 
     private void OnEnable()
@@ -43,13 +32,15 @@ public class Equipment : MonoBehaviour
 
         FantasyCombatManager.Instance.CombatBegun += SpawnEnchantments;
         FantasyCombatManager.Instance.CombatEnded += DestroyEnchantments;
+        SavingLoadingManager.Instance.NewRealmEntered += OnNewRealmEntered;
     }
 
-    private void Start()
+    private void OnNewRealmEntered(RealmType newRealm)
     {
-        if (FantasyCombatManager.Instance && FantasyCombatManager.Instance.CombatCinematicPlaying) { return; }
-
-        SpawnWeaponModel();
+        if(newRealm == RealmType.Fantasy)
+        {
+            SpawnWeaponModel();
+        }
     }
 
     public void SpawnEnchantments(BattleStarter.CombatAdvantage advantageType)
@@ -90,7 +81,7 @@ public class Equipment : MonoBehaviour
         //Spawn 
         foreach (EnchantmentPassiveData passiveData in enchantmentsToSpawn)
         {
-            GameObject abilityGO = Instantiate(passiveData.passiveAbility, enchantmentHeader);
+            GameObject abilityGO = Instantiate(passiveData.passiveAbility, equipmentTransforms.enchantmentHeader);
             abilityGO.GetComponent<EnchantmentEffect>().Setup(myWearer, passiveData.passivePercentageValue, passiveData.passiveNumberValue);
         }
     }
@@ -98,7 +89,7 @@ public class Equipment : MonoBehaviour
     private void DestroyEnchantments(BattleResult battleResult, IBattleTrigger battleTrigger)
     {
         //Destroy Enchantment passives
-        foreach(Transform child in enchantmentHeader)
+        foreach(Transform child in equipmentTransforms.enchantmentHeader)
         {
             child.gameObject.SetActive(false);
             Destroy(child.gameObject);
@@ -111,6 +102,7 @@ public class Equipment : MonoBehaviour
 
         FantasyCombatManager.Instance.CombatBegun -= SpawnEnchantments;
         FantasyCombatManager.Instance.CombatEnded -= DestroyEnchantments;
+        SavingLoadingManager.Instance.NewRealmEntered -= OnNewRealmEntered;
     }
 
     //Equip Options
@@ -119,8 +111,7 @@ public class Equipment : MonoBehaviour
         equippedWeapon = weapon;
 
         SpawnWeaponModel();
-        UpdateEnchantments();
-        
+        UpdateEnchantments();       
     }
 
     public void ChangeArmour(Armour armour)
@@ -141,19 +132,19 @@ public class Equipment : MonoBehaviour
         }
     }
 
-    //SETTERS
+
     private void SpawnWeaponModel()
     {
         if (!equippedWeapon || !spawnEquippedWeaponModel) { return; }
 
         //Clean Header First
-        foreach (Transform child in weaponHeaderTransform)
+        foreach (Transform child in equipmentTransforms.weaponHeaderTransform)
         {
             Destroy(child.gameObject);
         }
 
         //Instantiate
-        GameObject weapon = Instantiate(equippedWeapon.modelPrefab, weaponHeaderTransform);
+        GameObject weapon = Instantiate(equippedWeapon.modelPrefab, equipmentTransforms.weaponHeaderTransform);
 
         //Set Pos & Rot
         weapon.transform.localPosition = weapon.transform.GetChild(1).localPosition;
@@ -279,21 +270,6 @@ public class Equipment : MonoBehaviour
     }
 
     //Get Equipment Affinity Alteration
-    public List<MaterialAffinity> GetMaterialAlteration()
-    {
-        List<MaterialAffinity> equipmentAlterations = new List<MaterialAffinity>();
-
-        if (equippedArmour)
-        {
-            foreach(InfusedEnchantment infusedEnchantment in equippedArmour.infusedEnchantments)
-            {
-                equipmentAlterations = equipmentAlterations.Concat(infusedEnchantment.materialAlteration).ToList();
-            }
-        }
-
-        return equipmentAlterations;
-    }
-
     public List<ElementAffinity> GetElementAlteration()
     {
         List<ElementAffinity> equipmentAlterations = new List<ElementAffinity>();
@@ -343,6 +319,25 @@ public class Equipment : MonoBehaviour
 
         return false;
     }
+    //DOERS
+    public void SetWearer(CharacterGridUnit wearer)
+    {
+        if (!wearer) return;
+
+        myWearer = wearer;
+
+        if (FantasyCombatManager.Instance && FantasyCombatManager.Instance.CombatCinematicPlaying) { return; }
+
+        SetEnchantments();
+
+        /*  if (equippedEnchantment)
+              InventoryManager.Instance.TryEnchantWeapon(myWearer as PlayerGridUnit, myWearer as PlayerGridUnit, equippedWeapon, equippedEnchantment);*/
+    }
+
+    public void SpawnEnchantments()
+    {
+        SpawnEnchantments(BattleStarter.CombatAdvantage.Neutral);
+    }
 
     public void AdjustWearerHealth()
     {
@@ -350,9 +345,13 @@ public class Equipment : MonoBehaviour
             myWearer.Health().AdjustCurrentVitals();
     }
 
+    //SETTERS
+    public void SetEquipmentTransforms(EquipmentTransforms transforms)
+    {
+        equipmentTransforms = transforms;
+    }
+
     //Getters
-
-
     public bool IsEquipped(Item item)
     {
         Weapon weapon = item as Weapon;
@@ -406,9 +405,9 @@ public class Equipment : MonoBehaviour
     {
         List<Transform> headers = new List<Transform>();
 
-        headers.Add(weaponHeaderTransform);
+        headers.Add(equipmentTransforms.weaponHeaderTransform);
 
-        foreach(Transform header in otherEquipmentHeaders)
+        foreach(Transform header in equipmentTransforms.otherEquipmentHeaders)
         {
             headers.Add(header);
         }
@@ -418,6 +417,6 @@ public class Equipment : MonoBehaviour
 
     public Transform GetMainWeaponHeader()
     {
-        return weaponHeaderTransform;
+        return equipmentTransforms.weaponHeaderTransform;
     }
 }

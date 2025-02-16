@@ -8,7 +8,6 @@ using UnityEngine.InputSystem;
 using System.Linq;
 using System;
 
-
 public class Victory : MonoBehaviour, IControls, ISaveable
 {
     [Header("Timers")]
@@ -75,10 +74,15 @@ public class Victory : MonoBehaviour, IControls, ISaveable
     //Saving Data
     [SerializeField, HideInInspector]
     List<DroppedLootState> spawnedLootStates = new List<DroppedLootState>();
-    public bool AutoRestoreOnNewTerritoryEntry { get; set; } = true;
+    private bool isDataRestored;
 
     //Storage
+    List<LevelUpResult> levelUpRewardsDataToDisplay = new List<LevelUpResult>();
     List<GameObject> lootPool = new List<GameObject>();
+
+    //Event
+    public static Func<PartyMemberData, int, LevelUpResult> PlayerLevelledUp; //Params: Player; newLevel
+
 
     [System.Serializable]
     public class MasteryUIHeader
@@ -128,21 +132,13 @@ public class Victory : MonoBehaviour, IControls, ISaveable
 
     //Cache
     Transform leader;
+    
 
     private void OnEnable()
     {
         ControlsManager.Instance.SubscribeToPlayerInput("Victory", this);
         SavingLoadingManager.Instance.EnteringNewTerritory += OnEnterNewTerritory;
-    }
-
-    private void Start()
-    {
-        leader = PartyData.Instance.GetLeader().transform;
-        playerStateMachine = leader.GetComponent<PlayerStateMachine>();
-
-        Transform victoryPos = LevelGrid.Instance.currentSceneData.victoryTransform;
-        transform.position = victoryPos.position;
-        transform.rotation = victoryPos.rotation;
+        SavingLoadingManager.Instance.NewSceneLoadComplete += OnNewSceneLoaded;
     }
 
     public void OnVictory(CharacterGridUnit KOEDUnit, float battleTime)
@@ -151,6 +147,8 @@ public class Victory : MonoBehaviour, IControls, ISaveable
 
         currentScene = 0;
         activeModelName = "";
+
+        levelUpRewardsDataToDisplay.Clear();
 
         this.KOEDUnit = KOEDUnit;
         this.battleTime = battleTime;
@@ -165,6 +163,24 @@ public class Victory : MonoBehaviour, IControls, ISaveable
         ActivateFinalKOCam(true);
 
         StartCoroutine(VictoryRoutine());          
+    }
+
+    private void OnNewSceneLoaded(SceneData newSceneData)
+    {
+        //Needs to update position every scene, so do this on every new scene load.
+        FantasySceneData fantasySceneData = newSceneData as FantasySceneData;
+
+        if (!fantasySceneData)
+        {
+            return;
+        }
+
+        leader = PartyManager.Instance.GetLeader().transform;
+        playerStateMachine = leader.GetComponent<PlayerStateMachine>();
+
+        Transform victoryPos = fantasySceneData.victoryTransform;
+        transform.position = victoryPos.position;
+        transform.rotation = victoryPos.rotation;
     }
 
     private void OnEnterNewTerritory()
@@ -402,17 +418,44 @@ public class Victory : MonoBehaviour, IControls, ISaveable
             XPGainUI xPGainUI = XPGainObj.GetComponent<XPGainUI>();
 
             ProgressionManager.PlayerXPData playerXPData = ProgressionManager.Instance.RewardExperience(player.unitName);
+
+            //Call Level up Event
+            if (playerXPData.levelledUp)
+            {
+                InvokeLevelUpEvent(player.partyMemberData, playerXPData);
+            }
+
             float barStartValue = (float)playerXPData.currentExperience / ProgressionManager.Instance.GetNextLevelBenchmark(playerXPData.currentLevel);
             float barEndValue = (float)(playerXPData.currentExperience + playerXPData.experienceGained) / ProgressionManager.Instance.GetNextLevelBenchmark(playerXPData.currentLevel + playerXPData.levelsGained);
 
             xPGainUI.Setup(player.unitName, playerXPData.experienceGained, barStartValue, barEndValue, playerXPData.currentLevel, playerXPData.levelledUp, playerXPData.levelsGained);
-
-            //Update Skills.
-            List<PlayerBaseSkill> unlockedSkills = player.GetSkillsWithinLevelRange(playerXPData.currentLevel, playerXPData.levelsGained, PartyData.Instance.GetSkillHeaderIndex());
-            newSkills = newSkills.Concat(unlockedSkills).ToList();
         }
     }
 
+    private void InvokeLevelUpEvent(PartyMemberData player, ProgressionManager.PlayerXPData XPData)
+    {
+        foreach (Func<PartyMemberData, int, LevelUpResult> listener in PlayerLevelledUp.GetInvocationList())
+        {
+            LevelUpResult result = listener.Invoke(player, XPData.newLevel);
+
+            if(result != null)
+            {
+                levelUpRewardsDataToDisplay.Add(result);
+            }
+        }
+
+        foreach (LevelUpResult result in levelUpRewardsDataToDisplay)
+        {
+            if(result is SkillEarned)
+            {
+                //DO SOMETHING
+            }
+            else if(result is SkillPointEarned)
+            {
+                //DO SOMETHING
+            }
+        }
+    }
 
     private GameObject SpawnLoot()
     {
@@ -456,7 +499,7 @@ public class Victory : MonoBehaviour, IControls, ISaveable
         PlayerBaseSkill newSkill = newSkills[0];
         PlayerGridUnit skillOwner = newSkill.GetSkillOwner();
 
-        triggerSkillForgetting = !TryLearnNewSkill(skillOwner, newSkill);
+        triggerSkillForgetting = !skillOwner.playerSkillset.HasAvailableMemory();
 
         newSkillCanvas.alpha = 0;
         newSkillCanvas.gameObject.SetActive(true);
@@ -526,17 +569,6 @@ public class Victory : MonoBehaviour, IControls, ISaveable
         }
     }
 
-    private bool TryLearnNewSkill(PlayerGridUnit skillOwner, PlayerBaseSkill newSkill)
-    {
-        if (skillOwner.stats.Memory >= skillOwner.GetActiveLearnedSkills().Count() + 1)
-        {
-            skillOwner.LearnNewSkill(newSkill);
-            return true;
-        }
-
-        return false;
-    }
-
     private void ActivateVictoryScene(bool activate)
     {
         ActivateFinalKOCam(false);
@@ -559,7 +591,7 @@ public class Victory : MonoBehaviour, IControls, ISaveable
         }
 
         //Show/Hide Player Models.
-        foreach (CharacterGridUnit character in PartyData.Instance.GetActivePlayerParty())
+        foreach (CharacterGridUnit character in PartyManager.Instance.GetActivePlayerParty())
         {
             character.unitAnimator.ResetAnimatorToRoamState();
             character.unitAnimator.ShowModel(!activate);
@@ -787,6 +819,7 @@ public class Victory : MonoBehaviour, IControls, ISaveable
     private void OnDisable()
     {
         SavingLoadingManager.Instance.EnteringNewTerritory -= OnEnterNewTerritory;
+        SavingLoadingManager.Instance.NewSceneLoadComplete -= OnNewSceneLoaded;
     }
 
     //Input
@@ -855,6 +888,8 @@ public class Victory : MonoBehaviour, IControls, ISaveable
 
     public void RestoreState(object state)
     {
+        isDataRestored = true;
+
         if (state == null)
         {
             return;
@@ -877,5 +912,10 @@ public class Victory : MonoBehaviour, IControls, ISaveable
             spawnedLoot.transform.position = lootState.postion;
             spawnedLoot.transform.rotation = lootState.rotation;
         }
+    }
+
+    public bool IsDataRestored()
+    {
+        return isDataRestored;
     }
 }

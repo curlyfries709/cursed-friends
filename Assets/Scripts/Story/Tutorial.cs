@@ -9,7 +9,7 @@ public class Tutorial : FadeUI, ISaveable
     public string newActionMapName = "";
 
     [HideInInspector] public bool played = false;
-    public bool AutoRestoreOnNewTerritoryEntry { get; set; } = false;
+    bool isDataRestored = false;
 
     //Saving
 
@@ -20,8 +20,14 @@ public class Tutorial : FadeUI, ISaveable
 
     public void RestoreState(object state)
     {
+        isDataRestored = true;
         if (state == null) { return; }
 
         played = (bool)state;
+    }
+
+    public bool IsDataRestored()
+    {
+        return isDataRestored;
     }
 }

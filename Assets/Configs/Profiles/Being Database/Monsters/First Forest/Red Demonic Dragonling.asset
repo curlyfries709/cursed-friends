@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0b8e104cfda32c49892a0cc91494377, type: 3}
+  m_Name: Red Demonic Dragonling
+  m_EditorClassIdentifier: 
+  databaseName: 'Red Demonic Dragonling '
+  race: 7
+  raceType: 9
+  proficientWeaponCategory: 0
+  lockedName: 'Red Demonic Dragonling '
+  description: 
+  elementAffinities:
+  - element: 1
+    affinity: 5
+  - element: 3
+    affinity: 2
+  - element: 5
+    affinity: 5
+  - element: 10
+    affinity: 4
+  - element: 4
+    affinity: 1
+  itemAffinities:
+  - item: {fileID: 11400000, guid: 0ee6f5a1d7e1211449ccb220f6cb4b62, type: 2}
+    affinity: 5
+  statusEffectsNullified:
+  - {fileID: 11400000, guid: f62d78cc9a3c2774c867972211d4f60f, type: 2}
+  droppedIngridients:
+  - item: {fileID: 11400000, guid: 8e488b94537e924478fe94e06864f19a, type: 2}
+    dropChance: 50
+  - item: {fileID: 11400000, guid: b340f4219c1f4b04f9737f227d507281, type: 2}
+    dropChance: 15
+  - item: {fileID: 11400000, guid: f9ea474a31cebdf44aa53e5bd0602434, type: 2}
+    dropChance: 10

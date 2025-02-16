@@ -150,7 +150,7 @@ public class Evade : MonoBehaviour, ITurnEndEvent
         //Check if evader in Range & Affinity of Attack. 
         foreach (CharacterGridUnit evader in targets)
         {
-            if (TheCalculator.Instance.CanCounter(attacker, evader.counterAttack.attackElement, evader.counterAttack.attackMaterial) && IsEvaderInRangeForCounter(evader))
+            if (TheCalculator.Instance.CanCounter(attacker, evader.counterAttack.attackElement) && IsEvaderInRangeForCounter(evader))
             {
                 //Then Check if has higher speed than current eligible unit
                 if (!eligibleCounterAttackUnit || evader.stats.Speed > eligibleCounterAttackUnit.stats.Speed)

@@ -9,7 +9,7 @@ public class PlayerStealthState : PlayerBaseState
     public override void EnterState()
     {
         EnterStateConfig(true, true, false, 0);
-        stateMachine.SwitchToStealth(true);
+        stateMachine.SwitchToStealth?.Invoke(true);
         stateMachine.animator.SetBool(stateMachine.animator.animIDStealth, true);
 
         stateMachine.SetStealthControllerConfigValues();
@@ -32,7 +32,7 @@ public class PlayerStealthState : PlayerBaseState
     {
         ExitStateConfig(true);
 
-        stateMachine.SwitchToStealth(false);
+        stateMachine.SwitchToStealth?.Invoke(false);
         stateMachine.animator.SetBool(stateMachine.animator.animIDStealth, false);
         stateMachine.SetControllerConfig(stateMachine.defaultCCCenter, stateMachine.defaultCCRadius, stateMachine.defaultCCHeight);
     }

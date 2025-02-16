@@ -19,8 +19,6 @@ public class InfusedEnchantment : Enchantment
     [Space(5)]
     [Tooltip("ONLY INFUSED ENCHANTMENTS CAN ALTER AFFINITIES for balance reasons")]
     public List<ElementAffinity> elementAlteration;
-    [Space(5)]
-    public List<MaterialAffinity> materialAlteration;
 
 
 

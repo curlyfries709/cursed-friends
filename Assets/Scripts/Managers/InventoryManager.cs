@@ -1,16 +1,14 @@
 
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using System.Linq;
 using System;
 using Sirenix.Serialization;
 
-public class InventoryManager : MonoBehaviour, ISaveable
+public class InventoryManager : MonoBehaviour, ISaveable, IMultiWorldCombatContacter
 {
     public static InventoryManager Instance { get; private set; }
 
-    [SerializeField] SneakBarrel barrel;
     [Header("Money")]
     [Tooltip("Ratio of £1 to N Gold")]
     [SerializeField] int poundToGoldConversionConstant = 100;
@@ -23,8 +21,10 @@ public class InventoryManager : MonoBehaviour, ISaveable
     [SerializeField] Color uncommon;
     [SerializeField] Color rare;
     [SerializeField] Color legendary;
+    [Header("Tools")]
+    [SerializeField] int maxNumberOfToolSlots = 12;
     [Header("UI")]
-    [SerializeField] GameObject inventoryUI;
+    [SerializeField] InventoryUI inventoryUI;
     [Header("TEST")]
     [SerializeField] bool addTestItems;
     public List<Item> everyoneTestInventory;
@@ -36,10 +36,7 @@ public class InventoryManager : MonoBehaviour, ISaveable
     //Saving Data
     [SerializeField, HideInInspector]
     private InventoryState inventoryState = new InventoryState();
-    public bool AutoRestoreOnNewTerritoryEntry { get; set; } = false;
-
-    //Caches
-    PlayerInput playerInput;
+    bool isDataRestored = false;
 
     //Storage
     Dictionary<PlayerGridUnit, List<Potion>> potionsUsedInCombat = new Dictionary<PlayerGridUnit, List<Potion>>();
@@ -50,6 +47,7 @@ public class InventoryManager : MonoBehaviour, ISaveable
 
     Dictionary<string, List<Item>> characterFantasyWorldInventories = new Dictionary<string, List<Item>>();
     List<Item> playerRealWorldInventory = new List<Item>();
+    Tool[] assignedToolsToSlot;
 
     //Events
     public Action<Item, PlayerGridUnit> ItemDiscarded; //The Item & The Inventory Owner.
@@ -57,14 +55,29 @@ public class InventoryManager : MonoBehaviour, ISaveable
 
     private void Awake()
     {
-        Instance = this;
-        playerInput = ControlsManager.Instance.GetPlayerInput();
+        if (!Instance)
+            Instance = this;
+
+        ListenForCombatManagerSet();
+    }
+
+    public void SubscribeToCombatManagerEvents(bool subscribe)
+    {
+        if (subscribe)
+        {
+            FantasyCombatManager.Instance.BattleRestarted += OnBattleRestart;
+            FantasyCombatManager.Instance.CombatBegun += OnCombatBegin;
+        }
+        else
+        {
+            FantasyCombatManager.Instance.BattleRestarted -= OnBattleRestart;
+            FantasyCombatManager.Instance.CombatBegun -= OnCombatBegin;
+        }
     }
 
     private void OnEnable()
     {
-        FantasyCombatManager.Instance.BattleRestarted += OnBattleRestart;
-        FantasyCombatManager.Instance.CombatBegun += OnCombatBegin;
+        SavingLoadingManager.Instance.NewRealmEntered += OnNewRealmEntered;
     }
 
     private void Start()
@@ -72,49 +85,20 @@ public class InventoryManager : MonoBehaviour, ISaveable
         //TEST  METHOD!
         if (!SavingLoadingManager.Instance.LoadingEnabled)
         {
-            IntializeAllInventories();
             SetTestItems();
         }    
     }
 
-    private void SetTestItems()
+    private void OnNewRealmEntered(RealmType newRealm)
     {
-        if (!addTestItems) { return; }
-
-        foreach (PlayerGridUnit player in PartyData.Instance.GetAllPlayerMembersInWorld())
+        if(newRealm == RealmType.Fantasy)
         {
-            foreach (Item item in everyoneTestInventory)
+            //Do Overburdened check for every player.
+            foreach (PlayerGridUnit player in PartyManager.Instance.GetAllPlayerMembersInWorld())
             {
-                AddToInventory(player, item);
+                OverburdenCheck(player);
             }
         }
-
-
-        foreach (Item item in keenanItemsOnly)
-        {
-            AddToInventory(PartyData.Instance.GetLeader(), item);
-        }
-
-        if (PartyData.Instance.GetPlayerUnitViaName("Imani"))
-        {
-            foreach (Item item in imaniItemsOnly)
-            {
-                AddToInventory(PartyData.Instance.GetPlayerUnitViaName("Imani"), item);
-            }
-        }
-
-        if (PartyData.Instance.GetPlayerUnitViaName("Kira"))
-        {
-            foreach (Item item in kiraItemsOnly)
-            {
-                AddToInventory(PartyData.Instance.GetPlayerUnitViaName("Kira"), item);
-            }
-
-        }
-
-        //Earn Money
-        EarnCoin(20.50f, false);
-        EarnCoin(250, true);
     }
 
     private void OnBattleRestart()
@@ -139,17 +123,27 @@ public class InventoryManager : MonoBehaviour, ISaveable
         }
     }
 
-    public void ActivateInventoryUI(bool activate)
+    public void ActivateInventoryUIFromPhone(bool activate)
     {
         PhoneMenu.Instance.OpenApp(activate);
-        inventoryUI.SetActive(activate);
+        ActivateInventoryUI(activate);
+    }
+
+    public void ActivateInventoryUI(bool activate)
+    {
+        inventoryUI.Activate(activate);
+    }
+
+    public void ActivateInventoryUIInSelectionMode(IInventorySelector inventorySelector, ItemCatergory selectionCategory, PlayerGridUnit inventoryOwner)
+    {
+        inventoryUI.ActivateInventorySelection(inventorySelector, selectionCategory, inventoryOwner);
     }
 
     public void UpdateInventory(StoryInventoryStock inventoryStock) //Usually called by Cinematic Events.
     {
         foreach(var stock in inventoryStock.inventory)
         {
-            PlayerGridUnit inventoryOwner = PartyData.Instance.GetPlayerUnitViaName(stock.inventoryOwner.characterName);
+            PlayerGridUnit inventoryOwner = PartyManager.Instance.GetPlayerUnitViaName(stock.inventoryOwner.characterName);
 
             if (stock.shouldRemove)
             {
@@ -298,7 +292,7 @@ public class InventoryManager : MonoBehaviour, ISaveable
     {
         int count = 0;
 
-        foreach(PlayerGridUnit player in PartyData.Instance.GetAllPlayerMembersInWorld())
+        foreach(PlayerGridUnit player in PartyManager.Instance.GetAllPlayerMembersInWorld())
         {
             List<Item> inventory = characterFantasyWorldInventories[player.unitName];
             count = count + inventory.Where((invItem) => invItem == item).Count();
@@ -341,6 +335,7 @@ public class InventoryManager : MonoBehaviour, ISaveable
     public void RemoveFromInventory(PlayerGridUnit player, Item item)
     {
         characterFantasyWorldInventories[player.unitName].Remove(item);
+        UpdateToolSlots(player, item);
         ItemDiscarded?.Invoke(item, player);
         OverburdenCheck(player);
     }
@@ -370,8 +365,56 @@ public class InventoryManager : MonoBehaviour, ISaveable
             ItemTransfered?.Invoke(currentItem, giver, receiver);
         }
 
+        UpdateToolSlots(giver, item);
+
         OverburdenCheck(giver);
         OverburdenCheck(receiver);
+    }
+
+    //Tools
+    public bool IsToolAlreadyAssigned(Tool tool)
+    {
+        return assignedToolsToSlot.Contains(tool);
+    }
+    public Tool GetAssignedToolAtSlot(int slotIndex)
+    {
+        return GetAssignedToolsToSlotArray()[slotIndex];
+    }
+
+    public void AssignToolToSlot(Tool tool, int slotIndex)
+    {
+        if (!assignedToolsToSlot.Contains(tool))
+        {
+            assignedToolsToSlot[slotIndex] = tool;
+        }   
+    }
+
+    private void UpdateToolSlots(PlayerGridUnit player, Item item)
+    {
+        if (player.partyMemberData != PartyManager.Instance.GetLeader().partyMemberData) return;
+
+        Tool tool = item as Tool;
+        if (!tool) return;
+
+        //Check if tool assigned to slot
+        if (assignedToolsToSlot.Contains(tool))
+        {
+            int index = Array.IndexOf(assignedToolsToSlot, tool);
+
+            if (index < 0) return; //Tool not in array
+
+            int toolCount = GetItemCount(tool, PartyManager.Instance.GetLeader());
+
+            if(toolCount <= 0)
+            {
+                assignedToolsToSlot[index] = null;
+            }
+        }
+    }
+
+    public Tool[] GetAssignedToolsToSlotArray()
+    {
+        return assignedToolsToSlot;
     }
 
     //Enchantments
@@ -408,7 +451,7 @@ public class InventoryManager : MonoBehaviour, ISaveable
         if (isEquipped)
         {
             weaponOwner.stats.EquipWeapon(newEnchantedWeapon);
-            weaponOwner.stats.UpdateEnchantments();
+            weaponOwner.stats.Equipment().SetEnchantments();
         }
 
         return canEnchant;
@@ -447,7 +490,7 @@ public class InventoryManager : MonoBehaviour, ISaveable
         if (isEquipped)
         {
             armourOwner.stats.EquipArmour(newEnchantedArmour);
-            armourOwner.stats.UpdateEnchantments();
+            armourOwner.stats.Equipment().SetEnchantments();
         }
 
         return canEnchant;
@@ -501,7 +544,7 @@ public class InventoryManager : MonoBehaviour, ISaveable
                     equipmentOwner.stats.EquipArmour(originalItem as Armour);
                 }
      
-                equipmentOwner.stats.UpdateEnchantments();
+                equipmentOwner.stats.Equipment().SetEnchantments();
             }
         }
 
@@ -510,21 +553,31 @@ public class InventoryManager : MonoBehaviour, ISaveable
 
     private void OnDisable()
     {
-        FantasyCombatManager.Instance.BattleRestarted -= OnBattleRestart;
-        FantasyCombatManager.Instance.CombatBegun -= OnCombatBegin;
+        SavingLoadingManager.Instance.NewRealmEntered -= OnNewRealmEntered;
+    }
+
+    public void ListenForCombatManagerSet()
+    {
+        GameSystemsManager.Instance.ListenForCombatManagerInitialization(this);
+    }
+
+    private void NewGameSetup()
+    {
+        IntializeAllInventories();
+        assignedToolsToSlot = new Tool[maxNumberOfToolSlots];
     }
 
     private void IntializeAllInventories()
     {
-        foreach (PlayerGridUnit player in PartyData.Instance.GetAllPlayerMembersInWorld())
+        foreach (PartyMemberData player in PartyManager.Instance.GetAllPartyMembersData())
         {
             IntializePlayerInventory(player);
         }
     }
 
-    private void IntializePlayerInventory(PlayerGridUnit player)
+    private void IntializePlayerInventory(PartyMemberData player)
     {
-        characterFantasyWorldInventories[player.unitName] = new List<Item>();
+        characterFantasyWorldInventories[player.memberName] = new List<Item>();
     }
 
     private void OverburdenCheck(PlayerGridUnit player)
@@ -655,6 +708,10 @@ public class InventoryManager : MonoBehaviour, ISaveable
         return player.stats.InventoryWeight;
     }
 
+    public int GetMaxToolSlots()
+    {
+        return maxNumberOfToolSlots;
+    }
 
     private bool IsEquippable(ItemCatergory category)
     {
@@ -688,16 +745,45 @@ public class InventoryManager : MonoBehaviour, ISaveable
         }
     }
 
-    //INput
-    /*private void OnUseUp(InputAction.CallbackContext context)
+    private void SetTestItems()
     {
-        if (context.action.name != "UseUp") { return; }
+        if (!addTestItems) { return; }
 
-        if (context.performed)
+        foreach (PlayerGridUnit player in PartyManager.Instance.GetAllPlayerMembersInWorld())
         {
-            barrel.Toggle();
+            foreach (Item item in everyoneTestInventory)
+            {
+                AddToInventory(player, item);
+            }
         }
-    }*/
+
+
+        foreach (Item item in keenanItemsOnly)
+        {
+            AddToInventory(PartyManager.Instance.GetLeader(), item);
+        }
+
+        if (PartyManager.Instance.GetPlayerUnitViaName("Imani"))
+        {
+            foreach (Item item in imaniItemsOnly)
+            {
+                AddToInventory(PartyManager.Instance.GetPlayerUnitViaName("Imani"), item);
+            }
+        }
+
+        if (PartyManager.Instance.GetPlayerUnitViaName("Kira"))
+        {
+            foreach (Item item in kiraItemsOnly)
+            {
+                AddToInventory(PartyManager.Instance.GetPlayerUnitViaName("Kira"), item);
+            }
+
+        }
+
+        //Earn Money
+        EarnCoin(20.50f, false);
+        EarnCoin(250, true);
+    }
 
 
     //Saving
@@ -730,12 +816,12 @@ public class InventoryManager : MonoBehaviour, ISaveable
 
         inventoryState.equippedItems.Clear();
 
-        foreach (PlayerGridUnit player in PartyData.Instance.GetAllPlayerMembersInWorld())
+        foreach (PlayerGridUnit player in PartyManager.Instance.GetAllPlayerMembersInWorld())
         {
             List<string> equippedItems = new List<string>();
 
-            equippedItems.Add(player.stats.Weapon().GetID());
-            equippedItems.Add(player.stats.EquippedArmour().GetID());
+            equippedItems.Add(player.stats.Equipment().Weapon().GetID());
+            equippedItems.Add(player.stats.Equipment().Armour().GetID());
 
             inventoryState.equippedItems[player.unitName] = equippedItems;
         }
@@ -745,9 +831,11 @@ public class InventoryManager : MonoBehaviour, ISaveable
 
     public void RestoreState(object state)
     {
+        isDataRestored = true;
+
         if (state == null)
         {
-            IntializeAllInventories();
+            NewGameSetup();
             return;
         }
 
@@ -762,10 +850,13 @@ public class InventoryManager : MonoBehaviour, ISaveable
         characterFantasyWorldInventories = inventoryState.characterFantasyWorldInventories.ToDictionary(k => k.Key, k => TheCache.Instance.GetItemsById(k.Value));
         playerRealWorldInventory = TheCache.Instance.GetItemsById(inventoryState.playerRealWorldInventory);
 
+        //Restor Tools
+        Debug.Log("RESTORE TOOL SLOTS FOR INVENTORY MANAGER");
+
         //Equip Items
         foreach (var pair in inventoryState.equippedItems)
         {
-            PlayerGridUnit player = PartyData.Instance.GetPlayerUnitViaName(pair.Key);
+            PlayerGridUnit player = PartyManager.Instance.GetPlayerUnitViaName(pair.Key);
 
             foreach (string equippedID in pair.Value)
             {
@@ -788,6 +879,12 @@ public class InventoryManager : MonoBehaviour, ISaveable
             }
         }
     }
+
+    public bool IsDataRestored()
+    {
+        return isDataRestored;
+    }
+
     private Item FindInventoryItemViaID(string player, string ID)
     {
         return characterFantasyWorldInventories[player].FirstOrDefault((item) => item.GetID() == ID);
@@ -805,4 +902,6 @@ public class InventoryManager : MonoBehaviour, ISaveable
 
         return null;
     }
+
+
 }

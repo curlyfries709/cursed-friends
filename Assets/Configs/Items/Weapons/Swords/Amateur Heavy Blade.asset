@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba0d2460658c9404196f995eb5b03562, type: 3}
+  m_Name: Amateur Heavy Blade
+  m_EditorClassIdentifier: 
+  itemName: Amateur Heavy Blade
+  UIIcon: {fileID: 21300000, guid: 51984a731de9f8f468acb1db10e16c05, type: 3}
+  itemCatergory: 0
+  buyPrice: 160
+  sellPrice: 88
+  requiredLevel: 1
+  weight: 3.2
+  rarity: 0
+  description: 
+  category: 0
+  modelPrefab: {fileID: 3503938058809396803, guid: 29e10abbb2cde4e4bae477c98fc78da5,
+    type: 3}
+  basePhysAttack: 50
+  baseMagAttack: 0
+  scalingPercentage: 15
+  scalingAttribute: 0
+  numOfEnchantmentSlots: 1
+  element: 2
+  bonusAttributes: []
+  infusedEnchantments: []
+  embeddedEnchantments: []

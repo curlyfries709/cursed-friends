@@ -19,7 +19,7 @@ public class EnemySussingState : EnemyBaseState
 
         stateMachine.animator.SetSearching(true);
 
-        rotDestination = stateMachine.playerStateMachine.transform.position;
+        rotDestination = stateMachine.GetPlayerStateMachine().transform.position;
     }
 
     public override void UpdateState()
@@ -58,7 +58,7 @@ public class EnemySussingState : EnemyBaseState
         else
         {
             //If Player Exits Stealth mode
-            if (!stateMachine.playerStateMachine.InStealth())
+            if (!stateMachine.GetPlayerStateMachine().InStealth())
             {
                 PlayerSpotted();
                 return;
@@ -90,7 +90,7 @@ public class EnemySussingState : EnemyBaseState
     protected float CalculateSussmometerIncrement()
     {
         //Require Formula that includes ViewRadius, Distance & SussRate
-        float playerDistFromEnemy = Vector3.Distance(transform.position, stateMachine.playerStateMachine.transform.position);
+        float playerDistFromEnemy = Vector3.Distance(transform.position, stateMachine.GetPlayerStateMachine().transform.position);
         playerDistFromEnemy = Mathf.Max(0.1f, playerDistFromEnemy);
 
         //0 Being Enemy Pos; 1 being View Radius Edge.

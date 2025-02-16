@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03f21d7dc41c2f04184b0e858cbf675a, type: 3}
+  m_Name: Lesser Dragon Egg
+  m_EditorClassIdentifier: 
+  itemName: Lesser Dragon Egg
+  UIIcon: {fileID: 21300000, guid: e53daec2ecf74284ba002113c1514dac, type: 3}
+  itemCatergory: 4
+  buyPrice: 300
+  sellPrice: 150
+  requiredLevel: 1
+  weight: 0.5
+  rarity: 1
+  description: "Not an actual dragon egg but near enough and much easier to come
+    across. These eggs are birthed from monsters of the draconic species too small
+    to be classified as dragons. Despite that, their eggs still contain powerful
+    souls making them superb at crafting equipment capable of holding numerous enchantments.
+    \n\nUsed in armour, weapon, and magical engineering. "

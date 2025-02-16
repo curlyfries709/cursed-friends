@@ -29,8 +29,11 @@ public class CardDataManager : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;
-
+        if(Instance == null)
+        {
+            Instance = this;
+        }
+        
         InitializeDecks();
     }
     public void ChallengeOpponent(CardOpponentData opponentData)

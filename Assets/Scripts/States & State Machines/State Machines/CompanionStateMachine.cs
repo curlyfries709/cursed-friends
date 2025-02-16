@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class CompanionStateMachine : StateMachine
+public class CompanionStateMachine : CharacterStateMachine
 {
     // Variables
     [HideInInspector] public float animationBlend;
@@ -17,7 +17,9 @@ public class CompanionStateMachine : StateMachine
     public float runSpeed { get; private set; }
     public float sneakSpeed { get; private set; }
 
-    //State Global Variables
+    //Follow Behaviour Variables
+    [HideInInspector] public CompanionFollowBehaviour followBehaviour { get; private set; }
+
     [HideInInspector] public float horizontalFollowOffset = 0;
     [HideInInspector] public float verticalFollowOffset = 0;
     [HideInInspector] public Vector3 previousCCDir = Vector3.zero;
@@ -25,7 +27,7 @@ public class CompanionStateMachine : StateMachine
     [HideInInspector] public bool raiseSwapPosEventDesignee = false;
 
     //Caches
-    public GridUnitAnimator animator { get; private set; }
+    public CharacterAnimator animator { get; private set; }
     public Transform player { get; private set; }
     public PlayerStateMachine playerStateMachine { get; private set; }
     public NavMeshAgent navMeshAgent { get; private set; }
@@ -42,7 +44,7 @@ public class CompanionStateMachine : StateMachine
 
     private void Awake()
     {
-        playerStateMachine = StoryManager.Instance.GetPlayerStateMachine();
+        playerStateMachine = PlayerSpawnerManager.Instance.GetPlayerStateMachine();
         player = playerStateMachine.transform;
 
         animator = GetComponentInChildren<GridUnitAnimator>();
@@ -63,7 +65,7 @@ public class CompanionStateMachine : StateMachine
     
     private void Start()
     {
-        SetStartState();
+        //SetStartState();
     }
 
     private void SetStartState()
@@ -129,16 +131,16 @@ public class CompanionStateMachine : StateMachine
         }
     }
 
-    public void SetFollowOffsets(float horizontalOffset, float verticalOffset)
-    {
-        horizontalFollowOffset = horizontalOffset;
-        verticalFollowOffset = verticalOffset;
-    }
 
+    public void SetupFollowBehaviour(CompanionFollowBehaviour companionFollowBehaviour)
+    {
+        followBehaviour = companionFollowBehaviour;
+        SetStartState();
+    }
 
     public override void ShowWeapon(bool show)
     {
-        animator.ShowWeapon(show);
+        (animator as GridUnitAnimator).ShowWeapon(show);
     }
 
     private void OnDisable()

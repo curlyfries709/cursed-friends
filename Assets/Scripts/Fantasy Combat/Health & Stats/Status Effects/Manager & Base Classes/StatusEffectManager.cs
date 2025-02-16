@@ -91,10 +91,14 @@ public class StatusEffectManager : MonoBehaviour
     {
         FantasyHealth.CharacterUnitKOed += OnUnitKO;
         Flee.UnitFled += OnUnitKO;
-
         FantasyCombatManager.Instance.CombatEnded += OnCombatEnd;
 
-        foreach(PlayerGridUnit player in PartyData.Instance.GetAllPlayerMembersInWorld())
+        PartyManager.Instance.PlayerPartyDataSet += IntializePlayerStatusEffects;
+    }
+
+    private void IntializePlayerStatusEffects()
+    {
+        foreach (PlayerGridUnit player in PartyManager.Instance.GetAllPlayerMembersInWorld())
         {
             IntializeUnitStatusEffects(player);
         }
@@ -107,7 +111,6 @@ public class StatusEffectManager : MonoBehaviour
             orbitPoint.Rotate(Vector3.down * orbitPointRotationSpeed * Time.deltaTime);
         }
     }
-
 
     public void ApplyStatusEffect(StatusEffectData effectData, CharacterGridUnit unit, CharacterGridUnit inflictor, int numOfTurns = numOfTurnAverage, int buffChange = 0, bool isFiredUpBuff = false)
     {
@@ -161,16 +164,17 @@ public class StatusEffectManager : MonoBehaviour
 
     public void UnitOverburdened(CharacterGridUnit affectedUnit, bool isOverburdened)
     {
-        if (isOverburdened && !UnitHasStatusEffect(affectedUnit, overburdened))
+        bool hasStatusEffect = UnitHasStatusEffect(affectedUnit, overburdened);
+
+        if (isOverburdened && !hasStatusEffect)
         {
             ApplyStatusEffect(overburdened, affectedUnit, null, 10);
             ActivateEffects(affectedUnit);
         }
-        else if(!isOverburdened)
+        else if(!isOverburdened && hasStatusEffect)
         {
             CureStatusEffect(affectedUnit, overburdened);
-        }
-        
+        }  
     }
 
     public void UnitFiredUp(CharacterGridUnit unit)
@@ -459,6 +463,7 @@ public class StatusEffectManager : MonoBehaviour
         FantasyHealth.CharacterUnitKOed -= OnUnitKO;
         Flee.UnitFled -= OnUnitKO;
         FantasyCombatManager.Instance.CombatEnded -= OnCombatEnd;
+        PartyManager.Instance.PlayerPartyDataSet -= IntializePlayerStatusEffects;
     }
     //DOERS
     public GameObject SpawnStatusEffectVFX(CharacterGridUnit unit, StatusEffectData effectData)

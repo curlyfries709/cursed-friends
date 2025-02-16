@@ -11,13 +11,8 @@ public class TerritoryBorder : MonoBehaviour
     [Header("Movement")]
     [SerializeField] Transform moveAwayHeader;
     [SerializeField] float rotationTime = 0.15f;
-    [Header("Obstacle")]
-    [Tooltip("Whether this is an obstacle that is activated & deactivated during runtime")]
-    [SerializeField] protected bool markAsDynamicObstacle = false;
 
     protected Collider myCollider;
-    PlayerStateMachine player;
-
     bool movingAway = false;
 
     private void Awake()
@@ -26,16 +21,12 @@ public class TerritoryBorder : MonoBehaviour
         myCollider.isTrigger = true;
 
         ProhibitEntry(banEntry);
-        player = StoryManager.Instance.GetPlayerStateMachine();
     }
 
     private void OnEnable()
     {
         FantasyCombatManager.Instance.CombatBegun += OnCombatBegin;
         FantasyCombatManager.Instance.CombatEnded += OnCombatEnd;
-
-        if (markAsDynamicObstacle)
-            PathFinding.Instance.SetDynamicObstacle(myCollider as BoxCollider, myCollider, true);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -72,6 +63,8 @@ public class TerritoryBorder : MonoBehaviour
 
     IEnumerator AutoMoveRoutine()
     {
+        PlayerStateMachine player = PlayerSpawnerManager.Instance.GetPlayerStateMachine();
+
         movingAway = true;
 
         Vector3 moveAwayDestination = CombatFunctions.GetClosestTransform(moveAwayHeader, player.transform.position).position;
@@ -102,6 +95,8 @@ public class TerritoryBorder : MonoBehaviour
 
     private void MovementComplete()
     {
+        PlayerStateMachine player = PlayerSpawnerManager.Instance.GetPlayerStateMachine();
+
         //Re-Enable Controls
         player.BeginAutoMove(false, 0);
         ControlsManager.Instance.SwitchCurrentActionMap("Player");
@@ -124,11 +119,6 @@ public class TerritoryBorder : MonoBehaviour
     {
         FantasyCombatManager.Instance.CombatBegun -= OnCombatBegin;
         FantasyCombatManager.Instance.CombatEnded -= OnCombatEnd;
-
-        if (markAsDynamicObstacle)
-        {
-            PathFinding.Instance.SetDynamicObstacle(myCollider as BoxCollider, myCollider, false);
-        }
     }
 
     private void ProhibitEntry(bool prohibit)

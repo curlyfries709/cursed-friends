@@ -1,104 +1,47 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Sirenix.OdinInspector;
-using System.Linq;
+
+public enum RealmType
+{
+    Fantasy,
+    Modern,
+    NotSet
+}
 
 public class SceneData : MonoBehaviour
 {
-    [Title("Grid")]
-    public int gridWidth = 100;
-    public int gridLength = 150;
+    [Header("Scene Data")]
+    [SerializeField] protected string sceneName;
+    [SerializeField] protected RealmType realmType = RealmType.Fantasy;
     [Space(10)]
-    public float gridVisualVerticalOffset = 0.001f;
-    [Title("Scene Data")]
-    public string sceneName;
+    [SerializeField] Transform playerStartTransform;
     [Space(10)]
-    public bool enemyHostilesOnStart = true;
-    [ReadOnly] [SerializeField] bool isEnemyHostileCurrent;
-    public Transform victoryTransform;
-    [Space(10)]
-    public AudioClip sceneMusic;
-    [Title("Terrain")]
-    [SerializeField] Terrain sceneTerrain;
-    [SerializeField] LayerMask terrainLayerMask;
-    [Space(10)]
-    [SerializeField] float highestWalkableTerrainHeight = 8f;
-    [Title("BAKE")]
-    [SerializeField] SceneObstacleData obstacleData;
-    [Tooltip("This will overwrite the current Obsctacle data on start when you next enter player mode. Only works in Unity Editor")]
-    [SerializeField] bool bakeSceneObstacleData;
-    [ShowIf("bakeSceneObstacleData")]
-    [SerializeField] Transform bakeStartPoint;
+    [SerializeField] protected AudioClip sceneMusic;
 
-    //Cache
-    TerrainCollider terrainCollider;
-    List<EnemyStateMachine> allEnemiesInScene;
-
-    bool sceneHostilityAlteredByExternalEvent = false;
-
-    private void Awake()
+    //GETTERS
+    public string GetSceneName()
     {
-        terrainCollider = sceneTerrain.GetComponent<TerrainCollider>();
-        allEnemiesInScene = FindObjectsOfType<EnemyStateMachine>().ToList();
-        isEnemyHostileCurrent = enemyHostilesOnStart;
+        return sceneName;
     }
 
-    private void Start()
+    public AudioClip GetSceneMusic()
     {
-#if UNITY_EDITOR
-
-        if (bakeSceneObstacleData)
-        {
-            obstacleData.Setup(gridWidth, gridLength, LevelGrid.Instance.GetCellSize());
-            PathFinding.Instance.BakeNonWalkableNodes(obstacleData, bakeStartPoint, highestWalkableTerrainHeight);
-            //obstacleData.SetDirty();
-        }
-        else
-        {
-            //Debug.Log("SHOWING BAKED WALKABLE NODES");
-            //PathFinding.Instance.ShowAllWalkableNodes();
-        }
-
-#endif
-        if(!sceneHostilityAlteredByExternalEvent)
-            SetEnemiesAsHostile(enemyHostilesOnStart);
+        return sceneMusic;
+    }
+    
+    public RealmType GetRealmType()
+    {
+        return realmType;
     }
 
-    public void SetEnemiesAsHostile(bool isHostile)
+    public bool IsFantasyRealm()
     {
-        isEnemyHostileCurrent = isHostile;
-        sceneHostilityAlteredByExternalEvent = true;
-
-        foreach (EnemyStateMachine enemy in allEnemiesInScene)
-        {
-            if (enemy.enemyGroup && enemy.enemyGroup.allowSceneDataToAlterHostility)
-                enemy.isHostile = isEnemyHostileCurrent;
-        }
+        return realmType == RealmType.Fantasy;
     }
 
-    public void BakeData()
+    public Transform GetPlayerStartTransform()
     {
-        PathFinding.Instance.BakeNonWalkableNodes(obstacleData, bakeStartPoint, highestWalkableTerrainHeight);
-    }
-
-    public Terrain GetTerrain()
-    {
-        return sceneTerrain;
-    }
-
-    public Collider GetTerrainCollider()
-    {
-        return terrainCollider;
-    }
-
-    public SceneObstacleData GetObstacleData()
-    {
-        return obstacleData;
-    }
-
-    public LayerMask GetTerrainLayerMask()
-    {
-        return terrainLayerMask;
+        return playerStartTransform;
     }
 }

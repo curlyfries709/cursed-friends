@@ -84,10 +84,21 @@ public abstract class PlayerBaseSkill :BaseSkill
     {
         base.Awake();
 
-        if(myUnit)
+        if (myUnit)
+        {
+            myUnitMoveTransform = myUnit.transform;
+            moveTransformGridCollider = myUnit.gridCollider;
             player = myUnit as PlayerGridUnit;
+        }    
     }
 
+    public override void Setup(SkillPrefabSetter skillPrefabSetter, SkillData skillData)
+    {
+        base.Setup(skillPrefabSetter, skillData);
+        player = myUnit as PlayerGridUnit;
+
+        myUnitMoveTransform = skillPrefabSetter.characterGridUnitMoveTransform;
+    }
 
     private void Start()
     {
@@ -409,7 +420,7 @@ public abstract class PlayerBaseSkill :BaseSkill
             }
             else if (targets.Contains(FantasyCombatTarget.Grid))
             {
-                Vector3 gridWorldPos = gridSystem.GetWorldPosition(gridPosition);
+                Vector3 gridWorldPos = LevelGrid.Instance.gridSystem.GetWorldPosition(gridPosition);
                 float newDistance = Vector3.Distance(gridWorldPos, myUnitMoveTransform.position);
                 validUnitsInTargetArea = true;
 
@@ -439,7 +450,7 @@ public abstract class PlayerBaseSkill :BaseSkill
 
         //Warp Unit into Position & Rotation in an attempt to remove camera jitter.
         Vector3 desiredRotation = Quaternion.LookRotation(GetDirectionAsVector()).eulerAngles;
-        myUnit.Warp(gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0]), Quaternion.Euler(new Vector3(0, desiredRotation.y, 0)));
+        myUnit.Warp(LevelGrid.Instance.gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0]), Quaternion.Euler(new Vector3(0, desiredRotation.y, 0)));
 
         //Set Times
         myUnit.returnToGridPosTime = returnToGridPosTime;

@@ -85,7 +85,7 @@ public class FantasyCombatCollectionManager : MonoBehaviour, IControls, ISaveabl
     //Saving Data
     [SerializeField, HideInInspector]
     private List<ChargeableData> chargeableState = new List<ChargeableData>();
-    public bool AutoRestoreOnNewTerritoryEntry { get; set; } = true;
+    bool isDataRestored = false;
 
     //Variables
     PlayerGridUnit currentPlayer;
@@ -956,7 +956,8 @@ public class FantasyCombatCollectionManager : MonoBehaviour, IControls, ISaveabl
     {
         if (skillScrollRect.content.childCount > 0) { return; }
 
-        currentSkillList = player.GetActiveLearnedSkills();
+        currentSkillList = CombatSkillManager.Instance.GetPlayerSpawnedSkills(player);
+        currentSkillList = currentSkillList.Where((skill) => skill.GetSkillData().category == SkillCategory.Skill).ToList();
 
         foreach (PlayerBaseSkill skill in currentSkillList)
         {
@@ -1289,6 +1290,8 @@ public class FantasyCombatCollectionManager : MonoBehaviour, IControls, ISaveabl
 
     public void RestoreState(object state)
     {
+        isDataRestored = true;
+
         if (state == null)
         {
             return;
@@ -1301,7 +1304,7 @@ public class FantasyCombatCollectionManager : MonoBehaviour, IControls, ISaveabl
 
         foreach (ChargeableData chargeableData in chargeableState)
         {
-            PlayerGridUnit player = PartyData.Instance.GetPlayerUnitViaName(chargeableData.playerName);
+            PlayerGridUnit player = PartyManager.Instance.GetPlayerUnitViaName(chargeableData.playerName);
 
             if (!chargeablesOnCooldownCurrentHealth.ContainsKey(player))
             {
@@ -1312,5 +1315,10 @@ public class FantasyCombatCollectionManager : MonoBehaviour, IControls, ISaveabl
 
             //Debug.Log("Restoring: " + TheCache.Instance.GetItemByID(chargeableData.chargeableID) + "to health: " + chargeableData.chargeableHealth);
         }
+    }
+
+    public bool IsDataRestored()
+    {
+        return isDataRestored;
     }
 }

@@ -19,7 +19,6 @@ public class BeingData : ScriptableObject
     [TextArea(10, 20)]
     public string description;
     [Header("Affinities")]
-    public List<MaterialAffinity> materialAffinities = new List<MaterialAffinity>();
     public List<ElementAffinity> elementAffinities = new List<ElementAffinity>();
     public List<ItemAffinity> itemAffinities = new List<ItemAffinity>();
     [Space(10)]

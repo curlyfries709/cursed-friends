@@ -141,7 +141,7 @@ public class Flee : MonoBehaviour, IControls
         GridSystemVisual.Instance.HideAllGridVisuals(true);
 
         //Activate All Players
-        foreach (PlayerGridUnit player in PartyData.Instance.GetActivePlayerParty())
+        foreach (PlayerGridUnit player in PartyManager.Instance.GetActivePlayerParty())
         {
             player.Health().BattleComplete(); //Restore Any KOED Units to 1 Health.
             player.ActivateUnit(true);
@@ -162,7 +162,7 @@ public class Flee : MonoBehaviour, IControls
         AudioManager.Instance.PlayMusic(MusicType.Roam);
 
         //Warp Player & Allies. 
-        PlayerStateMachine playerStateMachine = StoryManager.Instance.GetPlayerStateMachine();
+        PlayerStateMachine playerStateMachine = PlayerSpawnerManager.Instance.GetPlayerStateMachine();
         FantasyCombatManager.Instance.WarpPlayerToPostCombatPos(playerStateMachine);
 
         fader.Fade(false);
@@ -183,7 +183,7 @@ public class Flee : MonoBehaviour, IControls
         }
 
         //Check if Leader
-        if (PartyData.Instance.GetLeader() == player && FantasyCombatManager.Instance.GetPlayerCombatParticipants(false, true).Count > 1)
+        if (PartyManager.Instance.GetLeader() == player && FantasyCombatManager.Instance.GetPlayerCombatParticipants(false, true).Count > 1)
         {
             return FleeResult.LeaderCannotFlee;
         }
@@ -197,7 +197,7 @@ public class Flee : MonoBehaviour, IControls
         CharacterGridUnit closestEnemy = CombatFunctions.GetClosestUnitOfTypeOrDefault(player, FantasyCombatTarget.Enemy);
 
         //Check Distance
-        if(PathFinding.Instance.DistanceInGridUnits(player.GetCurrentGridPositions()[0], closestEnemy.GetGridPositionsOnTurnStart()[0], player) < minPathDistanceFromEnemiesToFlee)
+        if(PathFinding.Instance.GetPathLengthInGridUnits(player.GetCurrentGridPositions()[0], closestEnemy.GetGridPositionsOnTurnStart()[0], player) < minPathDistanceFromEnemiesToFlee)
         {
             return FleeResult.TooClose;
         }

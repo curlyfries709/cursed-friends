@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba0d2460658c9404196f995eb5b03562, type: 3}
+  m_Name: Novice Fire Ring
+  m_EditorClassIdentifier: 
+  itemName: Novice Fire Ring
+  UIIcon: {fileID: 21300000, guid: 17a35bb158a0ee049ab97e14901d37c1, type: 3}
+  itemCatergory: 0
+  buyPrice: 390
+  sellPrice: 214
+  requiredLevel: 5
+  weight: 0.1
+  rarity: 0
+  description: 
+  category: 3
+  modelPrefab: {fileID: 1937245833446651002, guid: 000aec1e39b8a9d40aecc857dea586b2,
+    type: 3}
+  basePhysAttack: 0
+  baseMagAttack: 90
+  scalingPercentage: 25
+  scalingAttribute: 4
+  numOfEnchantmentSlots: 1
+  element: 4
+  bonusAttributes:
+  - attribute: 0
+    attributeChange: 4
+  infusedEnchantments: []
+  embeddedEnchantments: []

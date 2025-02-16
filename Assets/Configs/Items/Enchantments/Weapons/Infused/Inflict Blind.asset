@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30b6e4870aeb6b8419267a8a40d23b80, type: 3}
+  m_Name: Inflict Blind
+  m_EditorClassIdentifier: 
+  itemName: Inflict Blinded
+  UIIcon: {fileID: 0}
+  itemCatergory: 5
+  buyPrice: 0
+  sellPrice: 0
+  requiredLevel: 1
+  weight: 0
+  rarity: 0
+  description: +15% Chance to inflict blinded.
+  equipRestriction: 1
+  raceRestriction: 
+  inflictedStatusEffects:
+  - bonusPercentOfInflictingEffect: 15
+    statusEffect: {fileID: 11400000, guid: 4027d716b4c37fc4a8a360bb521dd9c3, type: 2}
+    numOfTurns: 0
+    buffChange: 0
+  statusEffectsNulled: []
+  knockbackImmunity: 0
+  passiveAbilities: []
+  bonusSubAttributes: []
+  elementAlteration: []
+  materialAlteration: []

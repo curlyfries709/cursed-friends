@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03f21d7dc41c2f04184b0e858cbf675a, type: 3}
+  m_Name: Mushroom Jelly
+  m_EditorClassIdentifier: 
+  itemName: Monster Jelly
+  UIIcon: {fileID: 21300000, guid: e0e6a93a9339ff6448137eb851889b1c, type: 3}
+  itemCatergory: 4
+  buyPrice: 0
+  sellPrice: 25
+  requiredLevel: 1
+  weight: 0.1
+  rarity: 0
+  description: "Unlike the vicious monsters it\u2019s born from, monster jelly is
+    surprisingly a delightful treat with enhanced regenerative properties. \n\nUsed
+    in desserts and potions."

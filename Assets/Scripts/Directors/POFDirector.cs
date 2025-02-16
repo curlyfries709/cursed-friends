@@ -246,7 +246,7 @@ public class POFDirector : MonoBehaviour
     public void Setup(int intiatorIndex, string intiatorName, List<PlayerGridUnit> playerActors, List<CharacterGridUnit> enemyActors, bool willKOAllEnemies, PowerOfFriendship powerOfFriendship)
     {
         //ClearActorHeaders();
-        leaderIndex = playerActors.IndexOf(PartyData.Instance.GetLeader());
+        leaderIndex = playerActors.IndexOf(PartyManager.Instance.GetLeader());
 
         foreach (PlayerGridUnit actor in playerActors)
         {

@@ -1,0 +1,118 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &625913135434348526
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 342819554587207715, guid: 434a29ad1798e8a41be4537e321ba3fe,
+        type: 3}
+      propertyPath: markAsDynamicObstacle
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 564940312257927996, guid: 434a29ad1798e8a41be4537e321ba3fe,
+        type: 3}
+      propertyPath: m_Name
+      value: Confirmation Border
+      objectReference: {fileID: 0}
+    - target: {fileID: 5342695538545510280, guid: 434a29ad1798e8a41be4537e321ba3fe,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5342695538545510280, guid: 434a29ad1798e8a41be4537e321ba3fe,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5342695538545510280, guid: 434a29ad1798e8a41be4537e321ba3fe,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5342695538545510280, guid: 434a29ad1798e8a41be4537e321ba3fe,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5342695538545510280, guid: 434a29ad1798e8a41be4537e321ba3fe,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.9238795
+      objectReference: {fileID: 0}
+    - target: {fileID: 5342695538545510280, guid: 434a29ad1798e8a41be4537e321ba3fe,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5342695538545510280, guid: 434a29ad1798e8a41be4537e321ba3fe,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.3826837
+      objectReference: {fileID: 0}
+    - target: {fileID: 5342695538545510280, guid: 434a29ad1798e8a41be4537e321ba3fe,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5342695538545510280, guid: 434a29ad1798e8a41be4537e321ba3fe,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5342695538545510280, guid: 434a29ad1798e8a41be4537e321ba3fe,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 45
+      objectReference: {fileID: 0}
+    - target: {fileID: 5342695538545510280, guid: 434a29ad1798e8a41be4537e321ba3fe,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 342819554587207715, guid: 434a29ad1798e8a41be4537e321ba3fe, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 564940312257927996, guid: 434a29ad1798e8a41be4537e321ba3fe,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 824558836879209356}
+  m_SourcePrefab: {fileID: 100100000, guid: 434a29ad1798e8a41be4537e321ba3fe, type: 3}
+--- !u!1 &1114819675968908498 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 564940312257927996, guid: 434a29ad1798e8a41be4537e321ba3fe,
+    type: 3}
+  m_PrefabInstance: {fileID: 625913135434348526}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &824558836879209356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1114819675968908498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04dba3aa2a745b649b7e5b794dbeedea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  banEntry: 1
+  bannedEntryDialogue: {fileID: 0}
+  moveAwayHeader: {fileID: 5983007661230613746}
+  rotationTime: 0.15
+  markAsDynamicObstacle: 1
+  choiceRefRequiredToContinue: 0
+  eventToTriggerOnConfirmation:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!4 &5983007661230613746 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6604627169396642588, guid: 434a29ad1798e8a41be4537e321ba3fe,
+    type: 3}
+  m_PrefabInstance: {fileID: 625913135434348526}
+  m_PrefabAsset: {fileID: 0}

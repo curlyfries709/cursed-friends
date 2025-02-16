@@ -116,7 +116,8 @@ public class TheCalculator : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;
+        if (!Instance)
+            Instance = this;
     }
 
     public int CalculateRawDamage(CharacterGridUnit attacker, bool magicalAttack, PowerGrade skillPowerGrade, out bool isCritical, bool canCrit = true)
@@ -127,7 +128,7 @@ public class TheCalculator : MonoBehaviour
         int unitAttack = magicalAttack ? attacker.stats.MagAttack : attacker.stats.PhysAttack;
 
         int rawDamage;
-        Weapon weapon = attacker.stats.Weapon();
+        Weapon weapon = attacker.stats.Equipment().Weapon();
 
         if (weapon)
         {
@@ -168,7 +169,6 @@ public class TheCalculator : MonoBehaviour
         CharacterGridUnit attacker = attackData.attacker; 
 
         Element attackElement = attackData.attackElement;
-        WeaponMaterial attackMaterial = attackData.attackMaterial;
         Item attackItem = attackData.attackIngridient;
 
         bool isCrit = attackData.isCritical;
@@ -193,7 +193,7 @@ public class TheCalculator : MonoBehaviour
         //Target Armour subtracted by Attacker Raw Damage
         int damageReduced = ArmourReduction(rawDamage, target);
 
-        affinityDamage.affinity = GetAffinity(target, attackElement, attackMaterial, attackItem);
+        affinityDamage.affinity = GetAffinity(target, attackElement, attackItem);
 
         switch (affinityDamage.affinity)
         {
@@ -369,20 +369,17 @@ public class TheCalculator : MonoBehaviour
         return unit.stats.HealEfficacy + variance;
     }
 
-    public Affinity GetAffinity(CharacterGridUnit unit, Element attackElement, WeaponMaterial attackMaterial, Item attackItem)
+    public Affinity GetAffinity(CharacterGridUnit unit, Element attackElement,  Item attackItem)
     {
-        Affinity affinity = Affinity.None;
-
-        if (attackMaterial != WeaponMaterial.None)
+        if(attackElement == Element.None && !attackItem)
         {
-            affinity = unit.stats.currentMaterialAffinities[attackMaterial];
-        }
-        else if (attackElement != Element.None)
-        {
-            affinity = unit.stats.currentElementAffinities[attackElement];
+            Debug.Log("ATTACK ELEMENT IS NONE. IS THIS CORRECT?");
+            return Affinity.None;
         }
 
-        if(affinity == Affinity.None && attackItem)
+        Affinity affinity = unit.stats.currentElementAffinities[attackElement];
+
+        if(attackElement == Element.None && attackItem)
         {
             foreach (ItemAffinity itemAffinity in unit.stats.data.itemAffinities)
             {
@@ -420,15 +417,15 @@ public class TheCalculator : MonoBehaviour
 
     }
 
-    public bool CanCounter(CharacterGridUnit target, Element attackElement, WeaponMaterial attackMaterial)
+    public bool CanCounter(CharacterGridUnit target, Element attackElement)
     {
         //Contact Monster Database and see if Element Data unlocked for Element. If Unlocked & will damage, counter.
-        Affinity affinity = GetAffinity(target, attackElement, attackMaterial, null);
+        Affinity affinity = GetAffinity(target, attackElement, null);
 
         //Still worth countering an immune target as it could inflict status effect. HOWEVER, I HAVE REMOVED IT. DESIGN CHOICE.
         bool isAttackableAffinity = affinity == Affinity.None || affinity == Affinity.Weak || affinity == Affinity.Resist;
 
-        return isAttackableAffinity && EnemyDatabase.Instance.IsAffinityUnlocked(target, attackElement, attackMaterial);
+        return isAttackableAffinity && EnemyDatabase.Instance.IsAffinityUnlocked(target, attackElement);
     }
 
     public bool IsAttackBackStab(CharacterGridUnit attacker, GridUnit target)

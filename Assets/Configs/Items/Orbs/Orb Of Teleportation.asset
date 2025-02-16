@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 815049f6f081dd843bb1db5add354565, type: 3}
+  m_Name: Orb Of Teleportation
+  m_EditorClassIdentifier: 
+  itemName: 'Orb Of Teleportation '
+  UIIcon: {fileID: 21300000, guid: 73060ad507567e745bad29259731628a, type: 3}
+  itemCatergory: 3
+  buyPrice: 480
+  sellPrice: 264
+  requiredLevel: 1
+  weight: 4
+  rarity: 1
+  description: Warp to a new position or swap positions with a unit within a range
+    of 4.
+  cooldownAtWisLv1: 8
+  orbSkillPrefab: {fileID: 3184062907733567711, guid: 8e7b6b08a4cf24f4489bfcc068e0bd05,
+    type: 3}

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c1ee4a0c8468d14bb820ace6bd1cc66, type: 3}
+  m_Name: Mr Merchant
+  m_EditorClassIdentifier: 
+  potraitBackground: {fileID: 21300000, guid: 452ccc2de8b74f64a9a283fdd9c9be7c, type: 3}
+  characterName: Mr Merchant
+  dialogueNodeColour: 3
+  moodSprites:
+  - mood: 0
+    sprite: {fileID: 21300000, guid: 20ce98054ab9f7c48a63462edd9f8740, type: 3}

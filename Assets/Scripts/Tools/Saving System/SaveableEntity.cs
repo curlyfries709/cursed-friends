@@ -29,35 +29,27 @@ public class SaveableEntity : MonoBehaviour
         return state;
     }
 
-    public void NewGameRestore()
+    public void RestoreState(object state, bool fullRestore = true)
     {
-        foreach (ISaveable saveable in GetComponents<ISaveable>())
-        {
-            saveable.RestoreState(null);
-        }
+        Restore(state, fullRestore);
     }
 
-    public void RestoreState(object state)
-    {
-        Restore(state, false);
-    }
-
-    public void OnNewTerritoryRestoreState(object state)
-    {
-        Restore(state, true);
-    }
-
-    private void Restore(object state, bool isNewSceneRestore)
+    private void Restore(object state, bool fullRestore)
     {
         //print("Restoring STate for " + gameObject.name + " With UID: " + GetUID());
         Dictionary<string, object> stateDict = (Dictionary<string, object>)state;
         foreach (ISaveable saveable in GetComponents<ISaveable>())
         {
-            if (isNewSceneRestore && !saveable.AutoRestoreOnNewTerritoryEntry) { continue; }
+            if (!fullRestore && saveable.IsDataRestored()) { continue; }
 
             string typeString = saveable.GetType().ToString();
 
-            if (stateDict.ContainsKey(typeString))
+            if (stateDict == null)
+            {
+                //Debug.Log("Sending null data to: " + gameObject.name + " Full Restore: " + fullRestore.ToString() + " Is Restored: " + saveable.IsDataRestored().ToString());
+                saveable.RestoreState(null);
+            }
+            else if (stateDict.ContainsKey(typeString))
             {
                 saveable.RestoreState(stateDict[typeString]);
             }

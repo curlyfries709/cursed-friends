@@ -32,7 +32,7 @@ public abstract class AIBaseSkill : BaseSkill
 
     protected Transform myUnitTransform;
 
-    //Data
+    //Shared Skill Data
     protected List<GridUnit> skillTargets = new List<GridUnit>();
     protected List<GridPosition> targetGridPositions = new List<GridPosition>();
 
@@ -43,8 +43,8 @@ public abstract class AIBaseSkill : BaseSkill
     protected float rotationTime;
     protected bool isCritical;
 
-    int currentCooldown = 0;
-
+    //Instance Data (Data unique for each unit that uses this skill)
+    FantasyCombatAI.InstancedSkillData currentInstancedSkillData;
 
     public class AISkillData
     {
@@ -64,7 +64,7 @@ public abstract class AIBaseSkill : BaseSkill
         public Direction directionToTriggerSkill;
     }
 
-    protected override void Awake()
+   /* protected override void Awake()
     {
         base.Awake();
 
@@ -72,6 +72,22 @@ public abstract class AIBaseSkill : BaseSkill
 
         myUnitTransform = myUnit.transform;
         myUnitMoveTransform = evaluationTransform;
+
+        SetEvaluationCollider();
+    }*/
+
+    public override void Setup(SkillPrefabSetter skillPrefabSetter, SkillData skillData)
+    {
+        base.Setup(skillPrefabSetter, skillData);
+
+        AISkillPrefabSetter aISkillPrefabSetter = skillPrefabSetter as AISkillPrefabSetter;
+
+        myUnitTransform = myUnit.transform;
+
+        evaluationTransform = aISkillPrefabSetter.AIEvaluationBoxCollider.transform;
+        myUnitMoveTransform = evaluationTransform;
+        
+        myStateMachine = myUnit.GetComponent<EnemyStateMachine>();
 
         SetEvaluationCollider();
     }
@@ -88,7 +104,7 @@ public abstract class AIBaseSkill : BaseSkill
 
         //Warp Unit into Position & Rotation in an attempt to remove camera jitter.
         Vector3 desiredRotation = Quaternion.LookRotation(CombatFunctions.GetDirectionAsVector(myUnitTransform)).eulerAngles;
-        myUnit.Warp(gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0]), Quaternion.Euler(new Vector3(0, desiredRotation.y, 0)));
+        myUnit.Warp(LevelGrid.Instance.gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0]), Quaternion.Euler(new Vector3(0, desiredRotation.y, 0)));
 
         //Set Times
         myUnit.returnToGridPosTime = returnToGridPosTime;
@@ -109,7 +125,7 @@ public abstract class AIBaseSkill : BaseSkill
         myUnit.MovedToNewGridPos();
 
         if (HasCooldown())
-            currentCooldown = UnityEngine.Random.Range(minSkillCooldown, maxSkillCooldown + 1);
+            currentInstancedSkillData.currentCooldown = UnityEngine.Random.Range(minSkillCooldown, maxSkillCooldown + 1);
     }
 
     protected abstract void SetUnitsToShow();
@@ -148,12 +164,13 @@ public abstract class AIBaseSkill : BaseSkill
     }
 
     //Skill Action Score Generation.
-    public AISkillData GetBestActionScore(List<GridPosition> validMovePositions, FantasyCombatAI myAI)
+    public AISkillData GetBestActionScore(List<GridPosition> validMovePositions, FantasyCombatAI myAI, FantasyCombatAI.InstancedSkillData instancedSkillData)
     {
+        currentInstancedSkillData = instancedSkillData;
+
         //Cannot Execute if Skill On Cooldown
-        if(currentCooldown > 0 && HasCooldown())
+        if(currentInstancedSkillData.currentCooldown > 0 && HasCooldown())
         {
-            currentCooldown--;
             return null;
         }
 
@@ -180,7 +197,7 @@ public abstract class AIBaseSkill : BaseSkill
             if (IsCurrentGridPositionOccupiedByAnotherUnit(movePos, true)) { continue; }
 
             //Update Move Transform Position for Skill AOE Calculation
-            myUnitMoveTransform.position = gridSystem.GetWorldPosition(movePos);
+            myUnitMoveTransform.position = LevelGrid.Instance.gridSystem.GetWorldPosition(movePos);
 
             //Physics.SyncTransforms(); 
 
@@ -250,12 +267,12 @@ public abstract class AIBaseSkill : BaseSkill
         if (myAI.positioningBehaviour == PositioningBehaviour.ClosestPositionToStartingPos || myAI.positioningBehaviour == PositioningBehaviour.FurthestPositionFromTarget)
         {
             GridUnit closestUnit = CombatFunctions.GetClosestUnit(selectedUnits, myUnitMoveTransform);
-            GridPosition closestUnitGridPosition = gridSystem.GetGridPosition(closestUnit.GetClosestPointOnColliderToPosition(myUnitMoveTransform.transform.position));
+            GridPosition closestUnitGridPosition = LevelGrid.Instance.gridSystem.GetGridPosition(closestUnit.GetClosestPointOnColliderToPosition(myUnitMoveTransform.transform.position));
 
             GridPosition startingGridPos = myAI.positioningBehaviour == PositioningBehaviour.FurthestPositionFromTarget ? closestUnitGridPosition : myUnit.GetCurrentGridPositions()[0];
 
             //Subtract one because Closest Position To Target shouldn't be penalised for having distance of 1 which is shortest possible distance.
-            int distance = Mathf.Max((PathFinding.Instance.DistanceInGridUnits(startingGridPos, currentGridPos, myUnit)) - 1, 0);
+            int distance = Mathf.Max((PathFinding.Instance.GetPathLengthInGridUnits(startingGridPos, currentGridPos, myUnit)) - 1, 0);
 
             int multiplier = myAI.positioningBehaviour == PositioningBehaviour.FurthestPositionFromTarget ? 2 : -2;
 
@@ -294,12 +311,11 @@ public abstract class AIBaseSkill : BaseSkill
 
             if (offensiveSkill && myAI.shouldRememberAffinities && targetChar)
             {
-                Element skillElement = CombatFunctions.GetElement(myUnit, offensiveSkill.element, offensiveSkill.isMagical);
-                WeaponMaterial skillMaterial = CombatFunctions.GetMaterial(myUnit, offensiveSkill.material, offensiveSkill.isMagical);
+                Element skillElement = CombatFunctions.GetElement(myUnit, offensiveSkill.element, offensiveSkill.isMagical); 
 
-                if (myAI.IsAffinityRemembered(target, skillElement, skillMaterial))
+                if (myAI.IsAffinityRemembered(target, skillElement))
                 {
-                    Affinity affinity = TheCalculator.Instance.GetAffinity(targetChar, skillElement, skillMaterial, null);
+                    Affinity affinity = TheCalculator.Instance.GetAffinity(targetChar, skillElement, null);
 
                     switch (affinity)
                     {
@@ -335,7 +351,7 @@ public abstract class AIBaseSkill : BaseSkill
         { 
             foreach (GridPosition targetPos in selectedGridPositions)
             {
-                if(!levelGrid.IsGridPositionOccupied(targetPos, false))
+                if(!levelGrid.IsGridPositionOccupiedByUnit(targetPos, false))
                 {
                     totalActionScore = totalActionScore + 2;
                 }
@@ -445,13 +461,15 @@ public abstract class AIBaseSkill : BaseSkill
         return minSkillCooldown > 0 || maxSkillCooldown > 0;
     }
 
-    public void ResetCooldown()
+    public int GetFirstCooldown()
     {
         //To Ensure Skill isn't always first skill triggered
         if (HasCooldown())
         {
-            currentCooldown = UnityEngine.Random.Range(0, maxSkillCooldown + 1);
+            return UnityEngine.Random.Range(0, maxSkillCooldown + 1);
         }
+
+        return 0;
     }
 
     private bool IsSkillAffectedByRotation()
@@ -461,8 +479,8 @@ public abstract class AIBaseSkill : BaseSkill
 
     private bool IsGridPositionCloserToMyStartPos(GridPosition posToEvaluate, GridPosition otherPos)
     {
-        float posToEvaluteDistance = Vector3.Distance(myUnit.transform.position, gridSystem.GetWorldPosition(posToEvaluate));
-        float otherPosDistance = Vector3.Distance(myUnit.transform.position, gridSystem.GetWorldPosition(otherPos));
+        float posToEvaluteDistance = Vector3.Distance(myUnit.transform.position, LevelGrid.Instance.gridSystem.GetWorldPosition(posToEvaluate));
+        float otherPosDistance = Vector3.Distance(myUnit.transform.position, LevelGrid.Instance.gridSystem.GetWorldPosition(otherPos));
 
         return posToEvaluteDistance > otherPosDistance;
     }

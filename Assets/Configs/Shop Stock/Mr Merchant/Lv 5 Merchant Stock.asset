@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bb3714270f33bb459de4d630ad2ecdf, type: 3}
+  m_Name: Lv 5 Merchant Stock
+  m_EditorClassIdentifier: 
+  levelToAddStockToShop: 5
+  levelToStopShowingStock: 100
+  stockCollection:
+  - item: {fileID: 11400000, guid: c530b126e7c676f48bc20ebbf4bbf4e5, type: 2}
+    dailyStockCount: 2
+  - item: {fileID: 11400000, guid: 3da4ccf99a913554585df4618f0fb6f9, type: 2}
+    dailyStockCount: 1
+  - item: {fileID: 11400000, guid: f3b42baf8cedf814b8c2c32d7a8637fd, type: 2}
+    dailyStockCount: 1

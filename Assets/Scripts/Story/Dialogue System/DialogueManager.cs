@@ -20,7 +20,7 @@ public class DialogueManager : MonoBehaviour, ISaveable
     //Saving Data
     [SerializeField, HideInInspector]
     private List<string> playedDialogue = new List<string>();
-    public bool AutoRestoreOnNewTerritoryEntry { get; set; } = false;
+    bool isDataRestored = false;
 
     public Action<ChoiceReferences> ChoiceWithReferenceSelected;
     public Action DialogueEnded;
@@ -337,10 +337,16 @@ public class DialogueManager : MonoBehaviour, ISaveable
 
     public void RestoreState(object state)
     {
+        isDataRestored = true;
         if (state == null) { return; }
 
         byte[] bytes = state as byte[];
         playedDialogue = SerializationUtility.DeserializeValue<List<string>>(bytes, DataFormat.Binary);
+    }
+
+    public bool IsDataRestored()
+    {
+        return isDataRestored;
     }
 
 }

@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba0d2460658c9404196f995eb5b03562, type: 3}
+  m_Name: Wind Blade
+  m_EditorClassIdentifier: 
+  itemName: Wind Blade
+  UIIcon: {fileID: 21300000, guid: 51984a731de9f8f468acb1db10e16c05, type: 3}
+  itemCatergory: 0
+  buyPrice: 330
+  sellPrice: 181
+  requiredLevel: 5
+  weight: 2.6
+  rarity: 0
+  description: 
+  category: 0
+  modelPrefab: {fileID: 593295815253776542, guid: 681cfd8f0f18f334f9bbfeeff1d6dbee,
+    type: 3}
+  basePhysAttack: 55
+  baseMagAttack: 25
+  scalingPercentage: 30
+  scalingAttribute: 0
+  numOfEnchantmentSlots: 2
+  element: 6
+  bonusAttributes:
+  - attribute: 1
+    attributeChange: 3
+  - attribute: 3
+    attributeChange: 5
+  infusedEnchantments:
+  - {fileID: 11400000, guid: be5a7efdbd1d8404c9c5f4a0a39087fe, type: 2}
+  embeddedEnchantments: []

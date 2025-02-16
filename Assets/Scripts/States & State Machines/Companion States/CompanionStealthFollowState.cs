@@ -9,7 +9,7 @@ public class CompanionStealthFollowState : CompanionBaseState
     public override void EnterState()
     {
         OnNewStateConfig(false, true, true, 0);
-        PartyData.Instance.UpdateCompanionFollowBehaviour(stateMachine, true);
+        stateMachine.followBehaviour.UpdateCompanionFollowBehaviour(stateMachine, true);
 
         randNum = Random.Range(0.8f, stateMachine.sneakSpeed);
         stateMachine.navMeshAgent.speed = stateMachine.sneakSpeed;

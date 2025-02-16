@@ -35,7 +35,7 @@ public class EnemyAttackState : EnemyBaseState
         if (canMoveAndAttack)
         {
             stateMachine.navMeshAgent.speed = stateMachine.ChaseSpeed();
-            stateMachine.navMeshAgent.destination = stateMachine.playerStateMachine.transform.position;
+            stateMachine.navMeshAgent.destination = stateMachine.GetPlayerStateMachine().transform.position;
         }
         else if (IsTooClose())
         {
@@ -50,11 +50,11 @@ public class EnemyAttackState : EnemyBaseState
 
         bool canSeePlayer = CanSeeSuspiciousTarget();
 
-        RotateToPos(stateMachine.playerStateMachine.transform.position);
+        RotateToPos(stateMachine.GetPlayerStateMachine().transform.position);
 
         if (canSeePlayer)
         {
-            UpdatePlayerLastKnownData(stateMachine.playerStateMachine.transform.position, stateMachine.playerStateMachine.transform.rotation);
+            UpdatePlayerLastKnownData(stateMachine.GetPlayerStateMachine().transform.position, stateMachine.GetPlayerStateMachine().transform.rotation);
         }
 
         if (Time.time >= timeOfLastAttack + stateMachine.timeBetweenAttacks)
@@ -79,7 +79,7 @@ public class EnemyAttackState : EnemyBaseState
 
     private bool IsTooClose()
     {
-        float dist = Vector3.Distance(stateMachine.playerStateMachine.transform.position, transform.position);
+        float dist = Vector3.Distance(stateMachine.GetPlayerStateMachine().transform.position, transform.position);
         bool tooClose = dist < stateMachine.minAttackRange;
 
         return tooClose && !ShouldMoveToAttack();

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d889d6cb61954044b54f06b7fdf2da7, type: 3}
+  m_Name: Strength Mastery
+  m_EditorClassIdentifier: 
+  masteryAttribute: 0
+  sequencedProgressions:
+  - {fileID: 11400000, guid: 9b781c1e24fa2c14a99c53af4f6ac91a, type: 2}
+  - {fileID: 11400000, guid: 0110413edaba7d644968116dea7ba9c4, type: 2}
+  - {fileID: 11400000, guid: e974f30787ac6094aaffea314195a872, type: 2}
+  - {fileID: 11400000, guid: ece5632a5a7683040884074897689d2d, type: 2}
+  - {fileID: 11400000, guid: 66681ac144c5c9445a63b14a4efd11e9, type: 2}

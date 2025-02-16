@@ -29,7 +29,9 @@ public class InteractionManager : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;
+        if (!Instance)
+            Instance = this;
+
         showInteractCanvas = true;
     }
 

@@ -10,7 +10,6 @@ public class ReactiveBarrel : GridUnit, IDamageable
     [SerializeField] GameObject healthCanvas;
     [Header("Barrel Data")]
     [SerializeField] Element reactiveElement;
-    [SerializeField] WeaponMaterial reactiveMaterial;
     [Header("DAMAGE FEEDBACKS")]
     [SerializeField] AffinityFeedback damageFeedbacks;
 
@@ -49,7 +48,7 @@ public class ReactiveBarrel : GridUnit, IDamageable
     {       
         IDamageable.unitAttackComplete += DisplayDamageData;
 
-        reactionTriggered = (damageData.attackElement == reactiveElement && reactiveElement != Element.None) || (damageData.attackMaterial == reactiveMaterial && reactiveMaterial != WeaponMaterial.None);
+        reactionTriggered = damageData.attackElement == reactiveElement && reactiveElement != Element.None;
 
         if (reactionTriggered)
         {

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class FantasyRoamHUD : BaseHUD
 {
@@ -10,6 +11,27 @@ public class FantasyRoamHUD : BaseHUD
     [SerializeField] Transform objectiveHeader;
     [Space(10)]
     [SerializeField] int objectiveTextIndex = 1;
+    [Header("Tool Area")]
+    [SerializeField] GameObject toolArea;
+    [Space(10)]
+    [SerializeField] Image toolIcon;
+    [SerializeField] TextMeshProUGUI toolName;
+    [SerializeField] TextMeshProUGUI toolCount;
+
+    private void OnEnable()
+    {
+        SetPartyHealthData(PartyManager.Instance.GetActivePlayerParty());    
+    }
+
+    public void UpdateToolArea(Tool tool, int count)
+    {
+        toolArea.SetActive(tool);
+        if (!tool) { return; }
+
+        toolIcon.sprite = tool.UIIcon;
+        toolName.text = tool.itemName;
+        toolCount.text = count.ToString();
+    }
 
     public void UpdateObjectives(List<Objective> objectives)
     {

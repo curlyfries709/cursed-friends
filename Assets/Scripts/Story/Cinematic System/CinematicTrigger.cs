@@ -30,7 +30,7 @@ public class CinematicTrigger : MonoBehaviour, ISaveable
     //Saving Data
     [SerializeField, HideInInspector]
     private CinematicTriggerState cinematicState = new CinematicTriggerState();
-    public bool AutoRestoreOnNewTerritoryEntry { get; set; } = true;
+    bool isDataRestored = false;
 
     bool cinematicTriggered = false;
     bool isReady;
@@ -123,6 +123,8 @@ public class CinematicTrigger : MonoBehaviour, ISaveable
 
     public void RestoreState(object state)
     {
+        isDataRestored = true;
+
         if (state == null) { return; }
 
         byte[] bytes = state as byte[];
@@ -140,5 +142,10 @@ public class CinematicTrigger : MonoBehaviour, ISaveable
         {
             gameObject.SetActive(false);
         }
+    }
+
+    public bool IsDataRestored()
+    {
+        return isDataRestored;
     }
 }

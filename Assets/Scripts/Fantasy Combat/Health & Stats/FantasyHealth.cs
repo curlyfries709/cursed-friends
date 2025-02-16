@@ -11,7 +11,6 @@ public struct AttackData
 {
     public CharacterGridUnit attacker;
     public Element attackElement;
-    public WeaponMaterial attackMaterial;
     public Item attackIngridient;
 
     public List<InflictedStatusEffectData> inflictedStatusEffects;
@@ -23,11 +22,10 @@ public struct AttackData
     public bool isCritical;
     public bool canEvade;
 
-    public AttackData(CharacterGridUnit attacker, Element attackElement, WeaponMaterial attackMaterial, int damage, bool isCritical, List<InflictedStatusEffectData> inflictedStatusEffects, int knockback, int numOfTargets)
+    public AttackData(CharacterGridUnit attacker, Element attackElement, int damage, bool isCritical, List<InflictedStatusEffectData> inflictedStatusEffects, int knockback, int numOfTargets)
     {
         this.attacker = attacker;
         this.attackElement = attackElement;
-        this.attackMaterial = attackMaterial;
         this.damage = damage;
         this.isCritical = isCritical;
         this.inflictedStatusEffects = inflictedStatusEffects;
@@ -89,7 +87,7 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
     //Saving Data
     [SerializeField, HideInInspector]
     private HealthState healthState = new HealthState();
-    public bool AutoRestoreOnNewTerritoryEntry { get; set; } = true;
+    bool isDataRestored = false;
 
     //Caches
 
@@ -244,7 +242,6 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         ClearDamageData();
 
         Element attackElement = attackData.attackElement;
-        WeaponMaterial attackMaterial = attackData.attackMaterial;
 
         attacker = attackData.attacker;
 
@@ -256,7 +253,7 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         //Subscribe to event
         IDamageable.unitAttackComplete += DisplayDamageData;
 
-        currentAffinity = TheCalculator.Instance.GetAffinity(myUnit, attackElement, attackMaterial, attackData.attackIngridient);
+        currentAffinity = TheCalculator.Instance.GetAffinity(myUnit, attackElement, attackData.attackIngridient);
         criticalDamage = isCritical;
 
         isKnockdownHit = StatusEffectManager.Instance.IsKnockdownHit(this, attackData.inflictedStatusEffects) || currentAffinity == Affinity.Weak;
@@ -949,8 +946,6 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         healthUI.Setup(myUnit, GetHealthNormalized());
     }
 
-
-
     private void SetIntializationData()
     {
         if (myUnit) { return; } //Means Data grabbed Already
@@ -1055,6 +1050,8 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
 
     public void RestoreState(object state)
     {
+        isDataRestored = true;
+
         if (state == null) 
         {
             NewGameSetup();
@@ -1089,5 +1086,10 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         }
 
         //UpdateHUD(); Health UI updated when Combat Manager Intializes Unit for battle.
+    }
+
+    public bool IsDataRestored()
+    {
+        return isDataRestored;
     }
 }

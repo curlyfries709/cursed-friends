@@ -38,7 +38,7 @@ public class EnemyAmbushState : EnemyBaseState
         {
             //Rotate to target
             stateMachine.navMeshAgent.updateRotation = false;
-            RotateToPos(stateMachine.playerStateMachine.transform.position);
+            RotateToPos(stateMachine.GetPlayerStateMachine().transform.position);
             LookoutForSuspiciousActivity();
 
             if (!waiting)
@@ -81,8 +81,8 @@ public class EnemyAmbushState : EnemyBaseState
     private bool CanInterceptPlayer()
     {
         //Is Enemy In Front Of Player
-        Vector3 dir = (transform.position - stateMachine.playerStateMachine.transform.position).normalized;
-        float result = Vector3.Dot(stateMachine.playerStateMachine.transform.TransformDirection(Vector3.forward), dir);
+        Vector3 dir = (transform.position - stateMachine.GetPlayerStateMachine().transform.position).normalized;
+        float result = Vector3.Dot(stateMachine.GetPlayerStateMachine().transform.TransformDirection(Vector3.forward), dir);
 
         //Means We are behind Player.
         if (result < 0)
@@ -93,7 +93,7 @@ public class EnemyAmbushState : EnemyBaseState
         //ChaserPosition - RunnerPosition;
         Vector3 vectorFromRunner = transform.position - stateMachine.playerLastKnownPos;
         float distanceToRunner = Vector3.Distance(stateMachine.playerLastKnownPos, transform.position);
-        float runnerSpeed = stateMachine.playerStateMachine.GetSpeed();
+        float runnerSpeed = stateMachine.GetPlayerStateMachine().GetSpeed();
 
         float mySpeed = stateMachine.ChaseSpeed();
 
@@ -104,7 +104,7 @@ public class EnemyAmbushState : EnemyBaseState
             return false;
         }
 
-        Vector3 runnerVelocity = stateMachine.playerStateMachine.controller.velocity;
+        Vector3 runnerVelocity = stateMachine.GetPlayerStateMachine().controller.velocity;
 
         // Now set up the quadratic formula coefficients
         float a = (mySpeed * mySpeed) - (runnerSpeed * runnerSpeed);

@@ -31,11 +31,10 @@ public class Shop : Interact, ISaveable
     //Saving Data
     [SerializeField, HideInInspector]
     private ShopState shopState = new ShopState();
-    public bool AutoRestoreOnNewTerritoryEntry { get; set; } = true;
+    bool isDataRestored = false;
 
     Dictionary<Item, int> dailyStock = new Dictionary<Item, int>();
     List<Item> oldStockList = new List<Item>();
-
     [HideInInspector] public bool visitedBuySection = false;
 
     bool subscribedToDialogueEnd = false;
@@ -43,13 +42,17 @@ public class Shop : Interact, ISaveable
 
     private void OnEnable()
     {
-        ProgressionManager.Instance.LeaderLevelledUp += SetDailyStock;
+        Victory.PlayerLevelledUp += OnPlayerLevelledUp;
+        SavingLoadingManager.Instance.NewRealmEntered += OnNewRealmEntered;
     }
 
-    protected override void Start()
+    private void OnNewRealmEntered(RealmType newRealm)
     {
-        base.Start();
-        SetDailyStock(PartyData.Instance.GetLeaderLevel());
+        if((isFantasyShop && newRealm == RealmType.Fantasy) ||
+            !isFantasyShop && newRealm == RealmType.Modern)
+        {
+            SetDailyStock(PartyManager.Instance.GetLeaderLevel());
+        }
     }
 
     //Interaction
@@ -198,6 +201,18 @@ public class Shop : Interact, ISaveable
         return 0;
     }
 
+    LevelUpResult OnPlayerLevelledUp(PartyMemberData player, int newLevel)
+    {
+        //check it is leader
+        if (!PartyManager.Instance.IsLeader(player))
+        {
+            return null;
+        }
+
+        SetDailyStock(newLevel);
+        return null;
+    }
+
     private void SetDailyStock(int leaderLevel)
     {
         foreach (ShopStockCollection collection in stockByLevel)
@@ -227,12 +242,11 @@ public class Shop : Interact, ISaveable
         }
     }
 
-    private void RefreshDailyStock()
+    private void RefreshDailyStock(GameDate gameDate)//Called on New Day Event
     {
         dailyStock.Clear();
-
-        //Call on New Day Event
-        int leaderLevel = PartyData.Instance.GetLeaderLevel();
+ 
+        int leaderLevel = PartyManager.Instance.GetLeaderLevel();
 
         foreach (ShopStockCollection collection in stockByLevel)
         {
@@ -248,9 +262,10 @@ public class Shop : Interact, ISaveable
     protected override void OnDisable()
     {
         base.OnDisable();
-        ProgressionManager.Instance.LeaderLevelledUp -= SetDailyStock;
-    }
 
+        Victory.PlayerLevelledUp -= OnPlayerLevelledUp;
+        SavingLoadingManager.Instance.NewRealmEntered -= OnNewRealmEntered;
+    }
 
     //Shopping Handy Methods
     public void BeginShopping()
@@ -278,7 +293,7 @@ public class Shop : Interact, ISaveable
         }
         else
         {
-            playersAtShop = new List<PlayerGridUnit>(PartyData.Instance.GetAllPlayerMembersInWorld());
+            playersAtShop = new List<PlayerGridUnit>(PartyManager.Instance.GetAllPlayerMembersInWorld());
         }
 
         return playersAtShop;
@@ -353,6 +368,8 @@ public class Shop : Interact, ISaveable
 
     public void RestoreState(object state)
     {
+        isDataRestored = true;
+
         if (state == null)
         {
             SetDailyStock(1); //Player Would Be Level 1 when this called. As This called during new game.
@@ -374,5 +391,9 @@ public class Shop : Interact, ISaveable
         }*/
     }
 
+    public bool IsDataRestored()
+    {
+        return isDataRestored;
+    }
 
 }

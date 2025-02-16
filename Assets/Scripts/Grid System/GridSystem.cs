@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
-using TMPro;
 using System;
 public class GridSystem<TGridObject> 
 {
@@ -28,12 +26,13 @@ public class GridSystem<TGridObject>
         }
     }
 
-
-
     public Vector3 GetWorldPosition(GridPosition gridPosition)
     {
-        float yHeight = PathFinding.Instance.GetGridPositionCentreHeight(gridPosition);
-        return new Vector3(gridPosition.x * cellSize, yHeight, gridPosition.z * cellSize);
+        Vector3 worldPos = new Vector3(gridPosition.x * cellSize, 0, gridPosition.z * cellSize);
+        float yHeight = LevelGrid.Instance.GetGridHeightAtWorldPosition(gridPosition, worldPos);
+        worldPos.y = yHeight;
+
+        return worldPos;
     }
 
     public GridPosition GetGridPosition(Vector3 worldPosition)
@@ -49,6 +48,11 @@ public class GridSystem<TGridObject>
     public TGridObject GetGridObject(GridPosition gridPosition)
     {
         return gridObjectArray[gridPosition.x, gridPosition.z];
+    }
+
+    public bool IsValidGridPosition(int gridPosX, int gridPosZ)
+    {
+        return IsValidGridPosition(new GridPosition(gridPosX, gridPosZ));
     }
 
     public bool IsValidGridPosition(GridPosition gridPosition)

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0590cb5e88ca46940ae86b9af0f0d775, type: 3}
+  m_Name: Fin Mastery 2
+  m_EditorClassIdentifier: 
+  progressionName: Evade
+  progressionType: 3
+  description: 'Evade 10 Attacks '
+  rewardAttribute: 1
+  rewardPoints: 2
+  requiredCountToComplete: 10
+  progressionIcon: {fileID: 21300000, guid: 76c5fb84862e6d44ebf5a16dd2047b36, type: 3}
+  iconColor: {r: 0.53333336, g: 1, b: 0.9411765, a: 1}

@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bb3714270f33bb459de4d630ad2ecdf, type: 3}
+  m_Name: Lv 1 Merchant Stock
+  m_EditorClassIdentifier: 
+  levelToAddStockToShop: 1
+  levelToStopShowingStock: 100
+  stockCollection:
+  - item: {fileID: 11400000, guid: 7317748b9f96e7740bce9bb0e183adab, type: 2}
+    dailyStockCount: 5
+  - item: {fileID: 11400000, guid: 1edd1155735a9304dab0463ae3b20e4c, type: 2}
+    dailyStockCount: 1
+  - item: {fileID: 11400000, guid: cf140133d90f2bc4bb51d09d44cb7a1b, type: 2}
+    dailyStockCount: 1
+  - item: {fileID: 11400000, guid: dc45c221eb50e284a9304e214279b3ab, type: 2}
+    dailyStockCount: 2
+  - item: {fileID: 11400000, guid: 09b86a8b2b84303428b89fcf7965497b, type: 2}
+    dailyStockCount: 1
+  - item: {fileID: 11400000, guid: 76508437caa9e8e49a414225580654a3, type: 2}
+    dailyStockCount: 0
+  - item: {fileID: 11400000, guid: 4e0d58a5a9df8a0488787222a62f097b, type: 2}
+    dailyStockCount: 0
+  - item: {fileID: 11400000, guid: d131a5f23d984944292b319071591484, type: 2}
+    dailyStockCount: 6
+  - item: {fileID: 11400000, guid: 263a9f8857e35c4449a8087adc12e6fe, type: 2}
+    dailyStockCount: 6
+  - item: {fileID: 11400000, guid: d7a93f48316c65046a157f14b9ac9c7d, type: 2}
+    dailyStockCount: 4
+  - item: {fileID: 11400000, guid: 3259f635b4b300f4ea749b0eccb21a4f, type: 2}
+    dailyStockCount: 4
+  - item: {fileID: 11400000, guid: 3b47a9d12900c3d45bc3895be0e97929, type: 2}
+    dailyStockCount: 3
+  - item: {fileID: 11400000, guid: 1854ae83e2ed101418e3ec2619751c1b, type: 2}
+    dailyStockCount: 2
+  - item: {fileID: 11400000, guid: 39ab6c374be73e940a9694dddc181a73, type: 2}
+    dailyStockCount: 2
+  - item: {fileID: 11400000, guid: 100ccf55f57926b41ab2cb0293f6c134, type: 2}
+    dailyStockCount: 1
+  - item: {fileID: 11400000, guid: fee8edee0085ac64980ae4f205c3ba90, type: 2}
+    dailyStockCount: 0
+  - item: {fileID: 11400000, guid: 13616483681afac4285990774a24633d, type: 2}
+    dailyStockCount: 2
+  - item: {fileID: 11400000, guid: 807e54efb6bdde643952bf043a001b60, type: 2}
+    dailyStockCount: 2
+  - item: {fileID: 11400000, guid: db7459228daf89943b4d8ed38f6323b5, type: 2}
+    dailyStockCount: 2
+  - item: {fileID: 11400000, guid: efdff11db9b48fb498f22eff5b71a490, type: 2}
+    dailyStockCount: 2
+  - item: {fileID: 11400000, guid: be25d6f7de1a24d44be51d8467f6b7c1, type: 2}
+    dailyStockCount: 2

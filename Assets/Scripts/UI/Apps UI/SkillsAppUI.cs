@@ -84,7 +84,7 @@ public class SkillsAppUI : MonoBehaviour, IControls
         currentPlayerIndex = 0;
         currentUseSkillIndex = 0;
 
-        allPlayers = PartyData.Instance.GetAllPlayerMembersInWorld();
+        allPlayers = PartyManager.Instance.GetAllPlayerMembersInWorld();
 
         ResetDescription();
     }
@@ -180,7 +180,7 @@ public class SkillsAppUI : MonoBehaviour, IControls
         skillsArea.SetActive(selectedCharacter);
         selectCharacterArea.SetActive(!selectedCharacter);
 
-        currentSkillList = player.GetActiveLearnedSkills();
+        currentSkillList = CombatSkillManager.Instance.GetPlayerSpawnedSkills(player);
 
         foreach (Transform child in skillScrollRect.content)
         {

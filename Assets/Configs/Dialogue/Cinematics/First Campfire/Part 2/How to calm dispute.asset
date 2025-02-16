@@ -1,0 +1,1002 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9120627141167731781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 25163cc8-2c7c-45c3-b884-c40cd00966ed
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 0}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: Dialogue Text
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 100
+    y: 250
+    width: 250
+    height: 75
+  childNodes: []
+--- !u!114 &-8776102597183837570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 3ca16ee1-44e5-44e4-9406-c141379059c4
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: dcaf73e9c9034ff4082c1b2c8f2894e4, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "*laugh* \u2026Fine\u2026 I guess you\u2019re right\u2026"
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 2655
+    y: 133.00003
+    width: 300
+    height: 161
+  childNodes: []
+--- !u!114 &-8553105762546196164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 4af76c16-6b59-421e-92e2-d85e2a43e496
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: ...
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 1069
+    y: 479
+    width: 300
+    height: 144
+  childNodes:
+  - {fileID: -4576889814550989986}
+--- !u!114 &-7927739116256933862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 2052f5d1-f89e-44b2-8e8e-8c59cfe6604d
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: '*giggle* Keenan, is this your way of getting us to stop arguing? '
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 2031
+    y: 503
+    width: 300
+    height: 161
+  childNodes:
+  - {fileID: 319181421045493554}
+--- !u!114 &-7806500062661129672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 54d3b4e2-d109-4687-b3b1-ddaa26454e74
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: '*giggle*'
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 2657
+    y: 486
+    width: 300
+    height: 144
+  childNodes: []
+--- !u!114 &-7727821932746222724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 39440c99-fe5d-4fd8-9132-ce12fea3c491
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "Oh\u2026"
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 1086
+    y: 320
+    width: 300
+    height: 144
+  childNodes:
+  - {fileID: 3071586596717589949}
+--- !u!114 &-7661684384029770442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: cca14cba-6d58-43bd-9f2a-d99676b0ec9b
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: ...
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 1730
+    y: 491
+    width: 300
+    height: 144
+  childNodes:
+  - {fileID: -7927739116256933862}
+--- !u!114 &-6640317120463630307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 1a307087-b882-4bad-ba52-a67e9aed9f7b
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "*nervous laugh* I think we all agree that Mr Makadon is an asshole but a
+    blood slave *laugh* too much! He at least deserves to be tried in his own world\u2026.*laugh*
+    The end. "
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 1102
+    y: 104.00003
+    width: 300
+    height: 211
+  childNodes:
+  - {fileID: 5231884666522745924}
+--- !u!114 &-6263670864723943980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: dd07c785-aa3e-4db4-9ef7-9d8dfc4f7633
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "UH! \u2026This conversation is getting out of hand\u2026What do I say?"
+  isDialogueChoice: 0
+  isThinkBubble: 1
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 100
+    y: 250
+    width: 250
+    height: 75
+  childNodes:
+  - {fileID: 3098200822856129290}
+  - {fileID: -3117420362325480719}
+  - {fileID: -2625544199336277157}
+--- !u!114 &-5205217332695387574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 027b59e4-5078-4381-a602-531e75138a51
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "*nervous laugh* Um, lovely weather we\u2019re having\u2026right?"
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 755
+    y: 473
+    width: 300
+    height: 161
+  childNodes:
+  - {fileID: -8553105762546196164}
+--- !u!114 &-4576889814550989986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: bda80871-c357-43db-9ca9-f26e4157bd97
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: dcaf73e9c9034ff4082c1b2c8f2894e4, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: ...
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 1400
+    y: 484
+    width: 300
+    height: 144
+  childNodes:
+  - {fileID: -7661684384029770442}
+--- !u!114 &-3117420362325480719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: ace63bb8-e5a8-42c9-a5f3-c3614c7e044a
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: Your opinions are both valid.
+  isDialogueChoice: 1
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 423
+    y: 292
+    width: 300
+    height: 151
+  childNodes:
+  - {fileID: 362715825434210246}
+--- !u!114 &-2625544199336277157
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: c63a509b-8d93-46bc-986a-e1c939e31d73
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "Lovely weather we\u2019re having!"
+  isDialogueChoice: 1
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 437
+    y: 477
+    width: 300
+    height: 151
+  childNodes:
+  - {fileID: -5205217332695387574}
+--- !u!114 &-1268946371867942929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 6c9e96a1-36bc-4321-b45c-03820b022ea5
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "Also, I think that\u2019s the most I\u2019ve ever heard you speak! That
+    was amazing! "
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 2020
+    y: 123.00003
+    width: 300
+    height: 177
+  childNodes:
+  - {fileID: 8782560350448434009}
+--- !u!114 &-575437615000189064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 8340e848-be1a-43f1-adc8-58071b9488b7
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "Beautifully spoken, Keenan. You\u2019re so right, thank you! "
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 1713
+    y: 121.00003
+    width: 300
+    height: 161
+  childNodes:
+  - {fileID: -1268946371867942929}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7018739a99316c8438c015ac1537ba08, type: 3}
+  m_Name: How to calm dispute
+  m_EditorClassIdentifier: 
+  nodes:
+  - {fileID: -6263670864723943980}
+  - {fileID: 3098200822856129290}
+  - {fileID: -3117420362325480719}
+  - {fileID: -2625544199336277157}
+  - {fileID: -5205217332695387574}
+  - {fileID: -8553105762546196164}
+  - {fileID: -4576889814550989986}
+  - {fileID: -7661684384029770442}
+  - {fileID: -7927739116256933862}
+  - {fileID: 319181421045493554}
+  - {fileID: -7806500062661129672}
+  - {fileID: 4012977150179052783}
+  - {fileID: -6640317120463630307}
+  - {fileID: 5231884666522745924}
+  - {fileID: -575437615000189064}
+  - {fileID: -1268946371867942929}
+  - {fileID: 8782560350448434009}
+  - {fileID: -8776102597183837570}
+  - {fileID: 362715825434210246}
+  - {fileID: -7727821932746222724}
+  - {fileID: 3071586596717589949}
+  - {fileID: 7998370159227468296}
+  - {fileID: 2734171221735437294}
+  newNodeOffset: {x: 250, y: 0}
+--- !u!114 &319181421045493554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 8d6e67c6-66b1-482b-aff1-614c77d484fb
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: '*nervous laugh* No! Nooo, the weather is just soooo beautiful! We should
+    continue our adventure to really appreciate it!'
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 2338
+    y: 494
+    width: 300
+    height: 194
+  childNodes:
+  - {fileID: -7806500062661129672}
+--- !u!114 &362715825434210246
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 2430ac97-a109-4787-b2f7-90c897ed23f0
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "Uh, your opinions are both valid. We needn\u2019t fight over it."
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 757
+    y: 296
+    width: 300
+    height: 161
+  childNodes:
+  - {fileID: -7727821932746222724}
+--- !u!114 &2734171221735437294
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: c17e0894-46c5-4feb-b6cf-3c64b531c4af
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: '*laugh* '
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 2014
+    y: 316
+    width: 300
+    height: 144
+  childNodes: []
+--- !u!114 &3071586596717589949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 73d55f9c-f48e-4685-bd56-186135618cf9
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: Imani, I think we made Keenan uncomfortable.
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 1402
+    y: 302
+    width: 300
+    height: 161
+  childNodes:
+  - {fileID: 7998370159227468296}
+--- !u!114 &3098200822856129290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 3dfca84b-255e-4cf6-b2c1-b249e8bd2e31
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "We\u2019re doing the right thing."
+  isDialogueChoice: 1
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 449
+    y: 66.00003
+    width: 300
+    height: 151
+  childNodes:
+  - {fileID: 4012977150179052783}
+--- !u!114 &4012977150179052783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: c4698031-bcd3-4c3b-9195-5f10576ed05a
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "We\u2019re doing the right thing by helping Kira clear her conscience. She\u2019s
+    our saviour and doesn\u2019t deserve this intense guilty feeling. "
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 773
+    y: 85.00003
+    width: 300
+    height: 194
+  childNodes:
+  - {fileID: -6640317120463630307}
+--- !u!114 &5231884666522745924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 45660745-b1f0-43b8-ab80-cc1f37401afc
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: 7576f2114e6f2ac44b64b22c053d1db0, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: '*giggle*'
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 1398
+    y: 109.00003
+    width: 300
+    height: 144
+  childNodes:
+  - {fileID: -575437615000189064}
+--- !u!114 &7998370159227468296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: e76e9805-2db2-43de-b07e-672db8aa724f
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: dcaf73e9c9034ff4082c1b2c8f2894e4, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: "Girl, he\u2019s always uncomfortable!"
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 1707
+    y: 315
+    width: 300
+    height: 144
+  childNodes:
+  - {fileID: 2734171221735437294}
+--- !u!114 &8782560350448434009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c5eab5ab1b59ff4b94ab6bef41a229d, type: 3}
+  m_Name: 4e361429-c3a6-4be7-93b9-7077e87fe00d
+  m_EditorClassIdentifier: 
+  speaker: {fileID: 11400000, guid: d01bc06f510272348b6914f9dd3097b2, type: 2}
+  speakers: []
+  mood: 0
+  shakeCam: 0
+  soundOnPlay: {fileID: 0}
+  text: '*nervous laugh* '
+  isDialogueChoice: 0
+  isThinkBubble: 0
+  isBonusDialogueChoice: 0
+  hasMultipleSpeakers: 0
+  isTalentRollChoice: 0
+  isTalentLevelCheckChoice: 0
+  talent: {fileID: 0}
+  SuccessChanceAtLevelOne: 5
+  talentCheckModifiers: []
+  completeObjective: {fileID: 0}
+  choiceReference: 0
+  nodePriorityNum: 0
+  showChoiceEvenIfIneligible: 0
+  conditionsToUnlockNode: []
+  rect:
+    serializedVersion: 2
+    x: 2350
+    y: 126.00003
+    width: 300
+    height: 144
+  childNodes:
+  - {fileID: -8776102597183837570}

@@ -6,7 +6,7 @@ using System;
 using Sirenix.OdinInspector;
 
 
-public class EnemyStateMachine : StateMachine
+public class EnemyStateMachine : CharacterStateMachine
 {
     [Title("Movement")]
     public float walkSpeed = 4;
@@ -87,8 +87,6 @@ public class EnemyStateMachine : StateMachine
     public CharacterGridUnit myGridUnit { get; private set; }
     public FantasyCombatAI enemyAI { get; private set; }
 
-    public PlayerStateMachine playerStateMachine { get; private set; }
-
     public NavMeshAgent navMeshAgent { get; private set; }
 
     public GridUnitAnimator animator { get; private set; }
@@ -138,7 +136,6 @@ public class EnemyStateMachine : StateMachine
 
     private void Awake()
     {
-        playerStateMachine = StoryManager.Instance.GetPlayerStateMachine();
         myGridUnit = GetComponent<CharacterGridUnit>();
         enemyAI = GetComponent<FantasyCombatAI>();
         navMeshAgent = GetComponent<NavMeshAgent>();
@@ -335,6 +332,11 @@ public class EnemyStateMachine : StateMachine
     public float GetRandomLookTime()
     {
         return UnityEngine.Random.Range(minLookTime, maxLookTime);
+    }
+
+    public PlayerStateMachine GetPlayerStateMachine()
+    {
+        return PlayerSpawnerManager.Instance.GetPlayerStateMachine();
     }
 
     public float ChaseSpeed()

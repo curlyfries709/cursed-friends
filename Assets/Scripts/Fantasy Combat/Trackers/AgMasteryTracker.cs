@@ -64,7 +64,7 @@ public class AgMasteryTracker : BaseMasteryTracker
             GridPosition startPos = turnStartGridPos[player][0];
             GridPosition endpos = player.GetGridPositionsOnTurnStart()[0];
 
-            int moveDistance = PathFinding.Instance.DistanceInGridUnits(startPos, endpos, player);
+            int moveDistance = PathFinding.Instance.GetPathLengthInGridUnits(startPos, endpos, player);
 
             playerCombatProgression[player] = playerCombatProgression[player] + moveDistance;
         }

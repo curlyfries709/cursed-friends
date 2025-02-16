@@ -9,7 +9,7 @@ public class CompanionIdleState : CompanionBaseState
     public override void EnterState()
     {
         OnNewStateConfig(false, false, true, 0);
-        PartyData.Instance.UpdateCompanionFollowBehaviour(stateMachine, false);
+        stateMachine.followBehaviour.UpdateCompanionFollowBehaviour(stateMachine, false);
 
         stateMachine.playerStateMachine.PlayerIsSprinting += IsPlayerSprinting;
     }
@@ -31,6 +31,6 @@ public class CompanionIdleState : CompanionBaseState
 
     private bool ShouldMove()
     {
-        return Vector3.Distance(stateMachine.player.position, transform.position) >= PartyData.Instance.GetDistanceToBeginFollow(stateMachine, false);
+        return Vector3.Distance(stateMachine.player.position, transform.position) >= stateMachine.followBehaviour.GetDistanceToBeginFollow(stateMachine, false);
     }
 }

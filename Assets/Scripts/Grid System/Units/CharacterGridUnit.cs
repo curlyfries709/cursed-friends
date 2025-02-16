@@ -5,6 +5,7 @@ using System;
 using DG.Tweening;
 using Cinemachine;
 using Sirenix.OdinInspector;
+using System.Threading;
 
 public class CharacterGridUnit : GridUnit
 {

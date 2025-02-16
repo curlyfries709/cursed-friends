@@ -28,7 +28,7 @@ public class TreasureChest : Lootable, ISaveable
     //Saving Data
     [SerializeField, HideInInspector]
     private ChestState chestState = new ChestState();
-    public bool AutoRestoreOnNewTerritoryEntry { get; set; } = true;
+    bool isDataRestored = false;
 
     protected bool locked = false;
 
@@ -62,8 +62,7 @@ public class TreasureChest : Lootable, ISaveable
     {
         if (locked)
         {
-            //Talent Level >= Required Level
-            return ProgressionManager.Instance.GetTalentLevel(talentRequiredToUnlock) >= talentRequiredLevel;
+            return TalentProgressionManager.Instance.SucceedLevelCheck(talentRequiredToUnlock, talentRequiredLevel);
         }
 
         return true;
@@ -81,7 +80,7 @@ public class TreasureChest : Lootable, ISaveable
 
     protected void TriggerLockedDialogue()
     {
-        int currentTalentLevel = ProgressionManager.Instance.GetTalentLevel(talentRequiredToUnlock);
+        int currentTalentLevel = TalentProgressionManager.Instance.GetTalentLevelWithBoost(talentRequiredToUnlock);
 
         if (currentTalentLevel == 0) //Means Party Member hasn't joined Yet.
         {
@@ -134,6 +133,7 @@ public class TreasureChest : Lootable, ISaveable
 
     public virtual void RestoreState(object state)
     {
+        isDataRestored = true;
         if (state == null) { return; }
 
         byte[] bytes = state as byte[];
@@ -144,6 +144,11 @@ public class TreasureChest : Lootable, ISaveable
         takenItemIndices = chestState.takenItemIndices;
 
         RestoreChestState();
+    }
+
+    public bool IsDataRestored()
+    {
+        return isDataRestored;
     }
 
     protected void RestoreChestState()

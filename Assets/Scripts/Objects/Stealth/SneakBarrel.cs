@@ -5,7 +5,8 @@ using DG.Tweening;
 using UnityEngine.AI;
 using System;
 
-public class SneakBarrel : MonoBehaviour
+
+public class SneakBarrel : BaseTool
 {
     [Header("Components")]
     [SerializeField] NavMeshObstacle navMeshObstacle;
@@ -20,43 +21,55 @@ public class SneakBarrel : MonoBehaviour
     bool animating = false;
     bool atIdlePos = false;
     bool atMovePos = false;
-    bool startCalled = false;
 
-    private void Awake()
+    public override void Activate()
     {
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerStateMachine>();
-
+        SetPlayer();
         transform.parent = player.transform;
-
         transform.localPosition = idleEquip.localPosition;
-    }
-
-    private void OnEnable()
-    {
-        if (!startCalled) { return; }
-
-        //Set Barrel Sneaking in Animator.
-        player.animator.SetBool(player.animator.animIDBarrel, true);
-
-        player.SetControllerConfig(navMeshObstacle.center, navMeshObstacle.radius, navMeshObstacle.height);
 
         atIdlePos = false;
         atMovePos = false;
 
+        if (!player.InStealth() && !player.TryEnterStealth())
+        {
+            Debug.Log("SNEAK BARREL CANNOT FORCE STEALTH STATE");
+            CancelUse();
+            return;
+        }
+
+        //Set Barrel Sneaking in Animator.
+
+        if (GetPlayerFantasyAnimator())
+        {
+            GetPlayerFantasyAnimator().SetBool(GetPlayerFantasyAnimator().animIDBarrel, true);
+        }
+
+        player.SetControllerConfig(navMeshObstacle.center, navMeshObstacle.radius, navMeshObstacle.height);
+
+
         player.HideCompanions?.Invoke(true);
+
+        base.Activate();
     }
 
-    private void Start()
+    public override void Use()
     {
-        startCalled = true;
-        gameObject.SetActive(false);
+        ToggleState();
+    }
+
+    public override void CancelUse()
+    {
+        if (!isActivated) return;
+
+        Deactivate();
     }
 
     private void Update()
     {
         if (!player.InStealth())
         {
-            gameObject.SetActive(false);
+            CancelUse();
             return;
         }
 
@@ -76,7 +89,7 @@ public class SneakBarrel : MonoBehaviour
             atIdlePos = false;
 
 
-            transform.parent = player.animator.GetSpine();
+            transform.parent = GetPlayerFantasyAnimator().GetSpine();
             transform.DOLocalRotate(moveEquip.localRotation.eulerAngles, player.SpeedChangeRate * Time.deltaTime);
             transform.DOLocalMove(moveEquip.localPosition, player.SpeedChangeRate * Time.deltaTime).OnComplete(() => UpdateBarrel(false));
         }
@@ -101,11 +114,14 @@ public class SneakBarrel : MonoBehaviour
         }
     }
 
-    private void OnDisable()
-    {
-        inSafeZone = true;
 
-        player.animator.SetBool(player.animator.animIDBarrel, false);
+    public override void Deactivate()
+    {
+        SetPlayer();
+
+        inSafeZone = false;
+
+        GetPlayerFantasyAnimator().SetBool(GetPlayerFantasyAnimator().animIDBarrel, false);
 
         player.HideCompanions?.Invoke(false);
 
@@ -114,19 +130,30 @@ public class SneakBarrel : MonoBehaviour
             player.SetStealthControllerConfigValues();
         }
 
+        base.Deactivate();
     }
 
-    public void Toggle()
+    public override void ToggleState()
     {
-        if (!player.InStealth()) { return; }
-
-        gameObject.SetActive(!gameObject.activeInHierarchy);
+        base.ToggleState();
+        gameObject.SetActive(isActivated);
     }
 
     public void ForcedRemove()
     {
+        Debug.Log("UPDATE FORCE REMOVE FUNCTION");
         //Remove From Inventory
-        gameObject.SetActive(false);
+        CancelUse();
+    }
+
+    GridUnitAnimator GetPlayerFantasyAnimator()
+    {
+        return player.animator as GridUnitAnimator;
+    }
+
+    private void SetPlayer()
+    {
+        player = PlayerSpawnerManager.Instance.GetPlayerStateMachine();
     }
 
 }

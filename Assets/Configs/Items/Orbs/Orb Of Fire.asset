@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 815049f6f081dd843bb1db5add354565, type: 3}
+  m_Name: Orb Of Fire
+  m_EditorClassIdentifier: 
+  itemName: Lesser Orb Of Fire
+  UIIcon: {fileID: 21300000, guid: 73060ad507567e745bad29259731628a, type: 3}
+  itemCatergory: 3
+  buyPrice: 250
+  sellPrice: 137
+  requiredLevel: 1
+  weight: 3
+  rarity: 0
+  description: 'Unleashes a fire stream, dealing light fire damage to all foes in
+    its path. '
+  cooldownAtWisLv1: 6
+  orbSkillPrefab: {fileID: 1831131530786064166, guid: 4d4bb6f2c5b7ee3459c2fc6fb15be808,
+    type: 3}

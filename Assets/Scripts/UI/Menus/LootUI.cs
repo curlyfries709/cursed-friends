@@ -64,7 +64,7 @@ public class LootUI : MonoBehaviour, IControls
 
     private void Start()
     {
-        allPartyMembers = PartyData.Instance.GetAllPlayerMembersInWorld();
+        allPartyMembers = PartyManager.Instance.GetAllPlayerMembersInWorld();
     }
 
     public void BeginLoot(Lootable loot)

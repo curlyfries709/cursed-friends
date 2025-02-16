@@ -16,7 +16,7 @@ public class EnemyInvestigateState : EnemyBaseState
         stateMachine.navMeshAgent.speed = stateMachine.walkSpeed;
         stateMachine.navMeshAgent.stoppingDistance = stateMachine.defaultStoppingDistance;
         
-        stateMachine.navMeshAgent.SetDestination(stateMachine.playerStateMachine.transform.position);
+        stateMachine.navMeshAgent.SetDestination(stateMachine.GetPlayerStateMachine().transform.position);
         stateMachine.navMeshAgent.isStopped = false;
     }
 
@@ -24,7 +24,7 @@ public class EnemyInvestigateState : EnemyBaseState
     {
         stateMachine.animator.SetSpeed(stateMachine.navMeshAgent.velocity.magnitude);
 
-        if (!stateMachine.playerStateMachine.InStealth() || stateMachine.playerStateMachine.moveValue != Vector2.zero)
+        if (!stateMachine.GetPlayerStateMachine().InStealth() || stateMachine.GetPlayerStateMachine().moveValue != Vector2.zero)
         {
             PlayerSpotted();
             return;
@@ -34,7 +34,7 @@ public class EnemyInvestigateState : EnemyBaseState
         {
             //Remove Barrel.
             barrel.ForcedRemove();
-            UpdatePlayerLastKnownData(stateMachine.playerStateMachine.transform.position, stateMachine.playerStateMachine.transform.rotation);
+            UpdatePlayerLastKnownData(stateMachine.GetPlayerStateMachine().transform.position, stateMachine.GetPlayerStateMachine().transform.rotation);
             PlayerSpotted();
         }
     }

@@ -28,7 +28,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     [SerializeField] Defeat defeat;
     [SerializeField] Flee flee;
     [Title("UI")]
-    [SerializeField] FantasyCombatHUD hud;
     [SerializeField] GameObject photoshootSet;
     [Title("Custom Pass")] 
     [SerializeField] GameObject uICustomPass;
@@ -126,7 +125,9 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     //Cache
     PlayerInput playerInput;
     GameObject mainCam;
+
     //Events
+    public Action<BattleStarter.CombatAdvantage> BattleTriggered;
     public Action<BattleStarter.CombatAdvantage> CombatBegun;
     public Action<BattleResult, IBattleTrigger> CombatEnded;
     public Action BattleRestarted;
@@ -146,8 +147,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         public Vector3 directionAtStart;
         public List<GridPosition> gridPosAtStart;
     }
-
-
 
     private void Awake()
     {
@@ -173,20 +172,19 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     }
 
 
-    // Start is called before the first frame update
     void Start()
     {
-        ShowHUD(true);
-        ShowHUD(false);
+        GameSystemsManager.Instance.CombatManagerSet(true);
 
         if (beginCombatOnPlay)
         {
+            ShowHUD(true);
+            ShowHUD(false);
+
             GetCombatants();
             OnCombatBegin(combatAdvantageType, false);
         }
     }
-
-
 
     // Update is called once per frame
     void Update()
@@ -270,7 +268,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
                 playerCombatParticipants.Add(player);
 
-                if(player == PartyData.Instance.GetLeader())
+                if(player == PartyManager.Instance.GetLeader())
                 {
                     leader = player;
                     leaderIndex = playerCombatParticipants.IndexOf(player);
@@ -281,7 +279,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
                 enemyCombatParticipants.Add(charUnit);
             }
 
-            charUnit.GetComponent<StateMachine>().BeginCombat();
+            charUnit.GetComponent<CharacterStateMachine>().BeginCombat();
         }
 
         //Set Leader At Front of list.
@@ -360,7 +358,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
             if (player)
             {
-                data.weaponAtStart = player.stats.Weapon();
+                data.weaponAtStart = player.stats.Equipment().Weapon();
             }
 
             dataAtBattleStart[unit] = data;
@@ -379,6 +377,10 @@ public class FantasyCombatManager : MonoBehaviour, IControls
             EnemyDatabase.Instance.NewEnemyEncountered(unit);
         }
 
+        //Setup Skills
+        CombatSkillManager.Instance.SpawnSkills(unit);
+
+        //Setup Health & Status Effects
         unit.Health().SetupHealthUI();
         StatusEffectManager.Instance.IntializeUnitStatusEffects(unit);
     }
@@ -393,7 +395,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         //IntializeUnit.
         IntializeUnit(unit);
         EnemyDatabase.Instance.SetEnemyDisplayNames(false);
-        unit.stats.SpawnEnchantments();
+        unit.stats.Equipment().SpawnEnchantments();
 
         if (wasSpawned)
         {
@@ -610,7 +612,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         }
         else if (healingPlayer && healingPlayer == activeUnit)
         {
-            ShowActionMenu(hud.gameObject.activeInHierarchy);
+            ShowActionMenu(HUDManager.Instance.IsHUDEnabled());
         }
     }
 
@@ -679,7 +681,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     {
         //Update Lists.
         turnOrder.RemoveAll((item) => item == unit);
-        hud.UpdateTurnOrder(turnOrder, unitCurrentActionTimeDict);
+        HUDManager.Instance.GetCombatHUD().UpdateTurnOrder(turnOrder, unitCurrentActionTimeDict);
 
         //Determine if Victory Or Defeat.
         DefeatCheck(unit);
@@ -691,7 +693,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     {
         //Update Lists.
         turnOrder.RemoveAll((item) => item == unit);
-        hud.UpdateTurnOrder(turnOrder, unitCurrentActionTimeDict);
+        HUDManager.Instance.GetCombatHUD().UpdateTurnOrder(turnOrder, unitCurrentActionTimeDict);
 
         ShowActionMenu(false);
         LevelGrid.Instance.RemoveUnitFromGrid(unit);
@@ -723,7 +725,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     {
         //Add Them To End Of Turn Order.
         turnOrder.Add(unit);
-        hud.UpdateTurnOrder(turnOrder, unitCurrentActionTimeDict);
+        HUDManager.Instance.GetCombatHUD().UpdateTurnOrder(turnOrder, unitCurrentActionTimeDict);
     }
 
 
@@ -826,7 +828,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
                 playerCombatParticipants.Add(playerGridUnit);
 
-                if (unit.unitName.ToLower() == PartyData.Instance.GetLeaderName().ToLower())
+                if (unit.unitName.ToLower() == PartyManager.Instance.GetLeaderName().ToLower())
                 {
                     leader = playerGridUnit;
                     leaderIndex = playerCombatParticipants.IndexOf(playerGridUnit);
@@ -842,7 +844,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
             IntializeUnit(unit);
             unit.SetGridPositions();
-            unit.GetComponent<StateMachine>().BeginCombat();
+            unit.GetComponent<CharacterStateMachine>().BeginCombat();
         }
 
         //Set Leader At Front of list.
@@ -884,7 +886,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
             unitCurrentActionTimeDict[unit] = currentAT;
         }
         
-        hud.UpdateTurnOrder(turnOrder, unitCurrentActionTimeDict);
+        HUDManager.Instance.GetCombatHUD().UpdateTurnOrder(turnOrder, unitCurrentActionTimeDict);
     }
 
     private void CalculateAdvantageTurnOrder(bool isPlayerAdvantage)
@@ -913,7 +915,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
             unitCurrentActionTimeDict[unit] = currentAT;
         }
 
-        hud.UpdateTurnOrder(turnOrder, unitCurrentActionTimeDict);
+        HUDManager.Instance.GetCombatHUD().UpdateTurnOrder(turnOrder, unitCurrentActionTimeDict);
     }
 
     private void CalculateActiveUnitsNextTurn()
@@ -972,7 +974,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
             turnOrder.Insert(indexToInsertAt, unitToInsert);
         }
 
-        hud.UpdateTurnOrder(turnOrder, unitCurrentActionTimeDict);
+        HUDManager.Instance.GetCombatHUD().UpdateTurnOrder(turnOrder, unitCurrentActionTimeDict);
     }
 
 
@@ -1208,7 +1210,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
             if (currentSelectedSkill)
             {
                 PlayerBaseSkill previousSkill = currentSelectedSkill;
-                hud.SelectedSkill("");
+                HUDManager.Instance.GetCombatHUD().SelectedSkill("");
 
                 currentSelectedSkill = null;
                 previousSkill.SkillCancelled();
@@ -1291,6 +1293,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     private void OnDestroy()
     {
         ControlsManager.Instance.RemoveIControls(this);
+        GameSystemsManager.Instance.CombatManagerSet(false);
     }
     private bool CanMovePlayer()
     {
@@ -1544,7 +1547,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         {
             listToReturn = listToReturn.Where((unit) => !StatusEffectManager.Instance.IsUnitDisabled(unit)).ToList();
         }
-        PlayerGridUnit leader = PartyData.Instance.GetLeader();
+        PlayerGridUnit leader = PartyManager.Instance.GetLeader();
 
         if (listToReturn.Contains(leader))
         {
@@ -1590,7 +1593,15 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
     public void ShowHUD(bool show, bool showWorldSpaceUI = true)
     {
-        hud.gameObject.SetActive(show);
+        if (show)
+        {
+            HUDManager.Instance.ShowActiveHud();
+        }
+        else
+        {
+            HUDManager.Instance.HideHUDs();
+        }
+        
         //cullWorldSpaceUI.enabled = !showWorldSpaceUI;
         uICustomPass.SetActive(showWorldSpaceUI);
     }

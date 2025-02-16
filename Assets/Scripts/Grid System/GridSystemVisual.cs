@@ -3,6 +3,7 @@ using UnityEngine;
 using TMPro;
 using Sirenix.OdinInspector;
 using System.Linq;
+using Unity.VisualScripting;
 
 public class GridSystemVisual : MonoBehaviour
 {
@@ -63,7 +64,13 @@ public class GridSystemVisual : MonoBehaviour
 
     public void CreateGridVisual()
     {
-        for(int i = 0; i < visualsToSpawn; i++)
+        if (gridUIHeader.childCount >= visualsToSpawn)
+        {
+            //Don't spawn if we have enough.
+            return;
+        }
+
+        for(int i = gridUIHeader.childCount; i < visualsToSpawn; i++)
         {
             SpawnNewVisual();
         }
@@ -208,13 +215,12 @@ public class GridSystemVisual : MonoBehaviour
         cellVisual.collider.enabled = enableVisualCollider;
 
         //Set Position
-        PathNode node = PathFinding.Instance.GetNode(gridPosition.x, gridPosition.z);
         Vector3 worldPos = gridSystem.GetWorldPosition(gridPosition);
-        singleGridVisual.transform.position = new Vector3(worldPos.x, node.GetVisualYPosition(), worldPos.z);
+        singleGridVisual.transform.position = worldPos;
 
         //Set Rotation
-        singleGridVisual.transform.rotation = node.GetRotation();
-        singleGridVisual.transform.rotation = Quaternion.Euler(new Vector3(singleGridVisual.transform.rotation.eulerAngles.x, 0, singleGridVisual.transform.rotation.eulerAngles.z));
+        //singleGridVisual.transform.rotation = GetGridVisualRotation(gridPosition);
+        //singleGridVisual.transform.rotation = Quaternion.Euler(new Vector3(singleGridVisual.transform.rotation.eulerAngles.x, 0, singleGridVisual.transform.rotation.eulerAngles.z));
 
         //Activate
         cellVisual.inUse = true;
@@ -262,14 +268,17 @@ public class GridSystemVisual : MonoBehaviour
         activeGridVisuals.Remove(cellVisual);
     }
 
-   /* public Transform GetGridVisualTransformAtGridPosition(GridPosition gridPosition)
-    {
-        return gridSystemVisualObjectArray[gridPosition.x, gridPosition.z].transform;
-    }*/
+    /* public Transform GetGridVisualTransformAtGridPosition(GridPosition gridPosition)
+     {
+         return gridSystemVisualObjectArray[gridPosition.x, gridPosition.z].transform;
+     }*/
 
-    public GameObject GetGridVisualAtGridPosition(GridPosition gridPosition)
+    public GameObject DebugShowVisualAtPosition(GridPosition gridPosition)
     {
-        return GetVisualDataAtGridPosition(gridPosition).cellGO;
+        Material moveMatToUse = movementVisualMat;
+        ActivateCellVisualAtPos(gridPosition, moveMatToUse, true);
+
+        return gridSystemVisualDataArray[gridPosition.x, gridPosition.z].cellGO;
     }
 
     public CellVisualData GetVisualDataAtGridPosition(GridPosition gridPosition)
@@ -277,5 +286,8 @@ public class GridSystemVisual : MonoBehaviour
         return gridSystemVisualDataArray[gridPosition.x, gridPosition.z];
     }
 
-
+    public Quaternion GetGridVisualRotation(GridPosition gridPosition)
+    {
+        throw new System.NotImplementedException();
+    }
 }

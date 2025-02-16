@@ -6,17 +6,12 @@ using System;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 
-public class ProgressionManager : MonoBehaviour, ISaveable
+public class ProgressionManager : MonoBehaviour, ISaveable, IMultiWorldCombatContacter
 {
     public static ProgressionManager Instance { get; private set; }
 
-    [Title("Talents")]
-    [SerializeField] List<Talent> allTalents;
     [Title("Masteries")]
     [SerializeField] Transform masteryTrackerHeader;
-    [Title("TALENT BENCHMARKS")]
-    [ListDrawerSettings(Expanded = true, ShowIndexLabels = true)]
-    [SerializeField] List<int> talentLevelBenchmarks;
     [Title("LEVEL CALCULATIONS")]
     [SerializeField] int maxLevel = 99;
     [Space(10)]
@@ -26,29 +21,25 @@ public class ProgressionManager : MonoBehaviour, ISaveable
     [ListDrawerSettings(Expanded = true, ShowIndexLabels = true)]
     [ReadOnly]
     [SerializeField] List<int> levelBenchmarks;
-    [Space(10)]
+    [Space(10)] //To add space between button
 
     //Saving Data
     [SerializeField, HideInInspector]
     private ProgressionState progressionState = new ProgressionState();
-    public bool AutoRestoreOnNewTerritoryEntry { get; set; } = false;
+    private bool isDataRestored = false;
 
     //Combat Dicts
-    List<PlayerGridUnit> allPlayers = new List<PlayerGridUnit>();
     Dictionary<PlayerGridUnit, List<CharacterGridUnit>> enemiesKOEDWhilePlayerKOEDDict = new Dictionary<PlayerGridUnit, List<CharacterGridUnit>>();
 
     //Progression Dicts
     Dictionary<string, int> currentExperienceDict = new Dictionary<string, int>();
     Dictionary<string, int> currentLevelDict = new Dictionary<string, int>();
-    Dictionary<string, int> talentProgression = new Dictionary<string, int>();
 
     Dictionary<string, List<PlayerMasteryProgression>> masteryProgressionOnCombatBegin = new Dictionary<string, List<PlayerMasteryProgression>>();
     Dictionary<string, List<PlayerMasteryProgression>> playerCurrentMasteryProgression = new Dictionary<string, List<PlayerMasteryProgression>>();
 
     List<StrategicBonus> achievedStrategicBonuses = new List<StrategicBonus>();
     List<BaseMasteryTracker> masteryTrackers = new List<BaseMasteryTracker>();
-
-    public Action<int> LeaderLevelledUp;
 
     public class PlayerCurrentAttributeMastery
     {
@@ -100,10 +91,11 @@ public class ProgressionManager : MonoBehaviour, ISaveable
         public int experienceGained;
         public int newLevelBenchmark;
         public int levelsGained;
+        public int newLevel;
 
         public bool levelledUp;
 
-        public PlayerXPData(int currentExperience, int currentLevel, int experienceGained, int newLevelBenchmark, bool levelledUp, int levelsGained)
+        public PlayerXPData(int currentExperience, int currentLevel, int experienceGained, int newLevelBenchmark, bool levelledUp, int levelsGained, int newLevel)
         {
             this.currentExperience = currentExperience;
             this.currentLevel = currentLevel;
@@ -111,21 +103,31 @@ public class ProgressionManager : MonoBehaviour, ISaveable
             this.newLevelBenchmark = newLevelBenchmark;
             this.levelledUp = levelledUp;
             this.levelsGained = levelsGained;
+            this.newLevel = newLevel;
         }
     }
 
     private void Awake()
     {
-        Instance = this;
-        masteryTrackers = masteryTrackerHeader.GetComponentsInChildren<BaseMasteryTracker>().ToList();
+        if (!Instance)
+            Instance = this;
 
-        SetPlayers();
+        masteryTrackers = masteryTrackerHeader.GetComponentsInChildren<BaseMasteryTracker>().ToList();
+        ListenForCombatManagerSet();
     }
 
-    private void OnEnable()
+    public void SubscribeToCombatManagerEvents(bool subscribe)
     {
-        FantasyCombatManager.Instance.CombatBegun += OnCombatBegin;
-        FantasyCombatManager.Instance.CombatEnded += OnCombatEnd;
+        if (subscribe)
+        {
+            FantasyCombatManager.Instance.CombatBegun += OnCombatBegin;
+            FantasyCombatManager.Instance.CombatEnded += OnCombatEnd;
+        }
+        else
+        {
+            FantasyCombatManager.Instance.CombatEnded -= OnCombatEnd;
+            FantasyCombatManager.Instance.CombatBegun -= OnCombatBegin;
+        }
     }
 
     // Start is called before the first frame update
@@ -135,21 +137,17 @@ public class ProgressionManager : MonoBehaviour, ISaveable
         FantasyHealth.CharacterUnitKOed += OnUnitKO;
     }
 
-    private void SetPlayers()
-    {
-        allPlayers = PartyData.Instance.GetAllPlayerMembersInWorld();
-    }
 
     private void NewGameSetup()
     {
         //Set Char EXP  
-        foreach (PlayerGridUnit player in allPlayers)
+        foreach (PartyMemberData partyMember in PartyManager.Instance.GetAllPartyMembersData())
         {
-            currentExperienceDict[player.unitName] = 0;
-            currentLevelDict[player.unitName] = CalculateLevel(player.unitName);
+            currentExperienceDict[partyMember.memberName] = 0;
+            currentLevelDict[partyMember.memberName] = CalculateLevel(partyMember.memberName);
 
             //Mastery Dicts
-            playerCurrentMasteryProgression[player.unitName] = new List<PlayerMasteryProgression>();
+            playerCurrentMasteryProgression[partyMember.memberName] = new List<PlayerMasteryProgression>();
 
             foreach (BaseMasteryTracker tracker in masteryTrackers)
             {
@@ -158,15 +156,10 @@ public class ProgressionManager : MonoBehaviour, ISaveable
                 playerMasteryProgression.progression = tracker.myMastery.sequencedProgressions[0];
                 playerMasteryProgression.count = 0;
 
-                playerCurrentMasteryProgression[player.unitName].Add(playerMasteryProgression);
+                playerCurrentMasteryProgression[partyMember.memberName].Add(playerMasteryProgression);
             }
         }
 
-        // Set talents
-        foreach(Talent talent in allTalents)
-        {
-            talentProgression[talent.talentName] = 0;
-        }
     }
 
 
@@ -208,13 +201,13 @@ public class ProgressionManager : MonoBehaviour, ISaveable
     {
         ResetDataAtCombatStart();
 
-        foreach(BaseMasteryTracker tracker in masteryTrackers)
+        foreach (BaseMasteryTracker tracker in masteryTrackers)
         {
             //Dictionary for current tracker attribute.
             Attribute trackedAttribute = tracker.myMastery.masteryAttribute;
             Dictionary<PlayerGridUnit, MasteryProgression> progressionForAttribute = new Dictionary<PlayerGridUnit, MasteryProgression>();
 
-            foreach(PlayerGridUnit player in allPlayers)
+            foreach(PlayerGridUnit player in GetAllPlayers())
             {
                 progressionForAttribute[player] = playerCurrentMasteryProgression[player.unitName].FirstOrDefault((playerProgression) => playerProgression.progression.rewardAttribute == trackedAttribute).progression;
             }
@@ -268,9 +261,6 @@ public class ProgressionManager : MonoBehaviour, ISaveable
     private void OnDisable()
     {
         FantasyHealth.CharacterUnitKOed -= OnUnitKO;
-
-        FantasyCombatManager.Instance.CombatEnded -= OnCombatEnd;
-        FantasyCombatManager.Instance.CombatBegun -= OnCombatBegin;
     }
 
     private void OnUnitKO(CharacterGridUnit unit)
@@ -326,16 +316,12 @@ public class ProgressionManager : MonoBehaviour, ISaveable
 
         //Level UP
         bool levelUp = LevelUp(player);
-        int newLevel = currentLevelDict[player];
+        int newLevel = Mathf.Min(currentLevelDict[player], maxLevel);
 
         playerXPData.newLevelBenchmark = levelBenchmarks[newLevel - 1];
         playerXPData.levelledUp = levelUp;
         playerXPData.levelsGained = newLevel - currentLevel;
-
-        if(player == PartyData.Instance.GetLeaderName() && levelUp)
-        {
-            LeaderLevelledUp?.Invoke(newLevel);
-        }
+        playerXPData.newLevel = newLevel;
 
         return playerXPData;
     }
@@ -360,17 +346,17 @@ public class ProgressionManager : MonoBehaviour, ISaveable
 
     private bool LevelUp(string player)
     {
-        int curretLevel = currentLevelDict[player];
+        int currentLevel = currentLevelDict[player];
         int newLevel = CalculateLevel(player);
 
-        bool levelUp = newLevel > curretLevel;
+        bool levelUp = newLevel > currentLevel;
 
         if (levelUp)
         {
             currentLevelDict[player] = newLevel;
 
             //Set Player Level
-            PlayerUnitStats playerStats = PartyData.Instance.GetPlayerUnitViaName(player).stats as PlayerUnitStats;
+            PlayerUnitStats playerStats = PartyManager.Instance.GetPlayerUnitViaName(player).stats as PlayerUnitStats;
             playerStats.SetLevel(newLevel);
         }
 
@@ -390,18 +376,6 @@ public class ProgressionManager : MonoBehaviour, ISaveable
         return levelBenchmarks[levelBenchmarks.Count - 1];
     }
 
-    public int GetTalentLevel(Talent talent)
-    {
-        for (int i = 0; i < talentLevelBenchmarks.Count; i++)
-        {
-            if (talentProgression[talent.talentName] < talentLevelBenchmarks[i])
-            {
-                return i - 1;
-            }
-        }
-
-        return talentLevelBenchmarks[talentLevelBenchmarks.Count - 1];
-    }
 
     public int GetLevel(string player)
     {
@@ -422,7 +396,7 @@ public class ProgressionManager : MonoBehaviour, ISaveable
     {
         int XPSum = 0;
 
-        PlayerGridUnit player = PartyData.Instance.GetPlayerUnitViaName(playerName);
+        PlayerGridUnit player = PartyManager.Instance.GetPlayerUnitViaName(playerName);
 
         foreach(CharacterGridUnit enemy in FantasyCombatManager.Instance.GetEnemyCombatParticipants(true, true))
         {
@@ -490,13 +464,23 @@ public class ProgressionManager : MonoBehaviour, ISaveable
         return masteryTrackers.FirstOrDefault((tracker) => tracker.myMastery.masteryAttribute == attribute).myMastery;
     }
 
+    public void ListenForCombatManagerSet()
+    {
+        GameSystemsManager.Instance.ListenForCombatManagerInitialization(this);
+    }
+
+    private List<PlayerGridUnit> GetAllPlayers()
+    {
+        return PartyManager.Instance.GetAllPlayerMembersInWorld();
+    }
+
+
     //Saving
     [System.Serializable]
     public class ProgressionState
     {
         //XP
         public Dictionary<string, int> experienceDict = new Dictionary<string, int>();
-        public Dictionary<string, int> talentProgression = new Dictionary<string, int>();
 
         public Dictionary<string, List<PlayerCurrentAttributeMastery>> currentMasteries = new Dictionary<string, List<PlayerCurrentAttributeMastery>>();
     }
@@ -505,7 +489,6 @@ public class ProgressionManager : MonoBehaviour, ISaveable
     public object CaptureState()
     {
         progressionState.experienceDict = currentExperienceDict;
-        progressionState.talentProgression = talentProgression;
 
         //Clear List First
         progressionState.currentMasteries.Clear();
@@ -533,9 +516,10 @@ public class ProgressionManager : MonoBehaviour, ISaveable
 
         return SerializationUtility.SerializeValue(progressionState, DataFormat.Binary);
     }
-
     public void RestoreState(object state)
     {
+        isDataRestored = true;
+
         if (state == null) //Null On New Game or when testing in editor
         {
             NewGameSetup();
@@ -546,9 +530,8 @@ public class ProgressionManager : MonoBehaviour, ISaveable
         progressionState = SerializationUtility.DeserializeValue<ProgressionState>(bytes, DataFormat.Binary);
 
         currentExperienceDict = progressionState.experienceDict;
-        talentProgression = progressionState.talentProgression;
         
-        foreach (PlayerGridUnit player in allPlayers)
+        foreach (PlayerGridUnit player in GetAllPlayers())
         {
             //Set Level Dict
             currentLevelDict[player.unitName] = CalculateLevel(player.unitName);
@@ -575,5 +558,10 @@ public class ProgressionManager : MonoBehaviour, ISaveable
                 playerCurrentMasteryProgression[player.unitName].Add(playerMasteryProgression);
             }
         }
+    }
+
+    public bool IsDataRestored()
+    {
+        return isDataRestored;
     }
 }

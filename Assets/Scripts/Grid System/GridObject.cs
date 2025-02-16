@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 public enum ObstacleType
 {
     Hollow,
@@ -17,6 +16,11 @@ public class GridObject
 
     //Obstacle Data.
     Collider obstacleCollider;
+    public bool testedForObstacle { get; private set; }
+
+    //Terrain Data
+    public float heightAtCentre { get; private set; }
+    public bool performedHeightCheck { get; private set; }
 
     public GridObject(GridSystem<GridObject> gridSystem, GridPosition gridPosition)
     {
@@ -70,15 +74,20 @@ public class GridObject
 
     public bool RemoveObstacle(Collider obstacleCollider)
     {
-        if (this.obstacleCollider && this.obstacleCollider is TerrainCollider) {return false; }//Cannot Remove Terrain obstacle
+        if (this.obstacleCollider && this.obstacleCollider is TerrainCollider) { return false; }//Cannot Remove Terrain obstacle
 
         this.obstacleCollider = null;
         return true;
     }
 
-    /*public bool CanUnitMoveThroughThis()
+    public void SetPerformedObstacleCheck(bool newValue)
     {
-        return !gridUnit || (gridUnit && gridUnit.Health().isKOed);
-    }*/
+        testedForObstacle = newValue;
+    }
 
+    public void SetHeightAtCentre(float height)
+    {
+        heightAtCentre = height;
+        performedHeightCheck = true;
+    }
 }

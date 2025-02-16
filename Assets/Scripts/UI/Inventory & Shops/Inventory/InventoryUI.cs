@@ -50,6 +50,9 @@ public class InventoryUI : MonoBehaviour, IControls
 
     const string myActionMap = "Inventory";
 
+    //Cache
+    IInventorySelector activeInventorySelector = null;
+
     //Lists
     List<Item> currentInventory = new List<Item>();
 
@@ -66,7 +69,12 @@ public class InventoryUI : MonoBehaviour, IControls
     int currentDrinkerIndex = 0;
 
     int popupCount = 1;
+
     InventoryPopupUI activePopup = null;
+
+    //Category Checker
+    bool isCheckingItemCategory = false;
+    ItemCatergory checkedItemCategory;
 
     private void Awake()
     {
@@ -84,17 +92,34 @@ public class InventoryUI : MonoBehaviour, IControls
         //FixInventoryHeader();
     }
 
-    private void OnEnable()
+    public void Activate(bool activate)
+    {
+        gameObject.SetActive(activate);
+
+        if(activate)
+        {
+            Setup(null, 0);
+        } 
+    }
+
+    public void ActivateInventorySelection(IInventorySelector inventorySelector, ItemCatergory selectionCategory, PlayerGridUnit inventoryOwner)
+    {
+        gameObject.SetActive(true);
+        activeInventorySelector = inventorySelector;
+        Setup(inventoryOwner, GetTabIndexFromItemCategory(selectionCategory));
+    }
+
+    private void Setup(PlayerGridUnit startingInventory, int startingTabIndex)
     {
         AudioManager.Instance.PlaySFX(SFXType.OpenCombatMenu);
 
-        inventoryOwner = null;
+        inventoryOwner = startingInventory;
         currentInventory.Clear();
 
-        allPlayers = PartyData.Instance.GetAllPlayerMembersInWorld();
+        allPlayers = PartyManager.Instance.GetAllPlayerMembersInWorld();
 
         currentGridIndex = 0;
-        currentTabIndex = 0;
+        currentTabIndex = startingTabIndex;
         currentPlayerIndex = 0;
         currentDrinkerIndex = 0;
 
@@ -106,9 +131,37 @@ public class InventoryUI : MonoBehaviour, IControls
         UpdateAllUI();
     }
 
+    private int GetTabIndexFromItemCategory(ItemCatergory itemCatergory)
+    {   
+        int index = 0;
+        isCheckingItemCategory = true;
+
+        foreach (Transform tab in tabScrollRect.content)
+        {
+            index = tab.GetSiblingIndex();
+
+            //Invoke the event
+            tab.GetComponent<Button>().onClick.Invoke();
+
+            //Check the result
+            if (itemCatergory == checkedItemCategory)
+                break;
+        }
+
+        isCheckingItemCategory = false;
+        return index;
+    }
+
+
     //Buttons Events
     public void UpdateInventoryCategory(int category)
     {
+        if(isCheckingItemCategory)
+        {
+            checkedItemCategory = (ItemCatergory)category;
+            return;
+        }
+
         if (!inventoryOwner) { return; }
 
         ItemCatergory itemCatergory = (ItemCatergory)category;
@@ -118,6 +171,7 @@ public class InventoryUI : MonoBehaviour, IControls
     private void UseOrEquip()
     {
         //Default 0 //Equip 1 //Use 2
+        if (activeInventorySelector != null) { return; }
         if (selectedMenu.transform.GetChild(0).gameObject.activeInHierarchy || !selectedMenu.activeInHierarchy || selectDrinkerArea.activeInHierarchy) { return; } 
 
         Item selectedItem = currentInventory[currentGridIndex];
@@ -154,6 +208,7 @@ public class InventoryUI : MonoBehaviour, IControls
 
     private void OpenPopup(bool activate, bool transfer)
     {
+        if (activeInventorySelector != null) { return; }
         if (selectDrinkerArea.activeInHierarchy) { return; }
         if (!selectedMenu.activeInHierarchy && !activePopup) { return; }
 
@@ -223,7 +278,19 @@ public class InventoryUI : MonoBehaviour, IControls
             useItemTitle.text = potion.itemName + " x" + InventoryManager.Instance.GetItemCount(potion, inventoryOwner);
         }
     }
-    
+
+    private void ConfirmSelectionForInventorySelector()
+    {
+        if (activeInventorySelector == null) return;
+
+        Item selectedItem = currentInventory[currentGridIndex];
+
+        if (activeInventorySelector.CanSelectItem(selectedItem))
+        {
+            activeInventorySelector.OnItemSelected(selectedItem);
+        }
+    }
+
     private void CancelUse()
     {
         selectDrinkerArea.SetActive(false);
@@ -466,7 +533,7 @@ public class InventoryUI : MonoBehaviour, IControls
 
     private void UpdateSelectedItemMenu(bool show)
     {
-        selectedMenu.SetActive(show);
+        selectedMenu.SetActive(activeInventorySelector != null ? false : show);
 
         if (!show) { return; }
 
@@ -511,7 +578,10 @@ public class InventoryUI : MonoBehaviour, IControls
         if (selectDrinkerArea.activeInHierarchy) { return; }
 
         if(indexChange != 0)
+        {
+            if(activeInventorySelector != null && !activeInventorySelector.CanSwitchInventoryCategory()) { return; }
             AudioManager.Instance.PlaySFX(SFXType.TabForward);
+        }
 
         CombatFunctions.UpdateListIndex(indexChange, currentTabIndex, out currentTabIndex, tabScrollRect.content.childCount);
 
@@ -683,14 +753,20 @@ public class InventoryUI : MonoBehaviour, IControls
             {
                 CancelUse();
             }
-            else if (inventoryOwner)
+            else if (CanSwitchInventory())
             {
                 inventoryOwner = null;
                 UpdateSelectedInventory(0);
             }
             else
             {
-                InventoryManager.Instance.ActivateInventoryUI(false);
+                if (activeInventorySelector != null)
+                {
+                    activeInventorySelector.OnCancel();
+                    return;
+                }
+
+                InventoryManager.Instance.ActivateInventoryUIFromPhone(false);
             }
         }
     }
@@ -724,9 +800,19 @@ public class InventoryUI : MonoBehaviour, IControls
         }
     }
 
+    private bool CanSwitchInventory()
+    {
+        return inventoryOwner && (activeInventorySelector == null || activeInventorySelector.CanSwitchToAnotherInventory());
+    }
+
     private void SelectOption()
     {
-        if (activePopup)
+        if (activeInventorySelector != null)
+        {
+            ConfirmSelectionForInventorySelector();
+            return;
+        }
+        else if (activePopup)
         {
             ConfirmPopupAction();
             return;

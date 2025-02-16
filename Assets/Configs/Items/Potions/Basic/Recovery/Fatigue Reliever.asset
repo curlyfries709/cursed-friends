@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f139f5ba2e9524541b58a778a02ee44c, type: 3}
+  m_Name: Fatigue Reliever
+  m_EditorClassIdentifier: 
+  itemName: 'Fatigue Reliever '
+  UIIcon: {fileID: 21300000, guid: 0b59bfa1cc3e5f54ebee7ac99ebe0fb5, type: 3}
+  itemCatergory: 2
+  buyPrice: 100
+  sellPrice: 60
+  requiredLevel: 1
+  weight: 1
+  rarity: 0
+  description: Restores 10 vitality and 20 stamina to an ally.
+  useableOutsideCombat: 1
+  potionIcon: 2
+  hpGain: 10
+  spGain: 20
+  fpGain: 0
+  canRevive: 0
+  statusEffectsToCure: []
+  inflictedStatusEffects: []
+  chargeAllItems: 0
+  isSpecialPotion: 0
+  specialPotionPrefab: {fileID: 0}

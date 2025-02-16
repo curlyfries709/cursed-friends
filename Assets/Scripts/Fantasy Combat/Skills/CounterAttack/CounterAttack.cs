@@ -33,8 +33,6 @@ public abstract class CounterAttack : MonoBehaviour
     protected Transform myUnitTransform;
 
     List<Transform> hitVFXSpawnOffsets = new List<Transform>();
-
-    public WeaponMaterial attackMaterial { get; private set; }
     public Element attackElement { get; private set; }
 
     MMF_Player targetFeedbackToPlay;
@@ -83,7 +81,7 @@ public abstract class CounterAttack : MonoBehaviour
 
         List<InflictedStatusEffectData> successfulInflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(myUnit, target, inflictedStatusEffects);
 
-        AttackData damageData = new AttackData(myUnit, attackElement, attackMaterial, GetDamage(powerGrade), isCritical, successfulInflictedStatusEffects, distance, 1);
+        AttackData damageData = new AttackData(myUnit, attackElement, GetDamage(powerGrade), isCritical, successfulInflictedStatusEffects, distance, 1);
         damageData.canEvade = false;
 
         IDamageable damageable = target.GetComponent<IDamageable>();
@@ -121,7 +119,6 @@ public abstract class CounterAttack : MonoBehaviour
     private void SetAttackElements()
     {
         attackElement = myUnit.stats.GetAttackElement();
-        attackMaterial = myUnit.stats.GetAttackMaterial();
     }
 
 

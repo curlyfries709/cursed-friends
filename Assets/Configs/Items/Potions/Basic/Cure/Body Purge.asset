@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f139f5ba2e9524541b58a778a02ee44c, type: 3}
+  m_Name: Body Purge
+  m_EditorClassIdentifier: 
+  itemName: Body Purge
+  UIIcon: {fileID: 21300000, guid: 0b59bfa1cc3e5f54ebee7ac99ebe0fb5, type: 3}
+  itemCatergory: 2
+  buyPrice: 65
+  sellPrice: 36
+  requiredLevel: 1
+  weight: 1
+  rarity: 0
+  description: Cures blinded, wounded and poison.
+  useableOutsideCombat: 0
+  potionIcon: 0
+  hpGain: 0
+  spGain: 0
+  fpGain: 0
+  canRevive: 0
+  statusEffectsToCure:
+  - {fileID: 11400000, guid: ef82e7f8d49dc014887f5bebb16b8ef5, type: 2}
+  - {fileID: 11400000, guid: 4027d716b4c37fc4a8a360bb521dd9c3, type: 2}
+  - {fileID: 11400000, guid: fc9cfc9442977664497fe1e8e23bd6a3, type: 2}
+  inflictedStatusEffects: []
+  chargeAllItems: 0
+  isSpecialPotion: 0
+  specialPotionPrefab: {fileID: 0}

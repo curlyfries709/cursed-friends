@@ -6,9 +6,6 @@ public abstract class StateMachine : MonoBehaviour
 {
     protected State currentState;
 
-    public abstract void BeginCombat();
-    public abstract void ShowWeapon(bool show);
-
     private void Update()
     {
         currentState?.UpdateState();

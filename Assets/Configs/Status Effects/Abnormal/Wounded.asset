@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fedd6c9a6fa426742ad8a0791a18f10a, type: 3}
+  m_Name: Wounded
+  m_EditorClassIdentifier: 
+  canBeAppliedOutsideCombat: 0
+  preventsUnitFromActing: 0
+  hasTurnEndEffect: 0
+  canBeGuarded: 1
+  banFPGain: 0
+  loseFPEachTurn: 0
+  isStatBuffOrDebuff: 0
+  buffNickname: 
+  effectVisualPrefab: {fileID: 3431024609121164761, guid: 39e35d8779beb494795085d5a952f19c,
+    type: 3}
+  unitVFXPrefab: {fileID: 2034306396051758776, guid: 64974a98659b7cd4686a0efdf3063f80,
+    type: 3}
+  unitVFXBodyPart: 3

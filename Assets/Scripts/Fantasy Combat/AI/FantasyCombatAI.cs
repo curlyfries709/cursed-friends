@@ -4,12 +4,13 @@ using UnityEngine;
 using System.Linq;
 using Sirenix.OdinInspector;
 using AnotherRealm;
+using UnityEngine.Rendering;
+using Pathfinding;
 
 public class FantasyCombatAI : MonoBehaviour
 {
     [Title("Components")]
     [SerializeField] CharacterGridUnit myUnit;
-    [SerializeField] Transform skillHeader;
     [Title("Targeting Behaviour")]
     [SerializeField] FantasyCombatTarget preferredTargetType;
     [Space(10)]
@@ -40,21 +41,40 @@ public class FantasyCombatAI : MonoBehaviour
     [Header("TEST")]
     public bool shouldPrintActionScoreDebug;
 
-
     //Public Variables
     public AIBaseSkill selectedSkill { get; private set; }
     public GridUnit preferredTarget { get; private set; }
     public Vector3 finalLookDirection { get; private set; }
 
-
     //List
     List<AIBaseSkill> skillsList = new List<AIBaseSkill>();
-    List<Vector3> movePositionList = new List<Vector3>();
+
+    //The calculated path to traverse to reach destination and perform action
+    List<Vector3> moveToPath = new List<Vector3>();
+
+    //A list of valid grid positions that AI can move to. 
+    List<GridPosition> currentValidMovementPos = new List<GridPosition>();
     public Dictionary<GridUnit, EnemyPartialData> knownEnemyAffinities { get; private set; }
 
-    private void Awake()
+    //Instanced Skill Data
+    Dictionary<AIBaseSkill, InstancedSkillData> instancedSkillDataDict = new Dictionary<AIBaseSkill, InstancedSkillData>();
+    public struct InstancedSkillData
     {
-        skillsList = skillHeader.GetComponentsInChildren<AIBaseSkill>().ToList();
+        public InstancedSkillData(int newCooldown)
+        {
+            currentCooldown = newCooldown;
+        }
+
+        public int currentCooldown;
+
+        public void SetCooldown(int newCooldown)
+        {
+            currentCooldown = newCooldown;
+        }
+        public void DecrementCooldown()
+        {
+            currentCooldown = Mathf.Max(currentCooldown - 1, 0);
+        }
     }
 
     public void OnCombatBegin()
@@ -63,6 +83,9 @@ public class FantasyCombatAI : MonoBehaviour
 
         preferredTarget = null;
         knownEnemyAffinities = new Dictionary<GridUnit, EnemyPartialData>();
+
+        //Set Skillset
+        skillsList = CombatSkillManager.Instance.GetAISpawnedSkills(myUnit);
         
         FantasyHealth.CharacterUnitKOed += OnUnitKO;
 
@@ -71,10 +94,11 @@ public class FantasyCombatAI : MonoBehaviour
             SetPreferredTarget();
         }
 
-        //Reset Skill Cooldown
+        //Reset Skill Cooldown. To Ensure Skill isn't always first skill triggered
         foreach (AIBaseSkill skill in skillsList)
         {
-            skill.ResetCooldown();
+            AddSkillToDataDict(skill);
+            instancedSkillDataDict[skill].SetCooldown(skill.GetFirstCooldown());
         }
     }
 
@@ -85,13 +109,17 @@ public class FantasyCombatAI : MonoBehaviour
         if (CanSetPreferredTargetOnTurnStart())
             SetPreferredTarget();
 
-        CalculateBestAction();
+        DecrementAllCooldowns();
+
+        //Begin by querying valid move posiions
+        PathFinding.Instance.QueryPathNodesWithinUnitMoveRange(myUnit, CalculateBestAction);
     }
 
 
-    private void CalculateBestAction()
+    private void CalculateBestAction(Path path)
     {
-        List<GridPosition> moveGridPos = FantasyCombatManager.Instance.GetFantasyCombatMovement().GetValidMovementGridPositions(myUnit);
+        //List<GridPosition> moveGridPos = FantasyCombatManager.Instance.GetFantasyCombatMovement().GetValidMovementGridPositions(myUnit);
+        currentValidMovementPos = PathFinding.Instance.GetGridPositionsFromPath(path); //Path returned to pool. So path will be null after this line.
 
         float bestActionScore = Mathf.NegativeInfinity;
         AIBaseSkill.AISkillData bestSkill = null;
@@ -99,7 +127,7 @@ public class FantasyCombatAI : MonoBehaviour
         //Skills already ordered by priority under skill header based on sibling index.
         foreach (AIBaseSkill skill in skillsList)
         {
-            AIBaseSkill.AISkillData newSkill = skill.GetBestActionScore(moveGridPos, this);
+            AIBaseSkill.AISkillData newSkill = skill.GetBestActionScore(currentValidMovementPos, this, instancedSkillDataDict[skill]);
 
             if(newSkill == null) { continue; }
 
@@ -121,7 +149,7 @@ public class FantasyCombatAI : MonoBehaviour
         if (bestSkill != null)
         {
             selectedSkill = bestSkill.skill;
-            SetMoveToPositionList(bestSkill.posToTriggerSkill, CombatFunctions.GetDirectionAsVector(bestSkill.directionToTriggerSkill));
+            QueryPathToDestination(bestSkill.posToTriggerSkill, CombatFunctions.GetDirectionAsVector(bestSkill.directionToTriggerSkill));
         }
         else
         {
@@ -133,7 +161,7 @@ public class FantasyCombatAI : MonoBehaviour
             }
 
             //Get Destination Closest to preferred target
-            SetMoveToPositionList(GetPositionClosestToPreferredTarget(), Vector3.zero);
+            MoveCloserToPreferredTarget();
         }
 
         //Sort Skills Based On Priority
@@ -142,6 +170,17 @@ public class FantasyCombatAI : MonoBehaviour
         //if not null & Priority Skill, immediately break out of loop.
         //At end of loop, if not null execute.
         //Else move to preferred Target...If Preferred Target null, Grab Random Unit.
+    }
+
+
+    private void DecrementAllCooldowns()
+    {
+        //Do this in separate function ensure all skill cooldowns are decremented. 
+        foreach (AIBaseSkill skill in skillsList)
+        {
+            AddSkillToDataDict(skill);
+            instancedSkillDataDict[skill].DecrementCooldown();
+        }
     }
 
     private void OnUnitKO(GridUnit unit)
@@ -156,46 +195,70 @@ public class FantasyCombatAI : MonoBehaviour
         }
     }
 
-    private void SetMoveToPositionList(GridPosition destination, Vector3 directionToFace)
+    private void QueryPathToDestination(GridPosition destination, Vector3 directionToFace)
     {
         finalLookDirection = directionToFace;
 
-        List<GridPosition> gridPosList = PathFinding.Instance.FindPath(myUnit.GetGridPositionsOnTurnStart()[0], destination, myUnit, out int pathLength, true);
+        //List<GridPosition> gridPosList = PathFinding.Instance.FindPath(myUnit.GetGridPositionsOnTurnStart()[0], destination, myUnit, out int pathLength, true);
+
+        PathFinding.Instance.QueryStartToEndPath(myUnit.GetGridPositionsOnTurnStart()[0], destination, myUnit, SetMovementPath);
+    }
+
+    private void MoveCloserToPreferredTarget()
+    {
+        finalLookDirection = Vector3.zero;
+        PathFinding.Instance.QueryPartialPathToPoint(myUnit.GetGridPositionsOnTurnStart()[0], preferredTarget.GetGridPositionsOnTurnStart()[0], myUnit, myUnit.MoveRange(), OnShortestPathToPreferredTargetComplete);
+    }
+
+    private void OnShortestPathToPreferredTargetComplete(Path path)
+    {
+        finalLookDirection = Vector3.zero;
+        SetMovementPath(path);
+    }
+
+    private void SetMovementPath(Path path)
+    {
+        List<GridPosition> gridPosList = PathFinding.Instance.GetGridPositionsFromPath(path); //Path returned to pool so path will be null after this line
 
         foreach (GridPosition gridPosition in gridPosList)
         {
+            if (!currentValidMovementPos.Contains(gridPosition)) //Break out of loop if point beyond movement path
+            {
+                Debug.Log("Path Grid Position not within Move range. Breaking out of loop");
+                break;
+            }
+
             if (IsCurrentGridPositionOccupiedByAnotherUnit(gridPosition, false))
             {
                 //We want to move around them.
                 Vector3 worldPos = LevelGrid.Instance.gridSystem.GetWorldPosition(gridPosition);
                 Vector3 newMovePos = worldPos + (transform.right * (LevelGrid.Instance.GetCellSize() * 0.5f));
-                movePositionList.Add(newMovePos);
+                moveToPath.Add(newMovePos);
             }
             else
             {
-                movePositionList.Add(LevelGrid.Instance.gridSystem.GetWorldPosition(gridPosition));
-            } 
+                moveToPath.Add(LevelGrid.Instance.gridSystem.GetWorldPosition(gridPosition));
+            }
         }
     }
 
     public List<Vector3> GetMoveList()
     {
-        return movePositionList;
+        return moveToPath;
     }
 
-    private GridPosition GetPositionClosestToPreferredTarget()
+    /*private GridPosition GetPositionClosestToPreferredTarget()
     {
         float shortestPathLengthToTarget = Mathf.Infinity;
 
         GridPosition targetGridPos = myUnit.GetGridPositionsOnTurnStart()[0];
-        List<GridPosition> moveGridPos = FantasyCombatManager.Instance.GetFantasyCombatMovement().GetValidMovementGridPositions(myUnit);
 
-        foreach (GridPosition movePos in moveGridPos)
+        foreach (GridPosition movePos in currentValidMovementPos)
         {
-            if (!LevelGrid.Instance.IsGridPositionOccupied(movePos, true))
+            if (!LevelGrid.Instance.IsGridPositionOccupiedByUnit(movePos, true))
             {
-                float pathLength = PathFinding.Instance.GetPathLength(movePos, preferredTarget.GetGridPositionsOnTurnStart()[0], myUnit, myUnit.MoveRange() > 1);
-
+                //float pathLength = PathFinding.Instance.GetPathLength(movePos, preferredTarget.GetGridPositionsOnTurnStart()[0], myUnit, myUnit.MoveRange() > 1);
+                float pathLength = PathFinding.Instance.DistanceInGridUnits(movePos, preferredTarget.GetGridPositionsOnTurnStart()[0], myUnit);
                 if (pathLength < shortestPathLengthToTarget)
                 {
                     shortestPathLengthToTarget = pathLength;
@@ -205,27 +268,20 @@ public class FantasyCombatAI : MonoBehaviour
         }
 
         return targetGridPos;
-    }
+    }*/
 
-    public bool IsAffinityRemembered(GridUnit target, Element element, WeaponMaterial material)
+    public bool IsAffinityRemembered(GridUnit target, Element element)
     {
         if (!knownEnemyAffinities.ContainsKey(target))
             knownEnemyAffinities[target] = new EnemyPartialData();
 
         EnemyPartialData data = knownEnemyAffinities[target];
 
-        if (element != Element.None)
-        {
-            return data.knownElementAffinities.Where((item) => item.element == element).Count() > 0;
-        }
-        else
-        {
-            return data.knownMaterialAffinities.Where((item) => item.material == material).Count() > 0;
-        }
+        return data.knownElementAffinities.Where((item) => item.element == element).Count() > 0;
     }
 
 
-    public void UpdateAffinities(GridUnit target, Affinity affinity, Element element, WeaponMaterial material)
+    public void UpdateAffinities(GridUnit target, Affinity affinity, Element element)
     {
         if(affinity == Affinity.Evade || !shouldRememberAffinities) { return; }
 
@@ -242,22 +298,22 @@ public class FantasyCombatAI : MonoBehaviour
 
             data.knownElementAffinities.Add(elementAffinity);
         }
-        else
-        {
-            MaterialAffinity materialAffinity = new MaterialAffinity();
-            materialAffinity.material = material;
-            materialAffinity.affinity = affinity;
-
-            data.knownMaterialAffinities.Add(materialAffinity);
-        }
     }
 
 
     private void ResetData()
     {
         selectedSkill = null;
-        movePositionList.Clear();
+        moveToPath.Clear();
         finalLookDirection = Vector3.zero;
+    }
+
+    private void AddSkillToDataDict(AIBaseSkill skill)
+    {
+        if (!instancedSkillDataDict.ContainsKey(skill))
+        {
+            instancedSkillDataDict[skill] = new InstancedSkillData();
+        }
     }
 
     private bool CanSetPreferredTargetOnTurnStart()

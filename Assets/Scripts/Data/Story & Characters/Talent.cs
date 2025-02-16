@@ -6,4 +6,7 @@ using UnityEngine;
 public class Talent : ScriptableObject
 {
     public string talentName;
+    [Space(10)]
+    [TextArea(5, 10)]
+    public string talentDescription;
 }

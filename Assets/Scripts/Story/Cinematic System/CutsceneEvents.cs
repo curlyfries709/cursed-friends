@@ -108,7 +108,7 @@ public class CutsceneEvents : MonoBehaviour
             subscribedToDialogueEndEvent = false;
         }
 
-        foreach (PlayerGridUnit player in PartyData.Instance.GetAllPlayerMembersInWorld())
+        foreach (PlayerGridUnit player in PartyManager.Instance.GetAllPlayerMembersInWorld())
         {
             int hpGain = player.Health().GetVitalValueFromPercentage(hpRestorePercentage, FantasyHealth.Vital.HP);
             int spGain = player.Health().GetVitalValueFromPercentage(spRestorePercentage, FantasyHealth.Vital.SP);
@@ -150,14 +150,17 @@ public class CutsceneEvents : MonoBehaviour
         foreach(WarpGameObject warpGameObject in warpingObjects)
         {
             GameObject warpingObject = warpGameObject.warpObject;
+            ARDynamicObstacle dynamicObstacle = warpingObject.GetComponentInChildren<ARDynamicObstacle>();
 
-            warpingObject.transform.position = warpGameObject.destination.position;
-            warpingObject.transform.rotation = warpGameObject.destination.rotation;
-
-            if(warpingObject.TryGetComponent(out DynamicObstacle dynamicObstacle))
+            if(dynamicObstacle)
             {
                 Debug.Log("Warping Dynamic Obstacle");
-                dynamicObstacle.OnWarp();
+                dynamicObstacle.Warp(warpGameObject.destination);
+            }
+            else
+            {
+                warpingObject.transform.position = warpGameObject.destination.position;
+                warpingObject.transform.rotation = warpGameObject.destination.rotation;
             }
         }
     }

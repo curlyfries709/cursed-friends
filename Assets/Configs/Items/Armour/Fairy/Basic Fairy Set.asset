@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14c94329eb9c11847a2ac6cfbc40ac5e, type: 3}
+  m_Name: Basic Fairy Set
+  m_EditorClassIdentifier: 
+  itemName: Fair Armour
+  UIIcon: {fileID: 0}
+  itemCatergory: 1
+  buyPrice: 30
+  sellPrice: 0
+  requiredLevel: 1
+  weight: 0
+  rarity: 0
+  description: 
+  armour: 3
+  raceRestriction: 03000000
+  numOfEnchantmentSlots: 0
+  bonusAttributes: []
+  infusedEnchantments: []
+  embeddedEnchantments: []

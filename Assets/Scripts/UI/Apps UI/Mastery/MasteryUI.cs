@@ -75,11 +75,11 @@ public class MasteryUI : MonoBehaviour , IControls
         foreach (Image potrait in potraits)
         {
             int index = potrait.transform.GetSiblingIndex();
-            potrait.gameObject.SetActive(index < PartyData.Instance.GetAllPlayerMembersInWorld().Count);
+            potrait.gameObject.SetActive(index < PartyManager.Instance.GetAllPlayerMembersInWorld().Count);
 
             if (!potrait.gameObject.activeSelf) { continue; }
 
-            PlayerGridUnit selectedPlayer = PartyData.Instance.GetAllPlayerMembersInWorld()[index];
+            PlayerGridUnit selectedPlayer = PartyManager.Instance.GetAllPlayerMembersInWorld()[index];
             potrait.sprite = selectedPlayer.portrait;
         }
     }
@@ -87,7 +87,7 @@ public class MasteryUI : MonoBehaviour , IControls
 
     private void BuildUI()
     {
-        PlayerGridUnit selectedPlayer = PartyData.Instance.GetAllPlayerMembersInWorld()[currentSeletedUnit];
+        PlayerGridUnit selectedPlayer = PartyManager.Instance.GetAllPlayerMembersInWorld()[currentSeletedUnit];
         selectedName.text = selectedPlayer.unitName;
 
         UpdateSelectedPotrait();
@@ -148,7 +148,7 @@ public class MasteryUI : MonoBehaviour , IControls
 
     private void UpdateSelectedUnit(int indexChange)
     {
-        CombatFunctions.UpdateListIndex(indexChange, currentSeletedUnit, out currentSeletedUnit, PartyData.Instance.GetAllPlayerMembersInWorld().Count);
+        CombatFunctions.UpdateListIndex(indexChange, currentSeletedUnit, out currentSeletedUnit, PartyManager.Instance.GetAllPlayerMembersInWorld().Count);
         BuildUI();
     }
 

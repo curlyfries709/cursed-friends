@@ -18,8 +18,7 @@ public class Weapon : Item
     [Header("Enchantments")]
     [Range(0, 5)]
     public int numOfEnchantmentSlots;
-    [Header("Material & Element")]
-    public WeaponMaterial material;
+    [Header("Element")]
     public Element element;
     [Header("Alterations")]
     public List<AttributeBonus> bonusAttributes;

@@ -26,7 +26,6 @@ public class MonsterChest : TreasureChest, IBattleTrigger, ISaveable
     public BattleType battleType { get; set; } = BattleType.MonsterChest;
     public MusicType battleMusicType { get; set; } = MusicType.Battle;
 
-    PlayerStateMachine player;
     EnemyStateMachine contactedEnemy;
 
     protected override void Start()
@@ -34,10 +33,7 @@ public class MonsterChest : TreasureChest, IBattleTrigger, ISaveable
         base.Start();
 
         battleStarterMonster.unitAnimator.GetEnemyBattleTrigger().SetBattleTrigger(this);
-        player = StoryManager.Instance.GetPlayerStateMachine();
         contactedEnemy = battleStarterMonster.GetComponent<EnemyStateMachine>();
-
-        UpdateGridObstacle(true);
     }
 
     protected override bool TryUnlockChest()
@@ -66,19 +62,12 @@ public class MonsterChest : TreasureChest, IBattleTrigger, ISaveable
     private void RepositionEnemy()
     {
         //Position to guarantee attack hit
-        Vector3 direction = (battleStarterMonster.transform.position - player.transform.position).normalized;
-        battleStarterMonster.transform.position = player.transform.position + (direction * offsetBetweenMonsterAndPlayer);
+        Vector3 direction = (battleStarterMonster.transform.position - GetPlayerSM().transform.position).normalized;
+        battleStarterMonster.transform.position = GetPlayerSM().transform.position + (direction * offsetBetweenMonsterAndPlayer);
 
         //Rotate Enemy to Guarantee Player in Line of Sight
-        Vector3 LookDirection = (player.transform.position - battleStarterMonster.transform.position).normalized;
+        Vector3 LookDirection = (GetPlayerSM().transform.position - battleStarterMonster.transform.position).normalized;
         battleStarterMonster.transform.rotation = Quaternion.LookRotation(LookDirection);
-    }
-
-
-    private void UpdateGridObstacle(bool set)
-    {
-        PathFinding.Instance.SetDynamicObstacle(gridBoxCollider, chestModelCollider, set);
-        //Debug.Log("Obstacle At Pos: " + LevelGrid.Instance.TryGetObstacleAtPosition(LevelGrid.Instance.gridSystem.GetGridPosition(transform.position), out Collider ob));
     }
 
     //BATTLE TRIGGERS
@@ -92,7 +81,7 @@ public class MonsterChest : TreasureChest, IBattleTrigger, ISaveable
         EnableComponents(true);
 
         //Warp Player & Companions in front of chest. 
-        player.WarpPlayer(playerWarpTransform, player.fantasyRoamState, true);
+        GetPlayerSM().WarpPlayer(playerWarpTransform, GetPlayerSM().fantasyRoamState, true);
 
         //Warp Loot
         if(spawnedLoot)
@@ -108,8 +97,6 @@ public class MonsterChest : TreasureChest, IBattleTrigger, ISaveable
         model.SetActive(enable);
         interactionCollider.enabled = enable;
         lootVFX.SetActive(enable);
-        
-        UpdateGridObstacle(enable);
     }
 
     IEnumerator EnableControlsRoutine(float waitTime)
@@ -163,5 +150,10 @@ public class MonsterChest : TreasureChest, IBattleTrigger, ISaveable
 
         if(!model.activeInHierarchy)
             EnableComponents(true);
+    }
+
+    private PlayerStateMachine GetPlayerSM()
+    {
+        return PlayerSpawnerManager.Instance.GetPlayerStateMachine();
     }
 }
