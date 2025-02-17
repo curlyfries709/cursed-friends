@@ -169,7 +169,13 @@ public class PartyManager : MonoBehaviour, IControls, ISaveable
 
         foreach(string playerName in this.partyFormationOrder)
         {
-            partyFormationOrder.Add(GetPlayerUnitViaName(playerName));
+            PlayerGridUnit playerGridUnit = GetPlayerUnitViaName(playerName);
+
+            //Check if pary member even spawned
+            if (playerGridUnit)
+            {
+                partyFormationOrder.Add(playerGridUnit);
+            } 
         }
 
         return partyFormationOrder;

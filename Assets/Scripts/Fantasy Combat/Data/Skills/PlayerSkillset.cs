@@ -44,6 +44,13 @@ public class PlayerSkillset : MonoBehaviour, ISaveable
     public void Setup()
     {
         myPlayerGridUnit = PartyManager.Instance.GetPlayerUnitViaName(memberData.memberName);
+
+        if (!myPlayerGridUnit)
+        {
+            Debug.Log(memberData.memberName + " not found. Cannot set skill data");
+            return;
+        }
+
         myPlayerGridUnit.SetSkillData(this);
     }
 

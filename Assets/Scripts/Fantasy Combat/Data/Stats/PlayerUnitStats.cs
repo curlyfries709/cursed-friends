@@ -28,6 +28,13 @@ public class PlayerUnitStats : UnitStats, ISaveable
     public void Setup()
     {
         PlayerGridUnit myPlayerGridUnit = PartyManager.Instance.GetPlayerUnitViaName(memberData.memberName);
+
+        if (!myPlayerGridUnit)
+        {
+            Debug.Log(memberData.memberName + " not found. Cannot set unit stats");
+            return;
+        }
+
         equipment.SetWearer(myPlayerGridUnit);
         myPlayerGridUnit.SetPlayerUnitStats(this);
     }

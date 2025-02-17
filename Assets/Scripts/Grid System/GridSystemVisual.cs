@@ -3,7 +3,7 @@ using UnityEngine;
 using TMPro;
 using Sirenix.OdinInspector;
 using System.Linq;
-using Unity.VisualScripting;
+using Pathfinding.Graphs.Grid;
 
 public class GridSystemVisual : MonoBehaviour
 {
@@ -289,5 +289,18 @@ public class GridSystemVisual : MonoBehaviour
     public Quaternion GetGridVisualRotation(GridPosition gridPosition)
     {
         throw new System.NotImplementedException();
+
+        /*GameObject cell = GridSystemVisual.Instance.DebugShowVisualAtPosition(gridSystem.GetGridPosition(testTransform.position));
+
+        GraphCollision graphCollision = AstarPath.active.data.gridGraph.collision;
+        Vector3 returnVal = graphCollision.CheckHeight(testTransform.position, out RaycastHit hit, out bool walkable);
+
+        Debug.DrawRay(testTransform.position, hit.normal * 15, Color.red, 100);
+        Debug.Log("Hit Normal " + hit.normal.ToString());
+        //Debug.Log("Hit Collider" + hit.collider.name.ToString());
+        Debug.Log("Hit Point: " + hit.point.ToString());
+        Debug.Log("return Val: " + returnVal.ToString());
+        cell.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+        //cell.transform.rotation = Quaternion.LookRotation(hit.normal);*/
     }
 }

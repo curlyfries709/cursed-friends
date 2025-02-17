@@ -528,23 +528,6 @@ public abstract class BaseSkill : MonoBehaviour
         return listToReturn;
     }
 
-    //Getters
-
-    protected bool GetTargetingCondition(GridPosition gridPosition)
-    {
-        return canTargetSelf ? LevelGrid.Instance.IsGridPositionOccupiedByUnit(gridPosition, false) : LevelGrid.Instance.IsGridPositionOccupiedByDifferentUnit(myUnit, gridPosition, canTargetKOEDUnits);
-    }
-
-    protected bool IsCurrentGridPositionOccupiedByAnotherUnit(GridPosition gridPosition, bool includeKOedUnits)
-    {
-        return LevelGrid.Instance.IsGridPositionOccupiedByDifferentUnit(myUnit, gridPosition, includeKOedUnits);
-    }
-
-    public SkillData GetSkillData()
-    {
-        return mySkillData;
-    }
-
     //Direction Methods
     protected virtual Direction GetDirection()
     {
@@ -560,4 +543,29 @@ public abstract class BaseSkill : MonoBehaviour
     {
         return CombatFunctions.GetDirectionAsVector(myUnitMoveTransform);
     }
+
+    //Getters
+
+    protected bool GetTargetingCondition(GridPosition gridPosition)
+    {
+        return canTargetSelf ? LevelGrid.Instance.IsGridPositionOccupiedByUnit(gridPosition, false) : LevelGrid.Instance.IsGridPositionOccupiedByDifferentUnit(myUnit, gridPosition, canTargetKOEDUnits);
+    }
+
+    protected bool IsCurrentGridPositionOccupiedByAnotherUnit(GridPosition gridPosition, bool includeKOedUnits)
+    {
+        return LevelGrid.Instance.IsGridPositionOccupiedByDifferentUnit(myUnit, gridPosition, includeKOedUnits);
+    }
+
+    public bool IsDiagonal()
+    {
+        //It's possible skillShape was accidentally set to diagonal, so check range is greater than 0.
+        return skillShape == SkillShape.Diagonal && range > 0;
+    }
+
+    public SkillData GetSkillData()
+    {
+        return mySkillData;
+    }
+
+
 }

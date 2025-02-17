@@ -10,26 +10,25 @@ public class EnemyCombatActingState : EnemyBaseState
     private List<Vector3> positionList = new List<Vector3>();
     private int currentPositionIndex = 0;
   
-
     private float currentSpeed;
     private float animationBlend;
     private float rotationVelocity;
-    private float verticalVelocity;
 
     bool finishedMove = false;
     bool finishedFinalRotation = false;
     bool moved = false;
+    bool isReadyToAct = false;
 
     public override void EnterState()
     {
         ResetData();
-
-        stateMachine.enemyAI.BeginTurn();
-        positionList = stateMachine.enemyAI.GetMoveList();
+        stateMachine.enemyAI.BeginTurn(OnActionReady);
     }
 
     public override void UpdateState()
     {
+        if (!isReadyToAct) return;
+
         if (!finishedMove)
         {
             MoveToGridPos();
@@ -42,6 +41,12 @@ public class EnemyCombatActingState : EnemyBaseState
     }
 
     //Methods
+    private void OnActionReady(List<Vector3> movementPath)
+    {
+        positionList = movementPath;
+        isReadyToAct = true;
+    }
+
     private void MoveToGridPos()
     {
         Vector3 targetPosition = positionList[currentPositionIndex];
@@ -65,7 +70,7 @@ public class EnemyCombatActingState : EnemyBaseState
             targetSpeed = 0;
             currentPositionIndex++;
 
-            if(currentPositionIndex >= positionList.Count && !finishedMove)
+            if (currentPositionIndex >= positionList.Count && !finishedMove)
             {
                 if (stateMachine.enemyAI.finalLookDirection != Vector3.zero && !finishedFinalRotation)
                 {
@@ -137,6 +142,7 @@ public class EnemyCombatActingState : EnemyBaseState
 
     private void ResetData()
     {
+        isReadyToAct = false;
         moved = false;
         finishedMove = false;
         finishedFinalRotation = false;

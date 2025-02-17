@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 using Sirenix.OdinInspector;
 using AnotherRealm;
-using UnityEngine.Rendering;
+using System;
 using Pathfinding;
 
 public class FantasyCombatAI : MonoBehaviour
@@ -46,6 +46,12 @@ public class FantasyCombatAI : MonoBehaviour
     public GridUnit preferredTarget { get; private set; }
     public Vector3 finalLookDirection { get; private set; }
 
+    //Cached Callbacks
+    Action<List<Vector3>> ActionReadyCallback = null;
+    MultiPathCallbackData multiPathCallbackData = null;
+
+    bool hasAnyDiagonalSkills = false;
+
     //List
     List<AIBaseSkill> skillsList = new List<AIBaseSkill>();
 
@@ -58,6 +64,27 @@ public class FantasyCombatAI : MonoBehaviour
 
     //Instanced Skill Data
     Dictionary<AIBaseSkill, InstancedSkillData> instancedSkillDataDict = new Dictionary<AIBaseSkill, InstancedSkillData>();
+
+    public class MultiPathCallbackData
+    {
+        public GridPosition closestDestination;
+
+        public float currentShortestPathLength = Mathf.Infinity;
+        public int multiPathQueryCount = 0;
+        public int multiPathCallbackCount = 0;
+
+        public bool HasCallbackCheckedAllPaths()
+        {
+            return multiPathCallbackCount >= multiPathQueryCount;
+        }
+
+        public void ResetData()
+        {
+            multiPathQueryCount = 0;
+            multiPathCallbackCount = 0;
+            currentShortestPathLength = Mathf.Infinity;
+        }
+    }
     public struct InstancedSkillData
     {
         public InstancedSkillData(int newCooldown)
@@ -99,12 +126,18 @@ public class FantasyCombatAI : MonoBehaviour
         {
             AddSkillToDataDict(skill);
             instancedSkillDataDict[skill].SetCooldown(skill.GetFirstCooldown());
+
+            if (!hasAnyDiagonalSkills)
+            {
+                hasAnyDiagonalSkills = skill.IsDiagonal();
+            }
         }
     }
 
-    public void BeginTurn()
+    public void BeginTurn(Action<List<Vector3>> onActionReadyCallback)
     {
         ResetData();
+        ActionReadyCallback = onActionReadyCallback;
 
         if (CanSetPreferredTargetOnTurnStart())
             SetPreferredTarget();
@@ -161,7 +194,7 @@ public class FantasyCombatAI : MonoBehaviour
             }
 
             //Get Destination Closest to preferred target
-            MoveCloserToPreferredTarget();
+            FindMovePosClosestToPreferredTarget();
         }
 
         //Sort Skills Based On Priority
@@ -198,22 +231,54 @@ public class FantasyCombatAI : MonoBehaviour
     private void QueryPathToDestination(GridPosition destination, Vector3 directionToFace)
     {
         finalLookDirection = directionToFace;
-
         //List<GridPosition> gridPosList = PathFinding.Instance.FindPath(myUnit.GetGridPositionsOnTurnStart()[0], destination, myUnit, out int pathLength, true);
-
         PathFinding.Instance.QueryStartToEndPath(myUnit.GetGridPositionsOnTurnStart()[0], destination, myUnit, SetMovementPath);
     }
 
-    private void MoveCloserToPreferredTarget()
+    private void FindMovePosClosestToPreferredTarget()
     {
-        finalLookDirection = Vector3.zero;
-        PathFinding.Instance.QueryPartialPathToPoint(myUnit.GetGridPositionsOnTurnStart()[0], preferredTarget.GetGridPositionsOnTurnStart()[0], myUnit, myUnit.MoveRange(), OnShortestPathToPreferredTargetComplete);
+        /*This implementation currently has quick results. However, should it begin to bottleneck, an alternative Solution:
+         * Cheaply calculate Manhattan distance between each occupiable pos in move list against each occupiable pos in target neighbour list.
+         * However, this doesn’t take obstacles into account.
+         * Pick path with smallest result. Query Start To End Path with pos in move list as destination. 
+         * When updating move list, check if node is not occupied and is neighbour of target then make this new destination and break loop.  
+         */
+        List<GridPosition> occupiableGridPosInMoveList = currentValidMovementPos.Where((gridPos) => !LevelGrid.Instance.IsGridPositionOccupiedByDifferentUnit(myUnit, gridPos, true)).ToList();
+        List<GridPosition> targetOccupiableNeighbourList = PathFinding.Instance.GetGridPositionOccupiableNeighbours(preferredTarget.GetGridPositionsOnTurnStart()[0], myUnit, hasAnyDiagonalSkills);
+
+        if(targetOccupiableNeighbourList.Count == 0)
+        {
+            Debug.Log("DESIGN FALLBACK BEHAVIOUR FOR WHEN TARGET OCCUPIABLE NEIGHBOURS IS 0");
+            throw new NotImplementedException();
+        }
+        else
+        {
+            multiPathCallbackData.multiPathQueryCount = targetOccupiableNeighbourList.Count;
+
+            foreach (GridPosition occupiableNeighbourGridPos in targetOccupiableNeighbourList)
+            {
+                PathFinding.Instance.QueryClosestNodeToDestination(occupiableGridPosInMoveList, occupiableNeighbourGridPos, myUnit, OnShortestPathToPreferredTargetComplete);
+            }
+        }
     }
 
     private void OnShortestPathToPreferredTargetComplete(Path path)
     {
-        finalLookDirection = Vector3.zero;
-        SetMovementPath(path);
+        //Increase callback Count
+        multiPathCallbackData.multiPathCallbackCount++;
+
+        int pathLength = path.vectorPath.Count;
+
+        if (pathLength < multiPathCallbackData.currentShortestPathLength)
+        {
+            multiPathCallbackData.currentShortestPathLength = path.vectorPath.Count;
+            multiPathCallbackData.closestDestination = LevelGrid.Instance.gridSystem.GetGridPosition((Vector3)path.path[0].position);
+        }
+
+        if(multiPathCallbackData.HasCallbackCheckedAllPaths())
+        {
+            QueryPathToDestination(multiPathCallbackData.closestDestination, Vector3.zero);
+        }
     }
 
     private void SetMovementPath(Path path)
@@ -224,7 +289,6 @@ public class FantasyCombatAI : MonoBehaviour
         {
             if (!currentValidMovementPos.Contains(gridPosition)) //Break out of loop if point beyond movement path
             {
-                Debug.Log("Path Grid Position not within Move range. Breaking out of loop");
                 break;
             }
 
@@ -240,35 +304,10 @@ public class FantasyCombatAI : MonoBehaviour
                 moveToPath.Add(LevelGrid.Instance.gridSystem.GetWorldPosition(gridPosition));
             }
         }
+
+        //Tell Enemy State Machine the action is ready to be performed.
+        ActionReadyCallback?.Invoke(moveToPath);
     }
-
-    public List<Vector3> GetMoveList()
-    {
-        return moveToPath;
-    }
-
-    /*private GridPosition GetPositionClosestToPreferredTarget()
-    {
-        float shortestPathLengthToTarget = Mathf.Infinity;
-
-        GridPosition targetGridPos = myUnit.GetGridPositionsOnTurnStart()[0];
-
-        foreach (GridPosition movePos in currentValidMovementPos)
-        {
-            if (!LevelGrid.Instance.IsGridPositionOccupiedByUnit(movePos, true))
-            {
-                //float pathLength = PathFinding.Instance.GetPathLength(movePos, preferredTarget.GetGridPositionsOnTurnStart()[0], myUnit, myUnit.MoveRange() > 1);
-                float pathLength = PathFinding.Instance.DistanceInGridUnits(movePos, preferredTarget.GetGridPositionsOnTurnStart()[0], myUnit);
-                if (pathLength < shortestPathLengthToTarget)
-                {
-                    shortestPathLengthToTarget = pathLength;
-                    targetGridPos = movePos;
-                }
-            }
-        }
-
-        return targetGridPos;
-    }*/
 
     public bool IsAffinityRemembered(GridUnit target, Element element)
     {
@@ -306,6 +345,17 @@ public class FantasyCombatAI : MonoBehaviour
         selectedSkill = null;
         moveToPath.Clear();
         finalLookDirection = Vector3.zero;
+        hasAnyDiagonalSkills = false;
+
+
+        if(multiPathCallbackData  != null)
+        {
+            multiPathCallbackData.ResetData();
+        }
+        else
+        {
+            multiPathCallbackData = new MultiPathCallbackData();
+        }
     }
 
     private void AddSkillToDataDict(AIBaseSkill skill)

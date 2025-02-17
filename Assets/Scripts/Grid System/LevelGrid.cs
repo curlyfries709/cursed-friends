@@ -9,7 +9,6 @@ public class LevelGrid : MonoBehaviour
 
     [Header("Grid Data")]
     [SerializeField] float cellSize = 2;
-    [SerializeField] Transform testTransform;
 
     public GridSystem<GridObject> gridSystem = null;
     List<GridUnit> allActiveGridUnits = new List<GridUnit>();
@@ -29,21 +28,7 @@ public class LevelGrid : MonoBehaviour
     {
         SavingLoadingManager.Instance.EnteringNewTerritory += OnEnteringNewTerritory;
     }
-    private void Start()
-    {
-         GameObject cell = GridSystemVisual.Instance.DebugShowVisualAtPosition(gridSystem.GetGridPosition(testTransform.position));
 
-        GraphCollision graphCollision = AstarPath.active.data.gridGraph.collision;
-        Vector3 returnVal = graphCollision.CheckHeight(testTransform.position, out RaycastHit hit, out bool walkable);
-
-        Debug.DrawRay(testTransform.position, hit.normal * 15, Color.red, 100);
-        Debug.Log("Hit Normal " + hit.normal.ToString());
-        //Debug.Log("Hit Collider" + hit.collider.name.ToString());
-        Debug.Log("Hit Point: " + hit.point.ToString());
-        Debug.Log("return Val: " + returnVal.ToString());
-        cell.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
-        //cell.transform.rotation = Quaternion.LookRotation(hit.normal);
-    }
     public void OnNewGridSceneLoadedEarly(SceneData currentSceneData)
     {
         FantasySceneData fantasySceneData = currentSceneData as FantasySceneData;

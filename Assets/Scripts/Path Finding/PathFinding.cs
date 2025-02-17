@@ -130,6 +130,21 @@ public class PathFinding : MonoBehaviour
         return listToReturn;
     }
 
+    public List<GridPosition> GetGridPositionOccupiableNeighbours(GridPosition gridPosition, CharacterGridUnit unitLookingToOccupy, bool includeDiagonals)
+    {
+        List<GridPosition> listToReturn = new List<GridPosition>();
+
+        foreach (GridPosition neighbourGridPos in GetNeighbourList(gridPosition, includeDiagonals))
+        {
+            if (LevelGrid.Instance.CanOccupyGridPosition(unitLookingToOccupy, neighbourGridPos))
+            {
+                listToReturn.Add(neighbourGridPos);
+            }
+        }
+
+        return listToReturn;
+    }
+
     private List<GridPosition> GetNeighbourList(GridPosition currentGridPosition, bool includeDiagonals)
     {
         List<GridPosition> neighbourList = new List<GridPosition>();

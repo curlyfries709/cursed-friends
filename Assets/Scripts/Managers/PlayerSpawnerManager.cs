@@ -17,6 +17,8 @@ public class PlayerSpawnerManager : MonoBehaviour, ISaveable
     [SerializeField] List<GameObject> fantasyCompanionPrefabs;
     [Header("Components")]
     [SerializeField] CompanionFollowBehaviour companionFollowBehaviour;
+    [Header("TEST")]
+    [SerializeField] bool spawnCompanions = true;
 
     bool isModernPlayerVersionSpawned = false;
 
@@ -145,6 +147,10 @@ public class PlayerSpawnerManager : MonoBehaviour, ISaveable
 
     private void SpawnCompanions(bool spawnFantasyVersions)
     {
+
+#if UNITY_EDITOR
+        if (!spawnCompanions) return;
+#endif
         if (spawnFantasyVersions)
         {
             foreach(GameObject prefab in fantasyCompanionPrefabs)
