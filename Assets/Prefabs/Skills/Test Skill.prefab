@@ -35272,7 +35272,7 @@ MonoBehaviour:
   skillDimensions: {x: 0, y: 0}
   validTargetArea: {x: 0, y: 0}
   range: 3
-  originateFromUnitCentre: 0
+  originateFromUnitCentre: 1
   canPenetrate: 1
   includeDiagonals: 1
   maxNumCellsFromUnit: 1
@@ -35292,7 +35292,7 @@ MonoBehaviour:
   isGridSelectionRequired: 0
   blendListCamera: {fileID: 4553271818227180932}
   otherVisualsToToggle: []
-  powerGrade: 8
+  powerGrade: 10
   isMagical: 0
   isChargedSkill: 0
   isUnevadable: 1

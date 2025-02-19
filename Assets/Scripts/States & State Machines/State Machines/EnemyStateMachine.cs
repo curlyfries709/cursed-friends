@@ -251,9 +251,14 @@ public class EnemyStateMachine : CharacterStateMachine
 
         if (!InPatrolState())
         {
-            navMeshAgent.Warp(patrolRoute.GetChild(0).position);
+            WarpToPosition(patrolRoute.GetChild(0).position, Quaternion.identity);
             SetStartState();
         }
+    }
+
+    public override void WarpToPosition(Vector3 newPosition, Quaternion newRotation)
+    {
+        navMeshAgent.Warp(newPosition);
     }
 
     public void GoToAmbushPoint(Transform ambushPoint, Vector3 ambushPos)
@@ -262,8 +267,6 @@ public class EnemyStateMachine : CharacterStateMachine
         assignedAmbushPoint = ambushPoint;
         SwitchState(ambushState);
     }
-
-
 
     public bool IsHostile()
     {
@@ -395,4 +398,6 @@ public class EnemyStateMachine : CharacterStateMachine
 
         Gizmos.DrawWireSphere(transform.position, alertAlliesRadius);
     }
+
+
 }

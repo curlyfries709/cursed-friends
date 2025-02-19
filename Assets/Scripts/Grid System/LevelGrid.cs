@@ -281,6 +281,17 @@ public class LevelGrid : MonoBehaviour
             IsWalkable(gridPosition);
     }
 
+    public GridNodeBase GetGridNode(GridPosition gridPosition)
+    {
+        GridGraph gridGraph = AstarPath.active.data.gridGraph;
+        return gridGraph.GetNode(gridPosition.x, gridPosition.z);
+    }
+
+    public Vector2 GetCellCentreNormalized()
+    {
+        return new Vector2(0.5f, 0.5f);
+    }
+
     public float GetCellSize()
     {
         return cellSize;

@@ -7,7 +7,7 @@ public class FaceCamera : MonoBehaviour
     [SerializeField] bool invert = false;
     //Caches
     Transform mainCam;
-    private void Awake()
+    private void Start()
     {
         mainCam = Camera.main.transform;
     }

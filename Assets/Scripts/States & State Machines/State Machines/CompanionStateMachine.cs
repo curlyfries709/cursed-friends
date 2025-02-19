@@ -86,6 +86,12 @@ public class CompanionStateMachine : CharacterStateMachine
         Vector3 newPosition = player.position + (player.right.normalized * horizontalFollowOffset)
             + (player.forward.normalized * verticalFollowOffset);
 
+        WarpToPosition(newPosition, transform.rotation);
+        SwitchState(GetNewStateFromPlayerState(newPlayerState));
+    }
+
+    public override void WarpToPosition(Vector3 newPosition, Quaternion newRotationn)
+    {
         if (navMeshAgent.enabled)
         {
             navMeshAgent.Warp(newPosition);
@@ -93,9 +99,8 @@ public class CompanionStateMachine : CharacterStateMachine
         else
         {
             transform.position = newPosition;
+            transform.rotation = newRotationn;
         }
-
-        SwitchState(GetNewStateFromPlayerState(newPlayerState));
     }
 
     private CompanionBaseState GetNewStateFromPlayerState(PlayerBaseState playerState)

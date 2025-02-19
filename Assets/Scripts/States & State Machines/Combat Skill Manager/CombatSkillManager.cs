@@ -182,4 +182,9 @@ public class CombatSkillManager : StateMachine
 
         fantasyHumanSkillManagerState = new FantasyHumanSkillManagerState(this);
     }
+
+    public override void WarpToPosition(Vector3 newPosition, Quaternion newRotation)
+    {
+        //Do nothing
+    }
 }

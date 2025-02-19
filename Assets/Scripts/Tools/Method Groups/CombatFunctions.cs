@@ -783,6 +783,24 @@ namespace AnotherRealm
             return !(attackerPos.x == targetPos.x || attackerPos.z == targetPos.z);
         }
 
+        public static bool IsGridPositionAdjacent(GridPosition posA, GridPosition posB, bool includeDiagonals)
+        {
+            /*Equates to 1 if is 1 unit away from each other in any cardinal direction
+              Equates to 2 if is 1 unit away from each other in any intercardinal direction */
+
+            int xDifference = Mathf.Abs(posA.x - posB.x);
+            int zDifference = Mathf.Abs(posA.z - posB.z);
+
+            int value = xDifference + zDifference;
+
+            if (includeDiagonals)
+            {
+                return value == 1 || (value == 2 && xDifference == zDifference);
+            }
+
+            return value == 1;
+        }
+
         public static bool IsGridPositionOnDiagonalAxis(GridPosition posA, GridPosition posB)
         {
             return Mathf.Abs(posA.x - posB.x) == Mathf.Abs(posA.z - posB.z);
@@ -1094,7 +1112,6 @@ namespace AnotherRealm
         public static GridPosition GetGridPositionInDirection(GridPosition originGridPos, Vector3 directionVector, int distance)
         {
             Direction direction = GetDirectionFromVector(directionVector);
-            Debug.Log("World Direction: " + direction.ToString());
             return GetGridPositionInDirection(originGridPos, direction, distance);
         }
 

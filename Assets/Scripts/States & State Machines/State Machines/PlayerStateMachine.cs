@@ -217,12 +217,7 @@ public class PlayerStateMachine : CharacterStateMachine, IControls
                 break;
         }
 
-        ActivateFreeRoamCam(false);
-        controller.enabled = false;
-        transform.position = newPosition;
-        transform.rotation = newRotation;
-        controller.enabled = true;
-        ActivateFreeRoamCam(true);
+        WarpToPosition(newPosition, newRotation);
 
         if (state != null)
             SwitchState(state);
@@ -233,18 +228,23 @@ public class PlayerStateMachine : CharacterStateMachine, IControls
 
     public void WarpPlayer(Transform newTransform, PlayerBaseState newPlayerState, bool autoWarpCompanionsNearPos)
     {
-        ActivateFreeRoamCam(false);
-        controller.enabled = false;
-        transform.position = newTransform.position;
-        transform.rotation = newTransform.rotation;
-        controller.enabled = true;
-        ActivateFreeRoamCam(true);
+        WarpToPosition(newTransform.position, newTransform.rotation);
 
         if (newPlayerState != null)
             SwitchState(newPlayerState);
 
         if (autoWarpCompanionsNearPos)
             PlayerWarped?.Invoke(newPlayerState);
+    }
+
+    public override void WarpToPosition(Vector3 newPosition, Quaternion newRotation)
+    {
+        ActivateFreeRoamCam(false);
+        controller.enabled = false;
+        transform.position = newPosition;
+        transform.rotation = newRotation;
+        controller.enabled = true;
+        ActivateFreeRoamCam(true);
     }
 
     public bool TryEnterStealth()

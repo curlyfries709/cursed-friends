@@ -5,6 +5,9 @@ using System.Collections;
 using AnotherRealm;
 using System;
 using Pathfinding;
+using System.Linq;
+using Unity.Mathematics;
+
 public enum SkillForceType
 {
     None,
@@ -65,6 +68,18 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
         public int damageReceived;
 
         public Vector3 direction;
+
+        public ApplyForceData(GridUnit target, GridUnit attacker) //Called via public Suction Unit
+        {
+            this.target = target;
+            this.attacker = attacker;
+
+            //Below Data not necessary when using this constructor so give it zero data. 
+            this.forceType = SkillForceType.SuctionAll;
+            this.distance = 0;
+            this.direction = Vector3.zero;
+            this.damageReceived = 0;
+        }
 
         public ApplyForceData(GridUnit target, GridUnit attacker, SkillForceType forceType, int distance, Vector3 direction, int damage)
         {
@@ -239,10 +254,27 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
         return null;
     }
 
-    public void SuctionUnit(GridUnit target, GridUnit attacker, SkillForceDirectionType forceDirectionType, Action SuctionCompleteCallback)
+    public void SuctionUnits(List<GridUnit> targets, GridUnit attacker, SkillForceDirectionType forceDirectionType, Action SuctionCompleteCallback)
     {
-        Vector3 suctionDirection = GetForceDirection(attacker, target, SkillForceType.SuctionAll, forceDirectionType);
-        SuctionUnit(target, attacker, suctionDirection, SuctionCompleteCallback);
+        foreach(GridUnit target in targets)
+        {
+            ApplyForceData applyForceData = new ApplyForceData(target, attacker);
+            //Units To Apply Force List must be filled before calling SuctionUnit. Hence, separate loops.
+            unitsToApplyForce.Add(applyForceData);
+        }
+
+        for (int i = 0; i < targets.Count; ++i)
+        {
+            GridUnit target = targets[i];
+            Vector3 suctionDirection = GetForceDirection(attacker, target, SkillForceType.SuctionAll, forceDirectionType);
+
+            //We only want to trigger this callback once, so do it for final unit to suction.
+            Action callback = i == targets.Count - 1 ? SuctionCompleteCallback : null; 
+            SuctionUnit(target, attacker, suctionDirection, callback);
+        }
+
+        //Add Turn End Event to clear data. 
+        FantasyCombatManager.Instance.AddTurnEndEventToQueue(this);
     }
 
     private void SuctionUnit(GridUnit target, GridUnit attacker, Vector3 direction, Action SuctionCompleteCallback = null)
@@ -252,27 +284,40 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
 
         //Reset data
         numUnitsInFrontCurrentSuctionTarget = 0;
+        bool updatePosition = true;
+
+        //Unit Grid Pos
+        GridPosition targetGridPos = target.GetGridPositionsOnTurnStart()[0];
+        GridPosition attackerGridPos = attacker.GetGridPositionsOnTurnStart()[0];
+
+        if (CombatFunctions.IsGridPositionAdjacent(attackerGridPos, targetGridPos, true)) //If already adjacent, then no need to suction
+        {
+            updatePosition = false;
+            OnSuctionComplete();
+            return;
+        }
 
         //Must begin from GridPos 1 unit in suction direction as to ignore target's grid pos when OnSuctionNodeChecked called
-        GridPosition castOriginGridPos = CombatFunctions.GetGridPositionInDirection(target.GetGridPositionsOnTurnStart()[0], direction, 1);
-        Vector3 castOriginWorldPos = LevelGrid.Instance.gridSystem.GetWorldPosition(castOriginGridPos);
+        GridPosition castOriginGridPos = CombatFunctions.GetGridPositionInDirection(targetGridPos, direction, 1);
 
         //Desired destination is GridPos 1 unit in opposite of suction direction from attacker Grid Pos
-        GridPosition attackerGridPos = attacker.GetGridPositionsOnTurnStart()[0];
         GridPosition desiredDestinationGridPos = CombatFunctions.GetGridPositionInDirection(attackerGridPos, -direction, 1);
-        Vector3 castDestinationWorldPos = LevelGrid.Instance.gridSystem.GetWorldPosition(desiredDestinationGridPos);
 
         GridGraph gridGraph = AstarPath.active.data.gridGraph;
-        float cellSize = LevelGrid.Instance.GetCellSize();
+        GridPosition newDestination;
 
-        GridPosition newDestination; 
+        Vector2 normalizedPoint = LevelGrid.Instance.GetCellCentreNormalized();
 
-        if (gridGraph.Linecast(castOriginWorldPos, castDestinationWorldPos, out GraphHitInfo hitInfo, null, OnSuctionNodeChecked))
+        GridNodeBase startNode = LevelGrid.Instance.GetGridNode(castOriginGridPos);
+        GridNodeBase endNode = LevelGrid.Instance.GetGridNode(desiredDestinationGridPos);
+
+        //Swap the start and end node because there's a bug when tracing from start to end. 
+        if (gridGraph.Linecast(endNode, normalizedPoint, startNode, normalizedPoint, out GridHitInfo hitInfo, null, OnSuctionNodeChecked, false))
         {
             //Means it hit something
             Vector3 hitWorldPos = (Vector3)hitInfo.node.position;
             GridPosition hitGridPos = LevelGrid.Instance.gridSystem.GetGridPosition(hitWorldPos);
-            
+
             newDestination = CombatFunctions.GetGridPositionInDirection(hitGridPos, -direction, numUnitsInFrontCurrentSuctionTarget + 1); //1 is added as a 1 unit padding away from the obstacle
         }
         else
@@ -280,13 +325,26 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
             newDestination = CombatFunctions.GetGridPositionInDirection(desiredDestinationGridPos, -direction, numUnitsInFrontCurrentSuctionTarget);
         }
 
+        GridPosition currentPos = target.GetGridPositionsOnTurnStart()[0];
+        
         //Suction Unit
         Vector3 destinationWorldPos = LevelGrid.Instance.gridSystem.GetWorldPosition(newDestination);
-        target.transform.DOMove(destinationWorldPos, suctionAnimTime).OnComplete(
-            () => { 
-            target.MovedToNewGridPos(); 
-            SuctionCompleteCallback(); 
+        target.transform.DOMove(destinationWorldPos, suctionAnimTime).OnComplete(() => 
+        {
+            OnSuctionComplete();  
         });
+
+        //Local function
+        void OnSuctionComplete()
+        {
+            if(updatePosition)
+                target.MovedToNewGridPos();
+
+            if (SuctionCompleteCallback != null)
+            {
+                SuctionCompleteCallback();
+            }
+        }
     }
 
     private bool OnSuctionNodeChecked(GraphNode node)
@@ -306,7 +364,17 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
         }
         else if (isOccupiedByActiveUnit)
         {
-            numUnitsInFrontCurrentSuctionTarget++;
+            if (unitsToApplyForce.Any((data) => data.target == LevelGrid.Instance.GetUnitAtGridPosition(gridPosition)))
+            {
+                //If unit is in UnitsToApplyForce, they're being suctioned too. 
+                numUnitsInFrontCurrentSuctionTarget++;
+            }
+            else
+            {
+                /*If not in UnitsToApplyForce, then they have evaded or immune to suction or an enemy not targeted by suction. 
+                 * So treat them like an obstacle*/
+                return false;
+            }
         }
 
         return true;

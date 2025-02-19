@@ -5,7 +5,6 @@ using UnityEngine.InputSystem;
 using System;
 using System.Linq;
 using Sirenix.OdinInspector;
-using MoreMountains.Feedbacks;
 using AnotherRealm;
 
 public enum BattleResult
@@ -60,6 +59,9 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     [SerializeField] bool beginCombatOnPlay = true;
     [SerializeField] BattleStarter.CombatAdvantage combatAdvantageType;
     [SerializeField] EnemyIntiateCombat testBattleTrigger;
+    [Space(10)]
+    [SerializeField] Transform playerStartPositionHeader;
+    [SerializeField] Transform enemyTestUnitHeader;
 
     //Battle Time & Counters
     public int battleTurnNumber { get; private set; } = 0;
@@ -169,21 +171,24 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         Flee.UnitFled += OnUnitFlee;
         CombatEnded += OnCombatEnd;
         ControlsManager.Instance.SubscribeToPlayerInput(myActionMap, this);
+
+        //Test Events
+        if (beginCombatOnPlay)
+            SavingLoadingManager.Instance.NewSceneLoadComplete += OnSceneLoaded;
     }
 
 
     void Start()
     {
         GameSystemsManager.Instance.CombatManagerSet(true);
+    }
 
-        if (beginCombatOnPlay)
-        {
-            ShowHUD(true);
-            ShowHUD(false);
+    void OnSceneLoaded(SceneData sceneData)
+    {
+        SavingLoadingManager.Instance.NewSceneLoadComplete -= OnSceneLoaded;
 
-            GetCombatants();
-            OnCombatBegin(combatAdvantageType, false);
-        }
+        GetCombatants();
+        OnCombatBegin(combatAdvantageType, false);
     }
 
     // Update is called once per frame
@@ -814,8 +819,24 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     {
         int leaderIndex = 0;
         PlayerGridUnit leader = null;
-        List<CharacterGridUnit> allFoundCharacterUnits = FindObjectsOfType<CharacterGridUnit>(false).ToList();
+
+        List<CharacterGridUnit> allFoundCharacterUnits = PartyManager.Instance.GetActivePlayerParty().Cast<CharacterGridUnit>().ToList();
         battleTrigger = testBattleTrigger;
+
+        foreach (Transform child in enemyTestUnitHeader)
+        {
+            CharacterGridUnit character = child.GetComponentInChildren<CharacterGridUnit>();
+
+            if (character && !allFoundCharacterUnits.Contains(character))
+            {
+                allFoundCharacterUnits.Add(character);
+
+                if (child.GetSiblingIndex() == 0 && battleTrigger == null)
+                {
+                    battleTrigger = character.unitAnimator.GetEnemyBattleTrigger();
+                }
+            }
+        }
 
         foreach (CharacterGridUnit unit in allFoundCharacterUnits)
         {
@@ -827,6 +848,9 @@ public class FantasyCombatManager : MonoBehaviour, IControls
                 PlayerGridUnit playerGridUnit = unit as PlayerGridUnit;
 
                 playerCombatParticipants.Add(playerGridUnit);
+
+                Transform posTransform = playerStartPositionHeader.Find(playerGridUnit.unitName);
+                playerGridUnit.GetComponent<StateMachine>().WarpToPosition(posTransform.position, posTransform.rotation);
 
                 if (unit.unitName.ToLower() == PartyManager.Instance.GetLeaderName().ToLower())
                 {

@@ -20,4 +20,6 @@ public abstract class StateMachine : MonoBehaviour
             currentState?.EnterState();
         }
     }
+
+    public abstract void WarpToPosition(Vector3 newPosition, Quaternion newRotation);
 }
