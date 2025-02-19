@@ -103,7 +103,7 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
         {
             int targetIndex = skillTargets.IndexOf(target);
 
-            Affinity targetAffinity = DamageTarget(target, !isUnevadable || !(this is PlayerBaseChainAttack));
+            Affinity targetAffinity = DamageTarget(target, !(isUnevadable || (this is PlayerBaseChainAttack)));
             allTargetsAffinity.Add(targetAffinity);
 
             GameObject hitVFX = hitVFXPool.Count > 0 ? hitVFXPool[targetIndex] : null;

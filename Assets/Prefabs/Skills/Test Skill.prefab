@@ -35273,7 +35273,7 @@ MonoBehaviour:
   validTargetArea: {x: 0, y: 0}
   range: 3
   originateFromUnitCentre: 0
-  canPenetrate: 0
+  canPenetrate: 1
   includeDiagonals: 1
   maxNumCellsFromUnit: 1
   unitCameraRootTransform: {fileID: 6652057802249034807}

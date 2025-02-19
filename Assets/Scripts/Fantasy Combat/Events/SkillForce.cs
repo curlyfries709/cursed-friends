@@ -517,10 +517,10 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
 
     private Vector3 GetForceDirection(GridUnit attacker, GridUnit target, SkillForceType forceType, SkillForceDirectionType forceDirectionType)
     {
-        Vector3 forceDirection = (target.transform.position - attacker.transform.position).normalized;
 
         if (forceDirectionType == SkillForceDirectionType.PositionDirection)
-        { 
+        {
+            Vector3 forceDirection = (target.transform.position - attacker.transform.position).normalized;
             Vector3 roundedDirection = CombatFunctions.RoundDirection(forceDirection);
 
             if (forceType == SkillForceType.KnockbackAll)
@@ -535,7 +535,7 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
         }
         else
         {
-            Vector3 unitForwardDirection = CombatFunctions.RoundDirectionToCardinalDirection(forceDirection);
+            Vector3 unitForwardDirection = CombatFunctions.RoundDirectionToCardinalDirection(attacker.transform.forward);
 
             if (forceType == SkillForceType.KnockbackAll)
             {
