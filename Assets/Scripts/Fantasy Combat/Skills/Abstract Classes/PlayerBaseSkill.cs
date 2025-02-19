@@ -36,6 +36,7 @@ public abstract class PlayerBaseSkill :BaseSkill
     [Tooltip("How much the skill costs to use in HP or FP")]
     [Range(1, 100)]
     [SerializeField] protected int percentageCost = 5;
+    [Title("Player Base Skill")]
     [PropertyOrder(0)]
     [Space(10)]
     [Tooltip("Must the player select the area or unit to target?")]
@@ -219,7 +220,7 @@ public abstract class PlayerBaseSkill :BaseSkill
 
         List<GridPosition> list;
 
-        if (GetDirection() == Direction.North || GetDirection() == Direction.South)
+        if (GetCardinalDirection() == Direction.North || GetCardinalDirection() == Direction.South)
         {
             int XEnd = startPos.x + ((int)skillDimensions.x - 1);
 
@@ -353,7 +354,7 @@ public abstract class PlayerBaseSkill :BaseSkill
                 }
                 else
                 {
-                    if (GetDirection() == Direction.North || GetDirection() == Direction.South)
+                    if (GetCardinalDirection() == Direction.North || GetCardinalDirection() == Direction.South)
                     {
                         x = Mathf.Clamp(x, minTargetAreaX, maxTargetAreaX - (int)skillDimensions.x + 1);
                         z = Mathf.Clamp(z, minTargetAreaY, maxTargetAreaY - (int)skillDimensions.y + 1);
@@ -449,7 +450,7 @@ public abstract class PlayerBaseSkill :BaseSkill
         myUnit.unitAnimator.PrepareToTriggerSkill(); //Speed Set to 0 & Cancel Skill Feedback Reset
 
         //Warp Unit into Position & Rotation in an attempt to remove camera jitter.
-        Vector3 desiredRotation = Quaternion.LookRotation(GetDirectionAsVector()).eulerAngles;
+        Vector3 desiredRotation = Quaternion.LookRotation(GetCardinalDirectionAsVector()).eulerAngles;
         myUnit.Warp(LevelGrid.Instance.gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0]), Quaternion.Euler(new Vector3(0, desiredRotation.y, 0)));
 
         //Set Times

@@ -352,7 +352,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
             data.fpAtStart = unit.GetDamageable().currentFP;
 
             data.gridPosAtStart = new List<GridPosition>(unit.GetGridPositionsOnTurnStart());
-            data.directionAtStart = CombatFunctions.GetDirectionAsVector(unit.transform);
+            data.directionAtStart = CombatFunctions.GetCardinalDirectionAsVector(unit.transform);
 
             PlayerGridUnit player = unit as PlayerGridUnit;
 

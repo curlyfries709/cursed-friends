@@ -2,75 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using UnityEngine.UI;
-using TMPro;
-using MoreMountains.Feedbacks;
 using Sirenix.Serialization;
-
-public struct AttackData
-{
-    public CharacterGridUnit attacker;
-    public Element attackElement;
-    public Item attackIngridient;
-
-    public List<InflictedStatusEffectData> inflictedStatusEffects;
-
-    public int damage;
-    public int knockbackDistance;
-    public int numOfTargets;
-
-    public bool isCritical;
-    public bool canEvade;
-
-    public AttackData(CharacterGridUnit attacker, Element attackElement, int damage, bool isCritical, List<InflictedStatusEffectData> inflictedStatusEffects, int knockback, int numOfTargets)
-    {
-        this.attacker = attacker;
-        this.attackElement = attackElement;
-        this.damage = damage;
-        this.isCritical = isCritical;
-        this.inflictedStatusEffects = inflictedStatusEffects;
-        this.knockbackDistance = knockback;
-        this.numOfTargets = numOfTargets;
-
-        attackIngridient = null;
-        canEvade = true;
-    }
-}
-
-public struct DamageData
-{
-    public GridUnit target;
-    public CharacterGridUnit attacker;
-
-    public Affinity affinityToAttack;
-    public AttackData hitByAttackData;
-    public int damageReceived;
-
-    //Bools
-    public bool isBackstab;
-    public bool isCritical;
-    public bool isKOHit;
-    public bool isGuarding;
-    public bool isKnockbackDamage;
-
-    public DamageData(GridUnit target, CharacterGridUnit attacker, Affinity affinityToAttack, int damageReceived)
-    {
-        this.target = target;
-        this.attacker = attacker;
-
-        this.affinityToAttack = affinityToAttack;
-        this.damageReceived = damageReceived;
-
-        hitByAttackData = new AttackData();
-
-        isBackstab = false;
-        isCritical = false;
-        isKOHit = false;
-        isGuarding = false;
-        isKnockbackDamage = false;
-    }
-}
-
 
 public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
 {
@@ -173,7 +105,7 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         IDamageable.unitAttackComplete += DisplayDamageData;
 
         attackData.canEvade = attackData.canEvade && !StatusEffectManager.Instance.IsUnitDisabled(myUnit);
-        bool canKnockback = !myUnit.stats.IsImmuneToKnockback();
+        bool canApplyForces = !myUnit.stats.IsImmuneToForces();
 
         criticalDamage = attackData.isCritical;
         attacker = attackData.attacker;
@@ -192,12 +124,12 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         else if(currentAffinity == Affinity.Reflect)
         {
             //Call Reflect Damage Event
-            canKnockback = false;
+            canApplyForces = false;
             Reflect.DamageReflected(attacker, myUnit, attackData);
         }
         else if(currentAffinity == Affinity.Evade)
         {
-            canKnockback = false;
+            canApplyForces = false;
             Evade.Instance.UnitEvaded(attacker, myUnit, attackData.numOfTargets);
         }
         else
@@ -229,7 +161,7 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
             }
         }
 
-        FinalizeDamageData(attackData, affinityDamage.damage, canKnockback, false, false);
+        FinalizeDamageData(attackData, affinityDamage.damage, canApplyForces, false, false);
 
         return currentAffinity;
     }
@@ -253,7 +185,7 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         //Subscribe to event
         IDamageable.unitAttackComplete += DisplayDamageData;
 
-        currentAffinity = TheCalculator.Instance.GetAffinity(myUnit, attackElement, attackData.attackIngridient);
+        currentAffinity = TheCalculator.Instance.GetAffinity(myUnit, attackElement, attackData.attackIngredient);
         criticalDamage = isCritical;
 
         isKnockdownHit = StatusEffectManager.Instance.IsKnockdownHit(this, attackData.inflictedStatusEffects) || currentAffinity == Affinity.Weak;
@@ -298,7 +230,7 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
             }
         }
 
-        FinalizeDamageData(attackData, damage, !myUnit.stats.IsImmuneToKnockback(), true, false);
+        FinalizeDamageData(attackData, damage, !myUnit.stats.IsImmuneToForces(), true, false);
     }
     public void TakeStatusEffectDamage(CharacterGridUnit inflictor, int percentage)
     {
@@ -328,7 +260,7 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         currentHealth = currentHealth - amount;
 
         AttackData attackData = new AttackData();
-        attackData.knockbackDistance = 0;
+        attackData.forceData.forceDistance = 0;
 
         FinalizeDamageData(attackData, amount, false, false, isKnockbackDamage);
     }
@@ -343,7 +275,7 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
     }
 
 
-    private void FinalizeDamageData(AttackData attackData, int damageReceived, bool canKnockback, bool isReflectDamage, bool isKnockbackDamage)
+    private void FinalizeDamageData(AttackData attackData, int damageReceived, bool canApplyForces, bool isReflectDamage, bool isKnockbackDamage)
     {
         this.isKnockbackDamage = isKnockbackDamage;
 
@@ -358,9 +290,9 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         }
 
         //Knockback
-        if (canKnockback && attackData.knockbackDistance > 0)
+        if (canApplyForces && attackData.forceData.forceType != SkillForceType.None)
         {
-            Knockback.Instance.PrepareToKnockbackUnit(attacker, myUnit, attackData.knockbackDistance, attackData.damage);
+            SkillForce.Instance.PrepareToApplyForceToUnit(attacker, myUnit, attackData.forceData, attackData.damage);
         }
 
         if (!isReflectDamage && !isKnockbackDamage)

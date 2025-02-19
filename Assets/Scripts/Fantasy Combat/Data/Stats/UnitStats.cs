@@ -22,7 +22,7 @@ public abstract class UnitStats : MonoBehaviour
     [SerializeField] protected Equipment equipment;
     public Element defaultAttackElement;
     [Space(10)]
-    [SerializeField] protected bool knockbackImmunity = false;
+    [SerializeField] protected bool forceImmunity = false;
 
     //Current Attributes {Includes Equipment Bonuses}
     public int Strength { get; protected set; }
@@ -385,9 +385,9 @@ public abstract class UnitStats : MonoBehaviour
         return defaultAttackElement;
     }
 
-    public bool IsImmuneToKnockback()
+    public bool IsImmuneToForces()
     {
-        return knockbackImmunity || equipment.HasKnockbackImmunity();
+        return forceImmunity || equipment.HasForceImmunity();
     }
 
     public bool IsImmuneToStatusEffect(StatusEffectData statusEffect)

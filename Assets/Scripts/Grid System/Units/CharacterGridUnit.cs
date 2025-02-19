@@ -50,8 +50,8 @@ public class CharacterGridUnit : GridUnit
     public Action EndTurn;
 
     //Attack Alterations
-    public Func<bool, DamageReceivedAlteration> AlterDamageReductionAttack;
-    public Func<DamageReceivedAlteration> AlterDamageReceived;
+    public Func<bool, DamageReceivedModifier> AlterDamageReductionAttack;
+    public Func<DamageReceivedModifier> AlterDamageReceived;
 
     protected override void Awake()
     {

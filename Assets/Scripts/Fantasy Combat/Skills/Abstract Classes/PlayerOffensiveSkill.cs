@@ -16,8 +16,8 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
     [SerializeField] bool isMagical = false;
     [Tooltip("Charged skills activate on unit's next turn")]
     [SerializeField] bool isChargedSkill = false;
-    [Range(0, 9)]
-    [SerializeField] int knockbackDistance = 0;
+    [Tooltip("Can the skill not be evaded")]
+    [SerializeField] bool isUnevadable = false;
     [Header("Element, Material & Effects")]
     [SerializeField] Element skillElement = Element.None;
     [Space(10)]
@@ -103,7 +103,7 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
         {
             int targetIndex = skillTargets.IndexOf(target);
 
-            Affinity targetAffinity = DamageTarget(target, !(this is PlayerBaseChainAttack));
+            Affinity targetAffinity = DamageTarget(target, !isUnevadable || !(this is PlayerBaseChainAttack));
             allTargetsAffinity.Add(targetAffinity);
 
             GameObject hitVFX = hitVFXPool.Count > 0 ? hitVFXPool[targetIndex] : null;
@@ -144,7 +144,7 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
 
             if (!isAttackDistanceAForwardOffset)
             {
-                destinationWithOffset = skillTargets[0].GetClosestPointOnColliderToPosition(LevelGrid.Instance.gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0])) - (GetDirectionAsVector() * animationAttackDistance);
+                destinationWithOffset = skillTargets[0].GetClosestPointOnColliderToPosition(LevelGrid.Instance.gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0])) - (GetCardinalDirectionAsVector() * animationAttackDistance);
             }
             else
             {
@@ -164,8 +164,7 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
 
         List<InflictedStatusEffectData> successfulInflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(myUnit, target, inflictedStatusEffects);
 
-        AttackData damageData = new AttackData(myUnit, CombatFunctions.GetElement(myUnit, skillElement, isMagical), GetDamage(), isCritical, successfulInflictedStatusEffects, knockbackDistance, skillTargets.Count);
-
+        AttackData damageData = new AttackData(myUnit, CombatFunctions.GetElement(myUnit, skillElement, isMagical), GetDamage(), isCritical, successfulInflictedStatusEffects, GetSkillForceData(target), skillTargets.Count);
         damageData.canEvade = canEvade;
 
         IDamageable damageable = target.GetDamageable();
@@ -185,7 +184,7 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
 
     protected override void SetUnitsToShow()
     {
-        List<GridUnit> targetedUnits = CombatFunctions.SetOffensiveSkillUnitsToShow(myUnit, selectedUnits, knockbackDistance);
+        List<GridUnit> targetedUnits = CombatFunctions.SetOffensiveSkillUnitsToShow(myUnit, selectedUnits, forceDistance);
         FantasyCombatManager.Instance.SetUnitsToShow(targetedUnits);
     }
 

@@ -58,6 +58,11 @@ public class GridObject
         }
     }
 
+    public bool MatchesOccupyingUnit(GridUnit unit)
+    {
+        return gridUnit && gridUnit == unit;
+    }
+
     public bool SetObstacle(Collider obstacleCollider)
     {
         if(this.obstacleCollider && this.obstacleCollider is TerrainCollider) { return false; }//Cannot Set on Terrain obstacle

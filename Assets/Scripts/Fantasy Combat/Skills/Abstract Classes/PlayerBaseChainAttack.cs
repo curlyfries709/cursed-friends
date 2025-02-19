@@ -115,11 +115,11 @@ public abstract class PlayerBaseChainAttack : PlayerOffensiveSkill
     }
 
     //Direction Overrides.
-    protected override Direction GetDirection()
+    protected override Direction GetCardinalDirection()
     {
         if (skillSelected)
         {
-            return base.GetDirection();
+            return base.GetCardinalDirection();
         }
 
         return currentCalculatedDirection;

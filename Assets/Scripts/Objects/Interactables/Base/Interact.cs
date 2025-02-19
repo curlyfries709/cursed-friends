@@ -88,7 +88,7 @@ public abstract class Interact : MonoBehaviour
         interactor.unitAnimator.SetSpeed(0);
 
         //Warp Unit into Position & Rotation in an attempt to remove camera jitter.
-        Vector3 desiredRotation = Quaternion.LookRotation(CombatFunctions.GetDirectionAsVector(interactor.transform)).eulerAngles;
+        Vector3 desiredRotation = Quaternion.LookRotation(CombatFunctions.GetCardinalDirectionAsVector(interactor.transform)).eulerAngles;
         interactor.Warp(LevelGrid.Instance.gridSystem.GetWorldPosition(interactor.GetCurrentGridPositions()[0]), Quaternion.Euler(new Vector3(0, desiredRotation.y, 0)));
 
         GridSystemVisual.Instance.HideAllGridVisuals(true);

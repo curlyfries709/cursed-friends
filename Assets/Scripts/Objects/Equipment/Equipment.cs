@@ -309,7 +309,7 @@ public class Equipment : MonoBehaviour
         return inflictedStatusEffects;
     }
 
-    public bool HasKnockbackImmunity()
+    public bool HasForceImmunity()
     {
         foreach (Enchantment enchantment in equippedArmourEnchantments.Concat(equippedWeaponEnchantments))
         {

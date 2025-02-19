@@ -251,6 +251,34 @@ namespace AnotherRealm
         }
 
         //Targeting Methods
+        public static FantasyCombatTarget GetRelationWithTarget(CharacterGridUnit skillOwner, GridUnit target)
+        {
+            if (target.unitType == CombatUnitType.Object)
+            {
+                return FantasyCombatTarget.Object;
+            }
+
+            //From this point Onwards, Target must be a Character Grid Unit
+            CharacterGridUnit targetCharacter = target as CharacterGridUnit;
+
+            if (skillOwner == targetCharacter)
+            {
+                return FantasyCombatTarget.Self;
+            }
+
+            if (skillOwner.team == targetCharacter.team)
+            {
+                return FantasyCombatTarget.Ally;
+            }
+
+            if (skillOwner.team != targetCharacter.team)
+            {
+                return FantasyCombatTarget.Enemy;
+            }
+
+            return FantasyCombatTarget.Grid;
+        }
+
         public static bool IsUnitValidTarget(List<FantasyCombatTarget> skillTargets, CharacterGridUnit skillOwner, GridUnit target)
         {
             if (!target)
@@ -286,30 +314,8 @@ namespace AnotherRealm
 
         public static bool IsUnitValidTarget(FantasyCombatTarget skillTarget, CharacterGridUnit skillOwner, GridUnit target)
         {
-            if (target.unitType == CombatUnitType.Object)
-            {
-                return skillTarget == FantasyCombatTarget.Object;
-            }
-
-            //From this point Onwards, Target must be a Character Grid Unit
-            CharacterGridUnit targetCharacter = target as CharacterGridUnit;
-
-            if (skillTarget == FantasyCombatTarget.Self && skillOwner == targetCharacter)
-            {
-                return true;
-            }
-
-            if (skillTarget == FantasyCombatTarget.Ally && skillOwner.team == targetCharacter.team)
-            {
-                return true;
-            }
-
-            if (skillTarget == FantasyCombatTarget.Enemy && skillOwner.team != targetCharacter.team)
-            {
-                return true;
-            }
-
-            return false;
+            List<FantasyCombatTarget> skillTargets = new List<FantasyCombatTarget> { skillTarget };
+            return IsUnitValidTarget(skillTargets, skillOwner, target);
         }
 
         public static List<CharacterGridUnit> GetEligibleTargets(CharacterGridUnit skillOwner, List<FantasyCombatTarget> targetTypes)
@@ -603,7 +609,7 @@ namespace AnotherRealm
             {
                 foreach (GridUnit unit in selectedUnits)
                 {
-                    GridUnit unitInRange = Knockback.Instance.GetUnitInKnocbackRange(unit, knockbackDistance, CombatFunctions.GetDirectionAsVector(attackingUnit.transform));
+                    GridUnit unitInRange = SkillForce.Instance.GetUnitInKnocbackRange(unit, knockbackDistance, RoundDirection((unit.transform.position - attackingUnit.transform.position).normalized));
                     if (unitInRange)
                     {
                         targetedUnits.Add(unitInRange);
@@ -777,11 +783,14 @@ namespace AnotherRealm
             return !(attackerPos.x == targetPos.x || attackerPos.z == targetPos.z);
         }
 
-
+        public static bool IsGridPositionOnDiagonalAxis(GridPosition posA, GridPosition posB)
+        {
+            return Mathf.Abs(posA.x - posB.x) == Mathf.Abs(posA.z - posB.z);
+        }
 
         //Direction Methods
 
-        public static Direction GetDirection(Vector3 directionVector)
+        public static Direction GetCardinalDirection(Vector3 directionVector)
         {
             if (Vector3.Angle(directionVector, Vector3.forward) < 45)
             {
@@ -811,7 +820,7 @@ namespace AnotherRealm
             }
         }
 
-        public static Direction GetDirection(Transform unitTransform)
+        public static Direction GetCardinalDirection(Transform unitTransform)
         {
             if (Vector3.Angle(unitTransform.forward, Vector3.forward) < 45)
             {
@@ -932,7 +941,7 @@ namespace AnotherRealm
             }
         }
 
-        public static Vector3 GetDirectionAsVector(Transform unitTransform)
+        public static Vector3 GetCardinalDirectionAsVector(Transform unitTransform)
         {
             if (Vector3.Angle(unitTransform.forward, Vector3.forward) < 45)
             {
@@ -963,31 +972,130 @@ namespace AnotherRealm
 
         public static Vector3 GetDirectionAsVector(Direction direction)
         {
-            if (direction == Direction.North)
+            switch (direction)
             {
-                //Facing Vector3.Forward
+                case Direction.North:
+                    return Vector3.forward;
+                case Direction.NorthEast:
+                    return new Vector3(1, 0, 1);
+                case Direction.East:
+                    return Vector3.right;
+                case Direction.SouthEast:
+                    return new Vector3(-1, 0, 1);
+                case Direction.South:
+                    return Vector3.back;
+                case Direction.SouthWest:
+                    return new Vector3(-1, 0, -1);
+                case Direction.West:
+                    return Vector3.left;
+                case Direction.NorthWest:
+                    return new Vector3(1, 0, -1);
+                default:
+                    return Vector3.forward;
+            }
+        }
+        public static Direction GetDirectionFromVector(Vector3 directionVector)
+        {
+            float maxDifference = 22.5f;
 
-                return Vector3.forward;
-            }
-            else if (direction == Direction.East)
+            if (Vector3.Angle(directionVector, Vector3.forward) < maxDifference)
             {
-                //Facing Vector3.Right
-                return Vector3.right;
+                return Direction.North;
             }
-            else if (direction == Direction.West)
+            else if (Vector3.Angle(directionVector, Vector3.right) < maxDifference)
             {
-                //Facing Vector3.Left
-                return Vector3.left;
+                return Direction.East;
             }
-            else if (direction == Direction.South)
+            else if (Vector3.Angle(directionVector, Vector3.left) < maxDifference)
             {
-                //Facing Vector3.Back
-                return Vector3.back;
+                return Direction.West;
+            }
+            else if (Vector3.Angle(directionVector, Vector3.back) < maxDifference)
+            {
+                return Direction.South;
+            }
+            else if (Vector3.Angle(directionVector, new Vector3(1, 0, 1)) < maxDifference)
+            {
+                return Direction.NorthEast;
+            }
+            else if (Vector3.Angle(directionVector, new Vector3(-1, 0, 1)) < maxDifference)
+            {
+                return Direction.SouthEast;
+            }
+            else if (Vector3.Angle(directionVector, new Vector3(-1, 0, -1)) < maxDifference)
+            {
+                return Direction.SouthWest;
+            }
+            else if (Vector3.Angle(directionVector, new Vector3(1, 0, -1)) < maxDifference)
+            {
+                return Direction.NorthWest;
+
             }
             else
             {
-                return Vector3.forward;
+                Debug.Log("ISSUE CALCULATING VECTOR");
+                return Direction.North;
             }
+        }
+
+        public static Vector3 RoundDirection(Vector3 directionVector)
+        {
+            Direction direction = Direction.North;
+            float maxDifference = 22.5f;
+
+            if (Vector3.Angle(directionVector, Vector3.forward) < maxDifference)
+            {
+                direction = Direction.North;
+            }
+            else if (Vector3.Angle(directionVector, Vector3.right) < maxDifference)
+            {
+                direction = Direction.East;
+            }
+            else if (Vector3.Angle(directionVector, Vector3.left) < maxDifference)
+            {
+                direction = Direction.West;
+            }
+            else if (Vector3.Angle(directionVector, Vector3.back) < maxDifference)
+            {
+                direction = Direction.South;
+            }
+            else if (Vector3.Angle(directionVector, new Vector3(1, 0, 1)) < maxDifference)
+            {
+                direction = Direction.NorthEast;
+            }
+            else if (Vector3.Angle(directionVector, new Vector3(-1, 0, 1)) < maxDifference)
+            {
+                direction = Direction.SouthEast;
+            }
+            else if (Vector3.Angle(directionVector, new Vector3(-1, 0, -1)) < maxDifference)
+            {
+                direction = Direction.SouthWest;
+            }
+            else if (Vector3.Angle(directionVector, new Vector3(1, 0, -1)) < maxDifference)
+            {
+                direction = Direction.NorthWest;
+
+            }
+            else
+            {
+                Debug.Log("ISSUE CALCULATING VECTOR");
+                direction = Direction.North;
+            }
+
+            return GetDirectionAsVector(direction);
+        }
+
+        public static GridPosition GetGridPositionInDirection(GridPosition originGridPos, Direction direction, int distance)
+        {
+            Vector3 directionVector = GetDirectionAsVector(direction) * distance;
+            return new GridPosition(originGridPos.x + (int)directionVector.x, originGridPos.z + (int)directionVector.z);
+        }
+
+        public static GridPosition GetGridPositionInDirection(GridPosition originGridPos, Vector3 directionVector, int distance)
+        {
+            Direction direction = GetDirectionFromVector(directionVector);
+            Debug.Log("World Direction: " + direction.ToString());
+            return GetGridPositionInDirection(originGridPos, direction, distance);
         }
 
         public static Vector3 RoundDirectionToCardinalDirection(Vector3 direction)
@@ -996,7 +1104,7 @@ namespace AnotherRealm
                 //North, East, South, West
             //Intercardinal directions
                 //Northeast (NE), southeast (SE), southwest (SW) and northwest (NW).
-            return GetDirectionAsVector(GetDirection(direction));
+            return GetDirectionAsVector(GetCardinalDirection(direction));
         }
 
     }

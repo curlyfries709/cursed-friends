@@ -115,7 +115,7 @@ public class BattleEnlister : MonoBehaviour, ITurnEndEvent
         //Move To Grid Pos
         Vector3 worldPos = LevelGrid.Instance.gridSystem.GetWorldPosition(targetGridPos);
 
-        Vector3 lookDirection = CombatFunctions.GetDirectionAsVector(enemy.transform);
+        Vector3 lookDirection = CombatFunctions.GetCardinalDirectionAsVector(enemy.transform);
         Quaternion lookRotation = Quaternion.LookRotation(lookDirection);
 
         enemy.transform.DORotate(lookRotation.eulerAngles, unitRotateTime);

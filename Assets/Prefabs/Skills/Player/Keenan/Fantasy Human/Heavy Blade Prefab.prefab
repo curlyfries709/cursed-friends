@@ -10246,6 +10246,8 @@ MonoBehaviour:
   includeDiagonals: 0
   maxNumCellsFromUnit: 1
   unitCameraRootTransform: {fileID: 8887227743278794658}
+  forceTypeToApply: 1
+  skillForceDistance: 1
   unlockLevel: 1
   skillName: Heavy Blade
   aoeDiagram: {fileID: 314826410748891515, guid: 34c56ef409a0e554f92f6d481d5cf20d,

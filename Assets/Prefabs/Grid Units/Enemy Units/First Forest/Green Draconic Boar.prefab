@@ -21425,6 +21425,9 @@ MonoBehaviour:
   canPenetrate: 0
   includeDiagonals: 1
   maxNumCellsFromUnit: 1
+  unitCameraRootTransform: {fileID: 0}
+  forceTypeToApply: 1
+  skillForceDistance: 2
   evaluationTransform: {fileID: 3906766474659568652}
   isPrioritySkill: 0
   triggerChance: 40
@@ -21437,7 +21440,6 @@ MonoBehaviour:
   powerGrade: 7
   knockbackDistance: 2
   element: 0
-  material: 0
   inflictedStatusEffects:
   - bonusPercentOfInflictingEffect: 15
     statusEffect: {fileID: 11400000, guid: 7bcc6535eec0872478c894646888fae0, type: 2}
@@ -41958,7 +41960,7 @@ PrefabInstance:
     - target: {fileID: 3278645294636731008, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 3278645294636731008, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}

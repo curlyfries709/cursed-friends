@@ -409,10 +409,10 @@ public class BattleStarter : MonoBehaviour
         StatusEffectManager.Instance.UnitKnockedDown(hitUnit);
         hitUnit.unitAnimator.SetBool(hitUnit.unitAnimator.animIDKnockdown, true);
 
-        Vector3 forwardDirection = CombatFunctions.GetDirectionAsVector(contactedEnemy.transform);
+        Vector3 forwardDirection = CombatFunctions.GetCardinalDirectionAsVector(contactedEnemy.transform);
         GridPosition desiredGridPos = new GridPosition(centreGridPos.x + (int)forwardDirection.x, centreGridPos.z + (int)forwardDirection.z);
 
-        Quaternion lookRotation = Quaternion.LookRotation(CombatFunctions.GetDirectionAsVector(hitUnit.transform));
+        Quaternion lookRotation = Quaternion.LookRotation(CombatFunctions.GetCardinalDirectionAsVector(hitUnit.transform));
         hitUnit.transform.DORotate(lookRotation.eulerAngles, playerAmbushRotateTime);
 
         GridPosition takenPos = FindSuitableBattleStartGridPos(desiredGridPos);
@@ -436,8 +436,8 @@ public class BattleStarter : MonoBehaviour
             multiplier = advantageType == CombatAdvantage.EnemyAdvantage ? -1 : 1;
         }
 
-        combatDirectionAsVector = CombatFunctions.GetDirectionAsVector(transformToCheck) * multiplier;
-        combatDirection = CombatFunctions.GetDirection(combatDirectionAsVector);
+        combatDirectionAsVector = CombatFunctions.GetCardinalDirectionAsVector(transformToCheck) * multiplier;
+        combatDirection = CombatFunctions.GetCardinalDirection(combatDirectionAsVector);
     }
 
 
@@ -468,7 +468,7 @@ public class BattleStarter : MonoBehaviour
 
             if (advantageType == CombatAdvantage.Neutral && contactedEnemy && enemy == contactedEnemy.myGridUnit)
             {
-                direction = -CombatFunctions.GetDirectionAsVector(leader.transform);
+                direction = -CombatFunctions.GetCardinalDirectionAsVector(leader.transform);
             }
 
             Quaternion lookRotation = Quaternion.LookRotation(direction);
@@ -554,11 +554,11 @@ public class BattleStarter : MonoBehaviour
      {
         if (enemy == contactedEnemy)
         {
-            Vector3 backwardDirection = -CombatFunctions.GetDirectionAsVector(contactedEnemy.transform);
+            Vector3 backwardDirection = -CombatFunctions.GetCardinalDirectionAsVector(contactedEnemy.transform);
 
             if(advantageType == CombatAdvantage.Neutral)
             {
-                backwardDirection = CombatFunctions.GetDirectionAsVector(leader.transform);
+                backwardDirection = CombatFunctions.GetCardinalDirectionAsVector(leader.transform);
             }
 
             GridPosition desiredGridPos = new GridPosition(centreGridPos.x + (int)backwardDirection.x, centreGridPos.z + (int)backwardDirection.z);
@@ -694,7 +694,7 @@ public class BattleStarter : MonoBehaviour
 
         foreach (PlayerGridUnit player in PartyManager.Instance.GetPartyFormationOrder())
         {
-            Vector3 direction = CombatFunctions.GetDirectionAsVector(leader.transform);
+            Vector3 direction = CombatFunctions.GetCardinalDirectionAsVector(leader.transform);
             GridPosition gridPos = centreGridPos + PartyManager.Instance.GetPlayerRelativeGridPosToCentrePos(player, direction);
 
             if (LevelGrid.Instance.TryGetObstacleAtPosition(gridPos, out Collider obstacleData) || LevelGrid.Instance.IsGridPositionOccupiedByUnit(gridPos, true))

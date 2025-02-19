@@ -75,13 +75,16 @@ public abstract class CounterAttack : MonoBehaviour
         SetAttackElements();
 
         myUnit.unitAnimator.beginHealthCountdown = true;
+        int distance = allowKnockback ? knockbackDistance : 0;
+        SkillForceData skillForceData = new SkillForceData();
+
+        skillForceData.forceType = allowKnockback ? SkillForceType.KnockbackAll : SkillForceType.None;
+        skillForceData.forceDistance = distance;
 
         //Inflict Status Effect.
-        int distance = allowKnockback ? knockbackDistance : 0;
-
         List<InflictedStatusEffectData> successfulInflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(myUnit, target, inflictedStatusEffects);
 
-        AttackData damageData = new AttackData(myUnit, attackElement, GetDamage(powerGrade), isCritical, successfulInflictedStatusEffects, distance, 1);
+        AttackData damageData = new AttackData(myUnit, attackElement, GetDamage(powerGrade), isCritical, successfulInflictedStatusEffects, skillForceData, 1);
         damageData.canEvade = false;
 
         IDamageable damageable = target.GetComponent<IDamageable>();

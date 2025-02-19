@@ -67,9 +67,9 @@ public class ReactiveBarrel : GridUnit, IDamageable
         currentHealth = Mathf.Max(currentHealth, 0);
 
         //Knockback
-        if (damageData.knockbackDistance > 0)
+        if (damageData.forceData.forceType!= SkillForceType.None)
         {
-            Knockback.Instance.PrepareToKnockbackUnit(attacker, this, damageData.knockbackDistance, damageData.damage);
+            SkillForce.Instance.PrepareToApplyForceToUnit(attacker, this, damageData.forceData, damageData.damage);
         }
 
         IDamageable.unitHit(GetDamageData(damageData.damage, false));

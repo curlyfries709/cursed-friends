@@ -266,7 +266,7 @@ public class Beatdown : MonoBehaviour
     {
         foreach (CharacterGridUnit attacker in unitsParticipatingInBeatdown)
         {
-            Vector3 desiredRotation = Quaternion.LookRotation(CombatFunctions.GetDirectionAsVector(attacker.transform)).eulerAngles;
+            Vector3 desiredRotation = Quaternion.LookRotation(CombatFunctions.GetCardinalDirectionAsVector(attacker.transform)).eulerAngles;
             attacker.transform.rotation = Quaternion.Euler(new Vector3(0, desiredRotation.y, 0));
         }
     }

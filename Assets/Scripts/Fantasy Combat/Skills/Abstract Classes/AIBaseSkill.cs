@@ -103,7 +103,7 @@ public abstract class AIBaseSkill : BaseSkill
         myUnit.unitAnimator.PrepareToTriggerSkill();  //Speed Set to 0 & Cancel Skill Feedback Reset
 
         //Warp Unit into Position & Rotation in an attempt to remove camera jitter.
-        Vector3 desiredRotation = Quaternion.LookRotation(CombatFunctions.GetDirectionAsVector(myUnitTransform)).eulerAngles;
+        Vector3 desiredRotation = Quaternion.LookRotation(CombatFunctions.GetCardinalDirectionAsVector(myUnitTransform)).eulerAngles;
         myUnit.Warp(LevelGrid.Instance.gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0]), Quaternion.Euler(new Vector3(0, desiredRotation.y, 0)));
 
         //Set Times
@@ -217,7 +217,7 @@ public abstract class AIBaseSkill : BaseSkill
             }
             else
             {
-                AISkillData newSkillData = GetSkillDataAtPos(ref currentBestActionScore, movePos, CombatFunctions.GetDirection(myUnitTransform));
+                AISkillData newSkillData = GetSkillDataAtPos(ref currentBestActionScore, movePos, CombatFunctions.GetCardinalDirection(myUnitTransform));
                 if (newSkillData == null) { continue; }
 
                 UpdateBestPosition(newSkillData);

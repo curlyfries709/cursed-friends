@@ -6,6 +6,7 @@ using Cinemachine;
 using AnotherRealm;
 using System.Linq;
 using System;
+using Sirenix.Utilities;
 
 public abstract class BaseSkill : MonoBehaviour
 {
@@ -22,17 +23,16 @@ public abstract class BaseSkill : MonoBehaviour
     [Tooltip("Who does the skill target? Allies, Enemies, interactables or multiple.")]
     [SerializeField] protected List<FantasyCombatTarget> targets;
     [Title("Skill Dimensions Data")]
-    [Tooltip("The Shape of the skill. Is it a simple Line. A cross? A Rectangle? Diagonal?")]
+    [Tooltip("The Shape of the skill. Is it a simple Line. A cross? A Rectangle? Diagonal? A Compass Star (A Cross combined with all diagonals)?")]
     [SerializeField] protected SkillShape skillShape;
     [Tooltip("The dimensions of the skill in Grid Units. 2x1 means 2 cells on the x and 1 cell on the z. Leave as 1X1 for single target melees")]
     [SerializeField] protected Vector2 skillDimensions;
     [Space(10)]
     [Header("Skill Target Area Data")]
-    [ShowIf("skillShape", SkillShape.Rectangular)]
     [Tooltip("Valid Area that skill can target within. Use Range if you prefer an int value")]
     [SerializeField] protected Vector2 validTargetArea; //Vector 2. Valid Target Area. For Melee attacks. Leave at 1,1. FKA: Range.
     [HideIf("skillShape", SkillShape.Rectangular)]
-    [Tooltip("If the targetArea can't be defined. E.g, Diagonals, Crosses. Use this. ")]
+    [Tooltip("If the targetArea can't be defined. E.g, Diagonals, Crosses. Set validTargetArea to 0,0 to use range instead.")]
     [SerializeField] protected int range;
     [Title("Skill Behaviour")]
     [Tooltip("Target Area or Range is based on player’s current position. This also means show all valid positions regardless of direction.")]
@@ -40,13 +40,22 @@ public abstract class BaseSkill : MonoBehaviour
     [Tooltip("Can skill hit a unit then again hit the unit behind. Or is it blocked once hit during path")]
     [SerializeField] bool canPenetrate;
     [Space(10)]
-    [Tooltip("Whether the calculation should include diagonal grids N unit away or use the Manhattan distance.")]
+    [ShowIf("skillShape", SkillShape.Rectangular)]
+    [Tooltip("Whether the calculation should include diagonal grids N unit away or use the Manhattan distance to filter them out.")]
     [SerializeField] bool includeDiagonals;
     [HideIf("includeDiagonals")]
     [Tooltip("if not including diagonals, use this to define which cells should be removed. (Used when calculating ManhattenDistance)")]
     [SerializeField] int maxNumCellsFromUnit = 1;
     [Header("Base Components")]
     [SerializeField] protected Transform unitCameraRootTransform;
+    [Title("Skill Force")]
+    [SerializeField] protected SkillForceType forceTypeToApply = SkillForceType.None;
+    [Tooltip("Unit Forward: Apply force in direction related to the acting unit's forward direction. PositionDirection: Apply force in direction of (Target.GridPosition - Attacker.GridPosition)")]
+    [HideIf("forceTypeToApply", SkillForceType.None)]
+    [SerializeField] protected SkillForceDirectionType forceDirection = SkillForceDirectionType.PositionDirection;
+    [Range(0, 9)]
+    [HideIf("forceTypeToApply", SkillForceType.None)]
+    [SerializeField] protected int forceDistance = 0;
 
     //Event
     public Action<CharacterGridUnit> SkillOwnerSet;
@@ -73,7 +82,8 @@ public abstract class BaseSkill : MonoBehaviour
     {
         Rectangular,
         Cross,
-        Diagonal
+        Diagonal,
+        CompassStar
     }
 
     protected virtual void Awake()
@@ -155,7 +165,7 @@ public abstract class BaseSkill : MonoBehaviour
         //Debug.Log("Filter By SHape Count: " + listToReturn.Count);
 
         //This is an unfiltered list of a valid Grid Pos within Range or Target Are
-        if (!includeDiagonals)
+        if (!includeDiagonals && skillShape == SkillShape.Rectangular)
         {
             //Filter with manhantten distance.
             listToReturn = RemoveDiagonalGridPosFromList(listToReturn);
@@ -169,10 +179,9 @@ public abstract class BaseSkill : MonoBehaviour
             //Debug.Log("Remove Self from Grid Count: " + listToReturn.Count);
         }
 
-        if (!canPenetrate && skillShape != SkillShape.Diagonal)
+        if (!canPenetrate && skillShape != SkillShape.Diagonal) //Diagonal has already done removal of pass through logic
         {
-            listToReturn = RemovePassThroughLogic(listToReturn);
-            //Debug.Log("Remove Pass Through Logic Count: " + listToReturn.Count);
+            listToReturn = RemovePassThroughLogic(listToReturn, skillShape == SkillShape.CompassStar);
         }
 
         return listToReturn;
@@ -215,7 +224,7 @@ public abstract class BaseSkill : MonoBehaviour
 
     protected List<GridPosition> GetValidUnfilteredGridPositionsBasedOnDirection()
     {
-        if (GetDirection() == Direction.North)
+        if (GetCardinalDirection() == Direction.North)
         {
             //Facing Vector3.Forward
             int skillWidth = validTargetArea == Vector2.zero ? range : Mathf.FloorToInt(validTargetArea.x);
@@ -234,7 +243,7 @@ public abstract class BaseSkill : MonoBehaviour
 
             return GetValidUnfilteredGridPositions(XOrigin, XEnd, ZOrigin, ZEnd);
         }
-        else if (GetDirection() == Direction.East)
+        else if (GetCardinalDirection() == Direction.East)
         {
             //Facing Vector3.Right
             Vector2 targetArea = new Vector2(validTargetArea.y, validTargetArea.x);
@@ -249,7 +258,7 @@ public abstract class BaseSkill : MonoBehaviour
 
             return GetValidUnfilteredGridPositions(XOrigin, XEnd, ZOrigin, ZEnd);
         }
-        else if (GetDirection() == Direction.West)
+        else if (GetCardinalDirection() == Direction.West)
         {
             //Facing Vector3.Left
             Vector2 targetArea = new Vector2(validTargetArea.y, validTargetArea.x);
@@ -264,7 +273,7 @@ public abstract class BaseSkill : MonoBehaviour
 
             return GetValidUnfilteredGridPositions(XOrigin, XEnd, ZOrigin, ZEnd);
         }
-        else if (GetDirection() == Direction.South)
+        else if (GetCardinalDirection() == Direction.South)
         {
             //Facing Vector3.Back
             int skillWidth = validTargetArea == Vector2.zero ? range : Mathf.FloorToInt(validTargetArea.x);
@@ -295,7 +304,7 @@ public abstract class BaseSkill : MonoBehaviour
             {
                 GridPosition gridPosition = new GridPosition(x, z);
 
-                if (!LevelGrid.Instance.gridSystem.IsValidGridPosition(gridPosition) || !LevelGrid.Instance.IsWalkable(gridPosition))
+                if (!IsGridPositionValid(gridPosition))
                 {
                     continue;
                 }
@@ -357,7 +366,7 @@ public abstract class BaseSkill : MonoBehaviour
         return listToReturn;
     }
 
-    protected List<GridPosition> RemovePassThroughLogic(List<GridPosition> gridPositions)
+    protected List<GridPosition> RemovePassThroughLogic(List<GridPosition> gridPositions, bool checkDiagonals)
     {
         //Bound GridPos
         GridPosition unitTopRight = levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider);
@@ -386,20 +395,55 @@ public abstract class BaseSkill : MonoBehaviour
 
             List<GridPosition> gridPosBehind = new List<GridPosition>();
 
-            if (isToMyUnitRight && (GetDirection() == Direction.East || originateFromUnitCentre))
+            if (checkDiagonals)
+            {
+                bool isToWorldNorthEast = isAboveMyUnit && isToMyUnitRight && CombatFunctions.IsGridPositionOnDiagonalAxis(gridPosition, unitTopRight);
+                bool isToWorldNorthWest = isAboveMyUnit && isToMyUnitLeft && CombatFunctions.IsGridPositionOnDiagonalAxis(gridPosition, unitTopLeft);
+                bool isToWorldSouthEast = isBelowMyUnit && isToMyUnitRight && CombatFunctions.IsGridPositionOnDiagonalAxis(gridPosition, unitBottomRight);
+                bool isToWorldSouthWest = isBelowMyUnit && isToMyUnitLeft && CombatFunctions.IsGridPositionOnDiagonalAxis(gridPosition, unitBottomLeft);
+
+                if (isToWorldNorthEast)
+                {
+                    //Check if there are units behind
+                    gridPosBehind = listToReturn.Where((hitGridPos) => 
+                    CombatFunctions.IsGridPositionOnDiagonalAxis(hitGridPos, gridPosition) && gridPosition.x < hitGridPos.x && gridPosition.z < hitGridPos.z).ToList();
+                }
+                else if (isToWorldNorthWest)
+                {
+                    gridPosBehind = listToReturn.Where((hitGridPos) =>
+                    CombatFunctions.IsGridPositionOnDiagonalAxis(hitGridPos, gridPosition) && gridPosition.x > hitGridPos.x && gridPosition.z < hitGridPos.z).ToList();
+                }
+                else if (isToWorldSouthEast)
+                {
+                    gridPosBehind = listToReturn.Where((hitGridPos) =>
+                    CombatFunctions.IsGridPositionOnDiagonalAxis(hitGridPos, gridPosition) && gridPosition.x < hitGridPos.x && gridPosition.z > hitGridPos.z).ToList();
+                }
+                else if (isToWorldSouthWest)
+                {
+                    gridPosBehind = listToReturn.Where((hitGridPos) => 
+                    CombatFunctions.IsGridPositionOnDiagonalAxis(hitGridPos, gridPosition) && gridPosition.x > hitGridPos.x && gridPosition.z > hitGridPos.z).ToList();
+                }
+
+                listToReturn = listToReturn.Except(gridPosBehind).ToList();
+
+                if(!gridPosBehind.IsNullOrEmpty()) //Means it was filled in by one of the above so don't do the below.
+                    continue;
+            }
+
+            if (isToMyUnitRight && (GetCardinalDirection() == Direction.East || originateFromUnitCentre))
             {
                 //Check if there are units behind
                 gridPosBehind = listToReturn.Where((hitGridPos) => hitGridPos.z == gridPosition.z && hitGridPos.x > gridPosition.x).ToList();
             }
-            else if (isToMyUnitLeft && (GetDirection() == Direction.West || originateFromUnitCentre))
+            else if (isToMyUnitLeft && (GetCardinalDirection() == Direction.West || originateFromUnitCentre))
             {
                 gridPosBehind = listToReturn.Where((hitGridPos) => hitGridPos.z == gridPosition.z && hitGridPos.x < gridPosition.x).ToList();
             }
-            else if (isAboveMyUnit && (GetDirection() == Direction.North || originateFromUnitCentre))
+            else if (isAboveMyUnit && (GetCardinalDirection() == Direction.North || originateFromUnitCentre))
             {
                 gridPosBehind = listToReturn.Where((hitGridPos) => hitGridPos.x == gridPosition.x && hitGridPos.z > gridPosition.z).ToList();
             }
-            else if (isBelowMyUnit && (GetDirection() == Direction.South || originateFromUnitCentre))
+            else if (isBelowMyUnit && (GetCardinalDirection() == Direction.South || originateFromUnitCentre))
             {
                 gridPosBehind = listToReturn.Where((hitGridPos) => hitGridPos.x == gridPosition.x && hitGridPos.z < gridPosition.z).ToList();
             }
@@ -415,15 +459,25 @@ public abstract class BaseSkill : MonoBehaviour
         switch (skillShape)
         {
             case SkillShape.Cross:
-                return FilterIntoCross(GetValidUnfilteredGridPositionsFromCentre());
+                return FilterIntoCross(GetValidUnfilteredGridPositions(), false);
             case SkillShape.Diagonal:
                 return FilterIntoDiagonal();
+            case SkillShape.CompassStar:
+                List<GridPosition> filteredStar = FilterIntoCross(GetValidUnfilteredGridPositions(), true);
+                AddMissingDiagonalsToStar(ref filteredStar);
+                return filteredStar;
             default:
-                return originateFromUnitCentre ? GetValidUnfilteredGridPositionsFromCentre() : GetValidUnfilteredGridPositionsBasedOnDirection();
+                return GetValidUnfilteredGridPositions();
         }
     }
+
+    private List<GridPosition> GetValidUnfilteredGridPositions()
+    {
+        return originateFromUnitCentre ? GetValidUnfilteredGridPositionsFromCentre() : GetValidUnfilteredGridPositionsBasedOnDirection();
+    }
+
     //Shape Filter
-    protected List<GridPosition> FilterIntoCross(List<GridPosition> gridPositions)
+    protected List<GridPosition> FilterIntoCross(List<GridPosition> gridPositions, bool includeDiagonals)
     {
         List<GridPosition> listToReturn = new List<GridPosition>();
 
@@ -431,7 +485,10 @@ public abstract class BaseSkill : MonoBehaviour
         {
             foreach (GridPosition unitGridPosition in myUnit.GetGridPositionsAtHypotheticalPos(myUnitMoveTransform.position))
             {
-                if (gridPosition.x == unitGridPosition.x || gridPosition.z == unitGridPosition.z)
+                bool isCrossGridPos = gridPosition.x == unitGridPosition.x || gridPosition.z == unitGridPosition.z;
+                bool isDiagonalGridPos = CombatFunctions.IsGridPositionOnDiagonalAxis(gridPosition, unitGridPosition);
+
+                if (isCrossGridPos || (includeDiagonals && isDiagonalGridPos))
                 {
                     if (!listToReturn.Contains(gridPosition))
                         listToReturn.Add(gridPosition);
@@ -440,6 +497,62 @@ public abstract class BaseSkill : MonoBehaviour
         }
 
         return listToReturn;
+    }
+
+    private void AddMissingDiagonalsToStar(ref List<GridPosition> gridPositions)
+    {
+        if(originateFromUnitCentre) { return; } //These Pos are only missing when using range
+
+        //Bound GridPos
+        GridPosition unitTopRight = levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider);
+        GridPosition unitBottomLeft = levelGrid.GetColliderBoundMinInGridPos(moveTransformGridCollider);
+        GridPosition unitTopLeft = new GridPosition(unitBottomLeft.x, unitTopRight.z);
+        GridPosition unitBottomRight = new GridPosition(unitTopRight.x, unitBottomLeft.z);
+
+        for(int i = 1; i <= range; ++i)
+        {
+            GridPosition NEGridPos = new GridPosition(unitTopRight.x + i, unitTopRight.z + i);
+            GridPosition SWGridPos = new GridPosition(unitBottomLeft.x - i, unitBottomLeft.z - i);
+            GridPosition NWGridPos = new GridPosition(unitTopLeft.x - i, unitTopLeft.z + i);
+            GridPosition SEGridPos = new GridPosition(unitBottomRight.x + i, unitBottomRight.z -  i);
+
+            List<GridPosition> diagonalPosList = new List<GridPosition>();
+
+            if (GetCardinalDirection() == Direction.North)
+            {
+                //North, Add NE & NW
+                diagonalPosList = new List<GridPosition> {NEGridPos, NWGridPos };
+            }
+            else if (GetCardinalDirection() == Direction.South)
+            {
+                //South, Add SW & SE
+                diagonalPosList = new List<GridPosition> { SEGridPos, SWGridPos };
+            }
+            else if (GetCardinalDirection() == Direction.East)
+            {
+                //East, add SE & NE
+                diagonalPosList = new List<GridPosition> { SEGridPos, NEGridPos };
+            }
+            else if (GetCardinalDirection() == Direction.West)
+            {
+                //West, add SW & NW
+                diagonalPosList = new List<GridPosition> { SWGridPos, NWGridPos };
+            }
+            else
+            {
+                Debug.Log("UNIT FACING INVALID DIRECTION");
+            }
+
+            foreach (GridPosition diagonalPos in diagonalPosList)
+            {
+                if (gridPositions.Contains(diagonalPos) || !IsGridPositionValid(diagonalPos))
+                {
+                    continue;
+                }
+
+                gridPositions.Add(diagonalPos);
+            }
+        }
     }
 
     protected List<GridPosition> FilterIntoDiagonal()
@@ -529,9 +642,9 @@ public abstract class BaseSkill : MonoBehaviour
     }
 
     //Direction Methods
-    protected virtual Direction GetDirection()
+    protected virtual Direction GetCardinalDirection()
     {
-        return CombatFunctions.GetDirection(myUnitMoveTransform);
+        return CombatFunctions.GetCardinalDirection(myUnitMoveTransform);
     }
 
     protected virtual Direction GetDiagonalDirection()
@@ -539,12 +652,17 @@ public abstract class BaseSkill : MonoBehaviour
         return CombatFunctions.GetDiagonalDirection(myUnitMoveTransform);
     }
 
-    protected Vector3 GetDirectionAsVector()
+    protected Vector3 GetCardinalDirectionAsVector()
     {
-        return CombatFunctions.GetDirectionAsVector(myUnitMoveTransform);
+        return CombatFunctions.GetCardinalDirectionAsVector(myUnitMoveTransform);
     }
 
     //Getters
+    private bool IsGridPositionValid(GridPosition gridPosition)
+    {
+        return LevelGrid.Instance.gridSystem.IsValidGridPosition(gridPosition) && LevelGrid.Instance.IsWalkable(gridPosition);
+    }
+
 
     protected bool GetTargetingCondition(GridPosition gridPosition)
     {
@@ -567,5 +685,28 @@ public abstract class BaseSkill : MonoBehaviour
         return mySkillData;
     }
 
+    protected SkillForceData GetSkillForceData(GridUnit target)
+    {
+        return new SkillForceData(GetForceToApplyToUnit(target), forceDirection, forceDistance);
+    }
+
+    private SkillForceType GetForceToApplyToUnit(GridUnit target)
+    {
+        if (forceTypeToApply != SkillForceType.KnockbackEnemiesSuctionAllies)
+        {
+            return forceTypeToApply;
+        }
+
+        switch (CombatFunctions.GetRelationWithTarget(myUnit, target))
+        {
+            case FantasyCombatTarget.Ally:
+                return SkillForceType.SuctionAll;
+            case FantasyCombatTarget.Enemy: 
+            case FantasyCombatTarget.Object:
+                return SkillForceType.KnockbackAll;
+            default:
+                return SkillForceType.None;
+        }
+    }
 
 }

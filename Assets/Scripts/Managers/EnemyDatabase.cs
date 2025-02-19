@@ -192,10 +192,10 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
                 partialData.knownElementAffinities.Add(elementAffinity);
         }
 
-        if (damageData.attackIngridient)
+        if (damageData.attackIngredient)
         {
-            if(!partialData.otherKnownAffinities.Contains(damageData.attackIngridient.itemName))
-                partialData.otherKnownAffinities.Add(damageData.attackIngridient.itemName);
+            if(!partialData.otherKnownAffinities.Contains(damageData.attackIngredient.itemName))
+                partialData.otherKnownAffinities.Add(damageData.attackIngredient.itemName);
         }
 
         //Unlock Type when all Affinities unlocked.

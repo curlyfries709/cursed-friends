@@ -10,12 +10,12 @@ public struct AffinityDamage
 }
 
 
-public struct DamageReceivedAlteration
+public struct DamageReceivedModifier
 {
     public float multiplier;
     public bool isCritical;
 
-    public DamageReceivedAlteration(float multiplier)
+    public DamageReceivedModifier(float multiplier)
     {
         this.multiplier = multiplier == 0 ? 1 :  multiplier;
         isCritical = false;
@@ -169,7 +169,7 @@ public class TheCalculator : MonoBehaviour
         CharacterGridUnit attacker = attackData.attacker; 
 
         Element attackElement = attackData.attackElement;
-        Item attackItem = attackData.attackIngridient;
+        Item attackItem = attackData.attackIngredient;
 
         bool isCrit = attackData.isCritical;
         bool canEvade = attackData.canEvade;
@@ -213,9 +213,9 @@ public class TheCalculator : MonoBehaviour
 
         if(attacker.AlterDamageReductionAttack != null)
         {
-            foreach (Func<bool, DamageReceivedAlteration> listener in attacker.AlterDamageReductionAttack.GetInvocationList())
+            foreach (Func<bool, DamageReceivedModifier> listener in attacker.AlterDamageReductionAttack.GetInvocationList())
             {
-                DamageReceivedAlteration damageReceivedAlteration = listener.Invoke(isBackStab);
+                DamageReceivedModifier damageReceivedAlteration = listener.Invoke(isBackStab);
                 externalMultiplier = externalMultiplier * damageReceivedAlteration.multiplier;
 
                 if (!isCrit && damageReceivedAlteration.isCritical)
@@ -228,9 +228,9 @@ public class TheCalculator : MonoBehaviour
 
         if (target.AlterDamageReceived != null)
         {
-            foreach (Func<DamageReceivedAlteration> listener in target.AlterDamageReceived.GetInvocationList())
+            foreach (Func<DamageReceivedModifier> listener in target.AlterDamageReceived.GetInvocationList())
             {
-                DamageReceivedAlteration damageReceivedAlteration = listener.Invoke();
+                DamageReceivedModifier damageReceivedAlteration = listener.Invoke();
                 externalMultiplier = externalMultiplier * damageReceivedAlteration.multiplier;
 
                 if (!isCrit && damageReceivedAlteration.isCritical)

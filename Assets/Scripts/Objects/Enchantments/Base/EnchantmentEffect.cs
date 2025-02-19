@@ -75,9 +75,9 @@ public abstract class EnchantmentEffect : MonoBehaviour
 
     }
 
-    protected virtual DamageReceivedAlteration OnAlterDamageReductionAttack(bool isBackstab)
+    protected virtual DamageReceivedModifier OnAlterDamageReductionAttack(bool isBackstab)
     {
-        return new DamageReceivedAlteration(1);
+        return new DamageReceivedModifier(1);
     }
 
     protected virtual void OnUnitTurnStart()

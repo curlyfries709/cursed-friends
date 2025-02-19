@@ -119,7 +119,7 @@ public class LevelGrid : MonoBehaviour
     public void RemoveUnitFromGrid(GridUnit unit)
     {
         allActiveGridUnits.Remove(unit);
-        RemoveUnitAtGridPositions(unit.GetGridPositionsOnTurnStart());
+        RemoveUnitAtGridPositions(unit, unit.GetGridPositionsOnTurnStart());
     }
 
     public GridUnit GetUnitAtGridPosition(GridPosition gridPosition)
@@ -128,18 +128,29 @@ public class LevelGrid : MonoBehaviour
         return gridObject.GetGridUnit();
     }
 
-    public void RemoveUnitAtGridPositions(List<GridPosition> gridPositions)
+    public void RemoveUnitAtGridPositions(GridUnit unit, List<GridPosition> gridPositions)
     {
         foreach (GridPosition gridPosition in gridPositions)
         {
             GridObject gridObject = gridSystem.GetGridObject(gridPosition);
-            gridObject.SetGridUnit(null);
+
+            if (gridObject.MatchesOccupyingUnit(unit))
+            {
+                gridObject.SetGridUnit(null);
+            }
+            else
+            {
+                GridUnit occupyingUnit = gridObject.GetGridUnit();
+
+                Debug.Log("The unit " + unit.unitName + " that you are trying to remove from " + gridPosition.ToString() 
+                    + " doesn't match the occupying unit: " + (occupyingUnit ? occupyingUnit.unitName : "NULL"));
+            }
         }
     }
 
     public void UnitMovedGridPositions(GridUnit unit, List<GridPosition> fromGridPositions, List<GridPosition> toGridPositions)
     {
-        RemoveUnitAtGridPositions(fromGridPositions);
+        RemoveUnitAtGridPositions(unit, fromGridPositions);
         SetUnitAtGridPosistions(toGridPositions, unit);
     }
 
@@ -185,8 +196,6 @@ public class LevelGrid : MonoBehaviour
             worldPos.y = worldPos.y - 1;
 
             Collider obstacleCollider = GameSystemsManager.Instance.GetSceneDataAsFantasyData().GetTerrainCollider();
-
-            Debug.DrawRay(worldPos, Vector3.up * 15, Color.red, 100);
 
             float sphereCastRadius = 0.5f;
             float sphereCastDistance = 11f;

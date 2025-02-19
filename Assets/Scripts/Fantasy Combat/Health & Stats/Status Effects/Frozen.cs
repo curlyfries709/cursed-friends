@@ -25,9 +25,9 @@ public class Frozen : StatusEffect
         myUnit.AlterDamageReceived += OnAlterUnitDamageReceived;
     }
 
-    private DamageReceivedAlteration OnAlterUnitDamageReceived()
+    private DamageReceivedModifier OnAlterUnitDamageReceived()
     {
-        DamageReceivedAlteration alteration = new DamageReceivedAlteration(1);
+        DamageReceivedModifier alteration = new DamageReceivedModifier(1);
         alteration.isCritical = true;
 
         return alteration;

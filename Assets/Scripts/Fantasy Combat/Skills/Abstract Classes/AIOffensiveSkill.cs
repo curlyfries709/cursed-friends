@@ -12,8 +12,6 @@ public abstract class AIOffensiveSkill : AIBaseSkill
     [Title("Skill Data")]
     public bool isMagical;
     public PowerGrade powerGrade = PowerGrade.D;
-    [Range(0, 9)]
-    [SerializeField] int knockbackDistance = 0;
     [Space(10)]
     public Element element;
     [Space(10)]
@@ -171,7 +169,7 @@ public abstract class AIOffensiveSkill : AIBaseSkill
             element = myUnit.stats.GetAttackElement();
         }
 
-        AttackData damageData = new AttackData(myUnit, element, GetDamage(), isCritical, CombatFunctions.TryInflictStatusEffects(myUnit, target, inflictedStatusEffects), knockbackDistance, skillTargets.Count);
+        AttackData damageData = new AttackData(myUnit, element, GetDamage(), isCritical, CombatFunctions.TryInflictStatusEffects(myUnit, target, inflictedStatusEffects), GetSkillForceData(target), skillTargets.Count);
         IDamageable damageable = target.GetComponent<IDamageable>();
 
         return damageable.TakeDamage(damageData); //(However Damage dealt & Status effects visual only shown much later)
@@ -193,7 +191,7 @@ public abstract class AIOffensiveSkill : AIBaseSkill
 
     protected override void SetUnitsToShow()
     {
-        List<GridUnit> targetedUnits = CombatFunctions.SetOffensiveSkillUnitsToShow(myUnit, selectedUnits, knockbackDistance);
+        List<GridUnit> targetedUnits = CombatFunctions.SetOffensiveSkillUnitsToShow(myUnit, selectedUnits, forceDistance);
         FantasyCombatManager.Instance.SetUnitsToShow(targetedUnits);
     }
 
