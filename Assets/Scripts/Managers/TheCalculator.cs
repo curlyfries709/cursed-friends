@@ -158,7 +158,7 @@ public class TheCalculator : MonoBehaviour
         damageData.isBackstab = IsAttackBackStab(attacker, target, damageType);
         damageData.isTargetGuarding = isTargetGuarding;
 
-        //Logic
+        //Evade Calculation
         if (damageType == DamageType.Default)
         {
             if (!isTargetGuarding && attackData.canEvade && EvadeAttack(attacker, target, damageData.isBackstab))
@@ -178,7 +178,7 @@ public class TheCalculator : MonoBehaviour
         damageData.affinityToAttack = GetAffinity(target, attackData.attackElement, attackData.attackItem);
 
         //Apply Modifiers
-        ApplyModifiers(target, attacker, attackData, ref damageData);
+        ApplyDamageModifiers(target, attacker, attackData, ref damageData);
 
         //Apply affinity multiplier
         switch (damageData.affinityToAttack)
@@ -221,15 +221,15 @@ public class TheCalculator : MonoBehaviour
         //Update isKnockdown Data
         if (damageType == DamageType.Default || damageType == DamageType.Reflect)
         {
-            damageData.isKnockdownHit = StatusEffectManager.Instance.IsKnockdownHit(damageData.afflictedStatusEffects, isTargetGuarding) || damageData.affinityToAttack == Affinity.Weak;
+            damageData.isKnockdownHit = StatusEffectManager.Instance.IsKnockdownHit(damageData.inflictedStatusEffects, isTargetGuarding) || damageData.affinityToAttack == Affinity.Weak;
 
             if (damageData.isKnockdownHit)
             {
                 InflictedStatusEffectData knockdownEffectData = new InflictedStatusEffectData(StatusEffectManager.Instance.GetKnockdownEffectData(), target, attacker.stats.SEDuration, 0);
 
-                if (!damageData.afflictedStatusEffects.Any((effect) => effect.effectData == StatusEffectManager.Instance.GetKnockdownEffectData()))
+                if (!damageData.inflictedStatusEffects.Any((effect) => effect.effectData == StatusEffectManager.Instance.GetKnockdownEffectData()))
                 {
-                    damageData.afflictedStatusEffects.Add(knockdownEffectData);
+                    damageData.inflictedStatusEffects.Add(knockdownEffectData);
                 }
             }
         }
@@ -239,9 +239,9 @@ public class TheCalculator : MonoBehaviour
         {
             InflictedStatusEffectData woundedEffectData = new InflictedStatusEffectData(StatusEffectManager.Instance.GetWoundedEffectData(), target, attacker.stats.SEDuration, 0);
 
-            if (!damageData.afflictedStatusEffects.Any((effect) => effect.effectData == StatusEffectManager.Instance.GetWoundedEffectData()))
+            if (!damageData.inflictedStatusEffects.Any((effect) => effect.effectData == StatusEffectManager.Instance.GetWoundedEffectData()))
             {
-                damageData.afflictedStatusEffects.Add(woundedEffectData);
+                damageData.inflictedStatusEffects.Add(woundedEffectData);
             } 
         }
 
@@ -269,7 +269,38 @@ public class TheCalculator : MonoBehaviour
         return damageData;
     }
 
-    private void ApplyModifiers(CharacterGridUnit target, CharacterGridUnit attacker, AttackData attackData, ref DamageData damageData)
+    public HealData CalculateHealAmount(HealData healData)
+    {
+        if (healData.healer) //If null, then source of healing must be via item E.G Potion, Blessing.
+        {
+            int rawHealAmount = CalculateRawHeal(healData.healer, out healData.isCritical);
+            healData.HPRestore = rawHealAmount;
+        }
+
+        //Apply Modifiers
+        ApplyHealModifiers(healData.target, healData.healer, ref healData);
+
+        return healData;
+    }
+
+    public int CalculateRawHeal(CharacterGridUnit healer, out bool isCritical)
+    {
+        int varianceRange = Mathf.RoundToInt(healer.stats.HealEfficacy * (damageVariancePercentage / 100f));
+        int variance = UnityEngine.Random.Range(-varianceRange, varianceRange + 1);
+
+        int randNum = UnityEngine.Random.Range(0, 101);
+
+        isCritical = randNum <= healer.stats.CritChance;
+
+        if (isCritical)
+        {
+            return Mathf.RoundToInt((healer.stats.HealEfficacy * critDamageMultiplier) + variance);
+        }
+
+        return healer.stats.HealEfficacy + variance;
+    }
+
+    private void ApplyDamageModifiers(CharacterGridUnit target, CharacterGridUnit attacker, AttackData attackData, ref DamageData damageData)
     {
         float externalMultiplier = 1;
         bool wasOriginallyCrit = attackData.isCritical;
@@ -319,34 +350,9 @@ public class TheCalculator : MonoBehaviour
         damageData.damageReceived = Mathf.RoundToInt(damageData.damageReceived * externalMultiplier);
     }
 
-    public DamageData ExtractDamageDataFromAttackData(GridUnit target, AttackData attackData, bool updateDamage = true)
+    private void ApplyHealModifiers(CharacterGridUnit target, CharacterGridUnit healer, ref HealData healData)
     {
-        DamageData damageData = new DamageData(target, attackData.attacker, attackData);
 
-        damageData.attacker = attackData.attacker;
-        damageData.hitByAttackData = attackData;
-        damageData.isCritical = attackData.isCritical;
-        
-        if (updateDamage)
-        {
-            damageData.damageReceived = attackData.rawDamage;
-        }
-
-        CharacterGridUnit character = target as CharacterGridUnit;
-
-        if (character)
-        {
-            //Check if effect can even be applied 
-            foreach (InflictedStatusEffectData effect in attackData.inflictedStatusEffects)
-            {
-                if (!damageData.afflictedStatusEffects.Contains(effect) && StatusEffectManager.Instance.CanApplyStatusEffect(character, effect.effectData))
-                {
-                    damageData.afflictedStatusEffects.Add(effect);
-                }
-            }
-        }
-
-        return damageData;
     }
 
     private int ArmourReduction(CharacterGridUnit target, int rawDamage, DamageType damageType)
@@ -412,21 +418,34 @@ public class TheCalculator : MonoBehaviour
         return applyWounded;
     }
 
-    public int CalculateHealAmount(CharacterGridUnit unit, out bool isCritical)
+    public DamageData ExtractDamageDataFromAttackData(GridUnit target, AttackData attackData, bool updateDamage = true)
     {
-        int varianceRange = Mathf.RoundToInt(unit.stats.HealEfficacy * (damageVariancePercentage / 100f));
-        int variance = UnityEngine.Random.Range(-varianceRange, varianceRange + 1);
+        DamageData damageData = new DamageData(target, attackData.attacker, attackData);
 
-        int randNum = UnityEngine.Random.Range(0, 101);
+        damageData.attacker = attackData.attacker;
+        damageData.hitByAttackData = attackData;
+        damageData.isCritical = attackData.isCritical;
 
-        isCritical = randNum <= unit.stats.CritChance;
-
-        if (isCritical)
+        if (updateDamage)
         {
-            return Mathf.RoundToInt((unit.stats.HealEfficacy * critDamageMultiplier) + variance);
+            damageData.damageReceived = attackData.rawDamage;
         }
 
-        return unit.stats.HealEfficacy + variance;
+        CharacterGridUnit character = target as CharacterGridUnit;
+
+        if (character)
+        {
+            //Check if effect can even be applied 
+            foreach (InflictedStatusEffectData effect in attackData.inflictedStatusEffects)
+            {
+                if (!damageData.inflictedStatusEffects.Contains(effect) && StatusEffectManager.Instance.CanApplyStatusEffect(character, effect.effectData))
+                {
+                    damageData.inflictedStatusEffects.Add(effect);
+                }
+            }
+        }
+
+        return damageData;
     }
 
     public Affinity GetAffinity(CharacterGridUnit unit, Element attackElement,  Item attackItem)

@@ -8,16 +8,18 @@ public interface ICombatAction
 
     public void ActionAnimEventRaised(GridUnitAnimNotifies.EventType eventType)
     {
-        if (eventType == GridUnitAnimNotifies.EventType.Evade || eventType == GridUnitAnimNotifies.EventType.EvadeAndDamage)
+        switch (eventType)
         {
-            Evade.Instance.TriggerEvadeEvent?.Invoke(isActive);
-        }
+            case GridUnitAnimNotifies.EventType.Evade:
+                Evade.Instance.TriggerEvadeEvent?.Invoke(isActive);
+                break;
+            case GridUnitAnimNotifies.EventType.EvadeAndDamage:
+                Evade.Instance.TriggerEvadeEvent?.Invoke(isActive);
+                goto default;
+            default:
+                IDamageable.RaiseHealthChangeEvent(isActive);
+                break;
 
-        if (eventType == GridUnitAnimNotifies.EventType.Damage || eventType == GridUnitAnimNotifies.EventType.EvadeAndDamage)
-        {
-            IDamageable.RaiseHealthChangeEvent(isActive);
         }
     }
-
-
 }

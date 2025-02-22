@@ -78,6 +78,9 @@ public class BlessingEffects : MonoBehaviour, ITurnStartEvent
     {
         ControlsManager.Instance.DisableControls();
 
+        //Prep healing
+        Heal(blesser);
+
         blessingName.text = activeBlessing.nickname;
         blessingFlasher.Fade(true);
         yield return new WaitForSeconds(flashDuration);
@@ -90,8 +93,9 @@ public class BlessingEffects : MonoBehaviour, ITurnStartEvent
         HUDManager.Instance.UpdateBlessing(activeBlessing, turnCounter);
         FantasyCombatCollectionManager.BlessingUsed?.Invoke(blesser);
 
-        //Restore
-        Heal(blesser);
+        //Activate healing
+        IDamageable.RaiseHealthChangeEvent(true);
+
 
         collectionManager.BeginBlessingCooldown(activeBlessing, blesser);
     }
@@ -121,6 +125,7 @@ public class BlessingEffects : MonoBehaviour, ITurnStartEvent
     public void PlayTurnStartEvent()
     {
         Heal(FantasyCombatManager.Instance.GetActiveUnit() as PlayerGridUnit);
+        IDamageable.RaiseHealthChangeEvent(true);
     }
 
     private void Heal(PlayerGridUnit unitToHeal)
@@ -131,10 +136,10 @@ public class BlessingEffects : MonoBehaviour, ITurnStartEvent
             int HPHeal = Mathf.RoundToInt(unitToHeal.stats.Vitality * ((float)activeBlessing.hpIncrease / 100));
             int SPHeal = Mathf.RoundToInt(unitToHeal.stats.Stamina * ((float)activeBlessing.spIncrease / 100));
 
-            unitToHeal.Health().Heal(HPHeal, SPHeal, true, true);
+            HealData healData = new HealData(unitToHeal, HPHeal, SPHeal, 0, false);
+            unitToHeal.Health().Heal(healData);
         }
     }
-
 
     //Doers
     private void ApplyAndActivateBuffs(PlayerGridUnit blesser)
@@ -143,8 +148,7 @@ public class BlessingEffects : MonoBehaviour, ITurnStartEvent
         {
             foreach (ChanceOfInflictingStatusEffect buff in activeBlessing.statusEffectsToApply)
             {
-                StatusEffectManager.Instance.ApplyStatusEffect(buff.statusEffect, player, blesser, blesser.stats.SEDuration, buff.buffChange);
-                StatusEffectManager.Instance.TriggerNewlyAppliedEffects(player);
+                StatusEffectManager.Instance.ApplyAndActivateStatusEffect(buff.statusEffect, player, blesser, blesser.stats.SEDuration, buff.buffChange);
             }
         }
     }

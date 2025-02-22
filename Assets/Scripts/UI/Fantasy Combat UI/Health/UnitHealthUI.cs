@@ -86,43 +86,48 @@ public class UnitHealthUI : FadeUI
         ClearStatusEffects();
     }
 
-    public void DisplayUI(DamageData damageData, float newNormalizedHealth, bool isHealing)
+    public void DisplayUI(HealthChangeData healthChangeData, float newNormalizedHealth, bool isHealing)
     {
-        switch (damageData.affinityToAttack)
+        DamageData damageData = healthChangeData as DamageData;
+
+        if(damageData != null)
         {
-            case Affinity.Absorb:
-                Absorb(newNormalizedHealth);
-                break;
-            case Affinity.Resist:
-                Resist();
-                break;
-            case Affinity.Immune:
-                Immune();
-                break;
-            case Affinity.Reflect:
-                Reflect();
-                break;
-            case Affinity.Weak: 
-                Weak(); 
-                break;
+            switch (damageData.affinityToAttack)
+            {
+                case Affinity.Absorb:
+                    Absorb(newNormalizedHealth);
+                    break;
+                case Affinity.Resist:
+                    Resist();
+                    break;
+                case Affinity.Immune:
+                    Immune();
+                    break;
+                case Affinity.Reflect:
+                    Reflect();
+                    break;
+                case Affinity.Weak:
+                    Weak();
+                    break;
+            }
         }
 
-        if (damageData.isBackstab)
+        if (damageData != null && damageData.isBackstab)
         {
             BackStab();
         }
 
-        if (damageData.isCritical)
+        if (healthChangeData.isCritical)
         {
             CritHit();
         }
 
-        if(damageData.isTargetGuarding && damageData.damageType != DamageType.StatusEffect)
+        if(damageData != null && damageData.isTargetGuarding && damageData.damageType != DamageType.StatusEffect)
         {
             Guard();
         }
 
-        if(damageData.damageType == DamageType.KnockbackBump)
+        if(damageData != null && damageData.damageType == DamageType.KnockbackBump)
         {
             Bump();
         }
@@ -135,9 +140,6 @@ public class UnitHealthUI : FadeUI
         {
             ShowDamage(newNormalizedHealth);
         }
-
-
-
     }
 
     public void SetHPChangeNumberText(int num)

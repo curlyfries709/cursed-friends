@@ -6,7 +6,10 @@ public class ERegeneration : EnchantmentEffect, ITurnStartEvent
 
     public void PlayTurnStartEvent()
     {
-        owner.Health().Heal(GetPercentageAsValue(owner.stats.Vitality), 0, true, true);
+        HealData healData = new HealData(owner, GetPercentageAsValue(owner.stats.Vitality));
+
+        owner.Health().Heal(healData);
+        IDamageable.RaiseHealthChangeEvent(true);
     }
 
     protected override void OnNewTurn(CharacterGridUnit actingUnit, int turnNumber)

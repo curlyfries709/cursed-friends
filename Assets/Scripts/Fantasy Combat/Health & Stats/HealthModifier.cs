@@ -1,15 +1,12 @@
 using System.Collections.Generic;
 
-public class AttackData
+public class AttackData : HealthChangeData
 {
     public CharacterGridUnit attacker = null;
 
     //Elements
     public Element attackElement = Element.None;
     public Item attackItem = null;
-
-    public SkillForceData forceData = new SkillForceData(SkillForceType.None, SkillForceDirectionType.PositionDirection, 0);
-    public List<InflictedStatusEffectData> inflictedStatusEffects = new List<InflictedStatusEffectData>();
 
     //Damage Data
     public PowerGrade powerGrade = PowerGrade.C;
@@ -19,14 +16,11 @@ public class AttackData
 
     //Bools
     public bool isPhysical = false;
-    public bool isCritical = false;
     public bool isMultiAction = false; //Does this skill attack multiple units individually
 
     //Can bools
     public bool canEvade = true;
     public bool canCrit = true;
-
-    public List<HealthChangeModifier> appliedModifiers = new List<HealthChangeModifier>();
 
     public AttackData(CharacterGridUnit attacker, int rawDamage)
     {
@@ -51,7 +45,7 @@ public class AttackData
     }
 }
 
-public class DamageData
+public class DamageData : HealthChangeData
 {
     public GridUnit target;
     public CharacterGridUnit attacker;
@@ -61,13 +55,9 @@ public class DamageData
     public DamageType damageType = DamageType.Default;
 
     public int damageReceived = 0;
-    public List<InflictedStatusEffectData> afflictedStatusEffects = new List<InflictedStatusEffectData>();
-
-    public List<HealthChangeModifier> appliedModifiers = new List<HealthChangeModifier>();
 
     //Bools
     public bool isBackstab = false;
-    public bool isCritical = false;
     public bool isKOHit = false;
     public bool isTargetGuarding = false;
     public bool isKnockdownHit = false;
@@ -112,7 +102,7 @@ public class DamageData
         damageType = DamageType.Default;
 
         damageReceived = 0;
-        afflictedStatusEffects.Clear();
+        inflictedStatusEffects.Clear();
 
         //Bools
         isBackstab = false;
@@ -129,6 +119,58 @@ public enum DamageType
     KnockbackBump,
     Reflect,
     Ultimate //This applies for Duofires, beatdowns & Power Of Friendship
+}
+
+public class HealData: HealthChangeData
+{
+    public CharacterGridUnit target = null;
+    public CharacterGridUnit healer = null; //If null, then source of healing must be via item E.G Potion, Blessing.
+
+    public int HPRestore = 0;
+    public int SPRestore = 0;
+    public int FPRestore = 0;
+
+    //Bools
+    public bool canRevive = false;
+    public bool convertToDamage = false;
+
+    public HealData(CharacterGridUnit target, int HPRestore)
+    {
+        this.target = target;
+        this.HPRestore = HPRestore;
+    }
+
+    public HealData(CharacterGridUnit target, int HPRestore, int SPRestore, int FPRestore, bool canRevive)
+    {
+        this.target = target;
+        this.HPRestore = HPRestore;
+        this.SPRestore = SPRestore;
+        this.FPRestore = FPRestore;
+        this.canRevive = canRevive;
+    }
+
+    public HealData(CharacterGridUnit target, CharacterGridUnit healer, int HPRestore, bool canRevive)
+    {
+        this.target = target;
+        this.healer = healer;
+        this.HPRestore = HPRestore;
+        this.canRevive = canRevive;
+    }
+
+    public bool IsOnlyFPRestore()
+    {
+        return FPRestore > 0 && HPRestore == 0 && SPRestore == 0;
+    }
+}
+
+public abstract class HealthChangeData //Just a base class defining shared data
+{
+    public SkillForceData forceData = new SkillForceData(SkillForceType.None, SkillForceDirectionType.PositionDirection, 0);
+    public List<InflictedStatusEffectData> inflictedStatusEffects = new List<InflictedStatusEffectData>();
+
+    public List<HealthChangeModifier> appliedModifiers = new List<HealthChangeModifier>();
+
+    public bool isCritical = false;
 }
 
 public class HealthChangeModifier

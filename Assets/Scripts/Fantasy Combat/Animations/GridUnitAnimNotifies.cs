@@ -14,7 +14,8 @@ public class GridUnitAnimNotifies : MonoBehaviour
     {
         Damage,
         Evade,
-        EvadeAndDamage
+        EvadeAndDamage, 
+        Heal
     }
 
     public void Setup(CharacterGridUnit myUnit, EnemyIntiateCombat freeRoamAttackObject)
@@ -44,12 +45,7 @@ public class GridUnitAnimNotifies : MonoBehaviour
             ActivateSlowmo();
         }
     }
-
-    public void TriggerEvasionEvent()
-    {
-        //Always Trigger Evade Event
-        Evade.Instance.PlayEvadeEvent();
-    }*/
+    */
 
     public void AmbushAttackComplete()
     {

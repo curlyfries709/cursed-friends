@@ -16,14 +16,9 @@ public class BasicPotionEffect : MonoBehaviour
 
         FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(Affinity.None, false, false, dataDisplayExtension);
 
-        if (potionData.hpGain > 0 || potionData.spGain > 0)
+        if (potionData.hpGain > 0 || potionData.spGain > 0 || potionData.fpGain > 0)
         {
-            HealAndRevive(drinker);
-        }
-
-        if(potionData.fpGain > 0)
-        {
-            GainFP(drinker);
+            RestoreAndRevive(drinker);
         }
 
         if(potionData.statusEffectsToCure.Count > 0)
@@ -44,24 +39,15 @@ public class BasicPotionEffect : MonoBehaviour
         BeginCountdown();
     }
 
-    private void HealAndRevive(CharacterGridUnit target)
+    private void RestoreAndRevive(CharacterGridUnit target)
     {
         //Show VFX too.
-        if (potionData.canRevive && target.Health().isKOed)
-        {
-            target.Health().Revive(potionData.hpGain, potionData.spGain, false);
-        }
-        else
-        {
-            target.Health().Heal(potionData.hpGain, potionData.spGain, false);
-        }
+
+        HealData healData = new HealData(target, potionData.hpGain, potionData.spGain, potionData.fpGain, potionData.canRevive);
+        target.Health().Heal(healData);
+        IDamageable.RaiseHealthChangeEvent(true);
 
         hasStartedHealthCountdown = true;
-    }
-
-    private void GainFP(CharacterGridUnit target)
-    {
-        target.Health().GainFP(potionData.fpGain);
     }
 
     private void Cure(CharacterGridUnit target)

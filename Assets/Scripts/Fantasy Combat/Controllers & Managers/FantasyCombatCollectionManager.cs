@@ -580,7 +580,7 @@ public class FantasyCombatCollectionManager : MonoBehaviour, IControls, ISaveabl
             {
                 ItemChargingData currentChargeData = chargeData.ElementAt(i);
 
-                int healAmount = TheCalculator.Instance.CalculateHealAmount(player, out bool isCrit);
+                int healAmount = TheCalculator.Instance.CalculateRawHeal(player, out bool isCrit);
 
                 currentChargeData.currentHealth = currentChargeData.currentHealth + healAmount;
 
