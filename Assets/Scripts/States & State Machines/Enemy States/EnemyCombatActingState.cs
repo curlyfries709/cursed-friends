@@ -12,7 +12,6 @@ public class EnemyCombatActingState : EnemyBaseState
   
     private float currentSpeed;
     private float animationBlend;
-    private float rotationVelocity;
 
     bool finishedMove = false;
     bool finishedFinalRotation = false;

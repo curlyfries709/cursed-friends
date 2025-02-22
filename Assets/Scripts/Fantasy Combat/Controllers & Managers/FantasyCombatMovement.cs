@@ -76,7 +76,6 @@ public class FantasyCombatMovement : MonoBehaviour
 
     //Input Variables
     private Vector2 inputMoveValue;
-    private bool inputSprint;
     private bool inputJump;
 
     //Cache
@@ -90,7 +89,6 @@ public class FantasyCombatMovement : MonoBehaviour
     private void OnEnable()
     {
         playerInput.onActionTriggered += OnMove;
-        playerInput.onActionTriggered += OnSprint;
     }
 
     // Start is called before the first frame update
@@ -347,7 +345,6 @@ public class FantasyCombatMovement : MonoBehaviour
     private void OnDisable()
     {
         playerInput.onActionTriggered -= OnMove;
-        playerInput.onActionTriggered -= OnSprint;
     }
 
     //Input Methods
@@ -357,20 +354,6 @@ public class FantasyCombatMovement : MonoBehaviour
         if(context.action.name != "Move") { return; }
         inputMoveValue = context.ReadValue<Vector2>();
     }
-
-    private void OnSprint(InputAction.CallbackContext context)
-    {
-        if (context.action.name != "Sprint") { return; }
-        if (context.performed)
-        {
-            inputSprint = true;
-        }
-        else if (context.canceled)
-        {
-            inputSprint = false;
-        }
-    }
-
 
     //Getters && Setters
     /*public bool IsValidMovementGridPosition(GridPosition gridPosition)

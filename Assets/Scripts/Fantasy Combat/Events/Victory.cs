@@ -114,8 +114,6 @@ public class Victory : MonoBehaviour, IControls, ISaveable
     PlayerGridUnit playerWhoDealtFinalBlow;
     Animator starActorAnimator;
 
-    string activeModelName = "";
-
     //Data
     float battleTime;
     int currentScene = 0;
@@ -146,7 +144,6 @@ public class Victory : MonoBehaviour, IControls, ISaveable
         ControlsManager.Instance.DisableControls();
 
         currentScene = 0;
-        activeModelName = "";
 
         levelUpRewardsDataToDisplay.Clear();
 

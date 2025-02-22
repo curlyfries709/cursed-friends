@@ -15,7 +15,6 @@ public class HealthUIBuffText : FadeUI
 
     private Vector3 origin;
     float totalTime;
-    Tween currentTween;
 
     protected override void Awake()
     {

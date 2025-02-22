@@ -109,7 +109,6 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
     }
 
     bool unitBouncing = false;
-    bool displayBumpDamage = false;
 
     //Caches
     List<ApplyForceData> unitsToApplyForce = new List<ApplyForceData>();
@@ -131,7 +130,6 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
         if(unitsToApplyForce.Count == 0)
         {
             unitBouncing = false;
-            displayBumpDamage = false;
 
             IDamageable.TriggerHealthChangeEvent += ForceAllUnits;
             FantasyCombatManager.Instance.AddTurnEndEventToQueue(this);
@@ -442,8 +440,6 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
             }
             else
             {
-                displayBumpDamage = true;
-
                 //Deal Damage to Unit.
                 int rawDamage = bouncingUnitsDamageData[target];
 
@@ -459,7 +455,6 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
         }
         else
         {
-            displayBumpDamage = true;
             //Target takes damage from obstacle.
             int rawDamage = bouncingUnitsDamageData[target];
             target.GetComponent<IDamageable>().TakeBumpDamage(GetRandomBumpDamage(rawDamage));

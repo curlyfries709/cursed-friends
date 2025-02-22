@@ -225,7 +225,7 @@ public class DialogueManager : MonoBehaviour, ISaveable
             currentNodeToCheck = bonusDialogueChoiceParentNode ? bonusDialogueChoiceParentNode : currentNode;
 
         DialogueNode firstNodeChecked = currentNodeToCheck;
-        int counter = 0;
+        //int counter = 0;
 
         while (true)
         {

@@ -175,7 +175,7 @@ public abstract class Interact : MonoBehaviour
         List<GridPosition> validGridPositionsList = new List<GridPosition>();
         //List<GridPosition> interactableGridPositions = unit.GetGridPositionsOnTurnStart();
 
-        int unitMaxMoveDistance = 1;
+        //int unitMaxMoveDistance = 1;
 
        /* for (int x = -unitMaxMoveDistance; x <= unitMaxMoveDistance; x++)
         {
