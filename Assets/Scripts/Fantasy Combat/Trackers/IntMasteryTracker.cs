@@ -9,12 +9,12 @@ public class IntMasteryTracker : BaseMasteryTracker
         if (listen)
         {
             PlayerBaseSkill.PlayerUsedSkill += OnPlayerUsedSkill;
-            IDamageable.unitHit += OnUnitDamaged;
+            IDamageable.UnitHit += OnUnitDamaged;
         }
         else
         {
             PlayerBaseSkill.PlayerUsedSkill -= OnPlayerUsedSkill;
-            IDamageable.unitHit -= OnUnitDamaged;
+            IDamageable.UnitHit -= OnUnitDamaged;
         }
     }
 

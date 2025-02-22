@@ -6,6 +6,7 @@ using MoreMountains.Feedbacks;
 using System.Linq;
 using Sirenix.OdinInspector;
 using AnotherRealm;
+using static UnityEditor.Rendering.FilterWindow;
 
 
 public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
@@ -20,6 +21,7 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
     [SerializeField] bool isUnevadable = false;
     [Header("Element, Material & Effects")]
     [SerializeField] Element skillElement = Element.None;
+    [SerializeField] Item skillItem = null;
     [Space(10)]
     [SerializeField] List<ChanceOfInflictingStatusEffect> inflictedStatusEffects;
     [Header("Behaviour")]
@@ -103,7 +105,7 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
         {
             int targetIndex = skillTargets.IndexOf(target);
 
-            Affinity targetAffinity = DamageTarget(target, !(isUnevadable || (this is PlayerBaseChainAttack)));
+            Affinity targetAffinity = DamageTarget(target);
             allTargetsAffinity.Add(targetAffinity);
 
             GameObject hitVFX = hitVFXPool.Count > 0 ? hitVFXPool[targetIndex] : null;
@@ -158,18 +160,21 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
     }
 
     //Damage Methods
-    protected Affinity DamageTarget(GridUnit target, bool canEvade = true)
+    protected Affinity DamageTarget(GridUnit target)
     {
         myUnit.unitAnimator.beginHealthCountdown = isSingleTarget || !attackMultipleUnitsIndividually || (attackMultipleUnitsIndividually && skillTargets.Count == 1);
 
-        List<InflictedStatusEffectData> successfulInflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(myUnit, target, inflictedStatusEffects);
-
-        AttackData damageData = new AttackData(myUnit, CombatFunctions.GetElement(myUnit, skillElement, isMagical), GetDamage(), isCritical, successfulInflictedStatusEffects, GetSkillForceData(target), skillTargets.Count);
-        damageData.canEvade = canEvade;
+        AttackData attackData = GetAttackData(target);
 
         IDamageable damageable = target.GetDamageable();
+        DamageData damageData = damageable.TakeDamage(attackData, DamageType.Default);
 
-        return damageable.TakeDamage(damageData); //(However Damage dealt & Status effects visual only shown much later)
+        if(damageData != null)
+        {
+            return damageData.affinityToAttack; //(However Damage dealt & Status effects visual only shown much later)
+        }
+        
+        return Affinity.None;
     }
 
 
@@ -189,6 +194,25 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
     }
 
     //GETTERS
+    protected AttackData GetAttackData(GridUnit target)
+    {
+        AttackData attackData = new AttackData(myUnit, CombatFunctions.GetElement(myUnit, skillElement, isMagical), GetDamage(), skillTargets.Count);
+
+        attackData.attackItem = skillItem;
+        attackData.canEvade = !(isUnevadable || (this is PlayerBaseChainAttack));
+
+        attackData.inflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(myUnit, target, inflictedStatusEffects);
+        attackData.forceData = GetSkillForceData(target);
+
+        attackData.isPhysical = !isMagical;
+        attackData.isCritical = isCritical;
+        attackData.isMultiAction = attackMultipleUnitsIndividually;
+
+        attackData.powerGrade = powerGrade;
+        attackData.canCrit = true;
+
+        return attackData;
+    }
 
     protected int GetDamage()
     {

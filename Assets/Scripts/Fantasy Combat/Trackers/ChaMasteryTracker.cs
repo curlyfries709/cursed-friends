@@ -8,12 +8,12 @@ public class ChaMasteryTracker : BaseMasteryTracker
     {
         if (listen)
         {
-            IDamageable.unitHit += OnUnitDamaged;
+            IDamageable.UnitHit += OnUnitDamaged;
             StatusEffectManager.Instance.Unitafflicted += OnUnitAfflicted;
         }
         else
         {
-            IDamageable.unitHit -= OnUnitDamaged;
+            IDamageable.UnitHit -= OnUnitDamaged;
             StatusEffectManager.Instance.Unitafflicted -= OnUnitAfflicted;
         }
     }

@@ -13,6 +13,7 @@ public enum BodyPart
     Chest
 }
 
+[RequireComponent(typeof(GridUnitAnimNotifies))]
 public class GridUnitAnimator : CharacterAnimator
 {
     [Title("Speed")]
@@ -54,6 +55,7 @@ public class GridUnitAnimator : CharacterAnimator
 
     //Caches
     public CharacterGridUnit myUnit { get; private set; }
+    protected GridUnitAnimNotifies animNotifies; 
 
     List<GameObject> equipmentModels = new List<GameObject>();
 
@@ -62,8 +64,6 @@ public class GridUnitAnimator : CharacterAnimator
     //Action activateArrowEvent;
 
     //Variables
-
-    bool cancelSkillFeedbackDisplay = false;
 
     bool isLeader = false;
 
@@ -81,98 +81,28 @@ public class GridUnitAnimator : CharacterAnimator
         base.Awake();
 
         myUnit = GetComponentInParent<CharacterGridUnit>();
+        animNotifies = GetComponent<GridUnitAnimNotifies>();
         isLeader = (myUnit is PlayerGridUnit player) && PartyManager.Instance.GetLeader() == player;
+
+        animNotifies.Setup(myUnit, freeRoamAttackObject);
     }
 
 
     //Animation Events
     public void ShowDamageFeedback(int disableSlowMo)
     {
-        if (cancelSkillFeedbackDisplay)
+        /*if (cancelSkillFeedbackDisplay)
         {
             cancelSkillFeedbackDisplay = false;
             return;
-        }
+        }*/
 
-        IDamageable.unitAttackComplete?.Invoke(beginHealthCountdown);
+        //IDamageable.TriggerHealthChangeEvent?.Invoke(beginHealthCountdown);
 
         if (disableSlowMo == 0)
         {
             ActivateSlowmo();
         }
-    }
-
-    public void TriggerEvasionEvent()
-    {
-        //Always Trigger Evade Event
-        Evade.Instance.PlayEvadeEvent();
-    }
-
-    public void AmbushAttackComplete()
-    {
-        BattleStarter.Instance.PlayerStartCombatAttackComplete?.Invoke(myUnit.GetComponent<EnemyStateMachine>());
-    }
-
-    public void AmbushTargetHit()
-    {
-        BattleStarter.Instance.TargetHit();
-    }
-
-    public void EnableHitbox(int enable)
-    {
-        if(enable == 0)
-        {
-            freeRoamAttackObject.ActivateHitBox(false);
-        }
-        else
-        {
-            freeRoamAttackObject.ActivateHitBox(true);
-        }
-        
-    }
-
-    public void PlayFootstepSFX()
-    {
-        if (!isLeader) { return; }
-
-        AudioManager.Instance.PlaySFX(SFXType.GrassStep);
-    }
-
-
-    public void PreparePOFKnockout()
-    {
-        POFDirector.Instance.PrepareEnemyKO();
-    }
-
-    public void POFPose()
-    {
-        POFDirector.Instance.ShowIntiatorUI();
-    }
-
-    public void ShowWeapon()
-    {
-        ShowWeapon(true);
-    }
-
-    public void HideWeapon()
-    {
-        ShowWeapon(false);
-    }
-
-    /*public void ShowArrow()
-    {
-        activateArrowEvent?.Invoke();
-    }
-
-    public void ShootArrow()
-    {
-        arrowAttackEvent?.Invoke();
-    }*/
-
-    //Feedbacks
-    public void PlayEnjoyPotionSFX()
-    {
-        enjoyPotionFeedback?.PlayFeedbacks();
     }
 
     //Methods
@@ -221,7 +151,6 @@ public class GridUnitAnimator : CharacterAnimator
         animator.SetBool(animIDSearching, value);
     }
 
-
     public void TriggerSkill(string triggerName)
     {
         if (!isFrozen)
@@ -236,13 +165,13 @@ public class GridUnitAnimator : CharacterAnimator
 
     public void Ambush()
     {
-        ShowWeapon();
+        ShowWeapon(true);
         animator.SetTrigger("Ambush");
     }
 
     public void AttackIntruder()
     {
-        ShowWeapon();
+        ShowWeapon(true);
         animator.SetTrigger(animIDRoamAttack);
     }
 
@@ -268,12 +197,10 @@ public class GridUnitAnimator : CharacterAnimator
     {
         animator.SetTrigger(animIDBurn);
     }
-
     public void StartChain()
     {
         animator.SetTrigger("StartChain");
     }
-
 
     public void FiredUp()
     {
@@ -296,15 +223,7 @@ public class GridUnitAnimator : CharacterAnimator
     public void PrepareToTriggerSkill()
     {
         SetSpeed(0);
-        CancelDisplaySkillFeedbackEvent(false);
     }
-
-    public void CancelDisplaySkillFeedbackEvent(bool cancel)
-    {
-        cancelSkillFeedbackDisplay = cancel;
-    }
-
-
 
     public void HideStatusEffectsVFX()
     {
@@ -349,7 +268,6 @@ public class GridUnitAnimator : CharacterAnimator
     }
 
     //Animation IDs
-    
 
     protected override void AssignAnimationIDs()
     {
@@ -446,6 +364,11 @@ public class GridUnitAnimator : CharacterAnimator
     {
         this.equipment = equipment;
         SetModels();
+    }
+
+    public MMF_Player GetPotionFeedback()
+    {
+        return enjoyPotionFeedback;
     }
 
 }

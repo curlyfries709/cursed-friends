@@ -164,15 +164,17 @@ public abstract class AIOffensiveSkill : AIBaseSkill
     {
         myUnit.unitAnimator.beginHealthCountdown = true;
 
-        if (!isMagical)
-        {
-            element = myUnit.stats.GetAttackElement();
-        }
-
-        AttackData damageData = new AttackData(myUnit, element, GetDamage(), isCritical, CombatFunctions.TryInflictStatusEffects(myUnit, target, inflictedStatusEffects), GetSkillForceData(target), skillTargets.Count);
+        AttackData attackData = GetAttackData(target);
         IDamageable damageable = target.GetComponent<IDamageable>();
 
-        return damageable.TakeDamage(damageData); //(However Damage dealt & Status effects visual only shown much later)
+        DamageData damageData = damageable.TakeDamage(attackData, DamageType.Default);
+
+        if (damageData != null)
+        {
+            return damageData.affinityToAttack; //(However Damage dealt & Status effects visual only shown much later)
+        }
+        
+        return Affinity.None;
     }
 
     public void PlayTargetsAffinityFeedback()
@@ -210,6 +212,31 @@ public abstract class AIOffensiveSkill : AIBaseSkill
         attackFeedbacks.attackNulledFeedback?.StopFeedbacks();
         attackFeedbacks.attackReflectedFeedback?.StopFeedbacks();
         attackFeedbacks.attackConnectedFeedback.StopFeedbacks();
+    }
+
+    protected AttackData GetAttackData(GridUnit target)
+    {
+        if (!isMagical)
+        {
+            element = myUnit.stats.GetAttackElement();
+        }
+
+        AttackData attackData = new AttackData(myUnit, element, GetDamage(), skillTargets.Count);
+        attackData.powerGrade = powerGrade;
+
+        attackData.attackItem = null;
+
+        attackData.inflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(myUnit, target, inflictedStatusEffects);
+        attackData.forceData = GetSkillForceData(target);
+
+        attackData.isPhysical = !isMagical;
+        attackData.isCritical = isCritical;
+        attackData.isMultiAction = false;
+
+        attackData.canEvade = true;
+        attackData.canCrit = true;
+        
+        return attackData;
     }
 
     protected int GetDamage()

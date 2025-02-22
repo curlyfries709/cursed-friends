@@ -119,7 +119,11 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     List<GridUnit> allUnitsAtBattleStart = new List<GridUnit>();
 
     BattleStarter.CombatAdvantage battleAdvantageType;
+
+    //PROPERTIES
     public IBattleTrigger battleTrigger { get; private set; }
+
+    public ICombatAction currentCombatAction { get; private set; }
 
     //Inputs 
     bool gridSelectionMode = false; //Keyboard & Mouse Only
@@ -506,7 +510,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         }
     }
 
-
     public void BeginGoAgainTurn(CharacterGridUnit unit)
     {
         HideAllKOedEnemies();
@@ -625,6 +628,8 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     {
         if (!inCombat) { return; }
 
+        SetCurrentAction(null, true);
+
         if (isTurnStartEventPlaying)
         {
             StartTurnOrPlayEvent();
@@ -647,8 +652,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
             BeginNextTurn();
         }
     }
-
-
 
     public void BattleInterrupted()
     {
@@ -679,8 +682,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         usedTactic = true;
         ShowActionMenu(true);
     }
-
-
 
     private void OnUnitKO(CharacterGridUnit unit)
     {
@@ -764,8 +765,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         ActiveUnitObscureCustomPass(false);
         uICustomPass.SetActive(true);
 
-        ClearEventQueues();
-
         foreach (CharacterGridUnit unit in enemyCombatParticipants)
         {
             LevelGrid.Instance.RemoveUnitFromGrid(unit);
@@ -776,8 +775,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
             LevelGrid.Instance.RemoveUnitFromGrid(unit);
         }
     }
-
-
 
     public void UpdateDamageDataDisplayTime(Affinity affinity, bool isKO, bool isKnockdown, float customExtension = 0)
     {
@@ -1417,6 +1414,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     private void EndCombat()
     {
         inCombat = false;
+        ClearEventQueues();
         currentTurnOwner.EndTurn?.Invoke();
     }
 
@@ -1439,6 +1437,20 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     }
 
     //Setters
+    public void SetCurrentAction(ICombatAction newAction, bool isComplete)
+    {
+        if (isComplete && currentCombatAction != null)
+        {
+            currentCombatAction.isActive = false;
+            currentCombatAction = null;
+        }
+        else if (!isComplete)
+        {
+            currentCombatAction = newAction;
+            currentCombatAction.isActive = !isComplete;
+        }
+    }
+
     private void SetAllActiveCombatUnits()
     {
         allCharacterCombatUnits.Clear();

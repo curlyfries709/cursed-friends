@@ -15,7 +15,7 @@ public abstract class StatusEffect : MonoBehaviour
     //Caches
     public StatusEffectData effectData;
     protected CharacterGridUnit myUnit;
-    protected CharacterGridUnit inflictor;
+    public CharacterGridUnit inflictor;
 
     protected bool firstTurn = true;
     public bool hasEffectActivated = false;
@@ -167,6 +167,16 @@ public abstract class StatusEffect : MonoBehaviour
         StatusEffectManager.Instance.StatusEffectEnded(myUnit, this);
     }
 
+    protected void ApplyStatusEffectDamageToUnit(int healthPercentToLost)
+    {
+        AttackData attackData = new AttackData(inflictor, 0);
+        attackData.canCrit = false;
+        attackData.canEvade = false;
+
+        myUnit.Health().TakeStatusEffectDamage(attackData, healthPercentToLost);
+    }
+
+    //VISUAL & UI
     protected void SpawnVisual()
     {
         //Spawn VFX

@@ -1,4 +1,4 @@
-using System.Collections;
+
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -30,27 +30,14 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
 
     bool isPlayer = false;
 
-    //Variables
-    //int maxHealth;
-    //int maxSP;
-
     public CharacterGridUnit attacker { get; private set; }
     public int currentHealth { get; set; }
     public int currentSP { get; set; }
     public int currentFP { get; set; }
 
-    bool isGuardBreakingAttack = false;
+    DamageData currentDamageData = null;
 
-    Affinity currentAffinity = Affinity.None;
-
-    bool criticalDamage = false;
-    bool isBackstab = false;
-    bool isKOHit = false;
-    bool isKnockdownHit = false;
-    bool isSEDamage = false;
-    bool isKnockbackDamage = false;
-
-    bool beginHealthCountdown = false;
+    //bool beginHealthCountdown = false;
 
     //State Bools
     public bool isKOed { get; private set; }
@@ -70,8 +57,6 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         SP,
         FP
     }
-
-
     private void Awake()
     {
         SetIntializationData();
@@ -89,228 +74,79 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         ResetVitals();
     }
 
-
     private void OnDisable()
     {
         SavingLoadingManager.Instance.EnteringNewTerritory -= OnEnterNewTerritory;
     }
-    //Damage
-    public Affinity TakeDamage(AttackData attackData)
-    {
-        if (isKOed) { return Affinity.None; }
 
+    //Damage
+    public DamageData TakeDamage(AttackData attackData, DamageType damageType)
+    {
+        if (isKOed) { return null; }
         ClearDamageData();
 
-        //Subscribe to event
-        IDamageable.unitAttackComplete += DisplayDamageData;
+        FinalizeDamageData(attackData, damageType);
 
-        attackData.canEvade = attackData.canEvade && !StatusEffectManager.Instance.IsUnitDisabled(myUnit);
-        bool canApplyForces = !myUnit.stats.IsImmuneToForces();
-
-        criticalDamage = attackData.isCritical;
-        attacker = attackData.attacker;
-
-        AffinityDamage affinityDamage = TheCalculator.Instance.CalculateDamageReceived(attackData, myUnit, isGuarding, out isBackstab, ref criticalDamage);
-
-        currentAffinity = affinityDamage.affinity;
-        isKnockdownHit = StatusEffectManager.Instance.IsKnockdownHit(this, attackData.inflictedStatusEffects) || currentAffinity == Affinity.Weak;
-
-        if (currentAffinity == Affinity.Absorb)
-        {
-            //Heal By Damage Dealt
-            currentHealth = currentHealth + affinityDamage.damage;
-            currentHealth = Mathf.Min(currentHealth, MaxHealth());
-        }
-        else if(currentAffinity == Affinity.Reflect)
-        {
-            //Call Reflect Damage Event
-            canApplyForces = false;
-            Reflect.DamageReflected(attacker, myUnit, attackData);
-        }
-        else if(currentAffinity == Affinity.Evade)
-        {
-            canApplyForces = false;
-            Evade.Instance.UnitEvaded(attacker, myUnit, attackData.numOfTargets);
-        }
-        else
-        {
-            //Else Deduct Damage.
-            isGuardBreakingAttack = true;
-            currentHealth = currentHealth - affinityDamage.damage;
-
-            if(currentHealth > 0)
-            {
-                List<ChanceOfInflictingStatusEffect> statusEffects = new List<ChanceOfInflictingStatusEffect>();
-
-                //Apply Status Effects if still alive
-                foreach (InflictedStatusEffectData inflictedStatusEffect in attackData.inflictedStatusEffects)
-                {
-                    StatusEffectManager.Instance.ApplyStatusEffect(inflictedStatusEffect.effectData, myUnit, attacker, inflictedStatusEffect.numOfTurns, inflictedStatusEffect.buffChange);
-
-                    ChanceOfInflictingStatusEffect statusEffect = new ChanceOfInflictingStatusEffect();
-
-                    statusEffect.buffChange = inflictedStatusEffect.buffChange;
-                    statusEffect.statusEffect = inflictedStatusEffect.effectData;
-                    statusEffect.numOfTurns = inflictedStatusEffect.numOfTurns;
-
-                    statusEffects.Add(statusEffect);
-                }
-
-                if (statusEffects.Count > 0)
-                    SetBuffsToApplyVisual(statusEffects);
-            }
-        }
-
-        FinalizeDamageData(attackData, affinityDamage.damage, canApplyForces, false, false);
-
-        return currentAffinity;
+        return currentDamageData;
     }
 
-
-    public void TakeReflectDamage(AttackData attackData)
+    public void TakeStatusEffectDamage(AttackData attackData, int healthPercentToRemove)
     {
         if (isKOed) { return; }
-
         ClearDamageData();
 
-        Element attackElement = attackData.attackElement;
-
-        attacker = attackData.attacker;
-
-        int damage = attackData.damage;
-        bool isCritical = attackData.isCritical;
-
-        List<InflictedStatusEffectData> inflictedStatusEffects = attackData.inflictedStatusEffects;
-
-        //Subscribe to event
-        IDamageable.unitAttackComplete += DisplayDamageData;
-
-        currentAffinity = TheCalculator.Instance.GetAffinity(myUnit, attackElement, attackData.attackIngredient);
-        criticalDamage = isCritical;
-
-        isKnockdownHit = StatusEffectManager.Instance.IsKnockdownHit(this, attackData.inflictedStatusEffects) || currentAffinity == Affinity.Weak;
-
-        if (currentAffinity == Affinity.Absorb)
-        {
-            //Heal By Damage Dealt
-            currentHealth = currentHealth + damage;
-            currentHealth = Mathf.Min(currentHealth, MaxHealth());
-        }
-        else if (currentAffinity == Affinity.Reflect || currentAffinity == Affinity.Immune)
-        {
-            //As it's already reflected just change affinity to immune
-            currentAffinity = Affinity.Immune;
-            damage = 0;
-        }
-        else
-        {
-            //Else Deduct Damage.
-            currentHealth = currentHealth - damage;
-
-            if(currentHealth > 0)
-            {
-                //Apply Status Effects if still alive.
-                List<ChanceOfInflictingStatusEffect> statusEffects = new List<ChanceOfInflictingStatusEffect>();
-
-                foreach (InflictedStatusEffectData inflictedStatusEffect in attackData.inflictedStatusEffects)
-                {
-                    StatusEffectManager.Instance.ApplyStatusEffect(inflictedStatusEffect.effectData, myUnit, attacker, inflictedStatusEffect.numOfTurns, inflictedStatusEffect.buffChange);
-
-                    ChanceOfInflictingStatusEffect statusEffect = new ChanceOfInflictingStatusEffect();
-
-                    statusEffect.buffChange = inflictedStatusEffect.buffChange;
-                    statusEffect.statusEffect = inflictedStatusEffect.effectData;
-                    statusEffect.numOfTurns = inflictedStatusEffect.numOfTurns;
-
-                    statusEffects.Add(statusEffect);
-                }
-
-                if (statusEffects.Count > 0)
-                    SetBuffsToApplyVisual(statusEffects);
-            }
-        }
-
-        FinalizeDamageData(attackData, damage, !myUnit.stats.IsImmuneToForces(), true, false);
-    }
-    public void TakeStatusEffectDamage(CharacterGridUnit inflictor, int percentage)
-    {
-        int health = percentage >= 100 ? MaxHealth() : myUnit.stats.GetVitalityWithoutBonus();
-        int amount = Mathf.RoundToInt((percentage / 100f) * health);
-        TakeDamageBasic(inflictor, amount, false, isSEDamage: true);
+        FinalizeDamageData(attackData, DamageType.StatusEffect, healthPercentToRemove);
     }
 
     public void TakeBumpDamage(int damage)
     {
-        TakeDamageBasic(attacker, damage, false, isKnockbackDamage: true);
-    }
-
-    public void TakeDamageBasic(CharacterGridUnit attacker, int amount, bool isCritical, bool isSEDamage = false, bool isKnockbackDamage = false)
-    {
         if (isKOed) { return; }
 
-        ClearDamageData();
+        currentDamageData = new DamageData(myUnit, null, null);
+        currentDamageData.damageReceived = damage;
 
-        this.attacker = attacker;
-        criticalDamage = isCritical;
-        this.isSEDamage = isSEDamage;
-
-        //Subscribe to event
-        IDamageable.unitAttackComplete += DisplayDamageData;
-
-        currentHealth = currentHealth - amount;
-
-        AttackData attackData = new AttackData();
-        attackData.forceData.forceDistance = 0;
-
-        FinalizeDamageData(attackData, amount, false, false, isKnockbackDamage);
+        FinalizeDamageData(null, DamageType.KnockbackBump);
     }
 
-    public void TakeSPLoss(int percentage)
+    private void FinalizeDamageData(AttackData attackData, DamageType damageType, int healthPercent = 0)
     {
-        int amount = Mathf.RoundToInt((percentage / 100f) * myUnit.stats.GetStaminaWithoutBonus());
-        currentSP = Mathf.Max(0, currentSP - amount);
+        //Setup Damage
+        if (damageType == DamageType.Default)
+        {
+            attackData.canEvade = attackData.canEvade && !StatusEffectManager.Instance.IsUnitDisabled(myUnit);
+        }
 
-        //Update Health UI Number.
-        healthUI.SetSPChangeNumberText(amount);
+        attacker = attackData.attacker;
+ 
+        //Calculate Damage
+        switch (damageType)
+        {
+            case DamageType.StatusEffect:
+                currentDamageData = TheCalculator.Instance.CalculateStatusEffectDamage(myUnit, attackData, healthPercent);
+                break;
+            default:
+                currentDamageData = TheCalculator.Instance.CalculateDamageReceived(attackData, myUnit, damageType, isGuarding);
+                break;
+        }
+
+        Affinity currentAffinity = currentDamageData.affinityToAttack;
+
+        //Subscribe or prep events
+        if(currentAffinity == Affinity.Evade)
+        {
+            Evade.Instance.PrepUnitToEvade(attacker, myUnit);
+        }
+        else
+        {
+            IDamageable.TriggerHealthChangeEvent += TriggerDamageEvent;
+        }
+        
+        //Knockback or suction
+        if (CanApplyForces(currentDamageData))
+        {
+            SkillForce.Instance.PrepareToApplyForceToUnit(attacker, myUnit, currentDamageData.hitByAttackData.forceData, attackData.rawDamage);
+        }
     }
-
-
-    private void FinalizeDamageData(AttackData attackData, int damageReceived, bool canApplyForces, bool isReflectDamage, bool isKnockbackDamage)
-    {
-        this.isKnockbackDamage = isKnockbackDamage;
-
-        //Prepare Data to be shown.
-        healthUI.SetHPChangeNumberText(damageReceived);
-
-        currentHealth = Mathf.Max(currentHealth, 0);
-
-        if (currentHealth == 0 && !isKOed)
-        {
-            isKOHit = true;
-        }
-
-        //Knockback
-        if (canApplyForces && attackData.forceData.forceType != SkillForceType.None)
-        {
-            SkillForce.Instance.PrepareToApplyForceToUnit(attacker, myUnit, attackData.forceData, attackData.damage);
-        }
-
-        if (!isReflectDamage && !isKnockbackDamage)
-        {
-            //Update Enemy Database if enemy.
-            if (!(myUnit is PlayerGridUnit) && currentAffinity != Affinity.Evade)
-            {
-                EnemyDatabase.Instance.UpdateEnemyData(myUnit.stats.data, attackData);
-            }
-        }
-
-        if(currentAffinity != Affinity.Evade)
-            IDamageable.unitHit(GetDamageData(attackData, damageReceived, isKnockbackDamage));
-
-        FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(currentAffinity, isKOHit, isKnockdownHit);
-        //KO Logic must occur once damage data has been displayed.
-    }
-
 
     //Heal
 
@@ -335,7 +171,7 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         }
 
         UpdateHUD();
-        healthUI.ShowHealing(GetHealthNormalized());
+        healthUI.DisplayUI(null, GetHealthNormalized(), true);
 
         if(passiveHeal)
         {
@@ -343,7 +179,7 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         }
         else
         {
-            IDamageable.BeginHealthUICountdown(true);
+            //IDamageable.BeginHealthUICountdown(true);
         }
     }
 
@@ -369,165 +205,98 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         UpdateHUD();
     }
 
-
-    private void DisplayDamageData(bool beginHealthCountdown)
+    private void TriggerDamageEvent(bool triggerEvent)
     {
-        //Debug.Log("Displaying Damage for: " + myUnit.unitName);
+        //UnSubscribe from event
+        IDamageable.TriggerHealthChangeEvent -= TriggerDamageEvent;
 
-        this.beginHealthCountdown = beginHealthCountdown;
+        if (!triggerEvent) //Means event was cancelled.
+        {
+            ClearDamageData();
+            return;
+        }
 
-        //UnSubscribe to event
-        IDamageable.unitAttackComplete -= DisplayDamageData;
+        //Update Damage Display Time
+        FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(currentDamageData.affinityToAttack, currentDamageData.isKOHit, currentDamageData.isKnockdownHit);
+        
+        Affinity currentAffinity = currentDamageData.affinityToAttack;
 
-        TriggerAffinityEvent();
-    }
+        //Update Health; Trigger Reflect; Apply & Activate Status Effects
+        UpdateHealthFromAffinity(currentDamageData.hitByAttackData, currentAffinity); //Status Effects Applied here & Reflect triggered.
 
-    private void ClearDamageData()
-    {
-        isKOHit = false;
-        isKnockdownHit = false;
-        isSEDamage = false;
+        //Update Enemy Database if enemy.
+        if (!isPlayer)
+        {
+            EnemyDatabase.Instance.UpdateEnemyData(myUnit.stats.data, currentDamageData.hitByAttackData);
+        }
 
-        currentAffinity = Affinity.None;
-        criticalDamage = false;
-        isBackstab = false;
-        isKnockbackDamage = false;
-    }
-
-    private DamageData GetDamageData(AttackData attackData, int damageTaken, bool isKnockbackDamage)
-    {
-        DamageData damageData = new DamageData(myUnit, attacker, currentAffinity, damageTaken);
-
-        damageData.isBackstab = isBackstab;
-        damageData.isCritical = criticalDamage;
-        damageData.isKOHit = isKOHit;
-        damageData.isGuarding = isGuarding;
-        damageData.isKnockbackDamage = isKnockbackDamage;
-        damageData.hitByAttackData = attackData;
-
-        return damageData;
-    }
-
-
-    private void TriggerAffinityEvent()
-    {
         switch (currentAffinity)
         {
-            case Affinity.Evade:
-                //Evade UI & Animation Triggered By Evade Script
-                //IDamageable.BeginHealthUICountdown(beginHealthCountdown);
-                break;
-            case Affinity.Absorb:
-                OnAbsorbDamage();
-                break;
+            case Affinity.Evade://Evade UI & Animation Triggered By Evade Script
+                return;
             case Affinity.Immune:
-                OnDamageNullified();
-                break;
             case Affinity.Reflect:
-                OnReflect();
+            case Affinity.Absorb:
+                ShowHealthUI();
                 break;
             case Affinity.Weak:
-                OnWeak();
-                break;
             case Affinity.Resist:
-                //GuardBreak();
-                OnResist();
-                break;
+            case Affinity.None:
             default:
-                //GuardBreak();
-                OnNormalDamage();
+                OnDamageTaken();
                 break;
-        }
-    }
-
-    private void OnNormalDamage()
-    {
-        if (currentHealth <= 0)
-        {
-            KO();
-            return;
+               
         }
 
-        Hit();
+        //Raise Hit Event
+        IDamageable.UnitHit(currentDamageData);
     }
-
-    private void OnResist()
-    {
-        //Show Resist Text
-        healthUI.Resist();
-
-        if (currentHealth <= 0)
-        {
-            KO();
-            return;
-        }
-
-        Hit();
-    }
-
-    private void OnDamageNullified()
-    {
-        ShowBackstab();
-
-        //Show Immune UI
-        healthUI.Immune();
-        IDamageable.BeginHealthUICountdown(beginHealthCountdown);
-    }
-
-    private void OnReflect()
-    {
-        ShowBackstab();
-
-        healthUI.Reflect();
-        IDamageable.BeginHealthUICountdown(beginHealthCountdown);
-    }
-
-    /*public void OnEvade()
+    public void TriggerEvadeEvent()
     {
         //Gain FP
         GainFP(CalculateFPGain(true));
 
         healthUI.Evade();
-    }*/
 
+        //Update Damage Display Time
+        FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(Affinity.Evade, false, false);
+    }
 
-
-    public void OnEvade(bool startCountdown)
+    private void UpdateHealthFromAffinity(AttackData attackData, Affinity currentAffinity)
     {
-        beginHealthCountdown = startCountdown;
-
-        //Gain FP
-        GainFP(CalculateFPGain(true));
-
-        healthUI.Evade();
-
-        if (startCountdown)
+        if (currentAffinity == Affinity.Evade)
         {
-            attacker.unitAnimator.CancelDisplaySkillFeedbackEvent(true);
-            FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(Affinity.Evade, false, false);
-        }   
+            //Do nothing
+            return;
+        }
+        else if (currentAffinity == Affinity.Absorb)
+        {
+            //Heal By Damage Dealt
+            currentHealth = currentHealth + currentDamageData.damageReceived;
+            currentHealth = Mathf.Min(currentHealth, MaxHealth());
+        }
+        else if (currentAffinity == Affinity.Reflect)
+        {
+            //Call Reflect Damage Event
+            Reflect.DamageReflected?.Invoke(attacker, myUnit, attackData);
+        }
+        else
+        {
+            //Else Deduct Damage.
+            currentHealth = currentHealth - currentDamageData.damageReceived;
+            ApplyAndActivateStatusEffects(currentDamageData.afflictedStatusEffects);
+        }
 
-        IDamageable.BeginHealthUICountdown(beginHealthCountdown);
+        //Prepare Data to be shown.
+        healthUI.SetHPChangeNumberText(currentDamageData.damageReceived);
+
+        //Clamp Health
+        currentHealth = Mathf.Max(currentHealth, 0);
     }
 
 
-
-    private void OnAbsorbDamage()
+    private void OnDamageTaken()
     {
-        //Show Absorb UI
-        healthUI.Absorb(GetHealthNormalized());
-        UpdateHUD();
-
-        ShowCritical();
-        ShowBackstab();
-
-        IDamageable.BeginHealthUICountdown(beginHealthCountdown);
-    }
-
-    private void OnWeak()
-    {
-        healthUI.Weak();
-
         if (currentHealth <= 0)
         {
             KO();
@@ -536,19 +305,13 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
 
         Hit();
     }
-
 
     private void Hit()
     {
-        ShowGuard();
-        ShowCritical();
-        ShowBackstab();
-        ShowBump();
+        //Contact Status Effect Manager
+        int numberOfSEApplied = ApplyAndActivateStatusEffects(currentDamageData.afflictedStatusEffects);
 
-        UpdateHUD();
-        SetHealthBar(GetHealthNormalized());
-
-        if (isKnockdownHit)
+        if (currentDamageData.isKnockdownHit)
         {
             Knockdown();
         }
@@ -558,31 +321,21 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
             unitAnimator.Hit();
         }
 
-        //Contact Status Effect Manager
-        int numberOfSEApplied = StatusEffectManager.Instance.TriggerNewlyAppliedEffects(myUnit);
-
         //Give Attacker FP
-        if (currentAffinity != Affinity.Resist && attacker)
+        if (currentDamageData.affinityToAttack != Affinity.Resist && attacker)
         {
-            attacker.Health().GainFP(CalculateFPGain(criticalDamage || isBackstab || isKnockdownHit || isKOHit, numberOfSEApplied));
+            attacker.Health().GainFP(CalculateFPGain(currentDamageData.isCritical || currentDamageData.isBackstab || currentDamageData.isKnockdownHit || currentDamageData.isKOHit, numberOfSEApplied));
         }
 
-        IDamageable.BeginHealthUICountdown(beginHealthCountdown);
+        ShowHealthUI();
     }
-
 
     private void KO()
     {
+        ShowHealthUI();
         isKOed = true;
         
         CharacterUnitKOed(myUnit);
-
-        ShowCritical();
-        ShowBackstab();
-        ShowBump();
-
-        UpdateHUD();
-        SetHealthBar(GetHealthNormalized());
 
         unitAnimator.KO();  
 
@@ -599,9 +352,46 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
             
         LoseFP(true);
         isGuarding = false;
-        IDamageable.BeginHealthUICountdown(beginHealthCountdown);
     }
 
+    private int ApplyAndActivateStatusEffects(List<InflictedStatusEffectData> statusEffectsToApply)
+    {
+        if (currentHealth > 0)
+        {
+            List<ChanceOfInflictingStatusEffect> statusEffects = new List<ChanceOfInflictingStatusEffect>();
+
+            //Apply Status Effects if still alive
+            foreach (InflictedStatusEffectData inflictedStatusEffect in statusEffectsToApply)
+            {
+                if (StatusEffectManager.Instance.ApplyAndActivateStatusEffect(inflictedStatusEffect.effectData, myUnit, attacker, inflictedStatusEffect.numOfTurns, inflictedStatusEffect.buffChange))
+                {
+                    ChanceOfInflictingStatusEffect statusEffect = new ChanceOfInflictingStatusEffect();
+
+                    statusEffect.buffChange = inflictedStatusEffect.buffChange;
+                    statusEffect.statusEffect = inflictedStatusEffect.effectData;
+                    statusEffect.numOfTurns = inflictedStatusEffect.numOfTurns;
+
+                    statusEffects.Add(statusEffect);
+                }
+            }
+
+            if (statusEffects.Count > 0)
+                SetBuffsToApplyVisual(statusEffects);
+
+            return statusEffects.Count;
+        }
+
+        return 0;
+    }
+
+    public void TakeSPLoss(int percentage)
+    {
+        int amount = Mathf.RoundToInt((percentage / 100f) * myUnit.stats.GetStaminaWithoutBonus());
+        currentSP = Mathf.Max(0, currentSP - amount);
+
+        //Update Health UI Number.
+        healthUI.SetSPChangeNumberText(amount);
+    }
 
     public void Guard(bool beginGuarding)
     {
@@ -613,43 +403,23 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
 
     public void Knockdown()
     {
-        if (!isKnockedDown && !isKOed && !isKOHit)
+        if (!isKnockedDown && !isKOed && !currentDamageData.isKOHit)
         {
-            //Apply Knockdown Effect.
+            //Raise knocked down event
             isKnockedDown = true;
             KnockdownEvent.UnitKnockdown(attacker);
-            StatusEffectManager.Instance.UnitKnockedDown(myUnit);
         }
     }
 
-    private void ShowCritical()
+    private void ShowHealthUI()
     {
-        if (criticalDamage)
-        {
-            healthUI.CritHit();
-        }
+        healthUI.DisplayUI(currentDamageData, GetHealthNormalized(), currentDamageData.affinityToAttack == Affinity.Absorb);
+        UpdateHUD();
     }
 
-    private void ShowGuard()
+    private void ClearDamageData()
     {
-        if (isGuarding && !isSEDamage)
-        {
-            healthUI.Guard();
-        }
-    }
-
-    private void ShowBump()
-    {
-        if(isKnockbackDamage)
-            healthUI.Bump();
-    }
-
-    private void ShowBackstab()
-    {
-        if (isBackstab)
-        {
-            healthUI.BackStab();
-        }
+        currentDamageData = null;
     }
 
     public void GainFP(int gain)
@@ -805,6 +575,18 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         return currentFP >= maxFP && !StatusEffectManager.Instance.IsUnitDisabled(myUnit);
     }
 
+    protected bool CanApplyForces(DamageData damageData)
+    {
+        bool immuneToForces = myUnit.stats.IsImmuneToForces();
+        Affinity affinity = damageData.affinityToAttack;
+
+        if(immuneToForces || affinity == Affinity.Evade || affinity == Affinity.Reflect)
+        {
+            return false;
+        }
+
+        return damageData.hitByAttackData.forceData.forceType != SkillForceType.None;
+    }
 
     public GameObject GetStatusEffectHeader()
     {
@@ -888,11 +670,6 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         IDamageable = this;
 
         isPlayer = myUnit as PlayerGridUnit;
-    }
-
-    private void SetHealthBar(float value)
-    {
-        healthUI.ShowDamage(value);
     }
 
     private void UpdateHUD()

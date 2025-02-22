@@ -14,6 +14,8 @@ public class RangedCounter : CounterAttack
 
     public override void TriggerCounterAttack(CharacterGridUnit target)
     {
+        base.TriggerCounterAttack(target);
+
         this.target = target;
 
         //Set Times

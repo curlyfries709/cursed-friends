@@ -14,7 +14,7 @@ public class SBBumpDamage : StrategicBonusChecker
     {
         if (!(damageData.attacker is PlayerGridUnit)) { return; }
 
-        if (damageData.isKnockbackDamage && damageData.isKOHit)
+        if (damageData.damageType == DamageType.KnockbackBump && damageData.isKOHit)
         {
             BonusAchieved();
         }

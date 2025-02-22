@@ -42,7 +42,7 @@ public class Reflect : MonoBehaviour, ITurnEndEvent
     {
         damageReceiver.unitAnimator.IdleBeforeReflect();
 
-        damageReceiver.Health().TakeReflectDamage(damageData);
+        damageReceiver.Health().TakeDamage(damageData, DamageType.Reflect);
         StatusEffectManager.Instance.PlayDamageTurnEndEvent(damageReceiver);
 
         //Due to various animations that play based on receiver's affinities, we're do this via a coroutine than animation events.
@@ -60,7 +60,7 @@ public class Reflect : MonoBehaviour, ITurnEndEvent
         yield return new WaitForSeconds(timeToShakeCam + startRoutineDelay);
         StatusEffectManager.Instance.ShakeCam();
         yield return new WaitForSeconds(timeToDisplayDamage - timeToShakeCam);
-        IDamageable.unitAttackComplete?.Invoke(true);
+        IDamageable.RaiseHealthChangeEvent(true);
     }
 
     private void OnDisable()

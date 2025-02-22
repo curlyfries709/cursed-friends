@@ -114,7 +114,7 @@ public class PowerOfFriendship : MonoBehaviour
         whiteFader.gameObject.SetActive(false);
 
         FantasyCombatManager.Instance.CombatCinematicPlaying = false;
-        IDamageable.unitAttackComplete(true);
+        IDamageable.RaiseHealthChangeEvent(true);
 
         impulseSource.GenerateImpulse();       
     }
@@ -230,9 +230,29 @@ public class PowerOfFriendship : MonoBehaviour
     {
         foreach (CharacterGridUnit enemy in FantasyCombatManager.Instance.GetEnemyCombatParticipants(false, true))
         {
-            int damage = TheCalculator.Instance.CalculatePOFDamage(FantasyCombatManager.Instance.GetPlayerCombatParticipants(false, false), enemy, pofPowerGrade);
-            enemy.Health().TakeDamageBasic(null, damage, true);
+            int totalDamage = 0;
+
+            foreach (PlayerGridUnit player in FantasyCombatManager.Instance.GetPlayerCombatParticipants(false, false))
+            {
+                int rawDamage = TheCalculator.Instance.CalculateRawDamage(player, false, pofPowerGrade, out bool isCritical, false);
+                totalDamage = totalDamage + rawDamage;
+            }
+
+            enemy.Health().TakeDamage(GetAttackData(totalDamage), DamageType.Ultimate);
         }
+    }
+
+    private AttackData GetAttackData(int damage)
+    {
+        AttackData attackData = new AttackData(null, Element.None, damage, FantasyCombatManager.Instance.GetEnemyCombatParticipants(false, true).Count);
+        attackData.canEvade = false;
+
+        attackData.isPhysical = true;
+
+        attackData.powerGrade = pofPowerGrade;
+        attackData.canCrit = false;
+
+        return attackData;
     }
 
     /* private bool WillEndInVictory()

@@ -52,7 +52,7 @@ public class Beatdown : MonoBehaviour
 
     Dictionary<CharacterGridUnit, CharacterGridUnit> unitAssignedTargets = new Dictionary<CharacterGridUnit, CharacterGridUnit>();
     Dictionary<CharacterGridUnit, Vector3> unitAssignedGridPosToWorldDict = new Dictionary<CharacterGridUnit, Vector3>();
-    Dictionary<CharacterGridUnit, int> targetDamageDict = new Dictionary<CharacterGridUnit, int>();
+    Dictionary<CharacterGridUnit, AttackData> targetDamageDict = new Dictionary<CharacterGridUnit, AttackData>();
 
     public static Action EnemyBeatdownSurvived;
 
@@ -129,7 +129,7 @@ public class Beatdown : MonoBehaviour
         yield return new WaitForSeconds(delayBeforeDamageDisplay);
 
         //Invoke method to display Damage Data. 
-        IDamageable.unitAttackComplete?.Invoke(true);
+        IDamageable.RaiseHealthChangeEvent(true);
 
         //Generate Camera Shake.
         impulseSource.GenerateImpulse();
@@ -179,15 +179,15 @@ public class Beatdown : MonoBehaviour
         foreach(CharacterGridUnit attacker in unitsParticipatingInBeatdown)
         {
             CharacterGridUnit target = unitAssignedTargets[attacker];
-            int damage = TheCalculator.Instance.CalculateBeatdownDamage(attacker, target, beatdownPowerGrade);
+            int damage = TheCalculator.Instance.CalculateRawDamage(attacker, false, beatdownPowerGrade, out bool isCritical, false);
 
             if (targetDamageDict.ContainsKey(target))
             {
-                targetDamageDict[target] = targetDamageDict[target] + damage;
+                targetDamageDict[target].rawDamage += damage;
             }
             else
             {
-                targetDamageDict[target] = damage;
+                targetDamageDict[target] = GetAttackData(damage);
             }
 
             //Gift Attacker Enhanced FP
@@ -196,8 +196,21 @@ public class Beatdown : MonoBehaviour
 
         foreach(CharacterGridUnit target in beatenUpUnits)
         {
-            target.Health().TakeDamageBasic(null, targetDamageDict[target], true);
+            target.Health().TakeDamage(targetDamageDict[target], DamageType.Ultimate);
         }
+    }
+
+    private AttackData GetAttackData(int damage)
+    {
+        AttackData attackData = new AttackData(null, Element.None, damage, beatenUpUnits.Count);
+        attackData.canEvade = false;
+
+        attackData.isPhysical = true;
+
+        attackData.powerGrade = beatdownPowerGrade;
+        attackData.canCrit = false;
+
+        return attackData;
     }
 
     private void DestroyFightClouds()

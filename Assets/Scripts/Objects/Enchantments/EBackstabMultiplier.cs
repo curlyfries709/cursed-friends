@@ -1,14 +1,16 @@
 
 public class EBackstabMultiplier : EnchantmentEffect
 {
-    protected override DamageReceivedModifier OnAlterDamageReductionAttack(bool isBackstab)
+    protected override DamageModifier OnModifyDamageDealt(DamageData damageData)
     {
-        if (isBackstab)
+        if (damageData.isBackstab)
         {
-            //Number Value is Multiplier
-            return new DamageReceivedModifier(numberValue);
+            DamageModifier damageModifier = new DamageModifier();
+            damageModifier.healthChangeMultiplier = numberValue;
+
+            return damageModifier;
         }
 
-        return new DamageReceivedModifier(1);
+        return base.OnModifyDamageDealt(damageData);
     }
 }

@@ -49,9 +49,8 @@ public class CharacterGridUnit : GridUnit
     public Func<bool> CanTriggerSkill;
     public Action EndTurn;
 
-    //Attack Alterations
-    public Func<bool, DamageReceivedModifier> AlterDamageReductionAttack;
-    public Func<DamageReceivedModifier> AlterDamageReceived;
+    //Health Change Modifiers
+    public Func<DamageData, DamageModifier> ModifyDamageDealt;
 
     protected override void Awake()
     {

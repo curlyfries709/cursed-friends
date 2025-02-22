@@ -2,16 +2,16 @@
 
 public class ECritCounter : EnchantmentEffect
 {
-    protected override DamageReceivedModifier OnAlterDamageReductionAttack(bool isBackstab)
+    protected override DamageModifier OnModifyDamageDealt(DamageData damageData)
     {
         if (Evade.Instance.counterAttacker == owner)
         {
-            DamageReceivedModifier damageReceivedAlteration = new DamageReceivedModifier(1);
-            damageReceivedAlteration.isCritical = true;
+            DamageModifier damageModifier = new DamageModifier();
+            damageModifier.isCrit = new HealthModifier.Modifier<bool>(true, HealthModifier.Priority.High);
 
-            return new DamageReceivedModifier(1);
+            return damageModifier;
         }
 
-        return new DamageReceivedModifier(1);
+        return base.OnModifyDamageDealt(damageData);
     }
 }

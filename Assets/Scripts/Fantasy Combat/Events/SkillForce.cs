@@ -6,7 +6,6 @@ using AnotherRealm;
 using System;
 using Pathfinding;
 using System.Linq;
-using Unity.Mathematics;
 
 public enum SkillForceType
 {
@@ -134,7 +133,7 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
             unitBouncing = false;
             displayBumpDamage = false;
 
-            IDamageable.unitAttackComplete += ForceAllUnits;
+            IDamageable.TriggerHealthChangeEvent += ForceAllUnits;
             FantasyCombatManager.Instance.AddTurnEndEventToQueue(this);
         }
 
@@ -152,14 +151,18 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
 
     public void OnEventCancelled()
     {
-        //Event Cannot be cancelled so do nothing
-        Debug.Log("KNOCKBACK EVENT CANCELLED! That is a problem. This shouldn't be cancelled");
         ClearData();
     }
 
-    private void ForceAllUnits(bool beginHealthCountdown)
+    private void ForceAllUnits(bool triggerEvent)
     {
-        IDamageable.unitAttackComplete -= ForceAllUnits;
+        IDamageable.TriggerHealthChangeEvent -= ForceAllUnits;
+
+        if (!triggerEvent)
+        {
+            OnEventCancelled();
+            return;
+        }
 
         //Knock them all back
         foreach (ApplyForceData data in unitsToApplyForce)
@@ -399,7 +402,7 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
             
         }*/
 
-        IDamageable.unitAttackComplete?.Invoke(true);
+        IDamageable.RaiseHealthChangeEvent(true);
     }
 
 

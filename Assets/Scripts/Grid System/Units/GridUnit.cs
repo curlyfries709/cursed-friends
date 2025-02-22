@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,10 +13,12 @@ public abstract class GridUnit : MonoBehaviour
     public Transform modelHeader;
     public BoxCollider gridCollider;
 
+    //Events
+    public Func<DamageData, DamageModifier> ModifyDamageReceived;
+
     //Variables
     protected int totalCellsRequired;
     List<GridPosition> gridPositionsOccupied = new List<GridPosition>();
-
 
     //Cache
     protected IDamageable damageable;

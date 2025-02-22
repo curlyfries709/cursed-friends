@@ -2,24 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEditor.Experimental.GraphView;
+using System.Linq;
 
 public struct AffinityDamage
 {
     public int damage;
     public Affinity affinity;
-}
-
-
-public struct DamageReceivedModifier
-{
-    public float multiplier;
-    public bool isCritical;
-
-    public DamageReceivedModifier(float multiplier)
-    {
-        this.multiplier = multiplier == 0 ? 1 :  multiplier;
-        isCritical = false;
-    }
 }
 
 public enum PowerGrade
@@ -107,9 +96,6 @@ public class TheCalculator : MonoBehaviour
     [Range(0, 1)]
     [SerializeField] float weaponScalingConstant = 0.01f;
     [SerializeField] float backStabAngleCheck = 15f;
-    [Header("Data")]
-    [SerializeField] StatusEffectData wounded;
-
 
     //DAMAGE FORMULA:
     //((((Phys/Mag Attack + Weapon Attack) * Skill Power amplifier) – Armour) + Rand int between -3%damage - +3% damage)x Resistance Modifier.
@@ -120,19 +106,19 @@ public class TheCalculator : MonoBehaviour
             Instance = this;
     }
 
-    public int CalculateRawDamage(CharacterGridUnit attacker, bool magicalAttack, PowerGrade skillPowerGrade, out bool isCritical, bool canCrit = true)
+    public int CalculateRawDamage(CharacterGridUnit attacker, bool isMagicalAttack, PowerGrade skillPowerGrade, out bool isCritical, bool canCrit = true)
     {
         isCritical = false;
 
         //Method to call when skill deals damage
-        int unitAttack = magicalAttack ? attacker.stats.MagAttack : attacker.stats.PhysAttack;
+        int unitAttack = isMagicalAttack ? attacker.stats.MagAttack : attacker.stats.PhysAttack;
 
         int rawDamage;
         Weapon weapon = attacker.stats.Equipment().Weapon();
 
         if (weapon)
         {
-            rawDamage = unitAttack + CalculateWeaponAttack(weapon, attacker.stats, magicalAttack);
+            rawDamage = unitAttack + CalculateWeaponAttack(weapon, attacker.stats, isMagicalAttack);
         }
         else
         {
@@ -142,7 +128,7 @@ public class TheCalculator : MonoBehaviour
         int varianceRange = Mathf.RoundToInt(rawDamage * (damageVariancePercentage / 100f));
         int variance = UnityEngine.Random.Range(-varianceRange, varianceRange + 1);
 
-        float buffMultiplier = magicalAttack ? attacker.stats.buffINTmultiplier : attacker.stats.buffSTRmultiplier;
+        float buffMultiplier = isMagicalAttack ? attacker.stats.buffINTmultiplier : attacker.stats.buffSTRmultiplier;
 
         //Calculate if critical.
         if (canCrit)
@@ -160,75 +146,160 @@ public class TheCalculator : MonoBehaviour
         return Mathf.RoundToInt(((rawDamage * GetPowerGradeMultiplier(skillPowerGrade)) + variance) * attacker.stats.blessingDamageMultiplier * buffMultiplier);
     }
 
-    public AffinityDamage CalculateDamageReceived(AttackData attackData, CharacterGridUnit target, bool isTargetGuarding, out bool isBackStab, ref bool isCritical)
+    public DamageData CalculateDamageReceived(AttackData attackData, CharacterGridUnit target, DamageType damageType, bool isTargetGuarding)
     {
         //SETUP
-        AffinityDamage affinityDamage = new AffinityDamage();
-        affinityDamage.affinity = Affinity.None;
+        CharacterGridUnit attacker = attackData.attacker;
 
-        CharacterGridUnit attacker = attackData.attacker; 
+        //Setup Damage Data
+        DamageData damageData = ExtractDamageDataFromAttackData(target, attackData, false);
 
-        Element attackElement = attackData.attackElement;
-        Item attackItem = attackData.attackIngredient;
-
-        bool isCrit = attackData.isCritical;
-        bool canEvade = attackData.canEvade;
-        int rawDamage = attackData.damage;
-        
-
-        float externalMultiplier = 1;
-
-        isBackStab = IsAttackBackStab(attacker, target);
-
+        damageData.damageType = damageType;
+        damageData.isBackstab = IsAttackBackStab(attacker, target, damageType);
+        damageData.isTargetGuarding = isTargetGuarding;
 
         //Logic
-        if (!isTargetGuarding && canEvade && EvadeAttack(attacker, target, isBackStab))
+        if (damageType == DamageType.Default)
         {
-            //Cannot Evade if Guarding.
-            affinityDamage.affinity = Affinity.Evade;
-            affinityDamage.damage = 0;
-            return affinityDamage;
+            if (!isTargetGuarding && attackData.canEvade && EvadeAttack(attacker, target, damageData.isBackstab))
+            {
+                //Cannot Evade if Guarding.
+                damageData.Clear(false, false);
+                damageData.affinityToAttack = Affinity.Evade;
+
+                return damageData;
+            }
         }
 
-        //Target Armour subtracted by Attacker Raw Damage
-        int damageReduced = ArmourReduction(rawDamage, target);
+        //Reduced rawDamage based on target's armour
+        int damageReduced = ArmourReduction(target, attackData.rawDamage, damageType);
 
-        affinityDamage.affinity = GetAffinity(target, attackElement, attackItem);
+        //Get Affinity to attack
+        damageData.affinityToAttack = GetAffinity(target, attackData.attackElement, attackData.attackItem);
 
-        switch (affinityDamage.affinity)
+        //Apply Modifiers
+        ApplyModifiers(target, attacker, attackData, ref damageData);
+
+        //Apply affinity multiplier
+        switch (damageData.affinityToAttack)
         {
             case Affinity.Immune:
-                affinityDamage.damage = 0;
+                damageData.damageReceived = 0;
                 break;
             case Affinity.Weak:
-                affinityDamage.damage = Mathf.RoundToInt(damageReduced * weakDamageMultiplier);
+                damageData.damageReceived = Mathf.RoundToInt(damageReduced * weakDamageMultiplier);
                 break;
             case Affinity.Resist:
-                affinityDamage.damage = Mathf.RoundToInt(damageReduced * (1f - (resistDamageReductionPercent / 100f)));
+                damageData.damageReceived = Mathf.RoundToInt(damageReduced * (1f - (resistDamageReductionPercent / 100f)));
                 break;
+            case Affinity.Reflect:
+                if (damageType == DamageType.Reflect)
+                {
+                    damageData.affinityToAttack = Affinity.Immune; //Update Affinity as to avoid looping reflects
+                    damageData.damageReceived = 0;
+                    break;
+                }
+                else
+                {
+                    goto default;
+                } 
             default:
-                affinityDamage.damage = damageReduced;
+                damageData.damageReceived = damageReduced;
                 break;
         }
 
-        if(attacker.AlterDamageReductionAttack != null)
+        if (isTargetGuarding)
         {
-            foreach (Func<bool, DamageReceivedModifier> listener in attacker.AlterDamageReductionAttack.GetInvocationList())
-            {
-                DamageReceivedModifier damageReceivedAlteration = listener.Invoke(isBackStab);
-                externalMultiplier = externalMultiplier * damageReceivedAlteration.multiplier;
+            //Further Reduce Damage by Guard Reduction
+            damageData.damageReceived = Mathf.RoundToInt(damageData.damageReceived * (1f - (guardDamageReductionPercent / 100f)));
+        }
+        else if (damageData.isBackstab)
+        {
+            damageData.damageReceived = Mathf.RoundToInt(damageData.damageReceived * backStabMultiplier);
+        }
 
-                if (!isCrit && damageReceivedAlteration.isCritical)
+        //Update isKnockdown Data
+        if (damageType == DamageType.Default || damageType == DamageType.Reflect)
+        {
+            damageData.isKnockdownHit = StatusEffectManager.Instance.IsKnockdownHit(damageData.afflictedStatusEffects, isTargetGuarding) || damageData.affinityToAttack == Affinity.Weak;
+
+            if (damageData.isKnockdownHit)
+            {
+                InflictedStatusEffectData knockdownEffectData = new InflictedStatusEffectData(StatusEffectManager.Instance.GetKnockdownEffectData(), target, attacker.stats.SEDuration, 0);
+
+                if (!damageData.afflictedStatusEffects.Any((effect) => effect.effectData == StatusEffectManager.Instance.GetKnockdownEffectData()))
                 {
-                    isCrit = true;
-                    externalMultiplier = externalMultiplier * critDamageMultiplier;
+                    damageData.afflictedStatusEffects.Add(knockdownEffectData);
                 }
             }
         }
 
-        if (target.AlterDamageReceived != null)
+        //Try wounding if crit.
+        if (TryWoundUnit(attacker, damageData.isCritical))
         {
-            foreach (Func<DamageReceivedModifier> listener in target.AlterDamageReceived.GetInvocationList())
+            InflictedStatusEffectData woundedEffectData = new InflictedStatusEffectData(StatusEffectManager.Instance.GetWoundedEffectData(), target, attacker.stats.SEDuration, 0);
+
+            if (!damageData.afflictedStatusEffects.Any((effect) => effect.effectData == StatusEffectManager.Instance.GetWoundedEffectData()))
+            {
+                damageData.afflictedStatusEffects.Add(woundedEffectData);
+            } 
+        }
+
+        //Apply multipliers based on game Difficulty 
+        if (damageType != DamageType.Reflect)
+        {
+            damageData.damageReceived = DamageDifficultyMultiplier(damageData.damageReceived, attacker is PlayerGridUnit);
+        }
+
+        //Check if KO hit
+        damageData.isKOHit = damageData.damageReceived >= target.Health().currentHealth;
+
+        return damageData;
+    }
+
+    public DamageData CalculateStatusEffectDamage(CharacterGridUnit target, AttackData attackData, int healthPercent)
+    {
+        int health = healthPercent >= 100 ? target.stats.Vitality : target.stats.GetVitalityWithoutBonus();
+        int amount = Mathf.RoundToInt((healthPercent / 100f) * health);
+        attackData.rawDamage = amount;
+
+        DamageData damageData = ExtractDamageDataFromAttackData(target, attackData);
+        damageData.damageType = DamageType.StatusEffect;
+
+        return damageData;
+    }
+
+    private void ApplyModifiers(CharacterGridUnit target, CharacterGridUnit attacker, AttackData attackData, ref DamageData damageData)
+    {
+        float externalMultiplier = 1;
+        bool wasOriginallyCrit = attackData.isCritical;
+
+        //Now allow modifiers to modify the damage
+        if (attacker.ModifyDamageDealt != null)
+        {
+            /* Add/Multiply Multipliers
+             * Check if cancel effect
+             Add Status Effects to damage data list of status effects
+            Alter Affinity 
+            Check if crit
+             */
+
+            /*foreach (Func<bool, DamageReceivedModifier> listener in attacker.ModifyDamageDealt.GetInvocationList())
+            {
+                DamageReceivedModifier damageReceivedAlteration = listener.Invoke(isBackStab);
+                externalMultiplier = externalMultiplier * damageReceivedAlteration.multiplier;
+
+                if (!isCrit && damageReceivedAlteration.isCritical) MOVE THIS PART TO AFTER THE LOOP IN CASE SOME OTHER MODIFIER SETS CRIT TO FALSE. ALSO REMOVE CRIT MULTIPLIER IF CANCELLING CRIT
+                {
+                    isCrit = true;
+                    externalMultiplier = externalMultiplier * critDamageMultiplier;
+                }
+            }*/
+        }
+
+        if (target.ModifyDamageReceived != null)
+        {
+            /*foreach (Func<DamageReceivedModifier> listener in target.ModifyDamageReceived.GetInvocationList())
             {
                 DamageReceivedModifier damageReceivedAlteration = listener.Invoke();
                 externalMultiplier = externalMultiplier * damageReceivedAlteration.multiplier;
@@ -238,61 +309,54 @@ public class TheCalculator : MonoBehaviour
                     isCrit = true;
                     externalMultiplier = externalMultiplier * critDamageMultiplier;
                 }    
+            }*/
+        }
+
+        //Update data based on modifiers
+        //damageData.isCritical = isCrit;
+
+        //Apply other multipliers
+        damageData.damageReceived = Mathf.RoundToInt(damageData.damageReceived * externalMultiplier);
+    }
+
+    public DamageData ExtractDamageDataFromAttackData(GridUnit target, AttackData attackData, bool updateDamage = true)
+    {
+        DamageData damageData = new DamageData(target, attackData.attacker, attackData);
+
+        damageData.attacker = attackData.attacker;
+        damageData.hitByAttackData = attackData;
+        damageData.isCritical = attackData.isCritical;
+        
+        if (updateDamage)
+        {
+            damageData.damageReceived = attackData.rawDamage;
+        }
+
+        CharacterGridUnit character = target as CharacterGridUnit;
+
+        if (character)
+        {
+            //Check if effect can even be applied 
+            foreach (InflictedStatusEffectData effect in attackData.inflictedStatusEffects)
+            {
+                if (!damageData.afflictedStatusEffects.Contains(effect) && StatusEffectManager.Instance.CanApplyStatusEffect(character, effect.effectData))
+                {
+                    damageData.afflictedStatusEffects.Add(effect);
+                }
             }
         }
 
-        affinityDamage.damage = Mathf.RoundToInt(affinityDamage.damage * externalMultiplier);
-        isCritical = isCrit;
-
-        if (isTargetGuarding)
-        {
-            //Further Reduce Damage by Guard Reduction
-            affinityDamage.damage = Mathf.RoundToInt(affinityDamage.damage * (1f - (guardDamageReductionPercent / 100f)));
-        }
-        else if (isBackStab)
-        {
-            affinityDamage.damage = Mathf.RoundToInt(affinityDamage.damage * backStabMultiplier);
-        }
-
-        TryWoundUnit(attacker, target, isCrit);
-
-        //Difficulty Multipliers
-        affinityDamage.damage = DamageDifficultyMultiplier(affinityDamage.damage, attacker is PlayerGridUnit);
-
-        return affinityDamage;
+        return damageData;
     }
 
-    public int CalculateBeatdownDamage(CharacterGridUnit attacker, CharacterGridUnit target, PowerGrade powerGrade)
+    private int ArmourReduction(CharacterGridUnit target, int rawDamage, DamageType damageType)
     {
-        int rawDamage = CalculateRawDamage(attacker, false, powerGrade, out bool isCritical, false);
-        int damage = Mathf.RoundToInt(ArmourReduction(rawDamage, target) * attacker.stats.blessingDamageMultiplier);
-
-        //Difficulty Multipliers
-        damage = DamageDifficultyMultiplier(damage, attacker is PlayerGridUnit);
-
-        return damage;
-    }
-    public int CalculatePOFDamage(List<PlayerGridUnit> playersPaticipating, CharacterGridUnit target, PowerGrade powerGrade)
-    {
-        int totalDamage = 0;
-
-        foreach(PlayerGridUnit player in playersPaticipating)
+        //Check if damage type allows armour reduction 
+        if(damageType == DamageType.KnockbackBump)
         {
-            bool isMagical = false;
-            int rawDamage = CalculateRawDamage(player, isMagical, powerGrade, out bool isCritical, false);
-            int damage = Mathf.RoundToInt(ArmourReduction(rawDamage, target) * player.stats.blessingDamageMultiplier);
-
-            //Difficulty Multipliers
-            damage = DamageDifficultyMultiplier(damage, true);
-
-            totalDamage = totalDamage + damage;
+            return rawDamage;
         }
 
-        return totalDamage;
-    }
-
-    private int ArmourReduction(int rawDamage, CharacterGridUnit target)
-    {
         int targetArmour = target.stats.GetArmour();
         int damageReduced = rawDamage - targetArmour;
         damageReduced = Mathf.Max(0, Mathf.RoundToInt(damageReduced * target.stats.blessingDamageReductionMultiplier));
@@ -308,7 +372,6 @@ public class TheCalculator : MonoBehaviour
 
         return Mathf.Max(0, Mathf.RoundToInt(damage * GameManager.Instance.GetEnemyDifficultyDamageMultiplier()));
     }
-   
 
     private bool EvadeAttack(CharacterGridUnit attacker, CharacterGridUnit target, bool isBackStab)
     {
@@ -338,18 +401,15 @@ public class TheCalculator : MonoBehaviour
         return randNum <= evasionChance;
     }
 
-    private void TryWoundUnit(CharacterGridUnit attacker, CharacterGridUnit target, bool isCrit)
+    private bool TryWoundUnit(CharacterGridUnit attacker, bool isCrit)
     {
-        if (!isCrit) { return; }
+        if (!isCrit) { return false; }
 
         int randNum = UnityEngine.Random.Range(0, 101);
 
         bool applyWounded = randNum <= attacker.stats.StatusEffectInflictChance;
 
-        if (applyWounded)
-        {
-            StatusEffectManager.Instance.ApplyStatusEffect(wounded, target, attacker, attacker.stats.SEDuration);
-        }
+        return applyWounded;
     }
 
     public int CalculateHealAmount(CharacterGridUnit unit, out bool isCritical)
@@ -414,7 +474,6 @@ public class TheCalculator : MonoBehaviour
         {
             return baseWeaponAttack;
         }
-
     }
 
     public bool CanCounter(CharacterGridUnit target, Element attackElement)
@@ -424,12 +483,18 @@ public class TheCalculator : MonoBehaviour
 
         //Still worth countering an immune target as it could inflict status effect. HOWEVER, I HAVE REMOVED IT. DESIGN CHOICE.
         bool isAttackableAffinity = affinity == Affinity.None || affinity == Affinity.Weak || affinity == Affinity.Resist;
+        bool isAffinityUnlocked = EnemyDatabase.Instance.IsAffinityUnlocked(target, attackElement);
 
-        return isAttackableAffinity && EnemyDatabase.Instance.IsAffinityUnlocked(target, attackElement);
+        return isAttackableAffinity && isAffinityUnlocked;
     }
 
-    public bool IsAttackBackStab(CharacterGridUnit attacker, GridUnit target)
+    public bool IsAttackBackStab(CharacterGridUnit attacker, GridUnit target, DamageType damageType)
     {
+        if(damageType != DamageType.Default)
+        {
+            return false;
+        }
+
         //Their forward transforms would need to be the same direction. However due to slight rotation discrepancy, I have done the below
         return Vector3.Angle(attacker.transform.forward.normalized, target.transform.forward.normalized) <= backStabAngleCheck;
     }

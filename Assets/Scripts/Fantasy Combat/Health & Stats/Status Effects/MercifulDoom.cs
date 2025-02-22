@@ -49,7 +49,7 @@ public class MercifulDoom : StatusEffect, ITurnEndEvent
 
     public void PlayTurnEndEvent()
     {
-        myUnit.Health().TakeStatusEffectDamage(inflictor, 100);
+        ApplyStatusEffectDamageToUnit(100);
         StatusEffectManager.Instance.PlayDamageTurnEndEvent(myUnit);
     }
 

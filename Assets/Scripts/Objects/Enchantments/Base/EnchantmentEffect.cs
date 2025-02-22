@@ -13,7 +13,8 @@ public abstract class EnchantmentEffect : MonoBehaviour
     [SerializeField] bool listenToMyUnitTurnStart;
     [SerializeField] bool listenToMyUnitTurnEnd;
     [Title("Unit Damage Events")]
-    [SerializeField] bool alterUnitDamageReduction;
+    [SerializeField] bool modifyDamageDealt;
+    [SerializeField] bool modifyDamageReceived;
 
     protected CharacterGridUnit owner;
 
@@ -43,10 +44,13 @@ public abstract class EnchantmentEffect : MonoBehaviour
         OnCombatBegin();
 
         if (listenToUnitHit)
-            IDamageable.unitHit += OnUnitHit;
+            IDamageable.UnitHit += OnUnitHit;
 
-        if (alterUnitDamageReduction)
-            owner.AlterDamageReductionAttack += OnAlterDamageReductionAttack;
+        if (modifyDamageReceived)
+            owner.ModifyDamageReceived += OnModifyDamageReceived;
+        
+        if (modifyDamageReceived)
+            owner.ModifyDamageDealt += OnModifyDamageDealt;
 
         if (listenToNewTurn)
             FantasyCombatManager.Instance.OnNewTurn += OnNewTurn;
@@ -74,10 +78,14 @@ public abstract class EnchantmentEffect : MonoBehaviour
     {
 
     }
-
-    protected virtual DamageReceivedModifier OnAlterDamageReductionAttack(bool isBackstab)
+    protected virtual DamageModifier OnModifyDamageDealt(DamageData damageData)
     {
-        return new DamageReceivedModifier(1);
+        return null;
+    }
+
+    protected virtual DamageModifier OnModifyDamageReceived(DamageData damageData)
+    {
+        return null;
     }
 
     protected virtual void OnUnitTurnStart()
@@ -106,9 +114,11 @@ public abstract class EnchantmentEffect : MonoBehaviour
         OnCombatEnd();
 
         if (listenToUnitHit)
-            IDamageable.unitHit -= OnUnitHit;
-        if (alterUnitDamageReduction)
-            owner.AlterDamageReductionAttack -= OnAlterDamageReductionAttack;
+            IDamageable.UnitHit -= OnUnitHit;
+        if(modifyDamageReceived)
+            owner.ModifyDamageReceived -= OnModifyDamageReceived;
+        if (modifyDamageDealt)
+            owner.ModifyDamageDealt -= OnModifyDamageReceived;
         if (listenToNewTurn)
             FantasyCombatManager.Instance.OnNewTurn -= OnNewTurn;
         if (listenToMyUnitTurnStart)

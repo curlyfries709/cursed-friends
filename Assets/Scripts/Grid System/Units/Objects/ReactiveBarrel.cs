@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ReactiveBarrel : GridUnit, IDamageable
+public class ReactiveBarrel : GridUnit //, IDamageable
 {
-    [Header("Values")]
+    /*[Header("Values")]
     [SerializeField] int maxHealth = 10;
     [Header("UI")]
     [SerializeField] GameObject healthCanvas;
@@ -44,39 +44,39 @@ public class ReactiveBarrel : GridUnit, IDamageable
         healthUI.Fade(show);
     }
 
-    public Affinity TakeDamage(AttackData damageData)
+    public DamageData TakeDamage(AttackData attackData)
     {       
         IDamageable.unitAttackComplete += DisplayDamageData;
 
-        reactionTriggered = damageData.attackElement == reactiveElement && reactiveElement != Element.None;
+        reactionTriggered = attackData.attackElement == reactiveElement && reactiveElement != Element.None;
 
         if (reactionTriggered)
         {
             PrepareExplosion();
         }
 
-        isCritical = damageData.isCritical;
-        attacker = damageData.attacker;
+        isCritical = attackData.isCritical;
+        attacker = attackData.attacker;
 
-        currentHealth = currentHealth - damageData.damage;
+        currentHealth = currentHealth - attackData.rawDamage;
 
 
         //Prepare Data to be shown.
-        healthUI.SetHPChangeNumberText(damageData.damage);
+        healthUI.SetHPChangeNumberText(attackData.rawDamage);
 
         currentHealth = Mathf.Max(currentHealth, 0);
 
         //Knockback
-        if (damageData.forceData.forceType!= SkillForceType.None)
+        if (attackData.forceData.forceType!= SkillForceType.None)
         {
-            SkillForce.Instance.PrepareToApplyForceToUnit(attacker, this, damageData.forceData, damageData.damage);
+            SkillForce.Instance.PrepareToApplyForceToUnit(attacker, this, attackData.forceData, attackData.rawDamage);
         }
 
-        IDamageable.unitHit(GetDamageData(damageData.damage, false));
+        IDamageable.unitHit(GetDamageData(attackData.rawDamage, false));
 
         FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(Affinity.None, currentHealth == 0, false);
 
-        return Affinity.None;
+        return new DamageData(this, attacker, attackData);
     }
 
     public void TakeBumpDamage(int damage)
@@ -119,7 +119,7 @@ public class ReactiveBarrel : GridUnit, IDamageable
         //UnSubscribe to event
         IDamageable.unitAttackComplete -= DisplayDamageData;
 
-        ShowCritical();
+        //ShowCritical();
         SetHealthBar(GetHealthNormalized());
 
         if (currentHealth <= 0)
@@ -137,8 +137,8 @@ public class ReactiveBarrel : GridUnit, IDamageable
         damageData.isBackstab = false;
         damageData.isCritical = isCritical;
         damageData.isKOHit = currentHealth == 0;
-        damageData.isGuarding = false;
-        damageData.isKnockbackDamage = isKnockbackDamage;
+        damageData.isTargetGuarding = false;
+        //damageData.isKnockbackDamage = isKnockbackDamage;
 
         return damageData;
     }
@@ -156,13 +156,6 @@ public class ReactiveBarrel : GridUnit, IDamageable
         currentHealth = healthAtStart;
     }
 
-    private void ShowCritical()
-    {
-        if (isCritical)
-        {
-            healthUI.CritHit();
-        }
-    }
 
     public float GetHealthNormalized()
     {
@@ -178,5 +171,5 @@ public class ReactiveBarrel : GridUnit, IDamageable
     {
         damageable.SetVFXToPlay(this, damageFeedbacks, transformToPlayVFX, VFXToPlay);
         return damageFeedbacks;
-    }
+    }*/
 }

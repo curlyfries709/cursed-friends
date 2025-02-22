@@ -11,11 +11,11 @@ public interface IDamageable
     public int currentFP { get; set; }
 
     //Events
-    public static Action<bool> unitAttackComplete;
-    public static Action<DamageData> unitHit;
+    public static Action<bool> TriggerHealthChangeEvent; //True if health change was successful, false if health change was cancelled. 
+    public static Action<DamageData> UnitHit;
 
-    //Methods
-    public Affinity TakeDamage(AttackData damageData);
+    //Methods to override
+    public DamageData TakeDamage(AttackData attackData, DamageType damageType);
 
     public void TakeBumpDamage(int damage);
 
@@ -27,17 +27,15 @@ public interface IDamageable
 
     public AffinityFeedback GetDamageFeedbacks(Transform transformToPlayVFX, GameObject VFXToPlay);
 
+    //Helper Methods
 
-
-    //Health Methods
-
-    public void BeginHealthUICountdown(bool beginCountdown)
+    public static void RaiseHealthChangeEvent(bool canTrigger)
     {
-        if (!beginCountdown) { return; }
-        //Always Call this last so FantasyManager Can set Extensions if necessary.
-        FantasyCombatManager.Instance.BeginHealthUICountdown();
-    }
+        TriggerHealthChangeEvent?.Invoke(canTrigger);
 
+        if(canTrigger)
+            FantasyCombatManager.Instance.BeginHealthUICountdown();
+    }
 
     public void SetVFXToPlay(GridUnit myUnit, AffinityFeedback feedbacks, Transform transformToPlayVFX, GameObject VFXToPlay)
     {

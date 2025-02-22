@@ -6,7 +6,7 @@ using Sirenix.OdinInspector;
 using AnotherRealm;
 using System;
 
-public abstract class PlayerBaseSkill :BaseSkill
+public abstract class PlayerBaseSkill : BaseSkill
 {
     [PropertyOrder(-8)]
     [Range(1, 99)]

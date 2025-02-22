@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
+using UnityEditor.Experimental.GraphView;
 
 public class UnitHealthUI : FadeUI
 {
@@ -85,6 +86,60 @@ public class UnitHealthUI : FadeUI
         ClearStatusEffects();
     }
 
+    public void DisplayUI(DamageData damageData, float newNormalizedHealth, bool isHealing)
+    {
+        switch (damageData.affinityToAttack)
+        {
+            case Affinity.Absorb:
+                Absorb(newNormalizedHealth);
+                break;
+            case Affinity.Resist:
+                Resist();
+                break;
+            case Affinity.Immune:
+                Immune();
+                break;
+            case Affinity.Reflect:
+                Reflect();
+                break;
+            case Affinity.Weak: 
+                Weak(); 
+                break;
+        }
+
+        if (damageData.isBackstab)
+        {
+            BackStab();
+        }
+
+        if (damageData.isCritical)
+        {
+            CritHit();
+        }
+
+        if(damageData.isTargetGuarding && damageData.damageType != DamageType.StatusEffect)
+        {
+            Guard();
+        }
+
+        if(damageData.damageType == DamageType.KnockbackBump)
+        {
+            Bump();
+        }
+
+        if (isHealing)
+        {
+            ShowHealing(newNormalizedHealth);
+        }
+        else
+        {
+            ShowDamage(newNormalizedHealth);
+        }
+
+
+
+    }
+
     public void SetHPChangeNumberText(int num)
     {
         dataShown = false;
@@ -98,7 +153,6 @@ public class UnitHealthUI : FadeUI
         showSPChange = true;
         spLossNumberText.text = num.ToString();
     }
-
 
     public void SetBuffsToDisplay(List<ChanceOfInflictingStatusEffect> buffs)
     {
@@ -115,7 +169,6 @@ public class UnitHealthUI : FadeUI
     }
 
     //Display Data
-
     public void ShowHealing(float newNormalizedHealth)
     {
         if (!gameObject.activeInHierarchy)
@@ -189,25 +242,25 @@ public class UnitHealthUI : FadeUI
 
     //Event Texts
 
-    public void Weak()
+    private void Weak()
     {
         ActivateHealthChangeMode(true);
         weakText.SetActive(true);
     }
 
-    public void Immune()
+    private void Immune()
     {
         ActivateHealthChangeMode(false);
         immuneText.SetActive(true);
     }
 
-    public void Resist()
+    private void Resist()
     {
         ActivateHealthChangeMode(true);
         resistText.SetActive(true);
     }
 
-    public void Reflect()
+    private void Reflect()
     {
         ActivateHealthChangeMode(false);
         reflectText.SetActive(true);
@@ -219,31 +272,29 @@ public class UnitHealthUI : FadeUI
         ActivateHealthChangeMode(false);
         evadeText.SetActive(true);
     }
-
-
-    public void Absorb(float newNormalizedHealth)
+    private void Absorb(float newNormalizedHealth)
     {
         ActivateHealthChangeMode(true);
         absorbText.SetActive(true);
         ShowHealing(newNormalizedHealth);
     }
 
-    public void CritHit()
+    private void CritHit()
     {
         critText.SetActive(true);
     }
 
-    public void BackStab()
+    private void BackStab()
     {
         backStabText.SetActive(true);
     }
 
-    public void Guard()
+    private void Guard()
     {
         guardText.SetActive(true);
     }
 
-    public void Bump()
+    private void Bump()
     {
         bumpText.SetActive(true);
     }
@@ -379,6 +430,4 @@ public class UnitHealthUI : FadeUI
             Destroy(child.gameObject);
         }
     }
-
-
 }

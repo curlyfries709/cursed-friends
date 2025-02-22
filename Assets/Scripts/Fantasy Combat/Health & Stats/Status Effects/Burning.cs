@@ -41,7 +41,7 @@ public class Burning : StatusEffect, ITurnEndEvent
 
     public void PlayTurnEndEvent()
     {
-        myUnit.Health().TakeStatusEffectDamage(inflictor, 10);
+        ApplyStatusEffectDamageToUnit(10);
         StatusEffectManager.Instance.PlayDamageTurnEndEvent(myUnit);
     }
 

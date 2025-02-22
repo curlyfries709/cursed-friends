@@ -45,7 +45,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   listenToCombatManagerActionComplete: 0
+  listenToNewTurn: 0
   listenToUnitHit: 0
   listenToMyUnitTurnStart: 0
   listenToMyUnitTurnEnd: 0
-  alterUnitDamageReduction: 1
+  modifyDamageDealt: 1
+  modifyDamageReceived: 0

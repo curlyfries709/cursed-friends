@@ -42,7 +42,7 @@ public class OffensiveOrb : PlayerOffensiveSkill, IOrb
             
             BeginAction(returnToGridPosTime, delayBeforeReturn, true, orbData);//Unit Position Updated here
 
-            myUnit.unitAnimator.HideWeapon();
+            myUnit.unitAnimator.ShowWeapon(false);
             ActivateVisuals(true);
 
             //Attack
@@ -61,7 +61,7 @@ public class OffensiveOrb : PlayerOffensiveSkill, IOrb
     private void OnActionComplete()
     {
         FantasyCombatManager.Instance.ActionComplete -= OnActionComplete;
-        myUnit.unitAnimator.ShowWeapon();
+        myUnit.unitAnimator.ShowWeapon(true);
     }
 
     private void SetParentConstraint()

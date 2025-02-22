@@ -6,7 +6,7 @@ using Sirenix.OdinInspector;
 using AnotherRealm;
 using MoreMountains.Feedbacks;
 
-public abstract class CounterAttack : MonoBehaviour
+public abstract class CounterAttack : MonoBehaviour, ICombatAction
 {
     //Counter Attacks can never occur diagonally. 
     [Title("Setup")]
@@ -32,8 +32,10 @@ public abstract class CounterAttack : MonoBehaviour
     protected bool isCritical;
     protected Transform myUnitTransform;
 
+    //State Variables
+    public bool isActive { get; set; } = false;
+
     List<Transform> hitVFXSpawnOffsets = new List<Transform>();
-    public Element attackElement { get; private set; }
 
     MMF_Player targetFeedbackToPlay;
 
@@ -45,7 +47,10 @@ public abstract class CounterAttack : MonoBehaviour
             hitVFXSpawnOffsets.Add(vfxSpawnOffset);
     }
 
-    public abstract void TriggerCounterAttack(CharacterGridUnit target);
+    public virtual void TriggerCounterAttack(CharacterGridUnit target)
+    {
+        FantasyCombatManager.Instance.SetCurrentAction(this, false);
+    }
 
     public void PlayBumpAttackAnimation()
     {
@@ -72,26 +77,15 @@ public abstract class CounterAttack : MonoBehaviour
 
     protected void DealDamage(CharacterGridUnit target, bool allowKnockback = true, PowerGrade powerGrade = PowerGrade.D)
     {
-        SetAttackElements();
-
         myUnit.unitAnimator.beginHealthCountdown = true;
-        int distance = allowKnockback ? knockbackDistance : 0;
-        SkillForceData skillForceData = new SkillForceData();
 
-        skillForceData.forceType = allowKnockback ? SkillForceType.KnockbackAll : SkillForceType.None;
-        skillForceData.forceDistance = distance;
-
-        //Inflict Status Effect.
-        List<InflictedStatusEffectData> successfulInflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(myUnit, target, inflictedStatusEffects);
-
-        AttackData damageData = new AttackData(myUnit, attackElement, GetDamage(powerGrade), isCritical, successfulInflictedStatusEffects, skillForceData, 1);
-        damageData.canEvade = false;
+        AttackData attackData = GetAttackData(target, allowKnockback, powerGrade);
 
         IDamageable damageable = target.GetComponent<IDamageable>();
 
-        Affinity affinity = damageable.TakeDamage(damageData);
+        DamageData damageData = damageable.TakeDamage(attackData, DamageType.Default);
+        Affinity affinity = damageData != null ? damageData.affinityToAttack : Affinity.None;
 
-        
         AffinityFeedback feedbacks = target.Health().GetDamageFeedbacks(CombatFunctions.GetVFXSpawnTransform(hitVFXSpawnOffsets, target), hitVFX);
 
         targetFeedbackToPlay = CombatFunctions.GetTargetFeedback(feedbacks, affinity);
@@ -99,6 +93,30 @@ public abstract class CounterAttack : MonoBehaviour
 
 
     //GETTERS
+    protected AttackData GetAttackData(GridUnit target, bool allowKnockback = true, PowerGrade powerGrade = PowerGrade.D)
+    {
+        AttackData attackData = new AttackData(myUnit, GetAttackElement(), GetDamage(powerGrade), 1);
+
+        int distance = allowKnockback ? knockbackDistance : 0;
+        SkillForceData skillForceData = new SkillForceData();
+
+        skillForceData.forceType = allowKnockback ? SkillForceType.KnockbackAll : SkillForceType.None;
+        skillForceData.directionType = SkillForceDirectionType.UnitForward;
+        skillForceData.forceDistance = distance;
+
+        //attackData.attackItem = skillItem;
+        attackData.canEvade = false;
+
+        attackData.inflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(myUnit, target, inflictedStatusEffects);
+        attackData.forceData = skillForceData;
+
+        attackData.isPhysical = !isMagical;
+        attackData.isCritical = isCritical;
+        attackData.isMultiAction = false;
+
+        return attackData;
+    }
+
     protected int GetDamage(PowerGrade powerGrade)
     {
         return TheCalculator.Instance.CalculateRawDamage(myUnit, isMagical, powerGrade, out isCritical);
@@ -119,11 +137,9 @@ public abstract class CounterAttack : MonoBehaviour
         myUnit.GetPhotoShootSet().DeactivateSet();
     }
     //SETTERS
-    private void SetAttackElements()
+
+    public Element GetAttackElement()
     {
-        attackElement = myUnit.stats.GetAttackElement();
+        return myUnit.stats.GetAttackElement();
     }
-
-
-
 }

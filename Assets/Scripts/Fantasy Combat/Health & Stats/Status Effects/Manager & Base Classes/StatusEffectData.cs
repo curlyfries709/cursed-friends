@@ -6,6 +6,8 @@ using UnityEngine;
 public class StatusEffectData : ScriptableObject
 {
     [Header("Special & Abnormal Effect Behaviour")]
+    public Element associatedElement = Element.None;
+    [Space(10)]
     [Tooltip("E.G: Overburdened; Drunk")]
     public bool canBeAppliedOutsideCombat;
     [Space(10)]

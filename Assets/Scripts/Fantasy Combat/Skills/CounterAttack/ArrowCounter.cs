@@ -26,6 +26,8 @@ public class ArrowCounter : CounterAttack
 
     public override void TriggerCounterAttack(CharacterGridUnit target)
     {
+        base.TriggerCounterAttack(target);
+
         this.target = target;
 
         //Set Times

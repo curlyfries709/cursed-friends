@@ -22,15 +22,15 @@ public class Frozen : StatusEffect
         StatusEffectManager.Instance.CureStatusEffect(myUnit, "Burning");
 
         //Listen To Event To Make It Critcal
-        myUnit.AlterDamageReceived += OnAlterUnitDamageReceived;
+        myUnit.ModifyDamageReceived += OnModifyUnitDamageReceived;
     }
 
-    private DamageReceivedModifier OnAlterUnitDamageReceived()
+    private DamageModifier OnModifyUnitDamageReceived(DamageData damageData)
     {
-        DamageReceivedModifier alteration = new DamageReceivedModifier(1);
-        alteration.isCritical = true;
+        DamageModifier damageModifier = new DamageModifier();
+        damageModifier.isCrit = new HealthModifier.Modifier<bool>(true, HealthModifier.Priority.Absolute);
 
-        return alteration;
+        return damageModifier;
     }
 
     protected override void OnTurnEnd()
@@ -40,7 +40,7 @@ public class Frozen : StatusEffect
 
     protected override void EffectEnded()
     {
-        myUnit.AlterDamageReceived -= OnAlterUnitDamageReceived;
+        myUnit.ModifyDamageReceived -= OnModifyUnitDamageReceived;
         myUnit.unitAnimator.Freeze(false);
         RemoveStatusEffect();
     }

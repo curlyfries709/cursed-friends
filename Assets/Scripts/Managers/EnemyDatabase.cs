@@ -171,7 +171,7 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
         }
     }
 
-    public void UpdateEnemyData(BeingData enemyData, AttackData damageData)
+    public void UpdateEnemyData(BeingData enemyData, AttackData attackData)
     {
         string key = enemyData.Key();
 
@@ -180,22 +180,21 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
 
         EnemyPartialData partialData = enemyPartialDataDB[key];
 
-
-        if(damageData.attackElement != Element.None)
+        if(attackData.attackElement != Element.None)
         {
             ElementAffinity elementAffinity = new ElementAffinity();
 
-            elementAffinity.element = damageData.attackElement;
-            elementAffinity.affinity = GetAffinity(damageData.attackElement, enemyData);
+            elementAffinity.element = attackData.attackElement;
+            elementAffinity.affinity = GetAffinity(attackData.attackElement, enemyData);
 
-            if (!partialData.knownElementAffinities.Any((item) => item.element == damageData.attackElement))
+            if (!partialData.knownElementAffinities.Any((item) => item.element == attackData.attackElement))
                 partialData.knownElementAffinities.Add(elementAffinity);
         }
 
-        if (damageData.attackIngredient)
+        if (attackData.attackItem)
         {
-            if(!partialData.otherKnownAffinities.Contains(damageData.attackIngredient.itemName))
-                partialData.otherKnownAffinities.Add(damageData.attackIngredient.itemName);
+            if(!partialData.otherKnownAffinities.Contains(attackData.attackItem.itemName))
+                partialData.otherKnownAffinities.Add(attackData.attackItem.itemName);
         }
 
         //Unlock Type when all Affinities unlocked.

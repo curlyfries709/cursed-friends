@@ -43,16 +43,12 @@ public class Evade : MonoBehaviour, ITurnEndEvent
     CounterAttack counterAttackToPlay;
 
     List<CharacterGridUnit> targets = new List<CharacterGridUnit>();
-    List<int> skillTargetsLengthAtTimeOfTargetEvade = new List<int>();
-
     List<Type> otherEventTypesThatCancelThis = new List<Type>();
 
-    bool triggerEvadeEvent = false;
-
     //Event
-    public Action<CharacterGridUnit, CharacterGridUnit, int> UnitEvaded;
+    public Action<CharacterGridUnit, CharacterGridUnit> UnitEvaded;
     public Action<CharacterGridUnit> CounterTriggered;
-    public Action PlayEvadeEvent;
+    public Action<bool> TriggerEvadeEvent;
 
     private void Awake()
     {
@@ -72,58 +68,52 @@ public class Evade : MonoBehaviour, ITurnEndEvent
 
     private void OnEnable()
     {
-        UnitEvaded += OnAttackEvaded;
-        PlayEvadeEvent += PlayEvade;
+        TriggerEvadeEvent += TriggerEvade;
     }
 
-    private void OnAttackEvaded(CharacterGridUnit attacker, CharacterGridUnit target, int skillTargetsCount)
+    public void PrepUnitToEvade(CharacterGridUnit attacker, CharacterGridUnit target)
     {
         //Only ever one Attacker but could be multiple targets.
-        triggerEvadeEvent = true;
         this.attacker = attacker;
 
         if (!targets.Contains(target))
         {
             targets.Add(target);
-            skillTargetsLengthAtTimeOfTargetEvade.Add(skillTargetsCount);
         }
     }
 
-    private void PlayEvade()
+    private void TriggerEvade(bool triggerEvent)
     {
-        if (triggerEvadeEvent)
+        if (!triggerEvent) //Event was cancelled
         {
-            triggerEvadeEvent = false;
-
-            foreach (CharacterGridUnit target in targets)
-            {
-                int targetIndex = targets.IndexOf(target);
-
-                //Face Attacker
-                //Vector3 targetRotationVector = -attacker.transform.forward;
-                Vector3 targetRotationVector = CombatFunctions.GetAttackLookDirection(attacker, target);
-
-                Quaternion lookRotation = Quaternion.LookRotation(targetRotationVector);
-                Vector3 targetRotation = lookRotation.eulerAngles;
-                targetRotation = new Vector3(0, targetRotation.y, 0);
-
-                target.transform.DORotate(targetRotation, rotateToAttackerTime);
-                target.unitAnimator.SetTrigger(target.unitAnimator.animIDEvade);
-
-                //Start Countdown if single target or All Units Evaded for attack that targets multiple simultaneously...In this scenario Skill Target length should always be the same.
-                target.GetComponent<FantasyHealth>().OnEvade(skillTargetsLengthAtTimeOfTargetEvade[targetIndex] <= 1 || 
-                    (targets.Count == skillTargetsLengthAtTimeOfTargetEvade[targetIndex] && skillTargetsLengthAtTimeOfTargetEvade.Distinct().Count() == 1));
-
-                //target.GetComponent<FantasyHealth>().OnEvade();
-
-                Vector3 targetLeftDirection = -(new Vector3(targetRotationVector.z, 0, -targetRotationVector.x));
-                Vector3 destination = target.transform.position + (targetLeftDirection * evadeDistance);
-
-                target.transform.DOMove(destination, evadeTime);
-            }
-
-            CounterAttackCheck();
+            OnEventCancelled();
+            return;
         }
+
+        foreach (CharacterGridUnit target in targets)
+        {
+            //Face Attacker
+            //Vector3 targetRotationVector = -attacker.transform.forward;
+            Vector3 targetRotationVector = CombatFunctions.GetAttackLookDirection(attacker, target);
+
+            Quaternion lookRotation = Quaternion.LookRotation(targetRotationVector);
+            Vector3 targetRotation = lookRotation.eulerAngles;
+            targetRotation = new Vector3(0, targetRotation.y, 0);
+
+            target.transform.DORotate(targetRotation, rotateToAttackerTime);
+            target.unitAnimator.SetTrigger(target.unitAnimator.animIDEvade);
+
+            target.GetComponent<FantasyHealth>().TriggerEvadeEvent();
+
+            Vector3 targetLeftDirection = -(new Vector3(targetRotationVector.z, 0, -targetRotationVector.x));
+            Vector3 destination = target.transform.position + (targetLeftDirection * evadeDistance);
+
+            target.transform.DOMove(destination, evadeTime);
+
+            UnitEvaded?.Invoke(attacker, target);
+        }
+
+        CounterAttackCheck();
     }
 
     public void PlayTurnEndEvent()
@@ -137,6 +127,9 @@ public class Evade : MonoBehaviour, ITurnEndEvent
 
     public void OnEventCancelled()
     {
+        targets.Clear();
+
+        attacker = null;
         counterAttackToPlay = null;
         counterAttacker = null; //As This is null, intially scheduled counterattack should return to pos when ReturnAllTargetsToPos is called...Tested and it works.
     }
@@ -150,7 +143,7 @@ public class Evade : MonoBehaviour, ITurnEndEvent
         //Check if evader in Range & Affinity of Attack. 
         foreach (CharacterGridUnit evader in targets)
         {
-            if (TheCalculator.Instance.CanCounter(attacker, evader.counterAttack.attackElement) && IsEvaderInRangeForCounter(evader))
+            if (TheCalculator.Instance.CanCounter(attacker, evader.counterAttack.GetAttackElement()) && IsEvaderInRangeForCounter(evader))
             {
                 //Then Check if has higher speed than current eligible unit
                 if (!eligibleCounterAttackUnit || evader.stats.Speed > eligibleCounterAttackUnit.stats.Speed)
@@ -238,7 +231,6 @@ public class Evade : MonoBehaviour, ITurnEndEvent
         }
 
         targets.Clear();
-        skillTargetsLengthAtTimeOfTargetEvade.Clear();
     }
 
     private void ReturnCounterAttackerToPos()
@@ -254,14 +246,10 @@ public class Evade : MonoBehaviour, ITurnEndEvent
         counterAttacker = null;
     }
 
-
-
     private void OnDisable()
     {
-        UnitEvaded -= OnAttackEvaded;
-        PlayEvadeEvent -= PlayEvade;
+        TriggerEvadeEvent -= TriggerEvade;
     }
-
 
     public float GetCounterCanvasDisplayTime()
     {

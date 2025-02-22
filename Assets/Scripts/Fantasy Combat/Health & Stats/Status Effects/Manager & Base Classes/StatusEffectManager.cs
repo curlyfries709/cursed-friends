@@ -112,22 +112,27 @@ public class StatusEffectManager : MonoBehaviour
         }
     }
 
-    public void ApplyStatusEffect(StatusEffectData effectData, CharacterGridUnit unit, CharacterGridUnit inflictor, int numOfTurns = numOfTurnAverage, int buffChange = 0, bool isFiredUpBuff = false)
+    public bool ApplyAndActivateStatusEffect(StatusEffectData effectData, CharacterGridUnit unit, CharacterGridUnit inflictor, int numOfTurns = numOfTurnAverage, int buffChange = 0, bool isFiredUpBuff = false)
+    {
+        bool wasApplied = ApplyStatusEffect(effectData, unit, inflictor, numOfTurns, buffChange, isFiredUpBuff);
+
+        if (wasApplied)
+        {
+            TriggerNewlyAppliedEffects(unit);
+        }
+
+        return wasApplied;
+    }
+
+    public bool ApplyStatusEffect(StatusEffectData effectData, CharacterGridUnit unit, CharacterGridUnit inflictor, int numOfTurns = numOfTurnAverage, int buffChange = 0, bool isFiredUpBuff = false)
     {
         System.Type statusEffectType = System.Type.GetType(effectData.name);
 
-        //Check if unit is guarding
-        if (unit.Health().isGuarding && effectData.canBeGuarded)
-        {
-            //Don't apply any effects because target guarded it.
-            return;
-        }
+        bool canApply = CanApplyStatusEffect(unit, effectData);
 
-        //Firstly check if unit immune to effect's element
-        if (unit.stats.IsImmuneToStatusEffect(effectData))
+        if (!canApply)
         {
-            //Don't apply any effects because target is immue.
-            return;
+            return false;
         }
 
         //Check If Status Effect already applied. 
@@ -150,15 +155,22 @@ public class StatusEffectManager : MonoBehaviour
             newlyAppliedEffects[unit].Add(newStatusEffect);
         }
 
-        Unitafflicted?.Invoke(unit, inflictor, effectData);
+        return canApply;
     }
 
     //SE SPECIFIC METHODS
-    public void UnitKnockedDown(CharacterGridUnit affectedUnit)
+    public void UnitKnockedDown(CharacterGridUnit affectedUnit, bool shouldActivate = false)
     {
         if (!IsUnitKnockedDown(affectedUnit))
         {
-            ApplyStatusEffect(knockdown, affectedUnit, null, 1);
+            if (shouldActivate)
+            {
+                ApplyAndActivateStatusEffect(knockdown, affectedUnit, null, 1);
+            }
+            else
+            {
+                ApplyStatusEffect(knockdown, affectedUnit, null, 1);
+            }
         } 
     }
 
@@ -284,7 +296,7 @@ public class StatusEffectManager : MonoBehaviour
 
         unit.Health().DeactivateHealthVisualImmediate();
         yield return new WaitForSeconds(waitTime);
-        IDamageable.unitAttackComplete?.Invoke(true);
+        IDamageable.RaiseHealthChangeEvent(true);
     }
 
     public void CureStatusEffect(CharacterGridUnit unit, StatusEffectData effectToCure)
@@ -340,8 +352,10 @@ public class StatusEffectManager : MonoBehaviour
         {
             effect.OnEffectApplied();
             effect.hasEffectActivated = true;
-        }
 
+            Unitafflicted?.Invoke(unit, effect.inflictor, effect.effectData);
+        }
+        
         //Stack already applied effects
         foreach (InflictedStatusEffectData effect in newlyStackedEffects[unit])
         {
@@ -580,6 +594,40 @@ public class StatusEffectManager : MonoBehaviour
         }
     }
 
+    public bool CanApplyStatusEffect(CharacterGridUnit unit, StatusEffectData effectData)
+    {
+        //Check if unit is guarding
+        if (unit.Health().isGuarding && effectData.canBeGuarded)
+        {
+            //Don't apply any effects because target guarded it.
+            return false;
+        }
+
+        //Firstly check if unit immune to effect's element
+        if (unit.stats.IsImmuneToStatusEffect(effectData))
+        {
+            //Don't apply any effects because target is immue.
+            return false;
+        }
+
+        if(effectData.associatedElement != Element.None)
+        {
+            Affinity affinityToSE = TheCalculator.Instance.GetAffinity(unit, effectData.associatedElement, null);
+
+            switch (affinityToSE)
+            {
+                case Affinity.Absorb:
+                case Affinity.Immune:
+                case Affinity.Reflect:
+                    return false;
+                default:
+                    break;
+            }
+        }
+
+        return true;
+    }
+
     public bool HasReducedMovementDueToStatusEffect(CharacterGridUnit unit)
     {
         return combatUnitStatusEffects.ContainsKey(unit) && combatUnitStatusEffects[unit].Any((effect) => effect.effectData == overburdened || effect.effectData == wounded);
@@ -595,9 +643,9 @@ public class StatusEffectManager : MonoBehaviour
         return combatUnitStatusEffects.ContainsKey(unit) && combatUnitStatusEffects[unit].Any((effect) => effect.effectData == knockdown);
     }
 
-    public bool IsKnockdownHit(FantasyHealth unitHealth, List<InflictedStatusEffectData> inflictedStatuses)
+    public bool IsKnockdownHit(List<InflictedStatusEffectData> inflictedStatuses, bool isUnitGuarding)
     {
-        return !unitHealth.isGuarding && inflictedStatuses.Any((status) => status.effectData == knockdown);
+        return !isUnitGuarding && inflictedStatuses.Any((status) => status.effectData == knockdown);
     }
 
     public bool ProhibitUnitFPGain(CharacterGridUnit unit)
@@ -621,6 +669,16 @@ public class StatusEffectManager : MonoBehaviour
         }
 
         return false;
+    }
+
+    public StatusEffectData GetKnockdownEffectData()
+    {
+        return knockdown;
+    }
+
+    public StatusEffectData GetWoundedEffectData()
+    {
+        return wounded;
     }
 
     public void ShakeCam()

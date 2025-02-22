@@ -13,7 +13,7 @@ public class SBEvasion : StrategicBonusChecker
         Evade.Instance.UnitEvaded += OnUnitEvaded;
     }
 
-    private void OnUnitEvaded(CharacterGridUnit attacker, CharacterGridUnit evader, int skillTargetsCount)
+    private void OnUnitEvaded(CharacterGridUnit attacker, CharacterGridUnit evader)
     {
         PlayerGridUnit player = evader as PlayerGridUnit;
 

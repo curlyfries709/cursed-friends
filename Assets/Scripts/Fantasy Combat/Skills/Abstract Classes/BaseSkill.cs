@@ -8,7 +8,7 @@ using System.Linq;
 using System;
 using Sirenix.Utilities;
 
-public abstract class BaseSkill : MonoBehaviour
+public abstract class BaseSkill : MonoBehaviour, ICombatAction
 {
     //IMPORTANT VARIABLES
     [PropertyOrder(-9)]
@@ -60,6 +60,9 @@ public abstract class BaseSkill : MonoBehaviour
     //Event
     public Action<CharacterGridUnit> SkillOwnerSet;
 
+    //State Variables
+    public bool isActive { get; set; } = false;
+
     //Cache
     protected Transform myUnitMoveTransform;
     protected BoxCollider moveTransformGridCollider;
@@ -72,7 +75,6 @@ public abstract class BaseSkill : MonoBehaviour
     //Storage
     protected List<GridPosition> selectedGridPositions = new List<GridPosition>();
     protected List<GridUnit> selectedUnits = new List<GridUnit>();
-
 
     protected bool canTargetKOEDUnits = false;
     protected bool canTargetSelf;
@@ -112,6 +114,7 @@ public abstract class BaseSkill : MonoBehaviour
     protected void OnSkillTriggered()
     {
         FantasyCombatManager.Instance.CombatEnded += OnSkillInterrupted;
+        FantasyCombatManager.Instance.SetCurrentAction(this, false);
     }
     public abstract void OnSkillInterrupted(BattleResult battleResult, IBattleTrigger battleTrigger);
 
@@ -127,7 +130,6 @@ public abstract class BaseSkill : MonoBehaviour
 
         SetSelectedUnits();
     }
-
 
     protected void SetSelectedUnits()
     {
@@ -708,5 +710,4 @@ public abstract class BaseSkill : MonoBehaviour
                 return SkillForceType.None;
         }
     }
-
 }
