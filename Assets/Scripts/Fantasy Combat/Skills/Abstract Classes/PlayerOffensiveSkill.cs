@@ -6,7 +6,6 @@ using MoreMountains.Feedbacks;
 using System.Linq;
 using Sirenix.OdinInspector;
 using AnotherRealm;
-using static UnityEditor.Rendering.FilterWindow;
 
 
 public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
@@ -162,8 +161,6 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
     //Damage Methods
     protected Affinity DamageTarget(GridUnit target)
     {
-        myUnit.unitAnimator.beginHealthCountdown = isSingleTarget || !attackMultipleUnitsIndividually || (attackMultipleUnitsIndividually && skillTargets.Count == 1);
-
         AttackData attackData = GetAttackData(target);
 
         IDamageable damageable = target.GetDamageable();
@@ -171,7 +168,14 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
 
         if(damageData != null)
         {
-            return damageData.affinityToAttack; //(However Damage dealt & Status effects visual only shown much later)
+            Affinity affinity = damageData.affinityToAttack;
+
+            if (affinity == Affinity.Reflect)
+            {
+                anyTargetsWithReflectAffinity = true;
+            }
+
+            return affinity; //(However Damage dealt & Status effects visual only shown much later)
         }
         
         return Affinity.None;

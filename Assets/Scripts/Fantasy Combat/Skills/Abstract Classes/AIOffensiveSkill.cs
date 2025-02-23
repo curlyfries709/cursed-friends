@@ -162,8 +162,6 @@ public abstract class AIOffensiveSkill : AIBaseSkill
 
     protected Affinity DamageTarget(GridUnit target)
     {
-        myUnit.unitAnimator.beginHealthCountdown = true;
-
         AttackData attackData = GetAttackData(target);
         IDamageable damageable = target.GetComponent<IDamageable>();
 
@@ -171,7 +169,14 @@ public abstract class AIOffensiveSkill : AIBaseSkill
 
         if (damageData != null)
         {
-            return damageData.affinityToAttack; //(However Damage dealt & Status effects visual only shown much later)
+            Affinity affinity = damageData.affinityToAttack;
+
+            if (affinity == Affinity.Reflect)
+            {
+                anyTargetsWithReflectAffinity = true;
+            }
+
+            return affinity; //(However Damage dealt & Status effects visual only shown much later)
         }
         
         return Affinity.None;

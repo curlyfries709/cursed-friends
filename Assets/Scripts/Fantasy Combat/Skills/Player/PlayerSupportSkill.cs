@@ -48,7 +48,7 @@ public class PlayerSupportSkill : PlayerBaseSkill
     {
         if (CanTriggerSkill(true))
         {
-            BeginAction(0, 0, true);//Unit Position Updated here
+            BeginSkill(0, 0, true);//Unit Position Updated here
 
             CastSupport();
 

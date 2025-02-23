@@ -76,9 +76,17 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     protected List<GridPosition> selectedGridPositions = new List<GridPosition>();
     protected List<GridUnit> selectedUnits = new List<GridUnit>();
 
+    protected List<GridUnit> skillTargets { get; private set; } = new List<GridUnit>();
+
     protected bool canTargetKOEDUnits = false;
     protected bool canTargetSelf;
     protected bool isTargetSelfOnlySkill;
+
+    //Counters
+    protected int numOfHealthUIDisplay = 0;
+    protected int healthUIDisplayedCounter = 0;
+
+    protected bool anyTargetsWithReflectAffinity = false;
 
     protected enum SkillShape
     {
@@ -96,6 +104,11 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         isTargetSelfOnlySkill = canTargetSelf && targets.Count == 1;
     }
 
+    //ABSTRACT FUNCS
+    public abstract void OnSkillInterrupted(BattleResult battleResult, IBattleTrigger battleTrigger);
+
+    //END ABSTRACT
+
     public virtual void Setup(SkillPrefabSetter skillPrefabSetter, SkillData skillData)
     {
         mySkillData = skillData;
@@ -111,16 +124,58 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         SkillOwnerSet?.Invoke(myUnit);
     }
 
-    protected void OnSkillTriggered()
+    public virtual void BeginAction()
     {
         FantasyCombatManager.Instance.CombatEnded += OnSkillInterrupted;
         FantasyCombatManager.Instance.SetCurrentAction(this, false);
+
+        ResetHealthUIData();
     }
-    public abstract void OnSkillInterrupted(BattleResult battleResult, IBattleTrigger battleTrigger);
+
+    public void DisplayUnitHealthUIComplete()
+    {
+        int totalToCheck = anyTargetsWithReflectAffinity ? numOfHealthUIDisplay + 1 : numOfHealthUIDisplay;
+
+        healthUIDisplayedCounter++;
+
+        Debug.Log("Health UI Complete Count: " + healthUIDisplayedCounter + " Total: " + totalToCheck);
+
+        if (healthUIDisplayedCounter >= totalToCheck)
+        {
+            OnAllHealthUIComplete();
+
+            //Reset Data
+            ResetHealthUIData();
+        }
+    }
+
+    protected virtual void OnAllHealthUIComplete()
+    {
+        EndAction();
+    }
+
+    public virtual void EndAction()
+    {
+        FantasyCombatManager.Instance.SetCurrentAction(this, true);
+        FantasyCombatManager.Instance.ActionComplete?.Invoke();
+    }
 
     protected virtual void SkillComplete()
     {
         FantasyCombatManager.Instance.CombatEnded -= OnSkillInterrupted;
+    }
+
+    protected void SetSkillTargets()
+    {
+        skillTargets = new List<GridUnit>(selectedUnits);
+        numOfHealthUIDisplay = skillTargets.Count;
+    }
+
+    private void ResetHealthUIData()
+    {
+        numOfHealthUIDisplay = 0;
+        healthUIDisplayedCounter = 0;
+        anyTargetsWithReflectAffinity = false;
     }
 
     protected virtual void CalculateSelectedGridPos()

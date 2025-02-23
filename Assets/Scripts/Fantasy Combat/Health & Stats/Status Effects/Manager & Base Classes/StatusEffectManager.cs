@@ -271,8 +271,10 @@ public class StatusEffectManager : MonoBehaviour
         turnEndStatusEffectCam.LookAt = unit.statusEffectCamTarget;
 
         //Setup Units to show in case changed.
-        List<GridUnit> unitsToShow = new List<GridUnit>();
-        unitsToShow.Add(unit);
+        List<GridUnit> unitsToShow = new List<GridUnit>
+        {
+            unit
+        };
 
         FantasyCombatManager.Instance.SetUnitsToShow(unitsToShow);
 
@@ -297,6 +299,8 @@ public class StatusEffectManager : MonoBehaviour
         unit.Health().DeactivateHealthVisualImmediate();
         yield return new WaitForSeconds(waitTime);
         IDamageable.RaiseHealthChangeEvent(true);
+        yield return new WaitUntil(() => unit.Health().GetHealthUI().showingSkillFeedback == false);
+        FantasyCombatManager.Instance.ActionComplete();
     }
 
     public void CureStatusEffect(CharacterGridUnit unit, StatusEffectData effectToCure)

@@ -9,7 +9,7 @@ public class EnemyMeleeAttack : AIOffensiveSkill
     {
         if (!CanTriggerSkill()) { return; }
 
-        BeginAction(returnToGridPosTime, delayBeforeReturn);//Unit Position Updated here
+        BeginSkill(returnToGridPosTime, delayBeforeReturn);//Unit Position Updated here
      
         ActivateActionCamList(true);
         Attack();

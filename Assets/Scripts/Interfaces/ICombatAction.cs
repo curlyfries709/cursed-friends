@@ -6,6 +6,17 @@ public interface ICombatAction
 {
     public bool isActive { get; set;}
 
+    //Abstract funcs
+    public void BeginAction();
+
+    //public void PauseAction();
+    //public void ContinueAction();
+    //public void CancelAction();
+
+    public void DisplayUnitHealthUIComplete();
+    public void EndAction();
+
+    //HELPERS
     public void ActionAnimEventRaised(GridUnitAnimNotifies.EventType eventType)
     {
         switch (eventType)

@@ -83,13 +83,13 @@ public class HealthUIText : MonoBehaviour
     private void Deactivate()
     {
         transform.localPosition = origin;
-        healthUI.FadeOutComplete();
         gameObject.SetActive(false);
+        healthUI.FadeOutComplete();
     }
 
     private void SetVariables()
     {
-        displayTime = FantasyCombatManager.Instance.GetSkillFeedbackDisplayTime();
+        displayTime = healthUI.displayTime;
 
         shakeTime = displayTime - transitionOutTime;
         transitionInTime = (transitionInPercentage / 100f) * displayTime;

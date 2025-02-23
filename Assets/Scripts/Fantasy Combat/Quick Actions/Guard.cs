@@ -28,7 +28,7 @@ public class Guard : PlayerBaseSkill
     {
         if (CanTriggerSkill(false))
         {
-            BeginAction(0, actionDisplayTime, false);//Unit Position Updated here
+            BeginSkill(0, actionDisplayTime, false);//Unit Position Updated here
 
             myUnit.Health().Guard(true);
 

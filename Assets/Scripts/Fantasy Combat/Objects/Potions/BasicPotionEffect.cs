@@ -84,7 +84,7 @@ public class BasicPotionEffect : MonoBehaviour
     {
         if (!hasStartedHealthCountdown)
         {
-            FantasyCombatManager.Instance.BeginHealthUICountdown();
+            //FantasyCombatManager.Instance.BeginHealthUICountdown();
             hasStartedHealthCountdown = true;
         }
     }

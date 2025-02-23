@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Rendering;
+using System;
 using UnityEngine;
 
 public class GridUnitAnimNotifies : MonoBehaviour
@@ -27,7 +27,22 @@ public class GridUnitAnimNotifies : MonoBehaviour
     //Animation Events
     public void TriggerActionEvent(EventType eventType)
     {
-        FantasyCombatManager.Instance.currentCombatAction.ActionAnimEventRaised(eventType);
+        if(FantasyCombatManager.Instance.currentCombatAction == null)
+        {
+            Debug.Log("Current Combat action is null for Grid Unit Animator");
+
+            if(IDamageable.TriggerHealthChangeEvent != null)
+            {
+                foreach(Delegate listener in IDamageable.TriggerHealthChangeEvent.GetInvocationList())
+                {
+                    Debug.LogError("Current Combat Action null whilst listener: " + listener.ToString() + " still subscribed to IDamageable.TriggerHealthChangeEvent");
+                }
+            }
+        }
+        else
+        {
+            FantasyCombatManager.Instance.currentCombatAction.ActionAnimEventRaised(eventType);
+        }
     }
 
     /*public void ShowDamageFeedback(int disableSlowMo)

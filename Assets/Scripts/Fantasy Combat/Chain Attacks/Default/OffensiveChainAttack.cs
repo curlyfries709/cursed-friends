@@ -18,7 +18,7 @@ public class OffensiveChainAttack : PlayerBaseChainAttack
         {
             knockdownEvent.Flash();
 
-            BeginAction(returnToGridPosTime, delayBeforeReturn, true);//Unit Position Updated here
+            BeginSkill(returnToGridPosTime, delayBeforeReturn, true);//Unit Position Updated here
 
             ActivateVisuals(true);
 

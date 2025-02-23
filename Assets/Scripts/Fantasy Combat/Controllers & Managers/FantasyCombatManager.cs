@@ -79,7 +79,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     float currentSkillFeedbackDisplayTime = 0;
 
     bool currentSelectedSkillTriggered = false;
-    bool isHealthUICooldownRunning = false;
 
     bool isTurnStartEventPlaying = false;
     bool isPassiveHealthUIActive = false;
@@ -581,17 +580,12 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         }
     }
 
-    public void BeginHealthUICountdown()
+    /*public void BeginHealthUICountdown()
     {
         if (!isHealthUICooldownRunning)
         {
             StartCoroutine(HealthUIDisplayRoutine(currentSkillFeedbackDisplayTime));
         }
-    }
-
-    public void BeginPassiveHealRoutine(CharacterGridUnit unit)
-    {
-        StartCoroutine(PassiveHealRoutine(unit as PlayerGridUnit));
     }
 
     IEnumerator HealthUIDisplayRoutine(float waitTime)
@@ -601,6 +595,11 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         isHealthUICooldownRunning = false;
         currentSkillFeedbackDisplayTime = 0;
         ActionComplete();
+    }*/
+
+    /*public void BeginPassiveHealRoutine(CharacterGridUnit unit)
+    {
+        StartCoroutine(PassiveHealRoutine(unit as PlayerGridUnit));
     }
 
     IEnumerator PassiveHealRoutine(PlayerGridUnit healingPlayer)
@@ -622,13 +621,13 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         {
             ShowActionMenu(HUDManager.Instance.IsHUDEnabled());
         }
-    }
+    }*/
 
     private void OnActionComplete()
     {
         if (!inCombat) { return; }
 
-        SetCurrentAction(null, true);
+        currentSkillFeedbackDisplayTime = 0;
 
         if (isTurnStartEventPlaying)
         {
@@ -1439,16 +1438,10 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     //Setters
     public void SetCurrentAction(ICombatAction newAction, bool isComplete)
     {
-        if (isComplete && currentCombatAction != null)
-        {
-            currentCombatAction.isActive = false;
-            currentCombatAction = null;
-        }
-        else if (!isComplete)
-        {
-            currentCombatAction = newAction;
-            currentCombatAction.isActive = !isComplete;
-        }
+        newAction.isActive = !isComplete;
+        currentCombatAction = isComplete ? null : newAction;
+
+        Debug.Log("NEW ACTION: " + newAction.ToString() + " isComplete: " + isComplete);
     }
 
     private void SetAllActiveCombatUnits()

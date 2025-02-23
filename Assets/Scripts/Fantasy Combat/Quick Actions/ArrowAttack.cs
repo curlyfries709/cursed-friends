@@ -31,7 +31,7 @@ public class ArrowAttack : PlayerOffensiveSkill
     {
         if (CanTriggerSkill(true))
         {
-            BeginAction(returnToGridPosTime, delayBeforeReturn, true);//Unit Position Updated here
+            BeginSkill(returnToGridPosTime, delayBeforeReturn, true);//Unit Position Updated here
 
             //Since this only targets one unit
             DamageTarget(skillTargets[0]);

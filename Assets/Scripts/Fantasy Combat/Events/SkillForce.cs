@@ -124,7 +124,7 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
         turnEndEventOrder = transform.GetSiblingIndex();
     }
 
-    public void PrepareToApplyForceToUnit(GridUnit attacker, GridUnit target, SkillForceData inForceData, int damage)
+    public void PrepareToApplyForceToUnit(GridUnit attacker, GridUnit target, SkillForceData inForceData, int damage, bool isReflected)
     {
         //Only subscribe to Event once
         if(unitsToApplyForce.Count == 0)
@@ -135,7 +135,7 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
             FantasyCombatManager.Instance.AddTurnEndEventToQueue(this);
         }
 
-        Vector3 forceDirection = GetForceDirection(attacker, target, inForceData.forceType, inForceData.directionType);
+        Vector3 forceDirection = GetForceDirection(attacker, target, inForceData.forceType, inForceData.directionType, isReflected);
         ApplyForceData forceData = new ApplyForceData(target, attacker, inForceData.forceType, inForceData.forceDistance, forceDirection, damage);
 
         unitsToApplyForce.Add(forceData);
@@ -267,7 +267,7 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
         for (int i = 0; i < targets.Count; ++i)
         {
             GridUnit target = targets[i];
-            Vector3 suctionDirection = GetForceDirection(attacker, target, SkillForceType.SuctionAll, forceDirectionType);
+            Vector3 suctionDirection = GetForceDirection(attacker, target, SkillForceType.SuctionAll, forceDirectionType, false);
 
             //We only want to trigger this callback once, so do it for final unit to suction.
             Action callback = i == targets.Count - 1 ? SuctionCompleteCallback : null; 
@@ -581,9 +581,8 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
         return !LevelGrid.Instance.CanOccupyGridPosition(currentUnit, gridPosition);
     }
 
-    private Vector3 GetForceDirection(GridUnit attacker, GridUnit target, SkillForceType forceType, SkillForceDirectionType forceDirectionType)
+    private Vector3 GetForceDirection(GridUnit attacker, GridUnit target, SkillForceType forceType, SkillForceDirectionType forceDirectionType, bool isReflected)
     {
-
         if (forceDirectionType == SkillForceDirectionType.PositionDirection)
         {
             Vector3 forceDirection = (target.transform.position - attacker.transform.position).normalized;
@@ -601,7 +600,9 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
         }
         else
         {
-            Vector3 unitForwardDirection = CombatFunctions.RoundDirectionToCardinalDirection(attacker.transform.forward);
+            //If knockback from a reflect, we want to knockback in the opposite direction of the target's forward.
+            Vector3 forwardDirectionToRound = isReflected ? -target.transform.forward : attacker.transform.forward;
+            Vector3 unitForwardDirection = CombatFunctions.RoundDirectionToCardinalDirection(forwardDirectionToRound);
 
             if (forceType == SkillForceType.KnockbackAll)
             {

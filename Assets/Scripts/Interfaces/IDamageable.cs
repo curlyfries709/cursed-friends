@@ -33,8 +33,8 @@ public interface IDamageable
     {
         TriggerHealthChangeEvent?.Invoke(canTrigger);
 
-        if(canTrigger)
-            FantasyCombatManager.Instance.BeginHealthUICountdown();
+        /*if(canTrigger)
+            FantasyCombatManager.Instance.BeginHealthUICountdown();*/
     }
 
     public void SetVFXToPlay(GridUnit myUnit, AffinityFeedback feedbacks, Transform transformToPlayVFX, GameObject VFXToPlay)

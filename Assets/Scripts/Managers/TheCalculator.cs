@@ -4,6 +4,8 @@ using UnityEngine;
 using System;
 using UnityEditor.Experimental.GraphView;
 using System.Linq;
+using UnityEngine.TextCore.Text;
+using Sirenix.Utilities;
 
 public struct AffinityDamage
 {
@@ -152,9 +154,8 @@ public class TheCalculator : MonoBehaviour
         CharacterGridUnit attacker = attackData.attacker;
 
         //Setup Damage Data
-        DamageData damageData = ExtractDamageDataFromAttackData(target, attackData, false);
+        DamageData damageData = ExtractDamageDataFromAttackData(target, attackData, damageType, false);
 
-        damageData.damageType = damageType;
         damageData.isBackstab = IsAttackBackStab(attacker, target, damageType);
         damageData.isTargetGuarding = isTargetGuarding;
 
@@ -171,14 +172,14 @@ public class TheCalculator : MonoBehaviour
             }
         }
 
-        //Reduced rawDamage based on target's armour
-        int damageReduced = ArmourReduction(target, attackData.rawDamage, damageType);
-
         //Get Affinity to attack
         damageData.affinityToAttack = GetAffinity(target, attackData.attackElement, attackData.attackItem);
 
-        //Apply Modifiers
-        ApplyDamageModifiers(target, attacker, attackData, ref damageData);
+        //Apply Pre Damage Calculated Modifiers
+        int modifiedDamage = ApplyDamageModifiers(target, attacker, attackData, ref damageData);
+
+        //Reduced modified Damage based on target's armour
+        int damageReduced = ArmourReduction(target, modifiedDamage, damageType);
 
         //Apply affinity multiplier
         switch (damageData.affinityToAttack)
@@ -197,12 +198,13 @@ public class TheCalculator : MonoBehaviour
                 {
                     damageData.affinityToAttack = Affinity.Immune; //Update Affinity as to avoid looping reflects
                     damageData.damageReceived = 0;
-                    break;
                 }
                 else
                 {
-                    goto default;
-                } 
+                    //Reflected Damage does not include armour reduction. 
+                    damageData.damageReceived = modifiedDamage;
+                }
+                break;
             default:
                 damageData.damageReceived = damageReduced;
                 break;
@@ -221,7 +223,7 @@ public class TheCalculator : MonoBehaviour
         //Update isKnockdown Data
         if (damageType == DamageType.Default || damageType == DamageType.Reflect)
         {
-            damageData.isKnockdownHit = StatusEffectManager.Instance.IsKnockdownHit(damageData.inflictedStatusEffects, isTargetGuarding) || damageData.affinityToAttack == Affinity.Weak;
+            damageData.isKnockdownHit = damageData.affinityToAttack == Affinity.Weak || StatusEffectManager.Instance.IsKnockdownHit(damageData.inflictedStatusEffects, isTargetGuarding);
 
             if (damageData.isKnockdownHit)
             {
@@ -252,7 +254,10 @@ public class TheCalculator : MonoBehaviour
         }
 
         //Check if KO hit
-        damageData.isKOHit = damageData.damageReceived >= target.Health().currentHealth;
+        damageData.isKOHit = damageData.affinityToAttack != Affinity.Absorb && damageData.damageReceived >= target.Health().GetPredictedCurrentHealth();
+
+        /*Apply PostDamageCalculatedModifiers here. 
+         * If we ever implement something like an endure where a KOHit leaves them with 1HP instead, as this depends on damage to be properly calculated to modify*/
 
         return damageData;
     }
@@ -263,19 +268,20 @@ public class TheCalculator : MonoBehaviour
         int amount = Mathf.RoundToInt((healthPercent / 100f) * health);
         attackData.rawDamage = amount;
 
-        DamageData damageData = ExtractDamageDataFromAttackData(target, attackData);
-        damageData.damageType = DamageType.StatusEffect;
+        DamageData damageData = ExtractDamageDataFromAttackData(target, attackData, DamageType.StatusEffect);
 
         return damageData;
     }
 
-    public HealData CalculateHealAmount(HealData healData)
+    public HealData CalculateHealReceived(HealData healData)
     {
         if (healData.healer) //If null, then source of healing must be via item E.G Potion, Blessing.
         {
             int rawHealAmount = CalculateRawHeal(healData.healer, out healData.isCritical);
             healData.HPRestore = rawHealAmount;
         }
+
+        healData.inflictedStatusEffects = FilterInvalidStatusEffects(healData.target, healData.inflictedStatusEffects);
 
         //Apply Modifiers
         ApplyHealModifiers(healData.target, healData.healer, ref healData);
@@ -300,7 +306,7 @@ public class TheCalculator : MonoBehaviour
         return healer.stats.HealEfficacy + variance;
     }
 
-    private void ApplyDamageModifiers(CharacterGridUnit target, CharacterGridUnit attacker, AttackData attackData, ref DamageData damageData)
+    private int ApplyDamageModifiers(CharacterGridUnit target, CharacterGridUnit attacker, AttackData attackData, ref DamageData damageData)
     {
         float externalMultiplier = 1;
         bool wasOriginallyCrit = attackData.isCritical;
@@ -347,7 +353,7 @@ public class TheCalculator : MonoBehaviour
         //damageData.isCritical = isCrit;
 
         //Apply other multipliers
-        damageData.damageReceived = Mathf.RoundToInt(damageData.damageReceived * externalMultiplier);
+        return Mathf.RoundToInt(attackData.rawDamage * externalMultiplier);
     }
 
     private void ApplyHealModifiers(CharacterGridUnit target, CharacterGridUnit healer, ref HealData healData)
@@ -418,13 +424,15 @@ public class TheCalculator : MonoBehaviour
         return applyWounded;
     }
 
-    public DamageData ExtractDamageDataFromAttackData(GridUnit target, AttackData attackData, bool updateDamage = true)
+    public DamageData ExtractDamageDataFromAttackData(GridUnit target, AttackData attackData, DamageType damageType, bool updateDamage = true)
     {
         DamageData damageData = new DamageData(target, attackData.attacker, attackData);
 
         damageData.attacker = attackData.attacker;
         damageData.hitByAttackData = attackData;
         damageData.isCritical = attackData.isCritical;
+        damageData.forceData = attackData.forceData;
+        damageData.damageType = damageType;
 
         if (updateDamage)
         {
@@ -436,16 +444,21 @@ public class TheCalculator : MonoBehaviour
         if (character)
         {
             //Check if effect can even be applied 
-            foreach (InflictedStatusEffectData effect in attackData.inflictedStatusEffects)
-            {
-                if (!damageData.inflictedStatusEffects.Contains(effect) && StatusEffectManager.Instance.CanApplyStatusEffect(character, effect.effectData))
-                {
-                    damageData.inflictedStatusEffects.Add(effect);
-                }
-            }
+            damageData.inflictedStatusEffects = FilterInvalidStatusEffects(character, attackData.inflictedStatusEffects);
         }
 
         return damageData;
+    }
+
+    private List<InflictedStatusEffectData> FilterInvalidStatusEffects(CharacterGridUnit target, List<InflictedStatusEffectData> listToFilter)
+    {
+        if (listToFilter.IsNullOrEmpty())
+        {
+            return listToFilter;
+        }
+
+        //Removes Status effects if they cannot be applied 
+        return listToFilter.Where((effect) => StatusEffectManager.Instance.CanApplyStatusEffect(target, effect.effectData)).ToList();
     }
 
     public Affinity GetAffinity(CharacterGridUnit unit, Element attackElement,  Item attackItem)

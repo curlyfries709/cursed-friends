@@ -32,7 +32,7 @@ public class OrbTeleportation : PlayerBaseSkill, IOrb
     {
         if (CanTriggerSkill(true) && IsValidUnitSelected())
         {
-            BeginAction(0, 0, true, orbData);//Unit Position Updated here
+            BeginSkill(0, 0, true, orbData);//Unit Position Updated here
 
             originalPosition = myUnit.GetCurrentGridPositions()[0];
             targetGridPosition = selectedGridPositions[0];

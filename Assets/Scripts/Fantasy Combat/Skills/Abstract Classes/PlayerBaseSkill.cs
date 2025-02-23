@@ -55,7 +55,6 @@ public abstract class PlayerBaseSkill : BaseSkill
     //Storage
     protected PlayerGridUnit player;
     protected List<GridPosition> validTargetGridPositions = new List<GridPosition>();
-    protected List<GridUnit> skillTargets = new List<GridUnit>();
 
     //Auto Selection
     private GridUnit autoSelectedUnit = null; 
@@ -441,9 +440,9 @@ public abstract class PlayerBaseSkill : BaseSkill
 
     //DOERS
     
-    protected void BeginAction(float returnToGridPosTime, float delayBeforeReturn, bool deactivateCamOnActionComplete, Orb orbData = null)
+    protected void BeginSkill(float returnToGridPosTime, float delayBeforeReturn, bool deactivateCamOnActionComplete, Orb orbData = null)
     {
-        OnSkillTriggered();
+        BeginAction();
 
         player.lastUsedSkill = this;
 
@@ -467,7 +466,7 @@ public abstract class PlayerBaseSkill : BaseSkill
 
         SetUnitsToShow();
 
-        skillTargets = new List<GridUnit>(selectedUnits);
+        SetSkillTargets();
 
         //UpdatePosition
         myUnit.MovedToNewGridPos();

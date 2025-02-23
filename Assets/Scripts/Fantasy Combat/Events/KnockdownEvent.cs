@@ -97,18 +97,12 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
      {
         chainTriggeredCanvas.SetDuration(chainTriggeredCanvasDuration);
         turnEndEventOrder = transform.GetSiblingIndex();
-        SetEventsThatCancelThis();
 
         //Clean Chain Attack Header.
         foreach(Transform child in chainAttackScrollRect.content)
         {
             Destroy(child.gameObject);
         }
-     }
-
-     private void SetEventsThatCancelThis()
-     {
-         otherEventTypesThatCancelThis.Add(typeof(Reflect));
      }
 
      private void OnEnable()

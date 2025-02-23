@@ -30,12 +30,18 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
 
     bool isPlayer = false;
 
+    //Bools
+    bool subscribedToHealthUIEvent = false;
+    bool subscribedToHealthChangeEvent = false;
+
     public CharacterGridUnit attacker { get; private set; }
     public int currentHealth { get; set; }
     public int currentSP { get; set; }
     public int currentFP { get; set; }
 
     //Data
+    List<HealthChangeData> currentHealthChangeDatas = new List<HealthChangeData>();
+
     DamageData currentDamageData = null;
     HealData currentHealData = null;
 
@@ -83,17 +89,13 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
     public DamageData TakeDamage(AttackData attackData, DamageType damageType)
     {
         if (isKOed) { return null; }
-        ClearData();
 
-        FinalizeDamageData(attackData, damageType);
-
-        return currentDamageData;
+        return FinalizeDamageData(attackData, damageType);
     }
 
     public void TakeStatusEffectDamage(AttackData attackData, int healthPercentToRemove)
     {
         if (isKOed) { return; }
-        ClearData();
 
         FinalizeDamageData(attackData, DamageType.StatusEffect, healthPercentToRemove);
     }
@@ -102,104 +104,169 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
     {
         if (isKOed) { return; }
 
-        currentDamageData = new DamageData(myUnit, null, null);
-        currentDamageData.damageReceived = damage;
-
-        FinalizeDamageData(null, DamageType.KnockbackBump);
+        FinalizeDamageData(null, DamageType.KnockbackBump,  damage);
     }
 
-    private void FinalizeDamageData(AttackData attackData, DamageType damageType, int healthPercent = 0)
+    private DamageData FinalizeDamageData(AttackData attackData, DamageType damageType, int optionalNumValue = 0)
     {
+        DamageData newDamageData;
+        attacker = attackData != null ? attackData.attacker : null;
+
         //Setup Damage
         if (damageType == DamageType.Default)
         {
             attackData.canEvade = attackData.canEvade && !StatusEffectManager.Instance.IsUnitDisabled(myUnit);
         }
 
-        attacker = attackData.attacker;
- 
         //Calculate Damage
         switch (damageType)
         {
             case DamageType.StatusEffect:
-                currentDamageData = TheCalculator.Instance.CalculateStatusEffectDamage(myUnit, attackData, healthPercent);
+                newDamageData = TheCalculator.Instance.CalculateStatusEffectDamage(myUnit, attackData, optionalNumValue);
+                break;
+            case DamageType.KnockbackBump:
+                newDamageData = new DamageData(myUnit, null, null);
+                newDamageData.damageReceived = optionalNumValue;
                 break;
             default:
-                currentDamageData = TheCalculator.Instance.CalculateDamageReceived(attackData, myUnit, damageType, isGuarding);
+                newDamageData = TheCalculator.Instance.CalculateDamageReceived(attackData, myUnit, damageType, isGuarding);
                 break;
         }
 
-        Affinity currentAffinity = currentDamageData.affinityToAttack;
+        Affinity currentAffinity = newDamageData.affinityToAttack;
 
         //Subscribe or prep events
         if(currentAffinity == Affinity.Evade)
         {
             Evade.Instance.PrepUnitToEvade(attacker, myUnit);
+            currentHealthChangeDatas.Add(null); //Pad the list with null data. 
+            Debug.Log("Adding Null Evade Data for : " + myUnit.unitName);
+
+            return newDamageData;
         }
         else
         {
-            IDamageable.TriggerHealthChangeEvent += TriggerDamageEvent;
+            //Subscribe to event if not already
+            ListenToHealthChangeEvent(true);
+
+            if (currentAffinity == Affinity.Reflect)
+            {
+                //Call Attacker take damage so their damage taken is display at same time of reflect 
+                ReflectDamage(newDamageData);
+            }
         }
         
         //Knockback or suction
-        if (CanApplyForces(currentDamageData.hitByAttackData.forceData.forceType, currentAffinity))
+        if (CanApplyForces(newDamageData))
         {
-            SkillForce.Instance.PrepareToApplyForceToUnit(attacker, myUnit, currentDamageData.hitByAttackData.forceData, attackData.rawDamage);
+            SkillForce.Instance.PrepareToApplyForceToUnit(attacker, myUnit, newDamageData.hitByAttackData.forceData, attackData.rawDamage, damageType == DamageType.Reflect);
         }
+
+        //Add to list
+        currentHealthChangeDatas.Add(newDamageData);
+
+        return newDamageData;
+    }
+
+    private void ReflectDamage(DamageData damageData)
+    {
+        //Update attack data
+        AttackData attackData = new AttackData(damageData.hitByAttackData);
+
+        attackData.rawDamage = damageData.damageReceived;
+        attackData.attacker = myUnit;
+        attackData.numOfTargets = 1;
+        attackData.canEvade = false;
+        attackData.inflictedStatusEffects = damageData.inflictedStatusEffects;
+        
+        attackData.appliedModifiers.Clear();
+
+        attacker.Health().TakeDamage(attackData, DamageType.Reflect);
     }
 
     //Heal
 
     public void Heal(HealData healData)
     {
-        currentHealData = TheCalculator.Instance.CalculateHealAmount(healData);
+        //Subscribe to event if not already
+        ListenToHealthChangeEvent(true);
+
+        HealData newHealData = TheCalculator.Instance.CalculateHealReceived(healData);
 
         //Subscribe to damage event instead
-        if (currentHealData.convertToDamage)
+        if (newHealData.convertToDamage)
         {
             //Create damage data
-            currentDamageData = new DamageData(myUnit, null, Affinity.None, currentHealData.HPRestore);
-            //Erase heal data
-            currentHealData = null;
-            IDamageable.TriggerHealthChangeEvent += TriggerDamageEvent;
+            DamageData newDamageData = new DamageData(myUnit, null, Affinity.None, newHealData.HPRestore);
+            currentHealthChangeDatas.Add(newDamageData);
             return;
         }
 
-        if (currentHealData.IsOnlyFPRestore() && StatusEffectManager.Instance.ProhibitUnitFPGain(myUnit)) { return; }
+        if (newHealData.IsOnlyFPRestore() && StatusEffectManager.Instance.ProhibitUnitFPGain(myUnit)) { return; }
 
         //Suction only
-        SkillForceType forceType = currentHealData.forceData.forceType;
-
-        if (forceType == SkillForceType.KnockbackAll)
+        if (newHealData.forceData.forceType == SkillForceType.KnockbackAll)
             Debug.LogError("HEALING SKILLS SHOULD NOT HAVE FORCE TYPE OF KNOCKBACK ALL. PLEASE FIX");
 
-        if (CanApplyForces(forceType, Affinity.None))
+        if (CanApplyForces(newHealData))
         {
-            SkillForce.Instance.PrepareToApplyForceToUnit(attacker, myUnit, currentDamageData.hitByAttackData.forceData, 0);
+            SkillForce.Instance.PrepareToApplyForceToUnit(attacker, myUnit, newHealData.forceData, 0, false);
         }
 
-        IDamageable.TriggerHealthChangeEvent += TriggerHealEvent;
+        currentHealthChangeDatas.Add(newHealData);
     }
 
     //EVENTS
-    private void TriggerDamageEvent(bool triggerEvent)
+    private void TriggerHealthChangeEvent(bool triggerEvent)
     {
-        //UnSubscribe from event
-        IDamageable.TriggerHealthChangeEvent -= TriggerDamageEvent;
-
         if (!triggerEvent) //Means event was cancelled.
         {
-            ClearData();
+            ClearAllData();
             return;
         }
 
+        Debug.Log("Triggering health change Event for: " + myUnit.unitName);
+        //UnSubscribe from event
+        ListenToHealthChangeEvent(false);
+
+        if (currentHealthChangeDatas[0] is DamageData damageData)
+        {
+            currentDamageData = damageData;
+        }
+        else if(currentHealthChangeDatas[0] is HealData healData)
+        {
+            currentHealData = healData;
+        }
+
+        //Remove from list
+        currentHealthChangeDatas.RemoveAt(0);
+
+        ListenToHealthUICompleteEvent(currentHealthChangeDatas.Count > 0);
+
+        //Trigger relevant event
+        if(currentDamageData != null)
+        {
+            TriggerDamageEvent();
+        }
+        else if(currentHealData != null)
+        {
+            TriggerHealEvent();
+        }
+        else //Else means it's null, so it's an evade
+        {
+            Debug.Log("Evade Detected for: " + myUnit.unitName);
+        }
+    }
+
+    private void TriggerDamageEvent()
+    {
         //Update Damage Display Time
         FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(currentDamageData.affinityToAttack, currentDamageData.isKOHit, currentDamageData.isKnockdownHit);
         
         Affinity currentAffinity = currentDamageData.affinityToAttack;
 
-        //Update Health; Trigger Reflect; Apply & Activate Status Effects
-        UpdateHealthFromAffinity(currentDamageData.hitByAttackData, currentAffinity); //Status Effects Applied here & Reflect triggered.
+        //Update Health
+        UpdateHealthFromAffinity(currentAffinity);
 
         //Update Enemy Database if enemy.
         if (!isPlayer)
@@ -207,14 +274,18 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
             EnemyDatabase.Instance.UpdateEnemyData(myUnit.stats.data, currentDamageData.hitByAttackData);
         }
 
+        //Raise Hit Event
+        IDamageable.UnitHit(currentDamageData);
+
         switch (currentAffinity)
         {
-            case Affinity.Evade://Evade UI & Animation Triggered By Evade Script
+            case Affinity.Evade: //Affinity shouldn't be evade if this function is being called.
+                Debug.LogError("Affinity of evade found in trigger damage event. That's a problem!");
                 return;
             case Affinity.Immune:
             case Affinity.Reflect:
             case Affinity.Absorb:
-                ShowHealthUI(currentDamageData);
+                ShowHealthUI(currentAffinity, currentDamageData);
                 break;
             case Affinity.Weak:
             case Affinity.Resist:
@@ -225,31 +296,32 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
                
         }
 
-        //Raise Hit Event
-        IDamageable.UnitHit(currentDamageData);
+        //Clear current Damage data
+        if (isKOed)
+        {
+            ClearAllData();
+        }
+        else
+        {
+            currentDamageData = null;
+        } 
     }
     public void TriggerEvadeEvent() //Called via Evade class
     {
-        //Gain FP
-        GainFP(CalculateFPGain(true));
-
-        healthUI.Evade();
+        Debug.Log("Triggering Evade Event for: " + myUnit.unitName);
+        currentHealthChangeDatas.RemoveAt(0); //Remove the null data from the list. 
 
         //Update Damage Display Time
         FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(Affinity.Evade, false, false);
+
+        //Gain FP
+        GainFP(CalculateFPGain(true));
+
+        ShowHealthUI(Affinity.Evade, null);
     }
 
-    private void TriggerHealEvent(bool triggerEvent)
+    private void TriggerHealEvent()
     {
-        //UnSubscribe from event
-        IDamageable.TriggerHealthChangeEvent -= TriggerHealEvent;
-
-        if (!triggerEvent) //Means event was cancelled.
-        {
-            ClearData();
-            return;
-        }
-
         //Update display time
         FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(Affinity.None, false, false);
 
@@ -292,10 +364,13 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         ApplyAndActivateStatusEffects(currentHealData.inflictedStatusEffects);
 
         //Show Health
-        ShowHealthUI(currentHealData);
+        ShowHealthUI(Affinity.None, currentHealData);
+
+        //Clear current heal data
+        currentHealData = null;
     }
 
-    private void UpdateHealthFromAffinity(AttackData attackData, Affinity currentAffinity)
+    private void UpdateHealthFromAffinity(Affinity currentAffinity)
     {
         if (currentAffinity == Affinity.Evade)
         {
@@ -307,11 +382,6 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
             //Heal By Damage Dealt
             currentHealth = currentHealth + currentDamageData.damageReceived;
             currentHealth = Mathf.Min(currentHealth, MaxHealth());
-        }
-        else if (currentAffinity == Affinity.Reflect)
-        {
-            //Call Reflect Damage Event
-            Reflect.DamageReflected?.Invoke(attacker, myUnit, attackData);
         }
         else
         {
@@ -358,17 +428,15 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
             attacker.Health().GainFP(CalculateFPGain(currentDamageData.isCritical || currentDamageData.isBackstab || currentDamageData.isKnockdownHit || currentDamageData.isKOHit, numberOfSEApplied));
         }
 
-        ShowHealthUI(currentDamageData);
+        ShowHealthUI(currentDamageData.affinityToAttack, currentDamageData);
     }
 
     private void KO()
     {
-        ShowHealthUI(currentDamageData);
+        ShowHealthUI(currentDamageData.affinityToAttack, currentDamageData);
         isKOed = true;
         
-        CharacterUnitKOed(myUnit);
-
-        unitAnimator.KO();  
+        unitAnimator.KO();
 
         //Give FP, then Deplete FP
         if (attacker)
@@ -383,18 +451,21 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
             
         LoseFP(true);
         isGuarding = false;
+
+        CharacterUnitKOed(myUnit);
     }
 
     private int ApplyAndActivateStatusEffects(List<InflictedStatusEffectData> statusEffectsToApply)
     {
         if (currentHealth > 0)
         {
+            CharacterGridUnit inflictor = currentDamageData != null ? currentDamageData.attacker : currentHealData.healer;
             List<ChanceOfInflictingStatusEffect> statusEffects = new List<ChanceOfInflictingStatusEffect>();
 
             //Apply Status Effects if still alive
             foreach (InflictedStatusEffectData inflictedStatusEffect in statusEffectsToApply)
             {
-                if (StatusEffectManager.Instance.ApplyAndActivateStatusEffect(inflictedStatusEffect.effectData, myUnit, attacker, inflictedStatusEffect.numOfTurns, inflictedStatusEffect.buffChange))
+                if (StatusEffectManager.Instance.ApplyAndActivateStatusEffect(inflictedStatusEffect.effectData, myUnit, inflictor, inflictedStatusEffect.numOfTurns, inflictedStatusEffect.buffChange))
                 {
                     ChanceOfInflictingStatusEffect statusEffect = new ChanceOfInflictingStatusEffect();
 
@@ -413,6 +484,46 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         }
 
         return 0;
+    }
+
+    private void ListenToHealthChangeEvent(bool listen)
+    {
+        if (listen)
+        {
+            if (!subscribedToHealthChangeEvent)
+            {
+                IDamageable.TriggerHealthChangeEvent += TriggerHealthChangeEvent;
+                subscribedToHealthChangeEvent = true;
+            }
+        }
+        else
+        {
+            if (subscribedToHealthChangeEvent)
+            {
+                IDamageable.TriggerHealthChangeEvent -= TriggerHealthChangeEvent;
+                subscribedToHealthChangeEvent = false;
+            }
+        }
+    }
+
+    private void ListenToHealthUICompleteEvent(bool listen)
+    {
+        if (listen)
+        {
+            if (!subscribedToHealthUIEvent)
+            {
+                healthUI.HealthUIComplete += TriggerHealthChangeEvent;
+                subscribedToHealthUIEvent = true;
+            }
+        }
+        else
+        {
+            if (subscribedToHealthUIEvent)
+            {
+                healthUI.HealthUIComplete -= TriggerHealthChangeEvent;
+                subscribedToHealthUIEvent = false;
+            }
+        }
     }
 
     public void TakeSPLoss(int percentage)
@@ -440,7 +551,7 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         UpdateHUD();
     }
 
-    public void Knockdown()
+    private void Knockdown()
     {
         if (!isKnockedDown && !isKOed && !currentDamageData.isKOHit)
         {
@@ -450,15 +561,26 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         }
     }
 
-    private void ShowHealthUI(HealthChangeData healthChangeData)
+    private void ShowHealthUI(Affinity affinity, HealthChangeData healthChangeData)
     {
-        bool isHealing = !(healthChangeData is DamageData) || (healthChangeData as DamageData).affinityToAttack == Affinity.Absorb;
-        healthUI.DisplayUI(healthChangeData, GetHealthNormalized(), isHealing);
+        bool isHealing = healthChangeData == null ? false: 
+            !(healthChangeData is DamageData) || (healthChangeData as DamageData).affinityToAttack == Affinity.Absorb;
+
+        healthUI.DisplayHealthChangeUI(affinity, healthChangeData, GetHealthNormalized(), isHealing, currentHealthChangeDatas.Count > 0);
         UpdateHUD();
     }
 
-    private void ClearData()
+    private void ClearAllData()
     {
+        //Clear list
+        currentHealthChangeDatas.Clear();
+
+        //Unsubscribe from events
+        ListenToHealthChangeEvent(false);
+        ListenToHealthUICompleteEvent(false);
+
+        //Reset data.
+        attacker = null;
         currentDamageData = null;
         currentHealData = null;
     }
@@ -617,13 +739,30 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         return currentFP >= maxFP && !StatusEffectManager.Instance.IsUnitDisabled(myUnit);
     }
 
-    protected bool CanApplyForces(SkillForceType forceType, Affinity attackAffinity)
+    protected bool CanApplyForces(HealthChangeData healthChangeData)
     {
         bool immuneToForces = myUnit.stats.IsImmuneToForces();
 
-        if(immuneToForces || attackAffinity == Affinity.Evade || attackAffinity == Affinity.Reflect)
+        if(immuneToForces)
         {
             return false;
+        }
+
+        SkillForceType forceType = healthChangeData.forceData.forceType;
+
+        if (healthChangeData is DamageData damageData)
+        {
+            if (damageData.affinityToAttack == Affinity.Evade || damageData.affinityToAttack == Affinity.Reflect)
+            {
+                return false;
+            }
+            
+            /* //UNCOMMENT IF YOU DO NOT WANT SUCTION TO BE REFLECTED
+             * if(damageData.damageType == DamageType.Reflect && forceType == SkillForceType.SuctionAll)
+            {
+                //Cannot reflect suction but can reflect knockback. 
+                return false;
+            }*/
         }
 
         return forceType != SkillForceType.None;
@@ -664,6 +803,37 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         return myUnit.stats.Stamina;
     }
 
+    public int GetPredictedCurrentHealth()
+    {
+        int predictedHealth = currentHealth;
+
+        foreach(HealthChangeData healthChangeData in currentHealthChangeDatas)
+        {
+            if (healthChangeData is DamageData damageData)
+            {
+                if(damageData.affinityToAttack == Affinity.Absorb)
+                {
+                    predictedHealth = predictedHealth + damageData.damageReceived;
+                }
+                else
+                {
+                    predictedHealth = predictedHealth - damageData.damageReceived;
+                }
+            }
+            else if (healthChangeData is HealData healData)
+            {
+                predictedHealth = predictedHealth + healData.HPRestore;
+            }
+
+            if(predictedHealth <= 0) //If it ever drops to 0 or below, immediately retun 0 cos at that point they are KOed. 
+            {
+                return 0; 
+            }
+        }
+
+        return predictedHealth;
+    }
+
     public bool CanTriggerAssistAttack() //Such as a bump attack or bond ability
     {
         return !isGuarding && !StatusEffectManager.Instance.IsUnitDisabled(myUnit) && !isKOed;
@@ -694,6 +864,11 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
     public void ActivateBuffHealthVisual()
     {
         healthUI.ShowBuffsOnly();
+    }
+
+    public UnitHealthUI GetHealthUI()
+    {
+        return healthUI;
     }
 
     public void SetupHealthUI()
@@ -810,7 +985,7 @@ public class FantasyHealth : MonoBehaviour, IDamageable, ISaveable
         byte[] bytes = state as byte[];
         healthState = SerializationUtility.DeserializeValue<HealthState>(bytes, DataFormat.Binary);
 
-        ClearData();
+        ClearAllData();
 
         currentHealth = healthState.currentHealth;
         currentSP = healthState.currentSP;

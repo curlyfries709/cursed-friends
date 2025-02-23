@@ -22,6 +22,31 @@ public class AttackData : HealthChangeData
     public bool canEvade = true;
     public bool canCrit = true;
 
+    public AttackData(AttackData attackData)
+    {
+        attacker = attackData.attacker;
+        
+        attackElement = attackData.attackElement;
+        attackItem = attackData.attackItem;
+
+        powerGrade = attackData.powerGrade;
+        rawDamage = attackData.rawDamage;
+
+        numOfTargets = attackData.numOfTargets;
+        isPhysical = attackData.isPhysical;
+        isMultiAction = attackData.isMultiAction;
+
+        canEvade = attackData.canEvade;
+        canCrit = attackData.canCrit;
+
+        //Inherited values
+        appliedModifiers = attackData.appliedModifiers;
+        inflictedStatusEffects = attackData.inflictedStatusEffects;
+        forceData = attackData.forceData;
+
+        isCritical = attackData.isCritical;
+    }
+
     public AttackData(CharacterGridUnit attacker, int rawDamage)
     {
         this.attacker = attacker;

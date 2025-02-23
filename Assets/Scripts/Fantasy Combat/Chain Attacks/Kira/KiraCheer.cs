@@ -25,7 +25,7 @@ public class KiraCheer : PlayerBaseChainAttack
             //Since this only targets one unit
             target = selectedUnits[0] as PlayerGridUnit;
 
-            BeginAction(0,0, false);//Unit Position Updated here
+            BeginSkill(0,0, false);//Unit Position Updated here
 
             //Add Again Event 
             Again.Instance.SetUnitToGoAgain(target);

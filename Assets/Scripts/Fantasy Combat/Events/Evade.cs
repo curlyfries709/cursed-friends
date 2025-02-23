@@ -90,6 +90,8 @@ public class Evade : MonoBehaviour, ITurnEndEvent
             return;
         }
 
+        if(targets.Count == 0) { return; }
+
         foreach (CharacterGridUnit target in targets)
         {
             //Face Attacker

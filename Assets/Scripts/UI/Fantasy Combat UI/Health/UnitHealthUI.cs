@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
-using UnityEditor.Experimental.GraphView;
+using System;
 
 public class UnitHealthUI : FadeUI
 {
@@ -43,7 +43,11 @@ public class UnitHealthUI : FadeUI
     [SerializeField] GameObject knockdownText;
     [SerializeField] GameObject bumpText;
 
+    //Variables
+    public float displayTime { get; private set; } = 1;
+
     bool dataShown = true;
+    public bool showingSkillFeedback { get; private set; } = false;
     bool showSPChange = false;
     bool showingBuffsOnly = false;
 
@@ -52,6 +56,9 @@ public class UnitHealthUI : FadeUI
 
     private Color outerHeartDefaultColor;
     CharacterGridUnit myCharacter;
+
+    //Events
+    public Action<bool> HealthUIComplete; 
 
     protected override void Awake()
     {
@@ -86,38 +93,48 @@ public class UnitHealthUI : FadeUI
         ClearStatusEffects();
     }
 
-    public void DisplayUI(HealthChangeData healthChangeData, float newNormalizedHealth, bool isHealing)
+    public void DisplayHealthChangeUI(Affinity affinity, HealthChangeData healthChangeData, float newNormalizedHealth, bool isHealing, bool shortenedDisplayTime)
     {
-        DamageData damageData = healthChangeData as DamageData;
+        SetDisplayTime(shortenedDisplayTime);
 
-        if(damageData != null)
+        bool showHealthChange = true;
+        showingSkillFeedback = true;
+
+        Debug.Log("Displaying Health Change UI for " + myCharacter.unitName);
+
+        switch (affinity)
         {
-            switch (damageData.affinityToAttack)
-            {
-                case Affinity.Absorb:
-                    Absorb(newNormalizedHealth);
-                    break;
-                case Affinity.Resist:
-                    Resist();
-                    break;
-                case Affinity.Immune:
-                    Immune();
-                    break;
-                case Affinity.Reflect:
-                    Reflect();
-                    break;
-                case Affinity.Weak:
-                    Weak();
-                    break;
-            }
+            case Affinity.Absorb:
+                Absorb();
+                break;
+            case Affinity.Resist:
+                Resist();
+                break;
+            case Affinity.Immune:
+                showHealthChange = false;
+                Immune();
+                break;
+            case Affinity.Reflect:
+                showHealthChange = false;
+                Reflect();
+                break;
+            case Affinity.Weak:
+                Weak();
+                break;
+            case Affinity.Evade:
+                showHealthChange = false;
+                Evade();
+                break;
         }
+
+        DamageData damageData = healthChangeData as DamageData;
 
         if (damageData != null && damageData.isBackstab)
         {
             BackStab();
         }
 
-        if (healthChangeData.isCritical)
+        if (healthChangeData != null && healthChangeData.isCritical)
         {
             CritHit();
         }
@@ -132,6 +149,8 @@ public class UnitHealthUI : FadeUI
             Bump();
         }
 
+        if (!showHealthChange) { return; }
+
         if (isHealing)
         {
             ShowHealing(newNormalizedHealth);
@@ -139,6 +158,16 @@ public class UnitHealthUI : FadeUI
         else
         {
             ShowDamage(newNormalizedHealth);
+        }
+    }
+
+    private void SetDisplayTime(bool shortenedDisplayTime)
+    {
+        displayTime = FantasyCombatManager.Instance.GetSkillFeedbackDisplayTime();
+
+        if (shortenedDisplayTime)
+        {
+            //displayTime = displayTime * 0.5f;
         }
     }
 
@@ -171,7 +200,7 @@ public class UnitHealthUI : FadeUI
     }
 
     //Display Data
-    public void ShowHealing(float newNormalizedHealth)
+    private void ShowHealing(float newNormalizedHealth)
     {
         if (!gameObject.activeInHierarchy)
         {
@@ -192,7 +221,7 @@ public class UnitHealthUI : FadeUI
         dataShown = true;
     }
 
-    public void ShowDamage(float newNormalizedHealth)
+    private void ShowDamage(float newNormalizedHealth)
     {
         if (!gameObject.activeInHierarchy)
         {
@@ -268,17 +297,16 @@ public class UnitHealthUI : FadeUI
         reflectText.SetActive(true);
     }
 
-    public void Evade()
+    private void Evade()
     {
-        //Debug.Log("showing Evade Text");
         ActivateHealthChangeMode(false);
         evadeText.SetActive(true);
     }
-    private void Absorb(float newNormalizedHealth)
+
+    private void Absorb()
     {
         ActivateHealthChangeMode(true);
         absorbText.SetActive(true);
-        ShowHealing(newNormalizedHealth);
     }
 
     private void CritHit()
@@ -330,10 +358,14 @@ public class UnitHealthUI : FadeUI
     {
         if (!dataShown) { return; }
 
+        Debug.Log("Resetting Health UI data for: " + myCharacter.unitName);
+
         dataShown = false;
         showSPChange = false;
         fadingIn = false;
         showingBuffsOnly = false;
+        showingSkillFeedback = false;
+
         buffsToDisplay.Clear();
         buffsExtensionData.Clear();
     }
@@ -375,13 +407,32 @@ public class UnitHealthUI : FadeUI
 
     public override void FadeOutComplete()
     {
-        currentTween = null;
+        if(!gameObject.activeInHierarchy || fadingIn) { return; }
 
-        if (!fadingIn)
+        bool raiseEvents = showingSkillFeedback; //Make copy of variable before it is reset. 
+
+        currentTween = null;
+        fadeCompleteCallback?.Invoke();
+
+        gameObject.SetActive(false); //Showing Skill Feedback gets reset here.
+        HideAllEventText();
+
+        if (raiseEvents)
         {
-            fadeCompleteCallback?.Invoke();
-            gameObject.SetActive(false);
-            HideAllEventText();
+            if (HealthUIComplete == null)
+            {
+                Debug.Log("Health UI Complete for: " + myCharacter.unitName);
+                FantasyCombatManager.Instance.currentCombatAction?.DisplayUnitHealthUIComplete();
+            }
+            else
+            {
+                Debug.Log("Health UI Event Raised for: " + myCharacter.unitName);
+                HealthUIComplete(true);
+            }
+        }
+        else
+        {
+            Debug.Log("Show feedback false for: " + myCharacter.unitName);
         }
     }
 

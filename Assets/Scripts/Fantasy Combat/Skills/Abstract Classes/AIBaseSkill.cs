@@ -33,7 +33,6 @@ public abstract class AIBaseSkill : BaseSkill
     protected Transform myUnitTransform;
 
     //Shared Skill Data
-    protected List<GridUnit> skillTargets = new List<GridUnit>();
     protected List<GridPosition> targetGridPositions = new List<GridPosition>();
 
     private AISkillData currentSkillTargetData = null;
@@ -94,9 +93,9 @@ public abstract class AIBaseSkill : BaseSkill
 
     public abstract void TriggerSkill();
 
-    protected void BeginAction(float returnToGridPosTime, float delayBeforeReturn)
+    protected void BeginSkill(float returnToGridPosTime, float delayBeforeReturn)
     {
-        OnSkillTriggered();
+        BeginAction();
 
         GridSystemVisual.Instance.HideAllGridVisuals(true);
 
@@ -119,7 +118,7 @@ public abstract class AIBaseSkill : BaseSkill
 
         SetUnitsToShow();
 
-        skillTargets = new List<GridUnit>(selectedUnits);
+        SetSkillTargets();
 
         //UpdatePosition
         myUnit.MovedToNewGridPos();

@@ -63,12 +63,6 @@ public class GridUnitAnimator : CharacterAnimator
     //Action arrowAttackEvent;
     //Action activateArrowEvent;
 
-    //Variables
-
-    bool isLeader = false;
-
-    [HideInInspector] public bool beginHealthCountdown = false;
-
     [System.Serializable]
     public class BodyTransform
     {
@@ -82,7 +76,6 @@ public class GridUnitAnimator : CharacterAnimator
 
         myUnit = GetComponentInParent<CharacterGridUnit>();
         animNotifies = GetComponent<GridUnitAnimNotifies>();
-        isLeader = (myUnit is PlayerGridUnit player) && PartyManager.Instance.GetLeader() == player;
 
         animNotifies.Setup(myUnit, freeRoamAttackObject);
     }

@@ -59,7 +59,7 @@ public class PlayerUsePotion : PlayerBaseSkill
 
             SetupCamera();
 
-            BeginAction(0, 0, true);//Unit Position Updated here
+            BeginSkill(0, 0, true);//Unit Position Updated here
 
             //Remove Item From Inventory
             InventoryManager.Instance.UsedPotionInCombat(player, potionEffect.potionData);

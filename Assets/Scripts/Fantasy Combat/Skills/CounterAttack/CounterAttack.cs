@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Cinemachine;
 using Sirenix.OdinInspector;
 using AnotherRealm;
 using MoreMountains.Feedbacks;
@@ -34,6 +33,8 @@ public abstract class CounterAttack : MonoBehaviour, ICombatAction
 
     //State Variables
     public bool isActive { get; set; } = false;
+    bool isReflectAffinity = false;
+    int uiCounter = 0;
 
     List<Transform> hitVFXSpawnOffsets = new List<Transform>();
 
@@ -47,9 +48,33 @@ public abstract class CounterAttack : MonoBehaviour, ICombatAction
             hitVFXSpawnOffsets.Add(vfxSpawnOffset);
     }
 
-    public virtual void TriggerCounterAttack(CharacterGridUnit target)
+    public void BeginAction()
     {
         FantasyCombatManager.Instance.SetCurrentAction(this, false);
+        isReflectAffinity = false;
+        uiCounter = 0;
+    }
+
+    public virtual void TriggerCounterAttack(CharacterGridUnit target)
+    {
+        BeginAction();
+    }
+
+    public void DisplayUnitHealthUIComplete()
+    {
+        uiCounter++;
+
+        int totalToCheck = isReflectAffinity ? 2 : 1;
+
+        if(uiCounter >= totalToCheck)
+        {
+            EndAction();
+        }
+    }
+    public void EndAction()
+    {
+        FantasyCombatManager.Instance.SetCurrentAction(this, true);
+        FantasyCombatManager.Instance.ActionComplete?.Invoke();
     }
 
     public void PlayBumpAttackAnimation()
@@ -77,14 +102,17 @@ public abstract class CounterAttack : MonoBehaviour, ICombatAction
 
     protected void DealDamage(CharacterGridUnit target, bool allowKnockback = true, PowerGrade powerGrade = PowerGrade.D)
     {
-        myUnit.unitAnimator.beginHealthCountdown = true;
-
         AttackData attackData = GetAttackData(target, allowKnockback, powerGrade);
 
         IDamageable damageable = target.GetComponent<IDamageable>();
 
         DamageData damageData = damageable.TakeDamage(attackData, DamageType.Default);
         Affinity affinity = damageData != null ? damageData.affinityToAttack : Affinity.None;
+
+        if(affinity == Affinity.Reflect)
+        {
+            isReflectAffinity = true;
+        }
 
         AffinityFeedback feedbacks = target.Health().GetDamageFeedbacks(CombatFunctions.GetVFXSpawnTransform(hitVFXSpawnOffsets, target), hitVFX);
 
