@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 public class AttackData : HealthChangeData
 {
-    public CharacterGridUnit attacker = null;
+    public GridUnit attacker = null;
 
     //Elements
     public Element attackElement = Element.None;
@@ -47,13 +47,13 @@ public class AttackData : HealthChangeData
         isCritical = attackData.isCritical;
     }
 
-    public AttackData(CharacterGridUnit attacker, int rawDamage)
+    public AttackData(GridUnit attacker, int rawDamage)
     {
         this.attacker = attacker;
         this.rawDamage = rawDamage;
     }
 
-    public AttackData(CharacterGridUnit attacker, Element attackElement, int rawDamage, int numOfTargets)
+    public AttackData(GridUnit attacker, Element attackElement, int rawDamage, int numOfTargets)
     {
         this.attacker = attacker;
         this.attackElement = attackElement;
@@ -61,7 +61,7 @@ public class AttackData : HealthChangeData
         this.numOfTargets = numOfTargets;
     }
 
-    public AttackData(CharacterGridUnit attacker, Item attackItem, int rawDamage, int numOfTargets)
+    public AttackData(GridUnit attacker, Item attackItem, int rawDamage, int numOfTargets)
     {
         this.attacker = attacker;
         this.attackItem = attackItem;
@@ -73,7 +73,8 @@ public class AttackData : HealthChangeData
 public class DamageData : HealthChangeData
 {
     public GridUnit target;
-    public CharacterGridUnit attacker;
+    public GridUnit attacker;
+    public Health targetHealth;
 
     public Affinity affinityToAttack = Affinity.None;
     public AttackData hitByAttackData = null;
@@ -87,23 +88,16 @@ public class DamageData : HealthChangeData
     public bool isTargetGuarding = false;
     public bool isKnockdownHit = false;
 
-    public DamageData(GridUnit target, CharacterGridUnit attacker, AttackData hitByAttackData)
+    public DamageData(GridUnit target, GridUnit attacker, AttackData hitByAttackData)
     {
         this.target = target;
         this.attacker = attacker;
         this.hitByAttackData = hitByAttackData;
+
+        targetHealth = target?.Health();
     }
 
-    public DamageData(GridUnit target, CharacterGridUnit attacker, Affinity affinityToAttack, int damageReceived)
-    {
-        this.target = target;
-        this.attacker = attacker;
-
-        this.affinityToAttack = affinityToAttack;
-        this.damageReceived = damageReceived;
-    }
-
-    public DamageData(GridUnit target, CharacterGridUnit attacker, Affinity affinityToAttack, int damageReceived, AttackData hitByAttackData)
+    public DamageData(GridUnit target, GridUnit attacker, Affinity affinityToAttack, int damageReceived)
     {
         this.target = target;
         this.attacker = attacker;
@@ -111,13 +105,29 @@ public class DamageData : HealthChangeData
         this.affinityToAttack = affinityToAttack;
         this.damageReceived = damageReceived;
 
+        targetHealth = target?.Health();
+    }
+
+    public DamageData(GridUnit target, GridUnit attacker, Affinity affinityToAttack, int damageReceived, AttackData hitByAttackData)
+    {
+        this.target = target;
+        this.attacker = attacker;
+
+        this.affinityToAttack = affinityToAttack;
+        this.damageReceived = damageReceived;
+
         this.hitByAttackData = hitByAttackData;
+
+        targetHealth = target?.Health();
     }
 
     public void Clear(bool clearAttacker = true, bool clearTarget = true)
     {
         if (clearTarget)
+        {
             target = null;
+            targetHealth = null;
+        }
 
         if (clearAttacker)
             attacker = null;
@@ -148,7 +158,7 @@ public enum DamageType
 
 public class HealData: HealthChangeData
 {
-    public CharacterGridUnit target = null;
+    public GridUnit target = null;
     public CharacterGridUnit healer = null; //If null, then source of healing must be via item E.G Potion, Blessing.
 
     public int HPRestore = 0;
@@ -159,13 +169,13 @@ public class HealData: HealthChangeData
     public bool canRevive = false;
     public bool convertToDamage = false;
 
-    public HealData(CharacterGridUnit target, int HPRestore)
+    public HealData(GridUnit target, int HPRestore)
     {
         this.target = target;
         this.HPRestore = HPRestore;
     }
 
-    public HealData(CharacterGridUnit target, int HPRestore, int SPRestore, int FPRestore, bool canRevive)
+    public HealData(GridUnit target, int HPRestore, int SPRestore, int FPRestore, bool canRevive)
     {
         this.target = target;
         this.HPRestore = HPRestore;
@@ -174,7 +184,7 @@ public class HealData: HealthChangeData
         this.canRevive = canRevive;
     }
 
-    public HealData(CharacterGridUnit target, CharacterGridUnit healer, int HPRestore, bool canRevive)
+    public HealData(GridUnit target, CharacterGridUnit healer, int HPRestore, bool canRevive)
     {
         this.target = target;
         this.healer = healer;

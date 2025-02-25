@@ -131,7 +131,7 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
         {
             unitBouncing = false;
 
-            IDamageable.TriggerHealthChangeEvent += ForceAllUnits;
+            Health.TriggerHealthChangeEvent += ForceAllUnits;
             FantasyCombatManager.Instance.AddTurnEndEventToQueue(this);
         }
 
@@ -154,7 +154,7 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
 
     private void ForceAllUnits(bool triggerEvent)
     {
-        IDamageable.TriggerHealthChangeEvent -= ForceAllUnits;
+        Health.TriggerHealthChangeEvent -= ForceAllUnits;
 
         if (!triggerEvent)
         {
@@ -228,7 +228,7 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
             }
 
             target.transform.DOMove(destination, knockbackAnimTime);
-            bool isTargetAlive = target.GetDamageable().currentHealth > 0;
+            bool isTargetAlive = !target.Health().isKOed;
 
             //Prepare Animation
             CharacterGridUnit characterAtPos = knockbackDestinationData.unitAtDestination as CharacterGridUnit;
@@ -400,7 +400,7 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
             
         }*/
 
-        IDamageable.RaiseHealthChangeEvent(true);
+        Health.RaiseHealthChangeEvent(true);
     }
 
 
@@ -446,18 +446,18 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
                 //If Unit Guarding or KOed Player (they remain on grid) do not take damage.
                 if (!characterAtPos || (characterAtPos && !characterAtPos.Health().isGuarding && !characterAtPos.Health().isKOed)) //This means a disabled player that gets knocked by enemy would take damage :O
                 {
-                    unitAtKnockbackPos.GetComponent<IDamageable>().TakeBumpDamage(GetRandomBumpDamage(rawDamage)); //Damage Other Unit At Pos
+                    unitAtKnockbackPos.Health().TakeBumpDamage(GetRandomBumpDamage(rawDamage)); //Damage Other Unit At Pos
                 }
 
                 //Target takes damage again
-                target.GetComponent<IDamageable>().TakeBumpDamage(GetRandomBumpDamage(rawDamage));
+                target.Health().TakeBumpDamage(GetRandomBumpDamage(rawDamage));
             }
         }
         else
         {
             //Target takes damage from obstacle.
             int rawDamage = bouncingUnitsDamageData[target];
-            target.GetComponent<IDamageable>().TakeBumpDamage(GetRandomBumpDamage(rawDamage));
+            target.Health().TakeBumpDamage(GetRandomBumpDamage(rawDamage));
         }
     }
 

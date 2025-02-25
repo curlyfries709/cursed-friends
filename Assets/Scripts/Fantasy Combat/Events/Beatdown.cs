@@ -129,7 +129,7 @@ public class Beatdown : MonoBehaviour
         yield return new WaitForSeconds(delayBeforeDamageDisplay);
 
         //Invoke method to display Damage Data. 
-        IDamageable.RaiseHealthChangeEvent(true);
+        Health.RaiseHealthChangeEvent(true);
 
         //Generate Camera Shake.
         impulseSource.GenerateImpulse();

@@ -110,9 +110,9 @@ public class CutsceneEvents : MonoBehaviour
 
         foreach (PlayerGridUnit player in PartyManager.Instance.GetAllPlayerMembersInWorld())
         {
-            int hpGain = player.Health().GetVitalValueFromPercentage(hpRestorePercentage, FantasyHealth.Vital.HP);
-            int spGain = player.Health().GetVitalValueFromPercentage(spRestorePercentage, FantasyHealth.Vital.SP);
-            int fpGain = player.Health().GetVitalValueFromPercentage(fpRestorePercentage, FantasyHealth.Vital.FP);
+            int hpGain = player.Health().GetVitalValueFromPercentage(hpRestorePercentage, CharacterHealth.Vital.HP);
+            int spGain = player.Health().GetVitalValueFromPercentage(spRestorePercentage, CharacterHealth.Vital.SP);
+            int fpGain = player.Health().GetVitalValueFromPercentage(fpRestorePercentage, CharacterHealth.Vital.FP);
 
             player.Health().OuterCombatRestore(hpGain, spGain, fpGain);
         }

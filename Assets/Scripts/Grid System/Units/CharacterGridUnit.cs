@@ -11,7 +11,6 @@ public class CharacterGridUnit : GridUnit
 {
     [Header("Character Profile")]
     public Sprite portrait;
-    public UnitStats stats;
     [Space(10)]
     [Tooltip("What team the unit belongs to. To distinguish which enemies will attack each other. ")]
     public CombatTeam team;
@@ -41,7 +40,6 @@ public class CharacterGridUnit : GridUnit
     [HideInInspector] public float returnToGridPosTime;
 
     //Caches
-    FantasyHealth myHealth;
     protected CinemachineFreeLook freeLookPlayerCam;
 
     //Events
@@ -49,13 +47,9 @@ public class CharacterGridUnit : GridUnit
     public Func<bool> CanTriggerSkill;
     public Action EndTurn;
 
-    //Health Change Modifiers
-    public Func<DamageData, DamageModifier> ModifyDamageDealt;
-
     protected override void Awake()
     {
         base.Awake();
-        myHealth = GetComponent<FantasyHealth>();
         followCam.SetActive(false);
         freeLookPlayerCam = followCam.GetComponent<CinemachineFreeLook>();
     }
@@ -86,13 +80,6 @@ public class CharacterGridUnit : GridUnit
             }
         }
     }
-
-    public void ActivateUnit(bool activate)
-    {
-        if (activate && Health() && Health().isKOed) { return; }
-        transform.parent.gameObject.SetActive(activate);
-    }
-
 
     protected virtual void OnDisable()
     {
@@ -159,16 +146,14 @@ public class CharacterGridUnit : GridUnit
         return moveRange + stats.MovementBuff();
     }
 
-
-    public FantasyHealth Health()
-    {
-        return myHealth;
-    }
-
     public PhotoshootAnimator GetPhotoShootSet()
     {
         return photoshootAnimator;
     }
 
+    public new CharacterHealth Health()
+    {
+        return myHealth as CharacterHealth;
+    }
 
 }

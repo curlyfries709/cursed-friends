@@ -60,8 +60,7 @@ public class OrbTeleportation : PlayerBaseSkill, IOrb
     {
         //Hide UI
         myUnit.Health().DeactivateHealthVisualImmediate();
-        if (selectedUnit)
-            selectedUnit.GetDamageable().DeactivateHealthVisualImmediate();
+        selectedUnit?.Health().DeactivateHealthVisualImmediate();
 
         //Cut to Camera
         SetupCamera();

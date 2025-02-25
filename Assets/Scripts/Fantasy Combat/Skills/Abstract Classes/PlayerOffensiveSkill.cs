@@ -109,7 +109,7 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
 
             GameObject hitVFX = hitVFXPool.Count > 0 ? hitVFXPool[targetIndex] : null;
 
-            AffinityFeedback feedbacks = target.GetDamageable().GetDamageFeedbacks(CombatFunctions.GetVFXSpawnTransform(hitVFXSpawnOffsets, target), hitVFX);
+            AffinityFeedback feedbacks = target.Health().GetDamageFeedbacks(CombatFunctions.GetVFXSpawnTransform(hitVFXSpawnOffsets, target), hitVFX);
             targetFeedbacksToPlay.Add(CombatFunctions.GetTargetFeedback(feedbacks, targetAffinity));
         }
 
@@ -163,8 +163,8 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
     {
         AttackData attackData = GetAttackData(target);
 
-        IDamageable damageable = target.GetDamageable();
-        DamageData damageData = damageable.TakeDamage(attackData, DamageType.Default);
+        Health targetHealth = target.Health();
+        DamageData damageData = targetHealth.TakeDamage(attackData, DamageType.Default);
 
         if(damageData != null)
         {

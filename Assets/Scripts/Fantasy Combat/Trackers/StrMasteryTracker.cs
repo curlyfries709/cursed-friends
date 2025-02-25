@@ -10,12 +10,12 @@ public class StrMasteryTracker : BaseMasteryTracker
         if (listen)
         {
             PlayerBaseSkill.PlayerUsedSkill += OnPlayerUsedSkill;
-            IDamageable.UnitHit += OnUnitDamaged;
+            Health.UnitHit += OnUnitDamaged;
         }
         else
         {
             PlayerBaseSkill.PlayerUsedSkill -= OnPlayerUsedSkill;
-            IDamageable.UnitHit -= OnUnitDamaged;
+            Health.UnitHit -= OnUnitDamaged;
         }
     }
 

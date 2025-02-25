@@ -18,7 +18,7 @@ public abstract class StrategicBonusChecker : MonoBehaviour
         FantasyCombatManager.Instance.CombatBegun += ResetDataOnCombatBegin;
 
         if (listenToUnitHit)
-            IDamageable.UnitHit += OnUnitHit;
+            Health.UnitHit += OnUnitHit;
 
         if (listenToAnyUnitTurnStart)
             FantasyCombatManager.Instance.OnNewTurn += OnAnyUnitTurnStart;
@@ -63,7 +63,7 @@ public abstract class StrategicBonusChecker : MonoBehaviour
         FantasyCombatManager.Instance.CombatBegun -= ResetDataOnCombatBegin;
 
         if (listenToUnitHit)
-            IDamageable.UnitHit -= OnUnitHit;
+            Health.UnitHit -= OnUnitHit;
         if (listenToAnyUnitTurnStart)
             FantasyCombatManager.Instance.OnNewTurn -= OnAnyUnitTurnStart;
         if (listenToOnCombatEnd)

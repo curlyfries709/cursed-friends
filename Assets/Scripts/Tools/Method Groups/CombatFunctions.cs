@@ -801,6 +801,33 @@ namespace AnotherRealm
             return value == 1;
         }
 
+        public static bool IsGridPositionInDirection(GridPosition originGridPos, GridPosition gridPosToCheck, Direction direction)
+        {
+            bool isDiagonal = IsGridPositionOnDiagonalAxis(originGridPos, gridPosToCheck);
+
+            switch (direction)
+            {
+                case Direction.North: 
+                    return originGridPos.x == gridPosToCheck.x && gridPosToCheck.z > originGridPos.z;
+                case Direction.East:
+                    return originGridPos.z == gridPosToCheck.z && gridPosToCheck.x > originGridPos.x;
+                case Direction.South:
+                    return originGridPos.x == gridPosToCheck.x && gridPosToCheck.z < originGridPos.z;
+                case Direction.West:
+                    return originGridPos.z == gridPosToCheck.z && gridPosToCheck.x < originGridPos.x;
+                case Direction.NorthEast:
+                    return isDiagonal && gridPosToCheck.x > originGridPos.x && originGridPos.z > gridPosToCheck.z;
+                case Direction.SouthEast:
+                    return isDiagonal && gridPosToCheck.x > originGridPos.x && originGridPos.z < gridPosToCheck.z;
+                case Direction.SouthWest:
+                    return isDiagonal && gridPosToCheck.x < originGridPos.x && originGridPos.z < gridPosToCheck.z;
+                case Direction.NorthWest:
+                    return isDiagonal && gridPosToCheck.x < originGridPos.x && originGridPos.z > gridPosToCheck.z;
+                default:
+                    return false;
+            }
+        }
+
         public static bool IsGridPositionOnDiagonalAxis(GridPosition posA, GridPosition posB)
         {
             return Mathf.Abs(posA.x - posB.x) == Mathf.Abs(posA.z - posB.z);

@@ -28,7 +28,7 @@ public interface ICombatAction
                 Evade.Instance.TriggerEvadeEvent?.Invoke(isActive);
                 goto default;
             default:
-                IDamageable.RaiseHealthChangeEvent(isActive);
+                Health.RaiseHealthChangeEvent(isActive);
                 break;
 
         }

@@ -9,13 +9,13 @@ public class EndMasteryTracker : BaseMasteryTracker
         if (listen)
         {
             PlayerBaseSkill.PlayerUsedSkill += OnPlayerUsedSkill;
-            IDamageable.UnitHit += OnUnitDamaged;
+            Health.UnitHit += OnUnitDamaged;
             FiredUpEvent.UnitFiredUp += OnUnitFiredUp;
         }
         else
         {
             PlayerBaseSkill.PlayerUsedSkill -= OnPlayerUsedSkill;
-            IDamageable.UnitHit -= OnUnitDamaged;
+            Health.UnitHit -= OnUnitDamaged;
             FiredUpEvent.UnitFiredUp -= OnUnitFiredUp;
         }
     }

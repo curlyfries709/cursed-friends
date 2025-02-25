@@ -114,7 +114,7 @@ public class PowerOfFriendship : MonoBehaviour
         whiteFader.gameObject.SetActive(false);
 
         FantasyCombatManager.Instance.CombatCinematicPlaying = false;
-        IDamageable.RaiseHealthChangeEvent(true);
+        Health.RaiseHealthChangeEvent(true);
 
         impulseSource.GenerateImpulse();       
     }

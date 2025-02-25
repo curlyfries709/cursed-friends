@@ -8,12 +8,12 @@ public class ChaMasteryTracker : BaseMasteryTracker
     {
         if (listen)
         {
-            IDamageable.UnitHit += OnUnitDamaged;
+            Health.UnitHit += OnUnitDamaged;
             StatusEffectManager.Instance.Unitafflicted += OnUnitAfflicted;
         }
         else
         {
-            IDamageable.UnitHit -= OnUnitDamaged;
+            Health.UnitHit -= OnUnitDamaged;
             StatusEffectManager.Instance.Unitafflicted -= OnUnitAfflicted;
         }
     }
@@ -29,7 +29,7 @@ public class ChaMasteryTracker : BaseMasteryTracker
         }
     }
 
-    private void OnUnitAfflicted(CharacterGridUnit target, CharacterGridUnit inflictor, StatusEffectData effectData)
+    private void OnUnitAfflicted(CharacterGridUnit target, GridUnit inflictor, StatusEffectData effectData)
     {
         if (!inflictor) { return; } //Inflictor could be null.
 

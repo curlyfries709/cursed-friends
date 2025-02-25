@@ -90,7 +90,7 @@ public abstract class AIOffensiveSkill : AIBaseSkill
 
             GameObject hitVFX = hitVFXPool.Count > 0 ? hitVFXPool[targetIndex] : null;
 
-            AffinityFeedback feedbacks = target.GetDamageable().GetDamageFeedbacks(CombatFunctions.GetVFXSpawnTransform(hitVFXSpawnOffsets, target), hitVFX);
+            AffinityFeedback feedbacks = target.Health().GetDamageFeedbacks(CombatFunctions.GetVFXSpawnTransform(hitVFXSpawnOffsets, target), hitVFX);
             targetFeedbacksToPlay.Add(CombatFunctions.GetTargetFeedback(feedbacks, targetAffinity));
 
             //Update Affinity
@@ -163,9 +163,9 @@ public abstract class AIOffensiveSkill : AIBaseSkill
     protected Affinity DamageTarget(GridUnit target)
     {
         AttackData attackData = GetAttackData(target);
-        IDamageable damageable = target.GetComponent<IDamageable>();
+        Health targetHealth = target.Health();
 
-        DamageData damageData = damageable.TakeDamage(attackData, DamageType.Default);
+        DamageData damageData = targetHealth.TakeDamage(attackData, DamageType.Default);
 
         if (damageData != null)
         {

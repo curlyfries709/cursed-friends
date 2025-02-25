@@ -31,11 +31,11 @@ public class GridUnitAnimNotifies : MonoBehaviour
         {
             Debug.Log("Current Combat action is null for Grid Unit Animator");
 
-            if(IDamageable.TriggerHealthChangeEvent != null)
+            if(Health.TriggerHealthChangeEvent != null)
             {
-                foreach(Delegate listener in IDamageable.TriggerHealthChangeEvent.GetInvocationList())
+                foreach(Delegate listener in Health.TriggerHealthChangeEvent.GetInvocationList())
                 {
-                    Debug.LogError("Current Combat Action null whilst listener: " + listener.ToString() + " still subscribed to IDamageable.TriggerHealthChangeEvent");
+                    Debug.LogError("Current Combat Action null whilst listener: " + listener.ToString() + " still subscribed to Health.TriggerHealthChangeEvent");
                 }
             }
         }

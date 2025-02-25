@@ -13,7 +13,7 @@ public class SBInflict : StrategicBonusChecker
         StatusEffectManager.Instance.Unitafflicted += OnUnitAfflicted;
     }
 
-    private void OnUnitAfflicted(CharacterGridUnit target, CharacterGridUnit inflictor, StatusEffectData effectData)
+    private void OnUnitAfflicted(CharacterGridUnit target, GridUnit inflictor, StatusEffectData effectData)
     {
         PlayerGridUnit player = inflictor as PlayerGridUnit;
 

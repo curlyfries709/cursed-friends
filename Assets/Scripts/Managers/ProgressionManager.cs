@@ -134,7 +134,7 @@ public class ProgressionManager : MonoBehaviour, ISaveable, IMultiWorldCombatCon
     void Start()
     {
         //Subscribe to Combat Events.
-        FantasyHealth.CharacterUnitKOed += OnUnitKO;
+        Health.UnitKOed += OnUnitKO;
     }
 
 
@@ -260,10 +260,10 @@ public class ProgressionManager : MonoBehaviour, ISaveable, IMultiWorldCombatCon
 
     private void OnDisable()
     {
-        FantasyHealth.CharacterUnitKOed -= OnUnitKO;
+        Health.UnitKOed -= OnUnitKO;
     }
 
-    private void OnUnitKO(CharacterGridUnit unit)
+    private void OnUnitKO(GridUnit unit)
     {
         PlayerGridUnit player = unit as PlayerGridUnit;
 
@@ -275,13 +275,13 @@ public class ProgressionManager : MonoBehaviour, ISaveable, IMultiWorldCombatCon
                 enemiesKOEDWhilePlayerKOEDDict[player] = new List<CharacterGridUnit>();
             }
         }
-        else
+        else if(unit is CharacterGridUnit enemy)
         {
             //Enemy KOED
             foreach (KeyValuePair<PlayerGridUnit, List<CharacterGridUnit>> item in enemiesKOEDWhilePlayerKOEDDict)
             {
                 if(item.Key.Health().isKOed) //Ensure Player is KOED, Could have been revived
-                    enemiesKOEDWhilePlayerKOEDDict[item.Key].Add(unit);
+                    enemiesKOEDWhilePlayerKOEDDict[item.Key].Add(enemy);
             }
         }
     }

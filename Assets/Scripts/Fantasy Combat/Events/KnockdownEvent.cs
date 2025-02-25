@@ -91,7 +91,7 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
     bool eventStarted = false;
 
     //Event
-    public static Action<CharacterGridUnit> UnitKnockdown; //Variable of who triggered the knockdown.
+    public static Action<GridUnit> UnitKnockdown; //Variable of who triggered the knockdown.
 
      private void Start()
      {
@@ -110,24 +110,28 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
          UnitKnockdown += OnUnitKnockedDown;
      }
 
-     private void OnUnitKnockedDown(CharacterGridUnit attacker)
+     private void OnUnitKnockedDown(GridUnit attacker)
      {
          if (eventStarted) { return; } //To stop this method being called multiple times when multiple units are knockdowned from one attack.
+            
+        CharacterGridUnit attackerCharacter = attacker as CharacterGridUnit;
+
+        if (!attackerCharacter) { return; }
 
         eventStarted = true;
         canTriggerEvent = false;
-        currentAttacker = attacker;
+        currentAttacker = attackerCharacter;
 
-        if (!unitsAlreadyTriggeredChainAttack.Contains(attacker))
+        if (!unitsAlreadyTriggeredChainAttack.Contains(attackerCharacter))
         {
-            unitsAlreadyTriggeredChainAttack.Add(attacker);
+            unitsAlreadyTriggeredChainAttack.Add(attackerCharacter);
         }
 
         //Means this is the first Chain, so subscribe to current acting unit turn end event.
         if(!alreadySubscribedToEvent)
         {
             alreadySubscribedToEvent = true;
-            chainStarter = attacker;
+            chainStarter = attackerCharacter;
             FantasyCombatManager.Instance.GetCurrentTurnOwner().EndTurn += OnTurnEnd;
         }
 

@@ -13,18 +13,14 @@ public class InteractionManager : MonoBehaviour
     public float maxAngleBetweenInteractable = 30f;
 
     Transform interactor;
-    Interact currentActiveRadius;
     List<Interact> currentActiveRadii = new List<Interact>();
 
     public bool showInteractCanvas { get; private set; }
     public bool PlayerInDanger { get; private set; }
 
-
     //Event
     public Func<bool, bool> HandleInteraction;
     public Action<bool> ShowInteractCanvas;
-
-
 
 
     private void Awake()

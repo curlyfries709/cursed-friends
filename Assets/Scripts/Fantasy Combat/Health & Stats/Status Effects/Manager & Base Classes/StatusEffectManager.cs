@@ -78,7 +78,7 @@ public class StatusEffectManager : MonoBehaviour
     const int numOfTurnAverage = 3;
 
     //Event
-    public Action<CharacterGridUnit, CharacterGridUnit, StatusEffectData> Unitafflicted;
+    public Action<CharacterGridUnit, GridUnit, StatusEffectData> Unitafflicted; //Parameters: Target, Attacker, StatusEffectData
 
     private void Awake()
     {
@@ -89,7 +89,7 @@ public class StatusEffectManager : MonoBehaviour
 
     private void OnEnable()
     {
-        FantasyHealth.CharacterUnitKOed += OnUnitKO;
+        Health.UnitKOed += OnUnitKO;
         Flee.UnitFled += OnUnitKO;
         FantasyCombatManager.Instance.CombatEnded += OnCombatEnd;
 
@@ -112,7 +112,7 @@ public class StatusEffectManager : MonoBehaviour
         }
     }
 
-    public bool ApplyAndActivateStatusEffect(StatusEffectData effectData, CharacterGridUnit unit, CharacterGridUnit inflictor, int numOfTurns = numOfTurnAverage, int buffChange = 0, bool isFiredUpBuff = false)
+    public bool ApplyAndActivateStatusEffect(StatusEffectData effectData, CharacterGridUnit unit, GridUnit inflictor, int numOfTurns = numOfTurnAverage, int buffChange = 0, bool isFiredUpBuff = false)
     {
         bool wasApplied = ApplyStatusEffect(effectData, unit, inflictor, numOfTurns, buffChange, isFiredUpBuff);
 
@@ -124,7 +124,7 @@ public class StatusEffectManager : MonoBehaviour
         return wasApplied;
     }
 
-    public bool ApplyStatusEffect(StatusEffectData effectData, CharacterGridUnit unit, CharacterGridUnit inflictor, int numOfTurns = numOfTurnAverage, int buffChange = 0, bool isFiredUpBuff = false)
+    public bool ApplyStatusEffect(StatusEffectData effectData, CharacterGridUnit unit, GridUnit inflictor, int numOfTurns = numOfTurnAverage, int buffChange = 0, bool isFiredUpBuff = false)
     {
         System.Type statusEffectType = System.Type.GetType(effectData.name);
 
@@ -298,7 +298,7 @@ public class StatusEffectManager : MonoBehaviour
 
         unit.Health().DeactivateHealthVisualImmediate();
         yield return new WaitForSeconds(waitTime);
-        IDamageable.RaiseHealthChangeEvent(true);
+        Health.RaiseHealthChangeEvent(true);
         yield return new WaitUntil(() => unit.Health().GetHealthUI().showingSkillFeedback == false);
         FantasyCombatManager.Instance.ActionComplete();
     }
@@ -458,16 +458,20 @@ public class StatusEffectManager : MonoBehaviour
         }
     }
 
-    public void OnUnitKO(CharacterGridUnit unit)
+    public void OnUnitKO(GridUnit unit)
     {
+        CharacterGridUnit character = unit as CharacterGridUnit;
+
+        if (!character) { return; }
+
         //Remove All Status Efefcts From KO Unit.
-        for (int i = combatUnitStatusEffects[unit].Count - 1; i >= 0; i--)
+        for (int i = combatUnitStatusEffects[character].Count - 1; i >= 0; i--)
         {
-            StatusEffect effect = combatUnitStatusEffects[unit][i];
-            StatusEffectEnded(unit, effect);
+            StatusEffect effect = combatUnitStatusEffects[character][i];
+            StatusEffectEnded(character, effect);
         }
 
-        combatUnitStatusEffects[unit].Clear();
+        combatUnitStatusEffects[character].Clear();
     }
     
     private void CancelStatusEffectTurnEndEvent(StatusEffect effect)
@@ -478,7 +482,7 @@ public class StatusEffectManager : MonoBehaviour
 
     private void OnDisable()
     {
-        FantasyHealth.CharacterUnitKOed -= OnUnitKO;
+        Health.UnitKOed -= OnUnitKO;
         Flee.UnitFled -= OnUnitKO;
         FantasyCombatManager.Instance.CombatEnded -= OnCombatEnd;
         PartyManager.Instance.PlayerPartyDataSet -= IntializePlayerStatusEffects;
@@ -588,6 +592,8 @@ public class StatusEffectManager : MonoBehaviour
 
     public bool IsUnitDisabled(CharacterGridUnit unit)
     {
+        if (!unit) {  return false; }
+
         if (combatUnitStatusEffects.ContainsKey(unit) && combatUnitStatusEffects[unit].Any((effect) => effect.effectData.preventsUnitFromActing))
         {
             return true;
@@ -598,17 +604,21 @@ public class StatusEffectManager : MonoBehaviour
         }
     }
 
-    public bool CanApplyStatusEffect(CharacterGridUnit unit, StatusEffectData effectData)
+    public bool CanApplyStatusEffect(GridUnit unit, StatusEffectData effectData)
     {
+        CharacterGridUnit character = unit as CharacterGridUnit;
+
+        if(!character) { return false; }
+
         //Check if unit is guarding
-        if (unit.Health().isGuarding && effectData.canBeGuarded)
+        if (character.Health().isGuarding && effectData.canBeGuarded)
         {
             //Don't apply any effects because target guarded it.
             return false;
         }
 
         //Firstly check if unit immune to effect's element
-        if (unit.stats.IsImmuneToStatusEffect(effectData))
+        if (character.stats.IsImmuneToStatusEffect(effectData))
         {
             //Don't apply any effects because target is immue.
             return false;
@@ -616,7 +626,7 @@ public class StatusEffectManager : MonoBehaviour
 
         if(effectData.associatedElement != Element.None)
         {
-            Affinity affinityToSE = TheCalculator.Instance.GetAffinity(unit, effectData.associatedElement, null);
+            Affinity affinityToSE = TheCalculator.Instance.GetAffinity(character, effectData.associatedElement, null);
 
             switch (affinityToSE)
             {

@@ -219,7 +219,7 @@ public class PlayerSpawnerManager : MonoBehaviour, ISaveable
         public Quaternion playerRotation = Quaternion.identity;
 
         //Vitals
-        public Dictionary<string, FantasyHealth.HealthState> characterHealthState = new Dictionary<string, FantasyHealth.HealthState>();
+        public Dictionary<string, CharacterHealth.HealthState> characterHealthState = new Dictionary<string, CharacterHealth.HealthState>();
 
         public bool dataCapture = false;
     }
@@ -267,7 +267,7 @@ public class PlayerSpawnerManager : MonoBehaviour, ISaveable
         {
             foreach (PlayerGridUnit playerGridUnit in PartyManager.Instance.GetAllPlayerMembersInWorld())
             {
-                FantasyHealth healthComp = playerGridUnit.GetComponent<FantasyHealth>();
+                CharacterHealth healthComp = playerGridUnit.GetComponent<CharacterHealth>();
 
                 if (healthComp)
                 {

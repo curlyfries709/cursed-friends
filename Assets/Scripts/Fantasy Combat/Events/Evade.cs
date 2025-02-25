@@ -36,7 +36,7 @@ public class Evade : MonoBehaviour, ITurnEndEvent
     //Caches
     public int turnEndEventOrder { get; set; }
 
-    CharacterGridUnit attacker;
+    GridUnit attacker;
     public CharacterGridUnit counterAttacker { get; private set; } = null;
 
     GameObject counterCanvas;
@@ -46,7 +46,7 @@ public class Evade : MonoBehaviour, ITurnEndEvent
     List<Type> otherEventTypesThatCancelThis = new List<Type>();
 
     //Event
-    public Action<CharacterGridUnit, CharacterGridUnit> UnitEvaded;
+    public Action<GridUnit, CharacterGridUnit> UnitEvaded;
     public Action<CharacterGridUnit> CounterTriggered;
     public Action<bool> TriggerEvadeEvent;
 
@@ -71,7 +71,7 @@ public class Evade : MonoBehaviour, ITurnEndEvent
         TriggerEvadeEvent += TriggerEvade;
     }
 
-    public void PrepUnitToEvade(CharacterGridUnit attacker, CharacterGridUnit target)
+    public void PrepUnitToEvade(GridUnit attacker, CharacterGridUnit target)
     {
         //Only ever one Attacker but could be multiple targets.
         this.attacker = attacker;
@@ -105,7 +105,7 @@ public class Evade : MonoBehaviour, ITurnEndEvent
             target.transform.DORotate(targetRotation, rotateToAttackerTime);
             target.unitAnimator.SetTrigger(target.unitAnimator.animIDEvade);
 
-            target.GetComponent<FantasyHealth>().TriggerEvadeEvent();
+            target.GetComponent<CharacterHealth>().TriggerEvadeEvent();
 
             Vector3 targetLeftDirection = -(new Vector3(targetRotationVector.z, 0, -targetRotationVector.x));
             Vector3 destination = target.transform.position + (targetLeftDirection * evadeDistance);
@@ -123,7 +123,7 @@ public class Evade : MonoBehaviour, ITurnEndEvent
         FantasyCombatManager.Instance.ActionComplete += ReturnCounterAttackerToPos;
         SetupUI();
 
-        counterAttackToPlay.TriggerCounterAttack(attacker);
+        counterAttackToPlay.TriggerCounterAttack(attacker as CharacterGridUnit);
         CounterTriggered?.Invoke(counterAttacker);
     }
 
@@ -205,10 +205,10 @@ public class Evade : MonoBehaviour, ITurnEndEvent
             counterTargetGroup.RemoveMember(target.target);
         }
 
-        counterVCam.Follow = attacker.counterCamTarget;
+        counterVCam.Follow = (attacker as CharacterGridUnit).counterCamTarget;
 
         counterTargetGroup.AddMember(counterAttacker.counterCamTarget, weight, counterAttackerRadius);
-        counterTargetGroup.AddMember(attacker.counterCamTarget, weight, attackerRadius);
+        counterTargetGroup.AddMember(counterVCam.Follow, weight, attackerRadius);
         
 
         counterCam.SetActive(true);

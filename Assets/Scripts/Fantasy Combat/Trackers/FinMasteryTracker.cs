@@ -9,18 +9,18 @@ public class FinMasteryTracker : BaseMasteryTracker
         if (listen)
         {
             Evade.Instance.UnitEvaded += OnUnitEvaded;
-            IDamageable.UnitHit += OnUnitHit;
+            Health.UnitHit += OnUnitHit;
             Evade.Instance.CounterTriggered += OnUnitCounter;
         }
         else
         {
             Evade.Instance.UnitEvaded -= OnUnitEvaded;
-            IDamageable.UnitHit -= OnUnitHit;
+            Health.UnitHit -= OnUnitHit;
             Evade.Instance.CounterTriggered -= OnUnitCounter;
         }
     }
 
-    private void OnUnitEvaded(CharacterGridUnit attacker, CharacterGridUnit evader)
+    private void OnUnitEvaded(GridUnit attacker, CharacterGridUnit evader)
     {
         PlayerGridUnit player = evader as PlayerGridUnit;
 

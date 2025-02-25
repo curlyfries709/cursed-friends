@@ -3,17 +3,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class GridUnit : MonoBehaviour
+public class GridUnit : MonoBehaviour
 {
     [Header("Grid Unit Profile")]
     public string unitName;
     public CombatUnitType unitType;
+    [Header("Stats")]
+    public UnitStats stats;
     [Header("Grid Unit Components")]
     public Transform camFollowTarget;
     public Transform modelHeader;
+    [Space(10)]
     public BoxCollider gridCollider;
 
     //Events
+    public Func<DamageData, DamageModifier> ModifyDamageDealt;
     public Func<DamageData, DamageModifier> ModifyDamageReceived;
 
     //Variables
@@ -21,11 +25,11 @@ public abstract class GridUnit : MonoBehaviour
     List<GridPosition> gridPositionsOccupied = new List<GridPosition>();
 
     //Cache
-    protected IDamageable damageable;
+    protected Health myHealth;
 
     protected virtual void Awake()
     {
-        damageable = GetComponent<IDamageable>();
+        myHealth = GetComponent<Health>();
     }
 
     protected virtual void OnEnable()
@@ -59,6 +63,14 @@ public abstract class GridUnit : MonoBehaviour
         //gridCollider.enabled = true;
     }
 
+    //GENERAL HELPERS
+    public void ActivateUnit(bool activate)
+    {
+        if (activate && Health() && Health().isKOed) { return; }
+        transform.parent.gameObject.SetActive(activate);
+    }
+
+    //GRID HELPERS
     public void SetGridPositions()
     {
         UpdateTurnStartGridPositions();
@@ -162,8 +174,6 @@ public abstract class GridUnit : MonoBehaviour
         return Mathf.CeilToInt(gridCollider.size.x / LevelGrid.Instance.GetCellSize());
     }
 
-    
-
     public Vector3 GetClosestPointOnColliderToPosition(Vector3 worldPos)
     {
         return gridCollider.ClosestPointOnBounds(worldPos);
@@ -173,15 +183,14 @@ public abstract class GridUnit : MonoBehaviour
         return GetVerticalCellsOccupied() * GetHorizontalCellsOccupied();
     }
 
-    public IDamageable GetDamageable()
+    public Health Health()
     {
-        return damageable;
+        return myHealth;
     }
-
 
     //SETTERS
     public void ShowSelectionVisual(bool show)
     {
-        damageable.ActivateHealthVisual(show);
+        Health().ActivateHealthVisual(show);
     }
 }

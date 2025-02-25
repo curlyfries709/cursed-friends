@@ -104,9 +104,9 @@ public abstract class CounterAttack : MonoBehaviour, ICombatAction
     {
         AttackData attackData = GetAttackData(target, allowKnockback, powerGrade);
 
-        IDamageable damageable = target.GetComponent<IDamageable>();
+        Health targetHealth = target.Health();
 
-        DamageData damageData = damageable.TakeDamage(attackData, DamageType.Default);
+        DamageData damageData = targetHealth.TakeDamage(attackData, DamageType.Default);
         Affinity affinity = damageData != null ? damageData.affinityToAttack : Affinity.None;
 
         if(affinity == Affinity.Reflect)

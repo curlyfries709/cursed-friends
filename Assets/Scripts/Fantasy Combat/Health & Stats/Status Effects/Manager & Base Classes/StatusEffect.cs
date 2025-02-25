@@ -15,7 +15,7 @@ public abstract class StatusEffect : MonoBehaviour
     //Caches
     public StatusEffectData effectData;
     protected CharacterGridUnit myUnit;
-    public CharacterGridUnit inflictor;
+    public GridUnit inflictor;
 
     protected bool firstTurn = true;
     public bool hasEffectActivated = false;
@@ -33,7 +33,7 @@ public abstract class StatusEffect : MonoBehaviour
         enabled = false;
     }
 
-    public void Setup(CharacterGridUnit unit, CharacterGridUnit inflictor, StatusEffectData effectData, int turns, int buffChange, bool isFiredUpBuff)
+    public void Setup(CharacterGridUnit unit, GridUnit inflictor, StatusEffectData effectData, int turns, int buffChange, bool isFiredUpBuff)
     {
         myUnit = unit;
         turnsRemaining = turns;

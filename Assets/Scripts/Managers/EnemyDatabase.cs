@@ -116,7 +116,7 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
 
     private void OnEnable()
     {
-        FantasyHealth.CharacterUnitKOed += OnUnitKO;
+        Health.UnitKOed += OnUnitKO;
         FantasyCombatManager.Instance.BattleRestarted += OnBattleRestart;
 
         List<PlayerGridUnit> playersFound = FindObjectsOfType<PlayerGridUnit>().ToList();
@@ -131,7 +131,7 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
 
 
 
-    private void OnUnitKO(CharacterGridUnit unit)
+    private void OnUnitKO(GridUnit unit)
     {
         if(unit is PlayerGridUnit) { return; }
 
@@ -511,7 +511,7 @@ public class EnemyDatabase : MonoBehaviour, IControls, ISaveable
 
     private void OnDisable()
     {
-        FantasyHealth.CharacterUnitKOed -= OnUnitKO;
+        Health.UnitKOed -= OnUnitKO;
         FantasyCombatManager.Instance.BattleRestarted -= OnBattleRestart;
     }
 

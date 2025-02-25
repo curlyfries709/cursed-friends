@@ -4,13 +4,12 @@ using UnityEngine;
 using System.Linq;
 using TMPro;
 using AnotherRealm;
+using Sirenix.OdinInspector;
+using System;
 
 [RequireComponent(typeof(BoxCollider))]
 public abstract class Interact : MonoBehaviour
 {
-    [Header("Interaction Texts")]
-    [SerializeField] protected string objectTitleText;
-    [SerializeField] protected string interactTitleText;
     [Header("Interaction Type")]
     [Tooltip("If Player being chased by enemy, should interaction be allowed?")]
     [SerializeField] protected bool allowInteractionWhilePlayerInDanger = false;
@@ -21,8 +20,11 @@ public abstract class Interact : MonoBehaviour
     [SerializeField] protected bool interactorMustFaceMyForward = false;
     [Header("UI")]
     [SerializeField] protected FadeUI interactUI;
-
-    protected List<GridPosition> validInteractioGridPos;
+    [Space(10)]
+    [ShowIf("interactUI")]
+    [SerializeField] protected string objectTitleText;
+    [ShowIf("interactUI")]
+    [SerializeField] protected string interactTitleText;
 
     //Caches
     TextMeshProUGUI objectTitle;
@@ -35,12 +37,15 @@ public abstract class Interact : MonoBehaviour
     protected virtual void Start()
     {
         SetInteractCanvasText();
-        SetValidInteractionGridPositions();
 
         SetCollider();
     }
 
-
+    protected virtual void OnEnable()
+    {
+        FantasyCombatManager.Instance.CombatBegun += OnCombatBegin;
+        FantasyCombatManager.Instance.CombatEnded += OnCombatEnd;
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -63,6 +68,61 @@ public abstract class Interact : MonoBehaviour
         InteractionManager.Instance.OnRadiusExit(this);
     }
 
+    //COMBAT
+    protected void BeginCombatInteraction(List<GridUnit> targets)
+    {
+        CharacterGridUnit interactor = FantasyCombatManager.Instance.GetActiveUnit();
+
+        interactor.unitAnimator.SetSpeed(0);
+
+        //Warp Unit into Position & Rotation in an attempt to remove camera jitter.
+        Vector3 desiredRotation = Quaternion.LookRotation(CombatFunctions.GetCardinalDirectionAsVector(interactor.transform)).eulerAngles;
+        interactor.Warp(LevelGrid.Instance.gridSystem.GetWorldPosition(interactor.GetCurrentGridPositions()[0]), Quaternion.Euler(new Vector3(0, desiredRotation.y, 0)));
+
+        GridSystemVisual.Instance.HideAllGridVisuals(true);
+
+        List<GridUnit> targetedUnits = new List<GridUnit>(targets)
+        {
+            interactor
+        };
+
+        FantasyCombatManager.Instance.SetUnitsToShow(targetedUnits);
+
+        //UpdatePosition
+        interactor.MovedToNewGridPos();
+    }
+
+    private void OnCombatBegin(BattleStarter.CombatAdvantage advantage)
+    {
+        if (allowInteractionDuringCombat && !allowInteractionDuringFreeRoam) //Combat only interactable
+        {
+            interactionCollider.enabled = true;
+        }
+        else if(allowInteractionDuringFreeRoam && !allowInteractionDuringCombat) //Roam only interactable
+        {
+            DisableInteraction();
+        }
+    }
+
+    private void OnCombatEnd(BattleResult result, IBattleTrigger trigger)
+    {
+        if(result == BattleResult.Defeat || result == BattleResult.Restart) { return; } 
+
+        if (allowInteractionDuringCombat && !allowInteractionDuringFreeRoam) //Combat only interactable
+        {
+            DisableInteraction();
+        }
+        else if (allowInteractionDuringFreeRoam && !allowInteractionDuringCombat) //Roam only interactable
+        {
+            interactionCollider.enabled = true;
+        }
+    }
+
+    protected void CombatInteractionComplete()
+    {
+        FantasyCombatManager.Instance.ActionComplete();
+    }
+
     public void ShowInteractUI(bool show)
     {
         if(show && !InteractionManager.Instance.showInteractCanvas) { return; }
@@ -79,32 +139,6 @@ public abstract class Interact : MonoBehaviour
             SetCollider();
 
         interactionCollider.enabled = false;
-    }
-
-    protected void BeginCombatInteraction(List<GridUnit> targets)
-    {
-        CharacterGridUnit interactor = FantasyCombatManager.Instance.GetActiveUnit();
-
-        interactor.unitAnimator.SetSpeed(0);
-
-        //Warp Unit into Position & Rotation in an attempt to remove camera jitter.
-        Vector3 desiredRotation = Quaternion.LookRotation(CombatFunctions.GetCardinalDirectionAsVector(interactor.transform)).eulerAngles;
-        interactor.Warp(LevelGrid.Instance.gridSystem.GetWorldPosition(interactor.GetCurrentGridPositions()[0]), Quaternion.Euler(new Vector3(0, desiredRotation.y, 0)));
-
-        GridSystemVisual.Instance.HideAllGridVisuals(true);
-
-        List<GridUnit> targetedUnits = new List<GridUnit>(targets);
-        targetedUnits.Add(interactor);
-
-        FantasyCombatManager.Instance.SetUnitsToShow(targetedUnits);
-
-        //UpdatePosition
-        interactor.MovedToNewGridPos();
-    }
-
-    protected void CombatInteractionComplete()
-    {
-        FantasyCombatManager.Instance.ActionComplete();
     }
 
     protected bool TriggerCondition(Collider other)
@@ -148,7 +182,7 @@ public abstract class Interact : MonoBehaviour
         CharacterGridUnit unit = interactor.GetComponent<CharacterGridUnit>();
         List<GridPosition> currentGridPos = unit.GetCurrentGridPositions();
 
-        return validInteractioGridPos.Intersect(currentGridPos).Any();
+        return GetValidInteractionGridPositions().Intersect(currentGridPos).Any();
     }
 
     protected virtual bool IsInteractorCorrectRotation(Transform interactor)
@@ -170,7 +204,7 @@ public abstract class Interact : MonoBehaviour
     }
 
 
-    protected void SetValidInteractionGridPositions()
+    protected List<GridPosition> GetValidInteractionGridPositions()
     {
         List<GridPosition> validGridPositionsList = new List<GridPosition>();
         //List<GridPosition> interactableGridPositions = unit.GetGridPositionsOnTurnStart();
@@ -227,22 +261,25 @@ public abstract class Interact : MonoBehaviour
             }
         }*/
 
-        validInteractioGridPos = validGridPositionsList;
+        return validGridPositionsList;
     }
 
     private void SetInteractCanvasText()
     {
+        if (!interactUI) 
+        {
+            if (allowInteractionDuringFreeRoam)
+            {
+                Debug.LogError(transform.name + " doesn't have an interact UI setup!");
+            }
+            return; 
+        } 
+
         objectTitle =  interactUI.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
         interactTitle = interactUI.transform.GetChild(1).GetComponent<TextMeshProUGUI>();
 
         objectTitle.text = objectTitleText;
         interactTitle.text = interactTitleText;
-    }
-
-    protected void UpdateInteractCanvasText(string objectText, string interactText)
-    {
-        objectTitle.text = objectText;
-        interactTitle.text = interactText;
     }
 
     protected void SetCollider()

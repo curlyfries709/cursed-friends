@@ -2,9 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using UnityEditor.Experimental.GraphView;
 using System.Linq;
-using UnityEngine.TextCore.Text;
+using AnotherRealm;
 using Sirenix.Utilities;
 
 public struct AffinityDamage
@@ -148,10 +147,10 @@ public class TheCalculator : MonoBehaviour
         return Mathf.RoundToInt(((rawDamage * GetPowerGradeMultiplier(skillPowerGrade)) + variance) * attacker.stats.blessingDamageMultiplier * buffMultiplier);
     }
 
-    public DamageData CalculateDamageReceived(AttackData attackData, CharacterGridUnit target, DamageType damageType, bool isTargetGuarding)
+    public DamageData CalculateDamageReceived(AttackData attackData, GridUnit target, DamageType damageType, bool isTargetGuarding)
     {
         //SETUP
-        CharacterGridUnit attacker = attackData.attacker;
+        GridUnit attacker = attackData.attacker;
 
         //Setup Damage Data
         DamageData damageData = ExtractDamageDataFromAttackData(target, attackData, damageType, false);
@@ -160,9 +159,9 @@ public class TheCalculator : MonoBehaviour
         damageData.isTargetGuarding = isTargetGuarding;
 
         //Evade Calculation
-        if (damageType == DamageType.Default)
+        if (damageType == DamageType.Default && !target.Health().IsObject())
         {
-            if (!isTargetGuarding && attackData.canEvade && EvadeAttack(attacker, target, damageData.isBackstab))
+            if (!isTargetGuarding && attackData.canEvade && EvadeAttack(attacker, target as CharacterGridUnit, damageData.isBackstab))
             {
                 //Cannot Evade if Guarding.
                 damageData.Clear(false, false);
@@ -188,7 +187,16 @@ public class TheCalculator : MonoBehaviour
                 damageData.damageReceived = 0;
                 break;
             case Affinity.Weak:
-                damageData.damageReceived = Mathf.RoundToInt(damageReduced * weakDamageMultiplier);
+                ObjectHealth objectHealth = target.Health() as ObjectHealth;
+
+                if(objectHealth && objectHealth.IsWeakHitKO())
+                {
+                    damageData.damageReceived = objectHealth.MaxHealth();
+                }
+                else
+                {
+                    damageData.damageReceived = Mathf.RoundToInt(damageReduced * weakDamageMultiplier);
+                }
                 break;
             case Affinity.Resist:
                 damageData.damageReceived = Mathf.RoundToInt(damageReduced * (1f - (resistDamageReductionPercent / 100f)));
@@ -223,28 +231,42 @@ public class TheCalculator : MonoBehaviour
         //Update isKnockdown Data
         if (damageType == DamageType.Default || damageType == DamageType.Reflect)
         {
-            damageData.isKnockdownHit = damageData.affinityToAttack == Affinity.Weak || StatusEffectManager.Instance.IsKnockdownHit(damageData.inflictedStatusEffects, isTargetGuarding);
+            StatusEffectData knockdownEffect = StatusEffectManager.Instance.GetKnockdownEffectData();
 
-            if (damageData.isKnockdownHit)
+            if (StatusEffectManager.Instance.CanApplyStatusEffect(target, knockdownEffect))
             {
-                InflictedStatusEffectData knockdownEffectData = new InflictedStatusEffectData(StatusEffectManager.Instance.GetKnockdownEffectData(), target, attacker.stats.SEDuration, 0);
+                damageData.isKnockdownHit = damageData.affinityToAttack == Affinity.Weak || StatusEffectManager.Instance.IsKnockdownHit(damageData.inflictedStatusEffects, isTargetGuarding);
 
-                if (!damageData.inflictedStatusEffects.Any((effect) => effect.effectData == StatusEffectManager.Instance.GetKnockdownEffectData()))
+                if (damageData.isKnockdownHit)
                 {
-                    damageData.inflictedStatusEffects.Add(knockdownEffectData);
+                    InflictedStatusEffectData knockdownEffectData = new InflictedStatusEffectData(knockdownEffect, target as CharacterGridUnit, attacker.stats.SEDuration, 0);
+
+                    if (!damageData.inflictedStatusEffects.Any((effect) => effect.effectData == knockdownEffect))
+                    {
+                        damageData.inflictedStatusEffects.Add(knockdownEffectData);
+                    }
                 }
+            }
+            else
+            {
+                damageData.isKnockdownHit = false;
             }
         }
 
         //Try wounding if crit.
         if (TryWoundUnit(attacker, damageData.isCritical))
         {
-            InflictedStatusEffectData woundedEffectData = new InflictedStatusEffectData(StatusEffectManager.Instance.GetWoundedEffectData(), target, attacker.stats.SEDuration, 0);
+            StatusEffectData woundedEffect = StatusEffectManager.Instance.GetWoundedEffectData();
 
-            if (!damageData.inflictedStatusEffects.Any((effect) => effect.effectData == StatusEffectManager.Instance.GetWoundedEffectData()))
+            if (StatusEffectManager.Instance.CanApplyStatusEffect(target, woundedEffect))
             {
-                damageData.inflictedStatusEffects.Add(woundedEffectData);
-            } 
+                InflictedStatusEffectData woundedEffectData = new InflictedStatusEffectData(woundedEffect, target as CharacterGridUnit, attacker.stats.SEDuration, 0);
+
+                if (!damageData.inflictedStatusEffects.Any((effect) => effect.effectData == woundedEffect))
+                {
+                    damageData.inflictedStatusEffects.Add(woundedEffectData);
+                }
+            }
         }
 
         //Apply multipliers based on game Difficulty 
@@ -306,7 +328,7 @@ public class TheCalculator : MonoBehaviour
         return healer.stats.HealEfficacy + variance;
     }
 
-    private int ApplyDamageModifiers(CharacterGridUnit target, CharacterGridUnit attacker, AttackData attackData, ref DamageData damageData)
+    private int ApplyDamageModifiers(GridUnit target, GridUnit attacker, AttackData attackData, ref DamageData damageData)
     {
         float externalMultiplier = 1;
         bool wasOriginallyCrit = attackData.isCritical;
@@ -356,12 +378,12 @@ public class TheCalculator : MonoBehaviour
         return Mathf.RoundToInt(attackData.rawDamage * externalMultiplier);
     }
 
-    private void ApplyHealModifiers(CharacterGridUnit target, CharacterGridUnit healer, ref HealData healData)
+    private void ApplyHealModifiers(GridUnit target, CharacterGridUnit healer, ref HealData healData)
     {
 
     }
 
-    private int ArmourReduction(CharacterGridUnit target, int rawDamage, DamageType damageType)
+    private int ArmourReduction(GridUnit target, int rawDamage, DamageType damageType)
     {
         //Check if damage type allows armour reduction 
         if(damageType == DamageType.KnockbackBump)
@@ -385,20 +407,30 @@ public class TheCalculator : MonoBehaviour
         return Mathf.Max(0, Mathf.RoundToInt(damage * GameManager.Instance.GetEnemyDifficultyDamageMultiplier()));
     }
 
-    private bool EvadeAttack(CharacterGridUnit attacker, CharacterGridUnit target, bool isBackStab)
+    private bool EvadeAttack(GridUnit attacker, CharacterGridUnit target, bool isBackStab)
     {
-        //Calculate Min Difference
-        int targetEvasion = target.stats.Evasion;
-        int attackerTechnique = attacker.stats.Technique;
+        int evasionChance;
 
-        float minDifference = finesseDifferenceConstant + (minDifferenceIncreaseValue * (((float)attackerTechnique / finesseDifferenceConstant) - 1));
+        if (attacker.stats.UseHitChance(out int hitChance))
+        {
+            evasionChance = 100 - hitChance;
+        }
+        else
+        {
+            //Calculate Min Difference
+            int targetEvasion = target.stats.Evasion;
+            int attackerTechnique = attacker.stats.Technique;
 
-        int minDifferenceToInt = Mathf.FloorToInt(minDifference);
+            float minDifference = finesseDifferenceConstant + (minDifferenceIncreaseValue * (((float)attackerTechnique / finesseDifferenceConstant) - 1));
 
-        int minEvasionReqForGuaranteedEvasion = minDifferenceToInt + attackerTechnique;
-        int maxEvasionReqForNoEvasion = attackerTechnique - minDifferenceToInt;
+            int minDifferenceToInt = Mathf.FloorToInt(minDifference);
 
-        int evasionChance = Mathf.RoundToInt(((float)targetEvasion - maxEvasionReqForNoEvasion) / ((float)minEvasionReqForGuaranteedEvasion - maxEvasionReqForNoEvasion) * 100);
+            int minEvasionReqForGuaranteedEvasion = minDifferenceToInt + attackerTechnique;
+            int maxEvasionReqForNoEvasion = attackerTechnique - minDifferenceToInt;
+
+            evasionChance = Mathf.RoundToInt(((float)targetEvasion - maxEvasionReqForNoEvasion) / ((float)minEvasionReqForGuaranteedEvasion - maxEvasionReqForNoEvasion) * 100);
+
+        }
 
         if (isBackStab)
         {
@@ -409,11 +441,10 @@ public class TheCalculator : MonoBehaviour
         //Calculate if should Evade attack based on evasion chance
         int randNum = UnityEngine.Random.Range(0, 101);
 
-
         return randNum <= evasionChance;
     }
 
-    private bool TryWoundUnit(CharacterGridUnit attacker, bool isCrit)
+    private bool TryWoundUnit(GridUnit attacker, bool isCrit)
     {
         if (!isCrit) { return false; }
 
@@ -422,6 +453,23 @@ public class TheCalculator : MonoBehaviour
         bool applyWounded = randNum <= attacker.stats.StatusEffectInflictChance;
 
         return applyWounded;
+    }
+
+    public int CalculateFPGain(bool isEnhancedAction, int numOfSEApplied = 0)
+    {
+        int gain = isEnhancedAction ? FantasyCombatManager.Instance.fpEnhancedGainAmount : FantasyCombatManager.Instance.fpBasicGainAmount;
+        int SEGain = numOfSEApplied * FantasyCombatManager.Instance.fpEnhancedGainAmount;
+
+        if (isEnhancedAction) //A Special Hit that applied SE. So Earn FP For The Special Hit & Applied SE.
+        {
+            return gain + SEGain;
+        }
+        else if (numOfSEApplied > 0) //Normal Hit that applied SE. So Only Gain FP for applied SE.
+        {
+            return SEGain;
+        }
+
+        return gain;
     }
 
     public DamageData ExtractDamageDataFromAttackData(GridUnit target, AttackData attackData, DamageType damageType, bool updateDamage = true)
@@ -450,7 +498,7 @@ public class TheCalculator : MonoBehaviour
         return damageData;
     }
 
-    private List<InflictedStatusEffectData> FilterInvalidStatusEffects(CharacterGridUnit target, List<InflictedStatusEffectData> listToFilter)
+    private List<InflictedStatusEffectData> FilterInvalidStatusEffects(GridUnit target, List<InflictedStatusEffectData> listToFilter)
     {
         if (listToFilter.IsNullOrEmpty())
         {
@@ -461,7 +509,7 @@ public class TheCalculator : MonoBehaviour
         return listToFilter.Where((effect) => StatusEffectManager.Instance.CanApplyStatusEffect(target, effect.effectData)).ToList();
     }
 
-    public Affinity GetAffinity(CharacterGridUnit unit, Element attackElement,  Item attackItem)
+    public Affinity GetAffinity(GridUnit unit, Element attackElement,  Item attackItem)
     {
         if(attackElement == Element.None && !attackItem)
         {
@@ -508,27 +556,37 @@ public class TheCalculator : MonoBehaviour
         }
     }
 
-    public bool CanCounter(CharacterGridUnit target, Element attackElement)
+    public bool CanCounter(GridUnit target, Element attackElement)
     {
-        //Contact Monster Database and see if Element Data unlocked for Element. If Unlocked & will damage, counter.
-        Affinity affinity = GetAffinity(target, attackElement, null);
+        if(target is CharacterGridUnit character)
+        {
+            //Contact Monster Database and see if Element Data unlocked for Element. If Unlocked & will damage, counter.
+            Affinity affinity = GetAffinity(character, attackElement, null);
 
-        //Still worth countering an immune target as it could inflict status effect. HOWEVER, I HAVE REMOVED IT. DESIGN CHOICE.
-        bool isAttackableAffinity = affinity == Affinity.None || affinity == Affinity.Weak || affinity == Affinity.Resist;
-        bool isAffinityUnlocked = EnemyDatabase.Instance.IsAffinityUnlocked(target, attackElement);
+            //Still worth countering an immune target as it could inflict status effect. HOWEVER, I HAVE REMOVED IT. DESIGN CHOICE.
+            bool isAttackableAffinity = affinity == Affinity.None || affinity == Affinity.Weak || affinity == Affinity.Resist;
+            bool isAffinityUnlocked = EnemyDatabase.Instance.IsAffinityUnlocked(character, attackElement);
 
-        return isAttackableAffinity && isAffinityUnlocked;
+            return isAttackableAffinity && isAffinityUnlocked;
+        }
+
+        return false;
     }
 
-    public bool IsAttackBackStab(CharacterGridUnit attacker, GridUnit target, DamageType damageType)
+    public bool IsAttackBackStab(GridUnit attacker, GridUnit target, DamageType damageType)
     {
         if(damageType != DamageType.Default)
         {
             return false;
         }
 
-        //Their forward transforms would need to be the same direction. However due to slight rotation discrepancy, I have done the below
-        return Vector3.Angle(attacker.transform.forward.normalized, target.transform.forward.normalized) <= backStabAngleCheck;
+        if (target.Health().IsObject())
+        {
+            return false; //Objects cannot be backstabbed
+        }
+
+        Direction targetBackDirection = CombatFunctions.GetDirectionFromVector(-target.transform.forward.normalized);
+        return CombatFunctions.IsGridPositionInDirection(target.GetGridPositionsOnTurnStart()[0], attacker.GetGridPositionsOnTurnStart()[0], targetBackDirection);
     }
 
     public bool IsAttackBackStab(Transform attackerTransform, GridUnit target)

@@ -100,6 +100,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     [HideInInspector] public CharacterGridUnit TeamAttackInitiator = null;
 
     List<GridUnit> unitsToShow = new List<GridUnit>();
+    List<GridUnit> KOUnitsThisTurn = new List<GridUnit>();
 
     List<PlayerGridUnit> playerCombatParticipants = new List<PlayerGridUnit>();
     List<CharacterGridUnit> enemyCombatParticipants = new List<CharacterGridUnit>();
@@ -169,8 +170,8 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     {
         //Combat Events
         ActionComplete += OnActionComplete;
-        FantasyHealth.CharacterUnitKOed += OnUnitKO;
-        FantasyHealth.CharacterUnitRevived += OnUnitRevive;
+        Health.UnitKOed += OnUnitKO;
+        CharacterHealth.CharacterUnitRevived += OnUnitRevive;
         Flee.UnitFled += OnUnitFlee;
         CombatEnded += OnCombatEnd;
         ControlsManager.Instance.SubscribeToPlayerInput(myActionMap, this);
@@ -250,7 +251,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         {
             UnitDataAtBattleStart data = dataAtBattleStart[unit];
 
-            unit.GetDamageable().ResetStateToBattleStart(data.healthAtStart, data.spAtStart, data.fpAtStart);
+            unit.Health().ResetStateToBattleStart(data.healthAtStart, data.spAtStart, data.fpAtStart);
             //Warp & Set Position
 
             unit.Warp(LevelGrid.Instance.gridSystem.GetWorldPosition(data.gridPosAtStart[0]), Quaternion.LookRotation(data.directionAtStart));
@@ -355,9 +356,13 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         {
             UnitDataAtBattleStart data = new UnitDataAtBattleStart();
 
-            data.healthAtStart = unit.GetDamageable().currentHealth;
-            data.spAtStart = unit.GetDamageable().currentSP;
-            data.fpAtStart = unit.GetDamageable().currentFP;
+            data.healthAtStart = unit.Health().currentHealth;
+
+            if(unit is CharacterGridUnit character)
+            {
+                data.spAtStart = character.Health().currentSP;
+                data.fpAtStart = character.Health().currentFP;
+            }
 
             data.gridPosAtStart = new List<GridPosition>(unit.GetGridPositionsOnTurnStart());
             data.directionAtStart = CombatFunctions.GetCardinalDirectionAsVector(unit.transform);
@@ -572,12 +577,14 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
     private void HideAllKOedEnemies()
     {
-        foreach(CharacterGridUnit enemy in GetEnemyCombatParticipants(true, true).Where((enemy) => enemy.Health().isKOed && enemy.gameObject.activeInHierarchy))
+        foreach(GridUnit unit in KOUnitsThisTurn)
         {
             //Remove From Grid & Deactivate Unit.
-            LevelGrid.Instance.RemoveUnitFromGrid(enemy);
-            enemy.ActivateUnit(false);
+            LevelGrid.Instance.RemoveUnitFromGrid(unit);
+            unit.ActivateUnit(false);
         }
+
+        KOUnitsThisTurn.Clear();
     }
 
     /*public void BeginHealthUICountdown()
@@ -682,16 +689,23 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         ShowActionMenu(true);
     }
 
-    private void OnUnitKO(CharacterGridUnit unit)
+    private void OnUnitKO(GridUnit unit)
     {
-        //Update Lists.
-        turnOrder.RemoveAll((item) => item == unit);
-        HUDManager.Instance.GetCombatHUD().UpdateTurnOrder(turnOrder, unitCurrentActionTimeDict);
+        if (!KOUnitsThisTurn.Contains(unit))
+        {
+            KOUnitsThisTurn.Add(unit);
+        }
 
-        //Determine if Victory Or Defeat.
-        DefeatCheck(unit);
-        VictoryCheck(unit);
+        if(unit is CharacterGridUnit character)
+        {
+            //Update Lists.
+            turnOrder.RemoveAll((item) => item == unit);
+            HUDManager.Instance.GetCombatHUD().UpdateTurnOrder(turnOrder, unitCurrentActionTimeDict);
 
+            //Determine if Victory Or Defeat.
+            DefeatCheck(character);
+            VictoryCheck(character);
+        }
     }
 
     private void OnUnitFlee(CharacterGridUnit unit)
@@ -1268,8 +1282,8 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     private void OnDisable()
     {
         ActionComplete -= OnActionComplete;
-        FantasyHealth.CharacterUnitKOed -= OnUnitKO;
-        FantasyHealth.CharacterUnitRevived -= OnUnitRevive;
+        Health.UnitKOed -= OnUnitKO;
+        CharacterHealth.CharacterUnitRevived -= OnUnitRevive;
         CombatEnded -= OnCombatEnd;
         Flee.UnitFled -= OnUnitFlee;
     }

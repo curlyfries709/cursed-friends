@@ -45,7 +45,7 @@ public class BasicPotionEffect : MonoBehaviour
 
         HealData healData = new HealData(target, potionData.hpGain, potionData.spGain, potionData.fpGain, potionData.canRevive);
         target.Health().Heal(healData);
-        IDamageable.RaiseHealthChangeEvent(true);
+        Health.RaiseHealthChangeEvent(true);
 
         hasStartedHealthCountdown = true;
     }

@@ -94,7 +94,7 @@ public class BlessingEffects : MonoBehaviour, ITurnStartEvent
         FantasyCombatCollectionManager.BlessingUsed?.Invoke(blesser);
 
         //Activate healing
-        IDamageable.RaiseHealthChangeEvent(true);
+        Health.RaiseHealthChangeEvent(true);
 
 
         collectionManager.BeginBlessingCooldown(activeBlessing, blesser);
@@ -125,7 +125,7 @@ public class BlessingEffects : MonoBehaviour, ITurnStartEvent
     public void PlayTurnStartEvent()
     {
         Heal(FantasyCombatManager.Instance.GetActiveUnit() as PlayerGridUnit);
-        IDamageable.RaiseHealthChangeEvent(true);
+        Health.RaiseHealthChangeEvent(true);
     }
 
     private void Heal(PlayerGridUnit unitToHeal)

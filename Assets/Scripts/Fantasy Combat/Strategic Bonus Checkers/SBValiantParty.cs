@@ -14,20 +14,20 @@ public class SBValiantParty : StrategicBonusChecker
     protected override void ResetDataOnCombatBegin(BattleStarter.CombatAdvantage advantageType)
     {
         partyMembersAtBattleStart = PartyManager.Instance.GetActivePlayerParty().Count;
-        FantasyHealth.CharacterUnitKOed += OnUnitKOed;
+        Health.UnitKOed += OnUnitKOed;
         playedKOED = false;
     }
 
-    private void OnUnitKOed(CharacterGridUnit character)
+    private void OnUnitKOed(GridUnit unit)
     {
         if (!playedKOED)
-            playedKOED = character is PlayerGridUnit;
+            playedKOED = unit is PlayerGridUnit;
     }
 
     protected override void OnCombatEnd(BattleResult battleResult, IBattleTrigger battleTrigger)
     {
         base.OnCombatEnd(battleResult, battleTrigger);
-        FantasyHealth.CharacterUnitKOed -= OnUnitKOed;
+        Health.UnitKOed -= OnUnitKOed;
 
         if (battleResult != BattleResult.Victory || FantasyCombatManager.Instance.GetPlayerCombatParticipants(true, true).Count < partyMembersAtBattleStart || playedKOED) { return; }
 

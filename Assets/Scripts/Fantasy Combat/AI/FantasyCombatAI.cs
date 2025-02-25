@@ -113,8 +113,8 @@ public class FantasyCombatAI : MonoBehaviour
 
         //Set Skillset
         skillsList = CombatSkillManager.Instance.GetAISpawnedSkills(myUnit);
-        
-        FantasyHealth.CharacterUnitKOed += OnUnitKO;
+
+        Health.UnitKOed += OnUnitKO;
 
         if(targetingBehaviour == TargetingBehaviour.SameRandomUnitTillKo)
         {
@@ -220,7 +220,7 @@ public class FantasyCombatAI : MonoBehaviour
     {
         if(unit == myUnit)
         {
-            FantasyHealth.CharacterUnitKOed -= OnUnitKO;
+            Health.UnitKOed -= OnUnitKO;
         }
         else if(targetingBehaviour == TargetingBehaviour.SameRandomUnitTillKo && unit == preferredTarget)
         {

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Sirenix.OdinInspector;
 
 public abstract class UnitStats : MonoBehaviour
 {
@@ -21,8 +22,12 @@ public abstract class UnitStats : MonoBehaviour
     [Header("Default Data")]
     [SerializeField] protected Equipment equipment;
     public Element defaultAttackElement;
-    [Space(10)]
-    [SerializeField] protected bool forceImmunity = false;
+    [Header("Overrides")]
+    [SerializeField] protected bool hasForceImmunity = false;
+    [Tooltip("Should a hit chance be used over finesse?")]
+    [SerializeField] protected bool useHitChance = false;
+    [ShowIf("useHitChance")]
+    [SerializeField] protected int hitChance = 0;
 
     //Current Attributes {Includes Equipment Bonuses}
     public int Strength { get; protected set; }
@@ -72,7 +77,6 @@ public abstract class UnitStats : MonoBehaviour
     [HideInInspector] public float buffWISmultiplier = 1;
 
     [HideInInspector] public float buffCHRmultiplier = 1;
-
     
     //Sub Attribute Damage Blessings
     [HideInInspector] public float blessingDamageMultiplier = 1;
@@ -114,13 +118,13 @@ public abstract class UnitStats : MonoBehaviour
     //Current Stats
     private void UpdateAttributes()
     {
-        Strength = baseStrength + equipment.GetEquipmentAttributeBonus(Attribute.Strength);
-        Finesse = baseFinesse + equipment.GetEquipmentAttributeBonus(Attribute.Finesse);
-        Agility = baseAgility + equipment.GetEquipmentAttributeBonus(Attribute.Agility);
-        Endurance = baseEndurance + equipment.GetEquipmentAttributeBonus(Attribute.Endurance);
-        Intelligence = baseIntelligence + equipment.GetEquipmentAttributeBonus(Attribute.Intelligence);
-        Wisdom = baseWisdom + equipment.GetEquipmentAttributeBonus(Attribute.Wisdom);
-        Charisma = baseCharisma + equipment.GetEquipmentAttributeBonus(Attribute.Charisma);
+        Strength = baseStrength + (equipment ? equipment.GetEquipmentAttributeBonus(Attribute.Strength) : 0);
+        Finesse = baseFinesse + (equipment ? equipment.GetEquipmentAttributeBonus(Attribute.Finesse) : 0);
+        Agility = baseAgility + (equipment ? equipment.GetEquipmentAttributeBonus(Attribute.Agility) : 0);
+        Endurance = baseEndurance + (equipment ? equipment.GetEquipmentAttributeBonus(Attribute.Endurance) : 0);
+        Intelligence = baseIntelligence + (equipment ? equipment.GetEquipmentAttributeBonus(Attribute.Intelligence) : 0);
+        Wisdom = baseWisdom + (equipment ? equipment.GetEquipmentAttributeBonus(Attribute.Wisdom) : 0);
+        Charisma = baseCharisma + (equipment ? equipment.GetEquipmentAttributeBonus(Attribute.Charisma) : 0);
 
         if (TheCalculator.Instance.printStats)
         {
@@ -133,8 +137,6 @@ public abstract class UnitStats : MonoBehaviour
             Debug.Log(data.Key() + " CHR: " + Charisma.ToString());
         }
     }
-
-
 
     private void UpdateSubStats()
     {
@@ -182,29 +184,26 @@ public abstract class UnitStats : MonoBehaviour
 
     //Affinity Alteration
 
-
     public void AlterElementAffinity(ElementAffinity newAffinity)
     {
         currentElementAffinities[newAffinity.element] = newAffinity.affinity;
     }
-
-
     public void ResetElementAffinity(Element element)
     {
         currentElementAffinities[element] = defaultElementAffinities[element];
     }
 
-    private void SetAffinities()//CALLED OUTSIDE COMBAT.
+    protected void SetAffinities()//CALLED OUTSIDE COMBAT.
     {
         List<ElementAffinity> elementAffinities = new List<ElementAffinity>();
 
         if (equipment) 
         {
-            elementAffinities = equipment.GetElementAlteration().Concat(data.elementAffinities).ToList();
+            elementAffinities = equipment.GetElementAlteration().Concat(GetDefaultElementAffinities()).ToList();
         }
         else
         {
-            elementAffinities = data.elementAffinities;
+            elementAffinities = GetDefaultElementAffinities();
         }
          
         //Set Elements
@@ -230,6 +229,10 @@ public abstract class UnitStats : MonoBehaviour
         defaultElementAffinities = currentElementAffinities.ToDictionary(entry => entry.Key, entry => entry.Value);
     }
 
+    protected virtual List<ElementAffinity> GetDefaultElementAffinities()
+    {
+        return data.elementAffinities;
+    }
 
     //Stat Changers
     public void UpdateBuffMultiplier(ref float buffMultiplier, float multiplierValue, bool removeBuff)
@@ -306,7 +309,6 @@ public abstract class UnitStats : MonoBehaviour
         return armour.raceRestriction.Contains(data.race) && CanUseItem(armour);
     }
     
-
     public bool IsEquipped(Item item)
     {
         if (!item) { return false; }
@@ -387,12 +389,19 @@ public abstract class UnitStats : MonoBehaviour
 
     public bool IsImmuneToForces()
     {
-        return forceImmunity || equipment.HasForceImmunity();
+        return hasForceImmunity || equipment.HasForceImmunity();
     }
 
     public bool IsImmuneToStatusEffect(StatusEffectData statusEffect)
     {
         return data.statusEffectsNullified.Contains(statusEffect) || equipment.GetStatusEffectImmunity().Contains(statusEffect);
+    }
+
+    public bool UseHitChance(out int hitChance)
+    {
+        hitChance = this.hitChance;
+
+        return useHitChance;
     }
 
     public Equipment Equipment()

@@ -44,7 +44,7 @@ public abstract class EnchantmentEffect : MonoBehaviour
         OnCombatBegin();
 
         if (listenToUnitHit)
-            IDamageable.UnitHit += OnUnitHit;
+            Health.UnitHit += OnUnitHit;
 
         if (modifyDamageReceived)
             owner.ModifyDamageReceived += OnModifyDamageReceived;
@@ -114,7 +114,7 @@ public abstract class EnchantmentEffect : MonoBehaviour
         OnCombatEnd();
 
         if (listenToUnitHit)
-            IDamageable.UnitHit -= OnUnitHit;
+            Health.UnitHit -= OnUnitHit;
         if(modifyDamageReceived)
             owner.ModifyDamageReceived -= OnModifyDamageReceived;
         if (modifyDamageDealt)
