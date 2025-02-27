@@ -6,6 +6,8 @@ using System;
 using System.Linq;
 using Sirenix.OdinInspector;
 using AnotherRealm;
+using UnityEngine.Rendering;
+using Unity.VisualScripting;
 
 public enum BattleResult
 {
@@ -85,6 +87,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
     bool inCombat = false;
     bool usedTactic = false;
+    bool isCombatInteractionAvailable = false;
     public bool restartingBattle { get; private set; } = false;
 
     [HideInInspector] public bool CombatCinematicPlaying = false; //Set By POF & Duofires, Read by Equipment script to avoid running unnecessary Methods.
@@ -305,6 +308,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
         inCombat = true;
         restartingBattle = false;
+        isCombatInteractionAvailable = false;
         battleTurnNumber = 0;
 
         SetAllActiveCombatUnits();
@@ -477,6 +481,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         {
             //Means current Unit is Player
             ControlsManager.Instance.SwitchCurrentActionMap(myActionMap);
+            InteractionManager.Instance.ShowInteractCanvas?.Invoke(true);
         }
         else
         {
@@ -824,6 +829,14 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         }
     }
 
+    public void SetCombatInteractionAvailable(bool isAvailable)
+    {
+        if(isCombatInteractionAvailable == isAvailable) { return; }
+
+        isCombatInteractionAvailable = isAvailable;
+        selectedPlayerUnit?.GetActionMenu().AllowInteraction(isCombatInteractionAvailable);
+    }
+
     //TESTING METHOD
     private void GetCombatants()
     {
@@ -1064,7 +1077,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
     //Quick Actions
 
-    private void OnAttackOrActivateSkill(InputAction.CallbackContext context)
+    private void OnAttackOrInteractOrActivateSkill(InputAction.CallbackContext context)
     {
         if (context.action.name != "Attack") { return; }
 
@@ -1072,13 +1085,25 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         {
             if (!currentSelectedSkill)
             {
-                if (selectedPlayerUnit.GetBasicAttack().TrySelectSkill())
+                bool skillSelected = false;
+
+                if(isCombatInteractionAvailable && selectedPlayerUnit.GetInteractSkill().TrySelectSkill())
+                {
+                    skillSelected = true;
+                    currentSelectedSkill = selectedPlayerUnit.GetInteractSkill();
+                }
+                else if (!isCombatInteractionAvailable && selectedPlayerUnit.GetBasicAttack().TrySelectSkill())
+                {
+                    skillSelected = true;
+                    currentSelectedSkill = selectedPlayerUnit.GetBasicAttack();
+                }
+
+                if (skillSelected)
                 {
                     //Play SFX
                     AudioManager.Instance.PlaySFX(SFXType.OpenCombatMenu);
 
                     ShowActionMenu(false);
-                    currentSelectedSkill = selectedPlayerUnit.GetBasicAttack();
                 }
                 else
                 {
@@ -1150,19 +1175,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         if (context.performed && selectedPlayerUnit)
         {
             EnemyDatabase.Instance.ShowAnalysisUI(true);
-        }
-    }
-
-    private void OnInteract(InputAction.CallbackContext context)
-    {
-        if (context.action.name != "Interact") { return; }
-
-        if (context.performed && selectedPlayerUnit)
-        {
-            if (InteractionManager.Instance.HandleInteraction(true))
-            {
-                //Fantasy Combat Manager updates activeUnit Grid Pos and Rotation. 
-            }
         }
     }
 
@@ -1292,12 +1304,11 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     {
         if (listen)
         {
-            playerInput.onActionTriggered += OnAttackOrActivateSkill;
+            playerInput.onActionTriggered += OnAttackOrInteractOrActivateSkill;
             playerInput.onActionTriggered += OnGuardOrCancel;
             playerInput.onActionTriggered += OnPause;
             playerInput.onActionTriggered += OnTest;
             //playerInput.onActionTriggered += OnGuard;
-            playerInput.onActionTriggered += OnInteract;
             playerInput.onActionTriggered += OnAnalyse;
             playerInput.onActionTriggered += OnItem;
             playerInput.onActionTriggered += OnSkill;
@@ -1308,12 +1319,11 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         }
         else
         {
-            playerInput.onActionTriggered -= OnAttackOrActivateSkill;
+            playerInput.onActionTriggered -= OnAttackOrInteractOrActivateSkill;
             playerInput.onActionTriggered -= OnPause;
             playerInput.onActionTriggered -= OnGuardOrCancel;
             playerInput.onActionTriggered -= OnTest;
             //playerInput.onActionTriggered -= OnGuard;
-            playerInput.onActionTriggered -= OnInteract;
             playerInput.onActionTriggered -= OnAnalyse;
             playerInput.onActionTriggered -= OnSkill;
             playerInput.onActionTriggered -= OnItem;
@@ -1452,6 +1462,8 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     //Setters
     public void SetCurrentAction(ICombatAction newAction, bool isComplete)
     {
+        if(newAction == null) { return; }
+
         newAction.isActive = !isComplete;
         currentCombatAction = isComplete ? null : newAction;
 
@@ -1658,6 +1670,11 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     public bool InCombat()
     {
         return inCombat;
+    }
+
+    public string GetActionMapName()
+    {
+        return myActionMap;
     }
 
     public void ShowAllUnits()

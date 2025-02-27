@@ -126,6 +126,76 @@ MonoBehaviour:
   playerTransform: {fileID: 8768347874194456719}
   horizontalOffset: 0.5
   minYPos: 0.5
+--- !u!1 &234064711970642006
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2502904158043375384}
+  - component: {fileID: 6936325307193034539}
+  m_Layer: 0
+  m_Name: INTERACT
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2502904158043375384
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 234064711970642006}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9019951633251880770}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6936325307193034539
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 234064711970642006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5e43cee36489274dba3bffacfa632f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  myUnit: {fileID: 3019866007152699496}
+  isSingleTarget: 1
+  targets: 030000000200000001000000
+  skillShape: 0
+  skillDimensions: {x: 0, y: 0}
+  validTargetArea: {x: 1, y: 1}
+  range: 0
+  originateFromUnitCentre: 0
+  canPenetrate: 1
+  includeDiagonals: 0
+  maxNumCellsFromUnit: 1
+  unitCameraRootTransform: {fileID: 0}
+  forceTypeToApply: 0
+  forceDirection: 0
+  forceDistance: 0
+  unlockLevel: 1
+  skillName: Interact
+  aoeDiagram: {fileID: 0}
+  quickData: 
+  description: 
+  costType: 3
+  cost: 10
+  percentageCost: 5
+  isGridSelectionRequired: 0
+  blendListCamera: {fileID: 0}
+  otherVisualsToToggle: []
 --- !u!1 &399545783780960726
 GameObject:
   m_ObjectHideFlags: 0
@@ -659,7 +729,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1048484730138022234}
-  m_LocalRotation: {x: 0.030896068, y: 0.7147914, z: -0.32830524, w: -0.6167126}
+  m_LocalRotation: {x: 0.030896068, y: 0.7147915, z: -0.3283053, w: -0.6167125}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3130,7 +3200,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myUnit: {fileID: 3019866007152699496}
-  mySkillData: {fileID: 0}
   isSingleTarget: 1
   targets: 0200000003000000
   skillShape: 0
@@ -3142,6 +3211,9 @@ MonoBehaviour:
   includeDiagonals: 0
   maxNumCellsFromUnit: 1
   unitCameraRootTransform: {fileID: 0}
+  forceTypeToApply: 0
+  forceDirection: 0
+  forceDistance: 0
   unlockLevel: 1
   skillName: Attack
   aoeDiagram: {fileID: 0}
@@ -3156,8 +3228,9 @@ MonoBehaviour:
   powerGrade: 8
   isMagical: 0
   isChargedSkill: 0
-  knockbackDistance: 0
+  isUnevadable: 0
   skillElement: 0
+  skillItem: {fileID: 0}
   inflictedStatusEffects: []
   attackMultipleUnitsIndividually: 0
   hitVFXPoolHeader: {fileID: 0}
@@ -3643,7 +3716,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6952926735712631066}
-  m_LocalRotation: {x: 0.039827444, y: 0.7194727, z: -0.31791532, w: -0.61620027}
+  m_LocalRotation: {x: 0.039827444, y: 0.71947265, z: -0.31791532, w: -0.61620027}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -5262,6 +5335,7 @@ GameObject:
   - component: {fileID: 7901309770763180885}
   - component: {fileID: 4583862657655864390}
   - component: {fileID: 4844464024834139093}
+  - component: {fileID: 1627558318683017609}
   m_Layer: 0
   m_Name: Model & Equipment
   m_TagString: Untagged
@@ -5361,7 +5435,6 @@ MonoBehaviour:
   animIDAmbushed: 0
   animIDSleeping: 0
   animIDRevive: 0
-  beginHealthCountdown: 0
 --- !u!114 &4844464024834139093
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5377,6 +5450,18 @@ MonoBehaviour:
   enchantmentHeader: {fileID: 6526418333086968959}
   weaponHeaderTransform: {fileID: 0}
   otherEquipmentHeaders: []
+--- !u!114 &1627558318683017609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7936881224437800662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18720532766a38346860d38336b2bb26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8243686414606230207
 GameObject:
   m_ObjectHideFlags: 0
@@ -6007,7 +6092,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myUnit: {fileID: 3019866007152699496}
-  mySkillData: {fileID: 0}
   isSingleTarget: 1
   targets: 00000000
   skillShape: 0
@@ -6019,6 +6103,9 @@ MonoBehaviour:
   includeDiagonals: 0
   maxNumCellsFromUnit: 0
   unitCameraRootTransform: {fileID: 0}
+  forceTypeToApply: 0
+  forceDirection: 0
+  forceDistance: 0
   unlockLevel: 1
   skillName: Guard
   aoeDiagram: {fileID: 0}
@@ -6064,6 +6151,7 @@ Transform:
   m_Children:
   - {fileID: 4511210628182345316}
   - {fileID: 8337362278897881592}
+  - {fileID: 2502904158043375384}
   - {fileID: 5082230725888348178}
   - {fileID: 6952033838133606865}
   - {fileID: 4746570094754486712}
@@ -6346,11 +6434,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: Keenan
   unitType: 0
+  stats: {fileID: 0}
   camFollowTarget: {fileID: 4041220152395044346}
   modelHeader: {fileID: 3335030294087905534}
   gridCollider: {fileID: 623247470941474641}
   portrait: {fileID: 0}
-  stats: {fileID: 0}
   team: 0
   moveRange: 2
   moveSpeed: 4.5
@@ -6379,7 +6467,9 @@ MonoBehaviour:
   actionMenu: {fileID: 2789610599818701280}
   basicAttack: {fileID: 3116910644278044820}
   guard: {fileID: 6972106379215277833}
+  interactSkill: {fileID: 6936325307193034539}
   chainSelectionEvent: {fileID: 3073116906885620244}
+  lastUsedSkill: {fileID: 0}
 --- !u!114 &1411187335690258336
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6408,8 +6498,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c38667b090fd5ce4f9731cea1e6a3fbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxFP: 100
-  unitStatusEffectHeader: {fileID: 5341362797320585036}
   healthCanvas: {fileID: 916988227653512909}
   statusEffectVisualHeader: {fileID: 2440555360822318905}
   damageFeedbacks:
@@ -6423,6 +6511,8 @@ MonoBehaviour:
     currentHealth: 0
     currentSP: 0
     currentFP: 0
+  maxFP: 100
+  unitStatusEffectHeader: {fileID: 5341362797320585036}
 --- !u!114 &2889721324098108512
 MonoBehaviour:
   m_ObjectHideFlags: 0

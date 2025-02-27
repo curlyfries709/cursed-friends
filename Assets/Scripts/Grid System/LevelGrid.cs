@@ -159,6 +159,11 @@ public class LevelGrid : MonoBehaviour
     {
         bool isWalkable = IsWalkable(gridPosition);
 
+        if (!isWalkable)
+        {
+            return false;
+        }
+
         Debug.Log("Update function IsWalkable with Unit argument in LevelGrid to include hazard check");
 
         return isWalkable;
@@ -166,7 +171,7 @@ public class LevelGrid : MonoBehaviour
 
     public bool IsWalkable(GridPosition gridPosition)
     {
-        return !TryGetObstacleAtPosition(gridPosition, out Collider obstacleData);
+        return !IsObjectAtGridPosition(gridPosition) && !TryGetObstacleAtPosition(gridPosition, out Collider obstacleData);
     }
 
     public GridObject GetGridObjectAtPosition(GridPosition gridPosition)
@@ -260,6 +265,20 @@ public class LevelGrid : MonoBehaviour
         }
     }
 
+    public bool IsGridPositionOccupiedByCharacterUnit(GridPosition gridPosition, bool includeKOedUnits)
+    {
+        GridObject gridObject = gridSystem.GetGridObject(gridPosition);
+
+        if (includeKOedUnits)
+        {
+            return gridObject.IsOccupiedByAnyUnit() && !IsObjectAtGridPosition(gridPosition);
+        }
+        else
+        {
+            return gridObject.IsOccupiedByActiveUnit() && !IsObjectAtGridPosition(gridPosition);
+        }
+    }
+
     public GridPosition GetColliderBoundMinInGridPos(BoxCollider gridCollider)
     {
         return gridSystem.GetGridPosition(gridCollider.bounds.min);
@@ -285,6 +304,16 @@ public class LevelGrid : MonoBehaviour
     {
         GridGraph gridGraph = AstarPath.active.data.gridGraph;
         return gridGraph.GetNode(gridPosition.x, gridPosition.z);
+    }
+
+    public bool IsObjectAtGridPosition(GridPosition gridPos)
+    {
+        GridUnit unit = GetUnitAtGridPosition(gridPos);
+
+        if (!unit)
+            return false;
+
+        return unit.IsObject();
     }
 
     public Vector2 GetCellCentreNormalized()

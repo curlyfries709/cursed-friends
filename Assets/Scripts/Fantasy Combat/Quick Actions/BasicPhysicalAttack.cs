@@ -1,34 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using DG.Tweening;
+
 
 public class BasicPhysicalAttack : PlayerOffensiveSkill
 {
-    public override void SkillSelected()
+    public override void SkillCancelled(bool showActionMenu = true)
     {
-        if (!skillTriggered)
-        {
-            GridVisual();
-        }
-    }
-    public override void SkillCancelled()
-    {
-        //Play SFX
-        AudioManager.Instance.PlaySFX(SFXType.TabBack);
+        //Means it's a basic attack
+        bool isCostFree = costType == SkillCostType.Free;
 
-        if (costType == SkillCostType.Free)
-        {
-            //Means it's a basic attack
-            FantasyCombatManager.Instance.ShowActionMenu(true);
-        }
-        else
+        base.SkillCancelled(isCostFree);
+
+        if (!isCostFree)
         {
             FantasyCombatCollectionManager.MenuSkillCancelled(player);
         }
-
-        //Contact Grid Visual To Reset the grid to Movement Only. 
-        HideSelectedSkillGridVisual();
     }
 
     //Trigger Skill Logic

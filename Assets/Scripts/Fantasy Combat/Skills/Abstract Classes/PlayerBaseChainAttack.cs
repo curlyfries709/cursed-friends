@@ -90,7 +90,7 @@ public abstract class PlayerBaseChainAttack : PlayerOffensiveSkill
         return false;
     }
 
-    public override void SkillCancelled()
+    public override void SkillCancelled(bool showActionMenu = true)
     {
         skillSelected = false;
         HideSelectedSkillGridVisual();

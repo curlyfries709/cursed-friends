@@ -20,14 +20,6 @@ public class OrbTeleportation : PlayerBaseSkill, IOrb
     GridPosition targetGridPosition;
     GridUnit selectedUnit;
 
-    public override void SkillSelected()
-    {
-        if (!skillTriggered)
-        {
-            GridVisual();
-        }
-    }
-
     public override bool TryTriggerSkill()
     {
         if (CanTriggerSkill(true) && IsValidUnitSelected())
@@ -143,12 +135,9 @@ public class OrbTeleportation : PlayerBaseSkill, IOrb
         return CombatFunctions.GetNonAffinityIndex(OtherSkillType.Tactic);
     }
 
-    public override void SkillCancelled()
+    public override void SkillCancelled(bool showActionMenu = true)
     {
-        HideSelectedSkillGridVisual();
-
-        AudioManager.Instance.PlaySFX(SFXType.TabBack);
-
+        base.SkillCancelled(false);
         //Go back to Orb List
         collectionManager.OpenItemMenu(player, false);
     }

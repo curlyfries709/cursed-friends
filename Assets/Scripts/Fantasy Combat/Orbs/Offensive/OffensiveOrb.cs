@@ -21,14 +21,6 @@ public class OffensiveOrb : PlayerOffensiveSkill, IOrb
         cmBlendlist = blendListCamera.GetComponent<CinemachineBlendListCamera>();
     }
 
-    public override void SkillSelected()
-    {
-        if (!skillTriggered)
-        {
-            GridVisual();
-        }
-    }
-
     //Trigger Skill Logic
 
     public override bool TryTriggerSkill()
@@ -79,11 +71,9 @@ public class OffensiveOrb : PlayerOffensiveSkill, IOrb
         cmBlendlist.Follow = myUnit.camFollowTarget;
     }
 
-    public override void SkillCancelled()
+    public override void SkillCancelled(bool showActionMenu = true)
     {
-        HideSelectedSkillGridVisual();
-
-        AudioManager.Instance.PlaySFX(SFXType.TabBack);
+        base.SkillCancelled(false);
         //Go back to Orb List
         collectionManager.OpenItemMenu(player, false);
     }

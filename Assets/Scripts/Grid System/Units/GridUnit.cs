@@ -1,5 +1,5 @@
+using AnotherRealm;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -126,28 +126,6 @@ public class GridUnit : MonoBehaviour
         return currentGridPositions;
     }
 
-    public List<GridPosition> GetGridPositionsAtHypotheticalPos(Vector3 newWorldPosition)
-    {
-        GridSystem<GridObject> gridSystem = LevelGrid.Instance.gridSystem;
-        List<GridPosition> currentGridPositions = new List<GridPosition>();
-        Vector3 offset = newWorldPosition - transform.position;
-
-        gridCollider.enabled = false;
-
-        for (int x = gridSystem.GetGridPosition(gridCollider.bounds.min + offset).x; x <= gridSystem.GetGridPosition(gridCollider.bounds.max + offset).x; x++)
-        {
-            for (int z = gridSystem.GetGridPosition(gridCollider.bounds.min + offset).z; z <= gridSystem.GetGridPosition(gridCollider.bounds.max + offset).z; z++)
-            {
-                currentGridPositions.Add(new GridPosition(x, z));
-            }
-        }
-
-        gridCollider.enabled = true;
-        return currentGridPositions;
-    }
-
-
-
     //GETTERS
     public List<GridPosition> GetGridPositionsOnTurnStart()
     {
@@ -163,29 +141,24 @@ public class GridUnit : MonoBehaviour
     {
         return Mathf.CeilToInt(gridCollider.size.z / LevelGrid.Instance.GetCellSize());
     }
-
-    public int GetHorizontalCellsOccupied()
-    {
-        int value = Mathf.CeilToInt(gridCollider.size.x / LevelGrid.Instance.GetCellSize());
-        if(value > 1)
-        {
-            Debug.Log("HORIZONTAL CELLS OCCUPIED: " + value);
-        }
-        return Mathf.CeilToInt(gridCollider.size.x / LevelGrid.Instance.GetCellSize());
-    }
-
     public Vector3 GetClosestPointOnColliderToPosition(Vector3 worldPos)
     {
         return gridCollider.ClosestPointOnBounds(worldPos);
     }
+
     private int CalculateTotalCellsRequired()
     {
-        return GetVerticalCellsOccupied() * GetHorizontalCellsOccupied();
+        return GetVerticalCellsOccupied() * CombatFunctions.GetHorizontalCellsOccupied(gridCollider);
     }
 
     public Health Health()
     {
         return myHealth;
+    }
+
+    public bool IsObject()
+    {
+        return myHealth.IsObject();
     }
 
     //SETTERS

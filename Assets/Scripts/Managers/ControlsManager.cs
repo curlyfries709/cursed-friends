@@ -289,8 +289,10 @@ public class ControlsManager : MonoBehaviour
             if(newActionMap == "Player")
                 HUDManager.Instance.ShowActiveHud();
 
-            InteractionManager.Instance.ShowInteractCanvas?.Invoke(true);
             StoryManager.Instance.ActivateCinematicMode?.Invoke(false);
+
+            if(newActionMap == "Player" || newActionMap == FantasyCombatManager.Instance.GetActionMapName())
+                InteractionManager.Instance.ShowInteractCanvas?.Invoke(true);
         }
         else
         {

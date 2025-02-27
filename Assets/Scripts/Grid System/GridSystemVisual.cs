@@ -4,6 +4,7 @@ using TMPro;
 using Sirenix.OdinInspector;
 using System.Linq;
 using Pathfinding.Graphs.Grid;
+using UnityEngine.Rendering;
 
 public class GridSystemVisual : MonoBehaviour
 {
@@ -13,12 +14,14 @@ public class GridSystemVisual : MonoBehaviour
     [SerializeField] int visualsToSpawn = 50;
     [Title("Prefab")]
     [SerializeField] GameObject gridSystemVisualSinglePrefab;
+    [Space(10)]
     [SerializeField] Transform gridUIHeader;
     [Title("Materials")]
     [SerializeField] Material movementVisualMat;
     [SerializeField] Material selectedAreaVisualMat;
     [SerializeField] Material validTargetAreaVisualMat;
     [SerializeField] Material invalidActionAreaMat;
+    [SerializeField] Material selectedObjectAOEMat;
     [Title("TEST")]
     [SerializeField] bool showGridPosText = true;
 
@@ -37,6 +40,7 @@ public class GridSystemVisual : MonoBehaviour
     List<CellVisualData> activeGridVisuals = new List<CellVisualData>();
 
     Dictionary<GridPosition, Material> movementMatDict = new Dictionary<GridPosition, Material>();
+    Dictionary<GridPosition, CellVisualData> selectedObjectAOEDict = new Dictionary<GridPosition, CellVisualData>();
     public class CellVisualData
     {
         public GameObject cellGO;
@@ -120,6 +124,50 @@ public class GridSystemVisual : MonoBehaviour
         }
     }
 
+    public void ShowSelectedObjectAOEVisual(List<GridPosition> selectedGridPositions, List<GridUnit> selectedUnits, bool show)
+    {
+        foreach(GridPosition gridPosition in selectedGridPositions)
+        {
+            if (show)
+            {
+                if (selectedObjectAOEDict.ContainsKey(gridPosition)) { return; }
+
+                CellVisualData foundVisual = spawnedGridVisuals.FirstOrDefault((visual) => !visual.inUse);
+                CellVisualData cellVisualData = foundVisual != null ? foundVisual : SpawnNewVisual();
+
+                cellVisualData.inUse = true;
+
+                //Set Position
+                Vector3 worldPos = gridSystem.GetWorldPosition(gridPosition);
+
+                cellVisualData.cellGO.transform.position = worldPos;
+                cellVisualData.cellGO.transform.localScale = Vector3.one * LevelGrid.Instance.GetCellSize() * 0.75f;
+
+                cellVisualData.material = selectedObjectAOEMat;
+                cellVisualData.collider.enabled = false;
+
+                selectedObjectAOEDict[gridPosition] = cellVisualData;
+                cellVisualData.cellGO.SetActive(true);
+            }
+            else
+            {
+                CellVisualData cellVisualData = selectedObjectAOEDict[gridPosition];
+
+                cellVisualData.cellGO.SetActive(false);
+                cellVisualData.inUse = false;
+
+                selectedObjectAOEDict.Remove(gridPosition);
+            }
+        }
+
+        HUDManager.Instance.UpdateTurnOrderNames(show ? selectedUnits : new List<GridUnit>());
+
+        foreach (GridUnit unit in selectedUnits)
+        {
+            unit.ShowSelectionVisual(show);
+        }
+    }
+
     public void ShowValidTargetAndSelectedGridPositions(List<GridPosition> targetArea, List<GridPosition> selectedGridPositions, List<GridUnit> selectedUnits, bool show)
     {
         ShowHighlightedGridPos(targetArea, currentValidTargetArea, validTargetAreaVisualMat, true, show);
@@ -178,10 +226,15 @@ public class GridSystemVisual : MonoBehaviour
         }
     }
 
-    private void ActivateCellVisualAtPos(GridPosition gridPosition, Material material, bool enableVisualCollider)
+    private CellVisualData ActivateCellVisualAtPos(GridPosition gridPosition, Material material, bool enableVisualCollider)
     {
         //Don't Bother if Cell Already in use at position
-        if (activeGridVisuals.Any((visual) => visual.inUse && visual.gridPosition == gridPosition)){ return; }
+        CellVisualData foundCellVisualData = activeGridVisuals.FirstOrDefault((visual) => visual.inUse && visual.gridPosition == gridPosition);
+
+        if (foundCellVisualData != null)
+        { 
+            return foundCellVisualData; 
+        }
 
         //Fetch an Unused GridPos
         CellVisualData cellVisual = spawnedGridVisuals.FirstOrDefault((visual) => !visual.inUse);
@@ -217,6 +270,7 @@ public class GridSystemVisual : MonoBehaviour
         //Set Position
         Vector3 worldPos = gridSystem.GetWorldPosition(gridPosition);
         singleGridVisual.transform.position = worldPos;
+        singleGridVisual.transform.localScale = Vector3.one * LevelGrid.Instance.GetCellSize();
 
         //Set Rotation
         //singleGridVisual.transform.rotation = GetGridVisualRotation(gridPosition);
@@ -228,6 +282,8 @@ public class GridSystemVisual : MonoBehaviour
 
         if (!activeGridVisuals.Contains(cellVisual))
             activeGridVisuals.Add(cellVisual);
+
+        return cellVisual;
     }
 
     public void HideListedGridVisual(List<GridPosition> list)

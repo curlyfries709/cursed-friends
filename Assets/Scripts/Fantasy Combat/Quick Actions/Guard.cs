@@ -59,14 +59,4 @@ public class Guard : PlayerBaseSkill
         //skillTriggered = false;
     }
 
-    public override void SkillCancelled()
-    {
-        //Play SFX
-        AudioManager.Instance.PlaySFX(SFXType.TabBack);
-
-        FantasyCombatManager.Instance.ShowActionMenu(true);
-        HideSelectedSkillGridVisual();
-    }
-
-
 }

@@ -142,31 +142,31 @@ public abstract class UnitStats : MonoBehaviour
     {
         //STR
         PhysAttack = TheCalculator.Instance.CalculatePhysAttack(Strength); //Buff Multiplier applied in raw damage calculation
-        InventoryWeight = TheCalculator.Instance.CalculateInventoryCapacity(Mathf.RoundToInt(Strength * buffSTRmultiplier)) + equipment.GetEquipmentSubAttributeBonus(SubStats.InventoryWeight);
+        InventoryWeight = TheCalculator.Instance.CalculateInventoryCapacity(Mathf.RoundToInt(Strength * buffSTRmultiplier)) + (equipment ? equipment.GetEquipmentSubAttributeBonus(SubStats.InventoryWeight) : 0);
 
         //FIN
-        Technique = Mathf.RoundToInt((TheCalculator.Instance.CalculateTechnique(Finesse) + equipment.GetEquipmentSubAttributeBonus(SubStats.Technique)) * buffFINmultiplier * blessingTechniqueMultiplier);
-        Evasion = Mathf.RoundToInt((TheCalculator.Instance.CalculateEvasion(Finesse) + equipment.GetEquipmentSubAttributeBonus(SubStats.Evasion)) * buffFINmultiplier * blessingEvasionMultiplier);
+        Technique = Mathf.RoundToInt((TheCalculator.Instance.CalculateTechnique(Finesse) + (equipment ? equipment.GetEquipmentSubAttributeBonus(SubStats.Technique) : 0)) * buffFINmultiplier * blessingTechniqueMultiplier);
+        Evasion = Mathf.RoundToInt((TheCalculator.Instance.CalculateEvasion(Finesse) + (equipment ? equipment.GetEquipmentSubAttributeBonus(SubStats.Evasion) : 0)) * buffFINmultiplier * blessingEvasionMultiplier);
 
         //END
-        Vitality = TheCalculator.Instance.CalculateVitality(Endurance) + equipment.GetEquipmentSubAttributeBonus(SubStats.Vitality);
-        Stamina = TheCalculator.Instance.CalculateStamina(Endurance) + equipment.GetEquipmentSubAttributeBonus(SubStats.Stamina);
+        Vitality = TheCalculator.Instance.CalculateVitality(Endurance) + (equipment ? equipment.GetEquipmentSubAttributeBonus(SubStats.Vitality) : 0);
+        Stamina = TheCalculator.Instance.CalculateStamina(Endurance) + (equipment ? equipment.GetEquipmentSubAttributeBonus(SubStats.Stamina) : 0);
 
         //AG
-        Speed = Mathf.RoundToInt((TheCalculator.Instance.CalculateSpeed(Agility) + equipment.GetEquipmentSubAttributeBonus(SubStats.Speed)) * buffAGmultiplier * blessingSpeedMultiplier);
+        Speed = Mathf.RoundToInt((TheCalculator.Instance.CalculateSpeed(Agility) + (equipment ? equipment.GetEquipmentSubAttributeBonus(SubStats.Speed) : 0)) * buffAGmultiplier * blessingSpeedMultiplier);
 
         //WIS
-        HealEfficacy = Mathf.RoundToInt((TheCalculator.Instance.CalculateHealAmount(Wisdom) + equipment.GetEquipmentSubAttributeBonus(SubStats.HealEfficacy)) * buffWISmultiplier * blessingHealEfficacyMultiplier);
+        HealEfficacy = Mathf.RoundToInt((TheCalculator.Instance.CalculateHealAmount(Wisdom) + (equipment ? equipment.GetEquipmentSubAttributeBonus(SubStats.HealEfficacy) : 0)) * buffWISmultiplier * blessingHealEfficacyMultiplier);
         //ScrollDuration = TheCalculator.Instance.CalculateScrollDuration(Mathf.RoundToInt(Wisdom * buffWISmultiplier)) + equipment.GetEquipmentSubAttributeBonus(SubStats.ScrollDuration);
-        SEDuration = TheCalculator.Instance.CalculateSEDuration(Mathf.RoundToInt(Wisdom * buffWISmultiplier)) + equipment.GetEquipmentSubAttributeBonus(SubStats.StatusEffectDuration) + blessingSEDurationIncrease;
+        SEDuration = TheCalculator.Instance.CalculateSEDuration(Mathf.RoundToInt(Wisdom * buffWISmultiplier)) + (equipment ? equipment.GetEquipmentSubAttributeBonus(SubStats.StatusEffectDuration) : 0) + blessingSEDurationIncrease;
 
         //INT
         MagAttack = TheCalculator.Instance.CalculateMagAttack(Intelligence);//Buff Multiplier applied in raw damage calculation
-        Memory = TheCalculator.Instance.CalculateMemory(Intelligence) + equipment.GetEquipmentSubAttributeBonus(SubStats.Memory);
+        Memory = TheCalculator.Instance.CalculateMemory(Intelligence) + (equipment ? equipment.GetEquipmentSubAttributeBonus(SubStats.Memory) : 0);
 
         //CHR
-        CritChance = Mathf.RoundToInt(((TheCalculator.Instance.CalculateCritChance(Charisma) + equipment.GetEquipmentSubAttributeBonus(SubStats.CritChance)) * buffCHRmultiplier) + blessingCritChanceIncrease);
-        StatusEffectInflictChance = Mathf.RoundToInt(((TheCalculator.Instance.CalculateStatusEffectInflictChance(Charisma) + equipment.GetEquipmentSubAttributeBonus(SubStats.StatusEffectChance)) * buffCHRmultiplier) + blessingStatusEffectInflictChanceIncrease);
+        CritChance = Mathf.RoundToInt(((TheCalculator.Instance.CalculateCritChance(Charisma) + (equipment ? equipment.GetEquipmentSubAttributeBonus(SubStats.CritChance) : 0)) * buffCHRmultiplier) + blessingCritChanceIncrease);
+        StatusEffectInflictChance = Mathf.RoundToInt(((TheCalculator.Instance.CalculateStatusEffectInflictChance(Charisma) + (equipment ? equipment.GetEquipmentSubAttributeBonus(SubStats.StatusEffectChance) : 0)) * buffCHRmultiplier) + blessingStatusEffectInflictChanceIncrease);
 
         if (TheCalculator.Instance.printStats)
         {
@@ -320,7 +320,7 @@ public abstract class UnitStats : MonoBehaviour
     //Other Getters
     public int MovementBuff()
     {
-        return blessingMovementIncrease + equipment.GetEquipmentSubAttributeBonus(SubStats.Movement);
+        return blessingMovementIncrease + (equipment ? equipment.GetEquipmentSubAttributeBonus(SubStats.Movement) : 0);
     }
 
     public int GetAttributeValue(Attribute attribute)

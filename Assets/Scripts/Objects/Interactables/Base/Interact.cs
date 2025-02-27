@@ -66,6 +66,8 @@ public abstract class Interact : MonoBehaviour
     protected virtual void OnDisable()
     {
         InteractionManager.Instance.OnRadiusExit(this);
+        FantasyCombatManager.Instance.CombatBegun -= OnCombatBegin;
+        FantasyCombatManager.Instance.CombatEnded -= OnCombatEnd;
     }
 
     //COMBAT
@@ -96,7 +98,7 @@ public abstract class Interact : MonoBehaviour
     {
         if (allowInteractionDuringCombat && !allowInteractionDuringFreeRoam) //Combat only interactable
         {
-            interactionCollider.enabled = true;
+            EnableInteraction();
         }
         else if(allowInteractionDuringFreeRoam && !allowInteractionDuringCombat) //Roam only interactable
         {
@@ -114,7 +116,7 @@ public abstract class Interact : MonoBehaviour
         }
         else if (allowInteractionDuringFreeRoam && !allowInteractionDuringCombat) //Roam only interactable
         {
-            interactionCollider.enabled = true;
+            EnableInteraction();
         }
     }
 
@@ -123,13 +125,20 @@ public abstract class Interact : MonoBehaviour
         FantasyCombatManager.Instance.ActionComplete();
     }
 
-    public void ShowInteractUI(bool show)
+    public virtual void ShowInteractUI(bool show)
     {
         if(show && !InteractionManager.Instance.showInteractCanvas) { return; }
 
-        interactUI.Fade(show);
+        interactUI?.Fade(show);
     }
 
+    protected void EnableInteraction()
+    {
+        if (!interactionCollider)
+            SetCollider();
+
+        interactionCollider.enabled = true;
+    }
     protected void DisableInteraction()
     {
         ShowInteractUI(false);
@@ -154,8 +163,6 @@ public abstract class Interact : MonoBehaviour
             {
                 return interactor == FantasyCombatManager.Instance.GetActiveUnit();
             }
-
-            return false;
         }
         else if(allowInteractionDuringFreeRoam)
         {
@@ -165,24 +172,9 @@ public abstract class Interact : MonoBehaviour
         return false;
     }
 
-    public bool IsCorrectPositionAndRotation(Transform interactor)
+    public virtual bool IsCorrectPositionAndRotation(Transform interactor)
     {
-        if (FantasyCombatManager.Instance.InCombat())
-        {
-            return IsInteractorCorrectRotation(interactor) && IsInteractorCorrectGridPos(interactor);
-        }
-        else
-        {
-            return IsInteractorCorrectRotation(interactor);
-        }
-    }
-
-    private bool IsInteractorCorrectGridPos(Transform interactor)
-    {
-        CharacterGridUnit unit = interactor.GetComponent<CharacterGridUnit>();
-        List<GridPosition> currentGridPos = unit.GetCurrentGridPositions();
-
-        return GetValidInteractionGridPositions().Intersect(currentGridPos).Any();
+        return IsInteractorCorrectRotation(interactor);
     }
 
     protected virtual bool IsInteractorCorrectRotation(Transform interactor)
@@ -201,67 +193,6 @@ public abstract class Interact : MonoBehaviour
 
 
         return angle <= InteractionManager.Instance.maxAngleBetweenInteractable;
-    }
-
-
-    protected List<GridPosition> GetValidInteractionGridPositions()
-    {
-        List<GridPosition> validGridPositionsList = new List<GridPosition>();
-        //List<GridPosition> interactableGridPositions = unit.GetGridPositionsOnTurnStart();
-
-        //int unitMaxMoveDistance = 1;
-
-       /* for (int x = -unitMaxMoveDistance; x <= unitMaxMoveDistance; x++)
-        {
-            for (int z = -unitMaxMoveDistance; z <= unitMaxMoveDistance; z++)
-            {
-                GridPosition offsetGridPosition = new GridPosition(x, z);
-
-                foreach (GridPosition unitGridPosition in interactableGridPositions)
-                {
-                    GridPosition testGridPosition = unitGridPosition + offsetGridPosition;
-                    if (!gridSystem.IsValidGridPosition(testGridPosition))
-                    {
-                        continue;
-                    }
-
-                    GridObject gridObject = gridSystem.GetGridObject(testGridPosition);
-
-                    if (PathFinding.Instance.IsGridPositionOccupiedByAnotherUnit(testGridPosition, unit))
-                    {
-                        continue;
-                    }
-
-                    if (!PathFinding.Instance.IsWalkableGridPosition(testGridPosition))
-                    {
-                        continue;
-                    }
-
-                    if (!PathFinding.Instance.HasPath(unitGridPosition, testGridPosition, unit, true))
-                    {
-                        continue;
-                    }
-
-                    int pathFindingDistanceMultiplier = PathFinding.Instance.GetPathFindingDistanceMultiplier();
-                    if (PathFinding.Instance.GetPathLength(unitGridPosition, testGridPosition, unit, true) > unitMaxMoveDistance * pathFindingDistanceMultiplier)
-                    {
-                        //Path Lenghth is too long
-                        continue;
-                    }
-
-                    //Calculate Manhattan distance
-                    //abs(x1 - x2) + abs(y1 - y2)
-
-                    if (Mathf.Abs(unitGridPosition.x - testGridPosition.x) + Mathf.Abs(unitGridPosition.z - testGridPosition.z) <= unitMaxMoveDistance)
-                    {
-                        if (!validGridPositionsList.Contains(testGridPosition))
-                            validGridPositionsList.Add(testGridPosition);
-                    }
-                }
-            }
-        }*/
-
-        return validGridPositionsList;
     }
 
     private void SetInteractCanvasText()
@@ -285,5 +216,10 @@ public abstract class Interact : MonoBehaviour
     protected void SetCollider()
     {
         interactionCollider = GetComponent<Collider>();
+
+        if (!FantasyCombatManager.Instance.InCombat())
+        {
+            OnCombatEnd(BattleResult.Victory, null); //To set collider enabled.
+        }
     }
 }

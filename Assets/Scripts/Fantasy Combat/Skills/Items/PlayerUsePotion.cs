@@ -157,12 +157,9 @@ public class PlayerUsePotion : PlayerBaseSkill
         ActivateVisuals(false);
     }
 
-    public override void SkillCancelled()
+    public override void SkillCancelled(bool showActionMenu = true)
     {
-        HideSelectedSkillGridVisual();
-
-        //Play SFX
-        AudioManager.Instance.PlaySFX(SFXType.TabBack);
+        base.SkillCancelled(false);
 
         //Go back to Items List
         collectionManager.OpenItemMenu(player, true);

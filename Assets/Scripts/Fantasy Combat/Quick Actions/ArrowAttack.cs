@@ -11,19 +11,6 @@ public class ArrowAttack : PlayerOffensiveSkill
     [SerializeField] GameObject arrowInHand;
     [SerializeField] GameObject arrowPrefab;
 
-    public override void SkillSelected()
-    {
-        if (!skillTriggered)
-        {
-            GridVisual();
-        }
-
-    }
-    public override void SkillCancelled()
-    {
-        //Contact Grid Visual To Reset the grid to Movement Only. 
-        HideSelectedSkillGridVisual();
-    }
 
     //Trigger Skill Logic
 

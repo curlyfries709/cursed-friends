@@ -4,14 +4,6 @@ using UnityEngine;
 
 public class OffensiveChainAttack : PlayerBaseChainAttack
 {
-    public override void SkillSelected()
-    {
-        if (!skillTriggered)
-        {
-            GridVisual();
-        }
-    }
-
     public override bool TryTriggerSkill()
     {
         if (CanTriggerSkill(true))

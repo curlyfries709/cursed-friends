@@ -27,6 +27,7 @@ public class PlayerGridUnit : CharacterGridUnit
     [SerializeField] ActionMenu actionMenu;
     [SerializeField] PlayerBaseSkill basicAttack;
     [SerializeField] Guard guard;
+    [SerializeField] PlayerInteractSkill interactSkill;
     [Space(10)]
     [SerializeField] ChainSelectionEvent chainSelectionEvent;
 
@@ -82,6 +83,7 @@ public class PlayerGridUnit : CharacterGridUnit
         //freeLookPlayerCam.m_XAxis.Value = 0;
     }
 
+
     public void SetFollowCamInheritPosition(bool inheritPosition)
     {
         combatFreeLookComponent.m_Transitions.m_InheritPosition = inheritPosition;
@@ -108,6 +110,17 @@ public class PlayerGridUnit : CharacterGridUnit
     {
         return guard;
     }
+
+    public PlayerBaseSkill GetInteractSkill()
+    {
+        return interactSkill;
+    }
+
+    public ActionMenu GetActionMenu()
+    {
+        return actionMenu;
+    }
+
 
     //SETTERS
     public void SetPlayerUnitStats(PlayerUnitStats statsComp)

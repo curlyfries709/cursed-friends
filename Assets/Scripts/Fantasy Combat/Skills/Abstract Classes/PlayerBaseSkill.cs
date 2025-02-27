@@ -112,6 +112,9 @@ public abstract class PlayerBaseSkill : BaseSkill
         {
             HUDManager.Instance.UpdateSelectedSkill(skillName);
 
+            if (!ShowInteractCanvasWhileSkillSelected())
+                InteractionManager.Instance.ShowInteractCanvas?.Invoke(false);
+
             skillTriggered = false;
 
             selectedGridPositions.Clear();
@@ -128,9 +131,27 @@ public abstract class PlayerBaseSkill : BaseSkill
         return false;
     }
 
-    public abstract void SkillSelected();
+    public virtual void SkillSelected()
+    {
+        if (!skillTriggered)
+        {
+            GridVisual();
+        }
+    }
+
     public abstract bool TryTriggerSkill(); //Call TurnCompleteWhenSkillSuccesfullyTriggered. //Also Must get weapon information too when dealing damage.
-    public abstract void SkillCancelled();
+    public virtual void SkillCancelled(bool showActionMenu = true)
+    {
+        HideSelectedSkillGridVisual();
+
+        AudioManager.Instance.PlaySFX(SFXType.TabBack);
+
+        if (!ShowInteractCanvasWhileSkillSelected())
+            InteractionManager.Instance.ShowInteractCanvas?.Invoke(true);
+
+        if(showActionMenu)
+            FantasyCombatManager.Instance.ShowActionMenu(true);
+    }
 
     protected void GridVisual()
     {
@@ -169,6 +190,117 @@ public abstract class PlayerBaseSkill : BaseSkill
         }
     }
 
+
+
+    //DOERS
+    
+    protected void BeginSkill(float returnToGridPosTime, float delayBeforeReturn, bool deactivateCamOnActionComplete, Orb orbData = null)
+    {
+        BeginAction();
+
+        player.lastUsedSkill = this;
+
+        myUnit.unitAnimator.PrepareToTriggerSkill(); //Speed Set to 0 & Cancel Skill Feedback Reset
+
+        //Warp Unit into Position & Rotation in an attempt to remove camera jitter.
+        Vector3 desiredRotation = Quaternion.LookRotation(GetCardinalDirectionAsVector()).eulerAngles;
+        myUnit.Warp(LevelGrid.Instance.gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0]), Quaternion.Euler(new Vector3(0, desiredRotation.y, 0)));
+
+        //Set Times
+        myUnit.returnToGridPosTime = returnToGridPosTime;
+        myUnit.delayBeforeReturn = delayBeforeReturn;
+        deactivateCamDelay = delayBeforeReturn;
+
+        skillTriggered = true;
+        ControlsManager.Instance.DisableControls();
+        HUDManager.Instance.UpdateSelectedSkill("");
+
+        GridSystemVisual.Instance.HideAllGridVisuals(true);
+        HUDManager.Instance.UpdateTurnOrderNames(new List<GridUnit>());
+
+        SetUnitsToShow();
+
+        SetSkillTargets();
+
+        //UpdatePosition
+        myUnit.MovedToNewGridPos();
+
+        //Spend SP, HP or FP.
+        switch (costType)
+        {
+            case SkillCostType.SP:
+                myUnit.Health().SpendSP(GetCost());
+                break;
+            case SkillCostType.FP:
+                myUnit.Health().SpendFP(GetCost());
+                break;
+            case SkillCostType.HP:
+                myUnit.Health().SpendHP(GetCost());
+                break;
+        }
+
+        //Use Orb & Begin Charge, if an Orb.
+        if (orbData)
+        {
+            IOrb orb = this as IOrb;
+            orb?.UseOrb(orbData, player, collectionManager);
+        }
+
+        //Call Event
+        PlayerUsedSkill?.Invoke(player, this);
+
+        if (deactivateCamOnActionComplete)
+        {
+            FantasyCombatManager.Instance.ActionComplete += PrepareToDeactiveBlendCams;  //Subscribe to event to deactivate Cam
+        }
+        else
+        {
+            FantasyCombatManager.Instance.ActionComplete += SkillComplete;
+        }
+                  
+    }
+
+    protected void PrepareToDeactiveBlendCams()
+    {
+        SkillComplete();
+        FantasyCombatManager.Instance.ActionComplete -= PrepareToDeactiveBlendCams;
+        Invoke("DeactivateCam", deactivateCamDelay);
+    }
+
+    protected void DeactivateCam()
+    {
+        ActivateVisuals(false);
+        EnableOtherVisuals(false);
+    }
+
+    protected virtual void SetUnitsToShow()
+    {
+        List<GridUnit> targetedUnits = new List<GridUnit>(selectedUnits);
+        targetedUnits.Add(myUnit);
+
+        FantasyCombatManager.Instance.SetUnitsToShow(targetedUnits);
+    }
+
+    protected void ActivateVisuals(bool activate)
+    {
+        if (blendListCamera)
+        {
+            FantasyCombatManager.Instance.ActivateCurrentActiveCam(!activate);
+            blendListCamera.SetActive(activate);
+        }
+
+        EnableOtherVisuals(activate);
+    }
+
+    private void EnableOtherVisuals(bool show)
+    {
+        foreach(GameObject visual in otherVisualsToToggle)
+        {
+            visual.SetActive(show);
+        }
+    }
+
+    //GRID SELECTION LOGIC
     protected override void CalculateSelectedGridPos()
     {
         if (isGridSelectionRequired)
@@ -186,12 +318,9 @@ public abstract class PlayerBaseSkill : BaseSkill
         SetSelectedUnits();
     }
 
-
-
-    //Grid List Getters
     protected List<GridPosition> GetSelectedGridPosFromTargetArea()
     {
-        if(validTargetGridPositions.Count == 0) 
+        if (validTargetGridPositions.Count == 0)
         {
             return new List<GridPosition>();
         }
@@ -232,11 +361,11 @@ public abstract class PlayerBaseSkill : BaseSkill
 
             int ZEnd = startPos.z + ((int)skillDimensions.x - 1);
 
-            list =  GetValidUnfilteredGridPositions(XOrigin, XEnd, ZOrigin, ZEnd);
+            list = GetValidUnfilteredGridPositions(XOrigin, XEnd, ZOrigin, ZEnd);
         }
 
 
-        if(list.Count > 0)
+        if (list.Count > 0)
         {
             selectedAreaIndexPos = list[0];
         }
@@ -246,7 +375,7 @@ public abstract class PlayerBaseSkill : BaseSkill
 
     public void UpdateGridSelection(Vector2 input, Transform mainCamTransform)
     {
-        if (!isGridSelectionRequired || !validUnitsInTargetArea || 
+        if (!isGridSelectionRequired || !validUnitsInTargetArea ||
             (!autoSelectedUnit && !targets.Contains(FantasyCombatTarget.Grid)) || validTargetGridPositions.Count == 0) { return; } //No Auto Selected unit means no units Target Area.
 
         GridPosition autoSelectedPos = autoSelectedGridposition;
@@ -254,7 +383,7 @@ public abstract class PlayerBaseSkill : BaseSkill
 
         if (!targets.Contains(FantasyCombatTarget.Grid))
         {
-            
+
             autoSelectedPos = autoSelectedUnit.GetGridPositionsOnTurnStart()[0];
         }
 
@@ -286,12 +415,12 @@ public abstract class PlayerBaseSkill : BaseSkill
                 maxTargetAreaX = pos.x;
             }
 
-            if(pos.z > maxTargetAreaY)
+            if (pos.z > maxTargetAreaY)
             {
                 maxTargetAreaY = pos.z;
             }
 
-            if(pos.x < minTargetAreaX)
+            if (pos.x < minTargetAreaX)
             {
                 minTargetAreaX = pos.x;
             }
@@ -302,7 +431,7 @@ public abstract class PlayerBaseSkill : BaseSkill
             }
         }
 
-        if(inputChange.x != 0)
+        if (inputChange.x != 0)
         {
             if (inputChange.x > 0)
             {
@@ -338,7 +467,7 @@ public abstract class PlayerBaseSkill : BaseSkill
             if (conditionToUse || isGridCycle)
             {
                 GridUnit unitAtPos = LevelGrid.Instance.GetUnitAtGridPosition(gridPosition);
-                if(!CombatFunctions.IsUnitValidTarget(targets, myUnit, unitAtPos)) { continue; }
+                if (!CombatFunctions.IsUnitValidTarget(targets, myUnit, unitAtPos)) { continue; }
 
                 autoSelectedUnit = unitAtPos;
 
@@ -424,7 +553,7 @@ public abstract class PlayerBaseSkill : BaseSkill
                 float newDistance = Vector3.Distance(gridWorldPos, myUnitMoveTransform.position);
                 validUnitsInTargetArea = true;
 
-                if ( newDistance < closestDis)
+                if (newDistance < closestDis)
                 {
                     closestDis = newDistance;
                     newPos = gridPosition;
@@ -437,116 +566,6 @@ public abstract class PlayerBaseSkill : BaseSkill
 
         return newPos;
     }
-
-    //DOERS
-    
-    protected void BeginSkill(float returnToGridPosTime, float delayBeforeReturn, bool deactivateCamOnActionComplete, Orb orbData = null)
-    {
-        BeginAction();
-
-        player.lastUsedSkill = this;
-
-        myUnit.unitAnimator.PrepareToTriggerSkill(); //Speed Set to 0 & Cancel Skill Feedback Reset
-
-        //Warp Unit into Position & Rotation in an attempt to remove camera jitter.
-        Vector3 desiredRotation = Quaternion.LookRotation(GetCardinalDirectionAsVector()).eulerAngles;
-        myUnit.Warp(LevelGrid.Instance.gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0]), Quaternion.Euler(new Vector3(0, desiredRotation.y, 0)));
-
-        //Set Times
-        myUnit.returnToGridPosTime = returnToGridPosTime;
-        myUnit.delayBeforeReturn = delayBeforeReturn;
-        deactivateCamDelay = delayBeforeReturn;
-
-        skillTriggered = true;
-        ControlsManager.Instance.DisableControls();
-        HUDManager.Instance.UpdateSelectedSkill("");
-
-        GridSystemVisual.Instance.HideAllGridVisuals(true);
-        HUDManager.Instance.UpdateTurnOrderNames(new List<GridUnit>());
-
-        SetUnitsToShow();
-
-        SetSkillTargets();
-
-        //UpdatePosition
-        myUnit.MovedToNewGridPos();
-
-        //Spend SP, HP or FP.
-        switch (costType)
-        {
-            case SkillCostType.SP:
-                myUnit.Health().SpendSP(GetCost());
-                break;
-            case SkillCostType.FP:
-                myUnit.Health().SpendFP(GetCost());
-                break;
-            case SkillCostType.HP:
-                myUnit.Health().SpendHP(GetCost());
-                break;
-        }
-
-        //Use Orb & Begin Charge, if an Orb.
-        if (orbData)
-        {
-            IOrb orb = this as IOrb;
-            orb?.UseOrb(orbData, player, collectionManager);
-        }
-
-        //Call Event
-        PlayerUsedSkill?.Invoke(player, this);
-
-        if (deactivateCamOnActionComplete)
-        {
-            FantasyCombatManager.Instance.ActionComplete += PrepareToDeactiveBlendCams;  //Subscribe to event to deactivate Cam
-        }
-        else
-        {
-            FantasyCombatManager.Instance.ActionComplete += SkillComplete;
-        }
-                  
-    }
-
-
-    protected void PrepareToDeactiveBlendCams()
-    {
-        SkillComplete();
-        FantasyCombatManager.Instance.ActionComplete -= PrepareToDeactiveBlendCams;
-        Invoke("DeactivateCam", deactivateCamDelay);
-    }
-
-    protected void DeactivateCam()
-    {
-        ActivateVisuals(false);
-        EnableOtherVisuals(false);
-    }
-
-    protected virtual void SetUnitsToShow()
-    {
-        List<GridUnit> targetedUnits = new List<GridUnit>(selectedUnits);
-        targetedUnits.Add(myUnit);
-
-        FantasyCombatManager.Instance.SetUnitsToShow(targetedUnits);
-    }
-
-    protected void ActivateVisuals(bool activate)
-    {
-        if (blendListCamera)
-        {
-            FantasyCombatManager.Instance.ActivateCurrentActiveCam(!activate);
-            blendListCamera.SetActive(activate);
-        }
-
-        EnableOtherVisuals(activate);
-    }
-
-    private void EnableOtherVisuals(bool show)
-    {
-        foreach(GameObject visual in otherVisualsToToggle)
-        {
-            visual.SetActive(show);
-        }
-    }
-
     //GETTERS
     protected bool CanTriggerSkill(bool requiresUnitSelection)
     {
@@ -618,6 +637,11 @@ public abstract class PlayerBaseSkill : BaseSkill
         return true;
     }
 
+    protected virtual bool ShowInteractCanvasWhileSkillSelected()
+    {
+        return false;
+    }
+
     protected bool IsUnitStandingInMoreCellsThanNeccesary()
     {
         return CombatFunctions.IsUnitStandingInMoreCellsThanNeccesary(myUnit);
@@ -634,7 +658,7 @@ public abstract class PlayerBaseSkill : BaseSkill
 
         if (validTargetArea != Vector2.zero)
         {
-            if (validTargetArea.x % 2 != myUnit.GetHorizontalCellsOccupied() % 2)
+            if (validTargetArea.x % 2 != CombatFunctions.GetHorizontalCellsOccupied(GetSkillOwnerMoveGridCollider()) % 2)
             {
                 //Parity: (of a number) the fact of being even or odd.
                 Debug.LogError(skillName + " IS NOT OF THE SAME PARITY AS UNIT WIDTH!");

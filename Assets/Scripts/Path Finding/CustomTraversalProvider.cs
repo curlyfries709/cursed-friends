@@ -35,12 +35,12 @@ public class CustomTraversalProvider : ITraversalProvider
     public bool CanTraverse(Path path, GraphNode node)
     {
         GridPosition gridPosition = LevelGrid.Instance.gridSystem.GetGridPosition((Vector3)node.position);
-        //If node is occupied by another Unit, allow it to be traversed. 
+        //If node is occupied by another Character Unit, allow it to be traversed. 
 
         //TODO: Update to include hazards. If immune to hazard traverse, else cannot traverse. Though if positive hazard, traverse.
-        bool isOccupiedByAUnit = LevelGrid.Instance.IsGridPositionOccupiedByUnit(gridPosition, true);
+        bool isOccupiedByACharacterUnit = LevelGrid.Instance.IsGridPositionOccupiedByCharacterUnit(gridPosition, true);
 
-        if (isOccupiedByAUnit)
+        if (isOccupiedByACharacterUnit)
         {
             return true;
         }

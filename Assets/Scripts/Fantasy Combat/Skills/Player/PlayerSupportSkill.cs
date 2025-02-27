@@ -27,21 +27,10 @@ public class PlayerSupportSkill : PlayerBaseSkill
         blendListComp = blendListCamera.GetComponent<CinemachineBlendListCamera>();
     }
 
-    public override void SkillSelected()
+    public override void SkillCancelled(bool showActionMenu = true)
     {
-        if (!skillTriggered)
-        {
-            GridVisual();
-        }
-    }
-
-    public override void SkillCancelled()
-    {
-        AudioManager.Instance.PlaySFX(SFXType.TabBack);
-
+        base.SkillCancelled(false);
         FantasyCombatCollectionManager.MenuSkillCancelled(player);
-        
-        HideSelectedSkillGridVisual();//Contact Grid Visual To Reset the grid to Movement Only. 
     }
 
     public override bool TryTriggerSkill()

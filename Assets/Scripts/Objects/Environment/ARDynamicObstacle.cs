@@ -1,6 +1,7 @@
 
 using UnityEngine;
 using Pathfinding;
+using System;
 
 public class ARDynamicObstacle : DynamicObstacle
 {
@@ -13,6 +14,10 @@ public class ARDynamicObstacle : DynamicObstacle
     bool isMoving = false; //is this instance of the class being updated. 
     bool completedInitialSet = false;
     bool subscribedToEvent = false;
+
+    //Event
+    public Action TransformUpdated; 
+
     public override void OnGraphsPreUpdate()
     {
         base.OnGraphsPreUpdate();
@@ -52,6 +57,8 @@ public class ARDynamicObstacle : DynamicObstacle
             LevelGrid.Instance.SetDynamicObstacle(gridCollider, modelCollider, true);
             completedInitialSet = true;
             isMoving = false;
+
+            TransformUpdated?.Invoke();
         }    
     }
 
@@ -65,7 +72,6 @@ public class ARDynamicObstacle : DynamicObstacle
         subscribedToEvent = false;
         isMoving = false;
     }
-
 
     bool CanUpdate()
     {

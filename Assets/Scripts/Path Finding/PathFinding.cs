@@ -8,7 +8,6 @@ public class PathFinding : MonoBehaviour
 {
     public static PathFinding Instance { get; private set; }
 
-
     CustomTraversalProvider customTraversalProvider = null;
     public class TerminatePathAtMaxDistance : ABPathEndingCondition
     {

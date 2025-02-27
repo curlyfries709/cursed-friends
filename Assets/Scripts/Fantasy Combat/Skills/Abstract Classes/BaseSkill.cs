@@ -127,7 +127,7 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     public virtual void BeginAction()
     {
         FantasyCombatManager.Instance.CombatEnded += OnSkillInterrupted;
-        FantasyCombatManager.Instance.SetCurrentAction(this, false);
+        FantasyCombatManager.Instance.SetCurrentAction(GetSkillAction(), false);
 
         ResetHealthUIData();
     }
@@ -186,7 +186,7 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         SetSelectedUnits();
     }
 
-    protected void SetSelectedUnits()
+    protected virtual void SetSelectedUnits()
     {
         selectedUnits.Clear();
 
@@ -246,29 +246,31 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
 
     protected List<GridPosition> GetValidUnfilteredGridPositionsFromCentre()
     {
-        if (Vector3.Angle(myUnitMoveTransform.forward, Vector3.forward) < 45 || Vector3.Angle(myUnitMoveTransform.forward, Vector3.back) < 45)
+        Transform skillOwnerMoveTransform = GetSkillOwnerMoveTransform();
+
+        if (Vector3.Angle(skillOwnerMoveTransform.forward, Vector3.forward) < 45 || Vector3.Angle(skillOwnerMoveTransform.forward, Vector3.back) < 45)
         {
             int XOffset = validTargetArea == Vector2.zero ? range : Mathf.FloorToInt(validTargetArea.x / 2);
             int ZOffset = validTargetArea == Vector2.zero ? range : Mathf.FloorToInt(validTargetArea.y / 2);
 
-            int XOrigin = -XOffset + levelGrid.GetColliderBoundMinInGridPos(moveTransformGridCollider).x;
-            int ZOrigin = -ZOffset + levelGrid.GetColliderBoundMinInGridPos(moveTransformGridCollider).z;
+            int XOrigin = -XOffset + levelGrid.GetColliderBoundMinInGridPos(GetSkillOwnerMoveGridCollider()).x;
+            int ZOrigin = -ZOffset + levelGrid.GetColliderBoundMinInGridPos(GetSkillOwnerMoveGridCollider()).z;
 
-            int XEnd = XOffset + levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider).x;
-            int ZEnd = ZOffset + levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider).z;
+            int XEnd = XOffset + levelGrid.GetColliderBoundMaxInGridPos(GetSkillOwnerMoveGridCollider()).x;
+            int ZEnd = ZOffset + levelGrid.GetColliderBoundMaxInGridPos(GetSkillOwnerMoveGridCollider()).z;
 
             return GetValidUnfilteredGridPositions(XOrigin, XEnd, ZOrigin, ZEnd);
         }
-        else if (Vector3.Angle(myUnitMoveTransform.forward, Vector3.right) < 45 || Vector3.Angle(myUnitMoveTransform.forward, Vector3.left) < 45)
+        else if (Vector3.Angle(skillOwnerMoveTransform.forward, Vector3.right) < 45 || Vector3.Angle(skillOwnerMoveTransform.forward, Vector3.left) < 45)
         {
             int XOffset = validTargetArea == Vector2.zero ? range : Mathf.FloorToInt(validTargetArea.y / 2);
             int ZOffset = validTargetArea == Vector2.zero ? range : Mathf.FloorToInt(validTargetArea.x / 2);
 
-            int XOrigin = -XOffset + levelGrid.GetColliderBoundMinInGridPos(moveTransformGridCollider).x;
-            int ZOrigin = -ZOffset + levelGrid.GetColliderBoundMinInGridPos(moveTransformGridCollider).z;
+            int XOrigin = -XOffset + levelGrid.GetColliderBoundMinInGridPos(GetSkillOwnerMoveGridCollider()).x;
+            int ZOrigin = -ZOffset + levelGrid.GetColliderBoundMinInGridPos(GetSkillOwnerMoveGridCollider()).z;
 
-            int XEnd = XOffset + levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider).x;
-            int ZEnd = ZOffset + levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider).z;
+            int XEnd = XOffset + levelGrid.GetColliderBoundMaxInGridPos(GetSkillOwnerMoveGridCollider()).x;
+            int ZEnd = ZOffset + levelGrid.GetColliderBoundMaxInGridPos(GetSkillOwnerMoveGridCollider()).z;
 
             return GetValidUnfilteredGridPositions(XOrigin, XEnd, ZOrigin, ZEnd);
         }
@@ -281,17 +283,20 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
 
     protected List<GridPosition> GetValidUnfilteredGridPositionsBasedOnDirection()
     {
+        BoxCollider skillOwnerMoveGridCollider = GetSkillOwnerMoveGridCollider();
+        int horizontalCellsOccupied = CombatFunctions.GetHorizontalCellsOccupied(GetSkillOwnerMoveGridCollider());
+
         if (GetCardinalDirection() == Direction.North)
         {
             //Facing Vector3.Forward
             int skillWidth = validTargetArea == Vector2.zero ? range : Mathf.FloorToInt(validTargetArea.x);
-            int offset = Mathf.FloorToInt((skillWidth - myUnit.GetHorizontalCellsOccupied()) / 2);
+            int offset = Mathf.FloorToInt((skillWidth - horizontalCellsOccupied) / 2);
 
-            int XOrigin = levelGrid.GetColliderBoundMinInGridPos(moveTransformGridCollider).x - offset;
-            int XEnd = levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider).x + offset;
+            int XOrigin = levelGrid.GetColliderBoundMinInGridPos(skillOwnerMoveGridCollider).x - offset;
+            int XEnd = levelGrid.GetColliderBoundMaxInGridPos(skillOwnerMoveGridCollider).x + offset;
 
-            int ZOrigin = levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider).z + 1;
-            int ZEnd = validTargetArea == Vector2.zero ? levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider).z + range : levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider).z + Mathf.FloorToInt(validTargetArea.y);
+            int ZOrigin = levelGrid.GetColliderBoundMaxInGridPos(skillOwnerMoveGridCollider).z + 1;
+            int ZEnd = validTargetArea == Vector2.zero ? levelGrid.GetColliderBoundMaxInGridPos(skillOwnerMoveGridCollider).z + range : levelGrid.GetColliderBoundMaxInGridPos(skillOwnerMoveGridCollider).z + Mathf.FloorToInt(validTargetArea.y);
 
            /*Debug.Log("XOrigin: " + XOrigin);
             Debug.Log("XEnd: " + XEnd);
@@ -305,13 +310,13 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
             //Facing Vector3.Right
             Vector2 targetArea = new Vector2(validTargetArea.y, validTargetArea.x);
             int skillWidth = validTargetArea == Vector2.zero ? range : Mathf.FloorToInt(validTargetArea.x);
-            int offset = Mathf.FloorToInt((skillWidth - myUnit.GetHorizontalCellsOccupied()) / 2);
+            int offset = Mathf.FloorToInt((skillWidth - horizontalCellsOccupied) / 2);
 
-            int ZOrigin = levelGrid.GetColliderBoundMinInGridPos(moveTransformGridCollider).z - offset;
-            int ZEnd = levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider).z + offset;
+            int ZOrigin = levelGrid.GetColliderBoundMinInGridPos(skillOwnerMoveGridCollider).z - offset;
+            int ZEnd = levelGrid.GetColliderBoundMaxInGridPos(skillOwnerMoveGridCollider).z + offset;
 
-            int XOrigin = levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider).x + 1;
-            int XEnd = validTargetArea == Vector2.zero ? levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider).x + range : levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider).x + Mathf.FloorToInt(targetArea.x);
+            int XOrigin = levelGrid.GetColliderBoundMaxInGridPos(skillOwnerMoveGridCollider).x + 1;
+            int XEnd = validTargetArea == Vector2.zero ? levelGrid.GetColliderBoundMaxInGridPos(skillOwnerMoveGridCollider).x + range : levelGrid.GetColliderBoundMaxInGridPos(skillOwnerMoveGridCollider).x + Mathf.FloorToInt(targetArea.x);
 
             return GetValidUnfilteredGridPositions(XOrigin, XEnd, ZOrigin, ZEnd);
         }
@@ -320,13 +325,13 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
             //Facing Vector3.Left
             Vector2 targetArea = new Vector2(validTargetArea.y, validTargetArea.x);
             int skillWidth = validTargetArea == Vector2.zero ? range : Mathf.FloorToInt(validTargetArea.x);
-            int offset = Mathf.FloorToInt((skillWidth - myUnit.GetHorizontalCellsOccupied()) / 2);
+            int offset = Mathf.FloorToInt((skillWidth - horizontalCellsOccupied) / 2);
 
-            int ZOrigin = levelGrid.GetColliderBoundMinInGridPos(moveTransformGridCollider).z - offset;
-            int ZEnd = levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider).z + offset;
+            int ZOrigin = levelGrid.GetColliderBoundMinInGridPos(skillOwnerMoveGridCollider).z - offset;
+            int ZEnd = levelGrid.GetColliderBoundMaxInGridPos(skillOwnerMoveGridCollider).z + offset;
 
-            int XOrigin = validTargetArea == Vector2.zero ? levelGrid.GetColliderBoundMinInGridPos(moveTransformGridCollider).x - range : levelGrid.GetColliderBoundMinInGridPos(moveTransformGridCollider).x - Mathf.FloorToInt(targetArea.x);
-            int XEnd = levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider).x - 1;
+            int XOrigin = validTargetArea == Vector2.zero ? levelGrid.GetColliderBoundMinInGridPos(skillOwnerMoveGridCollider).x - range : levelGrid.GetColliderBoundMinInGridPos(skillOwnerMoveGridCollider).x - Mathf.FloorToInt(targetArea.x);
+            int XEnd = levelGrid.GetColliderBoundMaxInGridPos(skillOwnerMoveGridCollider).x - 1;
 
             return GetValidUnfilteredGridPositions(XOrigin, XEnd, ZOrigin, ZEnd);
         }
@@ -334,13 +339,13 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         {
             //Facing Vector3.Back
             int skillWidth = validTargetArea == Vector2.zero ? range : Mathf.FloorToInt(validTargetArea.x);
-            int offset = Mathf.FloorToInt((skillWidth - myUnit.GetHorizontalCellsOccupied()) / 2);
+            int offset = Mathf.FloorToInt((skillWidth - horizontalCellsOccupied) / 2);
 
-            int XOrigin = levelGrid.GetColliderBoundMinInGridPos(moveTransformGridCollider).x - offset;
-            int XEnd = levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider).x + offset;
+            int XOrigin = levelGrid.GetColliderBoundMinInGridPos(skillOwnerMoveGridCollider).x - offset;
+            int XEnd = levelGrid.GetColliderBoundMaxInGridPos(skillOwnerMoveGridCollider).x + offset;
 
-            int ZOrigin = validTargetArea == Vector2.zero ? levelGrid.GetColliderBoundMinInGridPos(moveTransformGridCollider).z - range : levelGrid.GetColliderBoundMinInGridPos(moveTransformGridCollider).z - Mathf.FloorToInt(validTargetArea.y);
-            int ZEnd = levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider).z - 1;
+            int ZOrigin = validTargetArea == Vector2.zero ? levelGrid.GetColliderBoundMinInGridPos(skillOwnerMoveGridCollider).z - range : levelGrid.GetColliderBoundMinInGridPos(skillOwnerMoveGridCollider).z - Mathf.FloorToInt(validTargetArea.y);
+            int ZEnd = levelGrid.GetColliderBoundMaxInGridPos(skillOwnerMoveGridCollider).z - 1;
 
             return GetValidUnfilteredGridPositions(XOrigin, XEnd, ZOrigin, ZEnd);
         }
@@ -354,7 +359,7 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     protected List<GridPosition> GetValidUnfilteredGridPositions(int XOrigin, int XEnd, int ZOrigin, int ZEnd)
     {
         List<GridPosition> validGridPositionsList = new List<GridPosition>();
-        //List<GridPosition> unitGridPositions = myUnit.GetCurrentGridPositions();
+
         for (int x = XOrigin; x <= XEnd; x++)
         {
             for (int z = ZOrigin; z <= ZEnd; z++)
@@ -367,18 +372,6 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
                 }
 
                 validGridPositionsList.Add(gridPosition);
-
-
-                /*foreach (GridPosition unitGridPosition in unitGridPositions)
-                {
-                    GridPosition testGridPosition = unitGridPosition + offsetGridPosition;
-                    if (!gridSystem.IsValidGridPosition(testGridPosition))
-                    {
-                        continue;
-                    }
-
-                    validGridPositionsList.Add(testGridPosition);
-                }*/
             }
         }
         return validGridPositionsList;
@@ -391,7 +384,7 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
 
         foreach (GridPosition gridPosition in gridPositions)
         {
-            foreach (GridPosition unitGridPosition in myUnit.GetGridPositionsAtHypotheticalPos(myUnitMoveTransform.position))
+            foreach (GridPosition unitGridPosition in GetGridPositionsAtHypotheticalPos(GetSkillOwnerMoveTransform().position))
             {
                 //Calculate Manhattan distance && Remove from List if not in range.
                 //abs(x1 - x2) + abs(y1 - y2)
@@ -412,7 +405,7 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
 
         foreach (GridPosition gridPosition in gridPositions)
         {
-            if (myUnit.GetGridPositionsAtHypotheticalPos(myUnitMoveTransform.position).Contains(gridPosition))
+            if (GetGridPositionsAtHypotheticalPos(GetSkillOwnerMoveTransform().position).Contains(gridPosition))
             {
                 continue;
             }
@@ -425,9 +418,11 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
 
     protected List<GridPosition> RemovePassThroughLogic(List<GridPosition> gridPositions, bool checkDiagonals)
     {
+        BoxCollider skillOwnerMoveGridCollider = GetSkillOwnerMoveGridCollider();
+
         //Bound GridPos
-        GridPosition unitTopRight = levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider);
-        GridPosition unitBottomLeft = levelGrid.GetColliderBoundMinInGridPos(moveTransformGridCollider);
+        GridPosition unitTopRight = levelGrid.GetColliderBoundMaxInGridPos(skillOwnerMoveGridCollider);
+        GridPosition unitBottomLeft = levelGrid.GetColliderBoundMinInGridPos(skillOwnerMoveGridCollider);
         GridPosition unitTopLeft = new GridPosition(unitBottomLeft.x, unitTopRight.z);
         GridPosition unitBottomRight = new GridPosition(unitTopRight.x, unitBottomLeft.z);
 
@@ -540,7 +535,7 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
 
         foreach (GridPosition gridPosition in gridPositions)
         {
-            foreach (GridPosition unitGridPosition in myUnit.GetGridPositionsAtHypotheticalPos(myUnitMoveTransform.position))
+            foreach (GridPosition unitGridPosition in GetGridPositionsAtHypotheticalPos(GetSkillOwnerMoveTransform().position))
             {
                 bool isCrossGridPos = gridPosition.x == unitGridPosition.x || gridPosition.z == unitGridPosition.z;
                 bool isDiagonalGridPos = CombatFunctions.IsGridPositionOnDiagonalAxis(gridPosition, unitGridPosition);
@@ -560,9 +555,11 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     {
         if(originateFromUnitCentre) { return; } //These Pos are only missing when using range
 
+        BoxCollider skillOwnerMoveGridCollider = GetSkillOwnerMoveGridCollider();
+
         //Bound GridPos
-        GridPosition unitTopRight = levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider);
-        GridPosition unitBottomLeft = levelGrid.GetColliderBoundMinInGridPos(moveTransformGridCollider);
+        GridPosition unitTopRight = levelGrid.GetColliderBoundMaxInGridPos(skillOwnerMoveGridCollider);
+        GridPosition unitBottomLeft = levelGrid.GetColliderBoundMinInGridPos(skillOwnerMoveGridCollider);
         GridPosition unitTopLeft = new GridPosition(unitBottomLeft.x, unitTopRight.z);
         GridPosition unitBottomRight = new GridPosition(unitTopRight.x, unitBottomLeft.z);
 
@@ -614,9 +611,11 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
 
     protected List<GridPosition> FilterIntoDiagonal()
     {
+        BoxCollider skillOwnerMoveGridCollider = GetSkillOwnerMoveGridCollider();
+
         //Bound GridPos
-        GridPosition unitTopRight = levelGrid.GetColliderBoundMaxInGridPos(moveTransformGridCollider);
-        GridPosition unitBottomLeft = levelGrid.GetColliderBoundMinInGridPos(moveTransformGridCollider);
+        GridPosition unitTopRight = levelGrid.GetColliderBoundMaxInGridPos(skillOwnerMoveGridCollider);
+        GridPosition unitBottomLeft = levelGrid.GetColliderBoundMinInGridPos(skillOwnerMoveGridCollider);
         GridPosition unitTopLeft = new GridPosition(unitBottomLeft.x, unitTopRight.z);
         GridPosition unitBottomRight = new GridPosition(unitTopRight.x, unitBottomLeft.z);
 
@@ -625,8 +624,8 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         GridPosition startingGridPos;
 
         //Counters
-        int XAddition = 0;
-        int ZAddition = 0;
+        int XAddition;
+        int ZAddition;
 
         if (GetDiagonalDirection() == Direction.NorthEast)
         {
@@ -678,7 +677,7 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
             GridPosition lastGridPosInList = listToReturn[listToReturn.Count - 1];
             GridPosition newGridPos = new GridPosition(lastGridPosInList.x + XAddition, lastGridPosInList.z + ZAddition);
 
-            if (!LevelGrid.Instance.gridSystem.IsValidGridPosition(newGridPos))
+            if (!LevelGrid.Instance.gridSystem.IsValidGridPosition(newGridPos)) //Check if grid pos within grid.
             {
                 continue;
             }
@@ -701,25 +700,43 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     //Direction Methods
     protected virtual Direction GetCardinalDirection()
     {
-        return CombatFunctions.GetCardinalDirection(myUnitMoveTransform);
+        return CombatFunctions.GetCardinalDirection(GetDirectionTransform());
     }
 
     protected virtual Direction GetDiagonalDirection()
     {
-        return CombatFunctions.GetDiagonalDirection(myUnitMoveTransform);
+        return CombatFunctions.GetDiagonalDirection(GetDirectionTransform());
     }
 
     protected Vector3 GetCardinalDirectionAsVector()
     {
-        return CombatFunctions.GetCardinalDirectionAsVector(myUnitMoveTransform);
+        return CombatFunctions.GetCardinalDirectionAsVector(GetDirectionTransform());
     }
 
     //Getters
-    private bool IsGridPositionValid(GridPosition gridPosition)
+    protected virtual Transform GetDirectionTransform()
     {
-        return LevelGrid.Instance.gridSystem.IsValidGridPosition(gridPosition) && LevelGrid.Instance.IsWalkable(gridPosition);
+        return myUnitMoveTransform;
     }
 
+    protected virtual Transform GetSkillOwnerMoveTransform()
+    {
+        return myUnitMoveTransform;
+    }
+
+    protected virtual BoxCollider GetSkillOwnerMoveGridCollider()
+    {
+        return moveTransformGridCollider;
+    }
+    protected List<GridPosition> GetGridPositionsAtHypotheticalPos(Vector3 newWorldPosition)
+    {
+        return CombatFunctions.GetGridPositionsAtHypotheticalPos(newWorldPosition, GetSkillOwnerMoveTransform(), GetSkillOwnerMoveGridCollider());
+    }
+
+    protected virtual bool IsGridPositionValid(GridPosition gridPosition)
+    {
+        return LevelGrid.Instance.gridSystem.IsValidGridPosition(gridPosition) && !LevelGrid.Instance.TryGetObstacleAtPosition(gridPosition, out Collider obstacleData);
+    }
 
     protected bool GetTargetingCondition(GridPosition gridPosition)
     {
@@ -740,6 +757,11 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     public SkillData GetSkillData()
     {
         return mySkillData;
+    }
+
+    protected virtual ICombatAction GetSkillAction()
+    {
+        return this;
     }
 
     protected SkillForceData GetSkillForceData(GridUnit target)

@@ -196,6 +196,26 @@ namespace AnotherRealm
             }
         }
 
+        public static List<GridPosition> GetGridPositionsAtHypotheticalPos(Vector3 newWorldPosition, Transform currentTransform, BoxCollider gridCollider)
+        {
+            GridSystem<GridObject> gridSystem = LevelGrid.Instance.gridSystem;
+            List<GridPosition> currentGridPositions = new List<GridPosition>();
+            Vector3 offset = newWorldPosition - currentTransform.position;
+
+            gridCollider.enabled = false;
+
+            for (int x = gridSystem.GetGridPosition(gridCollider.bounds.min + offset).x; x <= gridSystem.GetGridPosition(gridCollider.bounds.max + offset).x; x++)
+            {
+                for (int z = gridSystem.GetGridPosition(gridCollider.bounds.min + offset).z; z <= gridSystem.GetGridPosition(gridCollider.bounds.max + offset).z; z++)
+                {
+                    currentGridPositions.Add(new GridPosition(x, z));
+                }
+            }
+
+            gridCollider.enabled = true;
+            return currentGridPositions;
+        }
+
         private static List<GridPosition> GetValidGridPositions(int XOrigin, int XEnd, int ZOrigin, int ZEnd)
         {
             GridSystem<GridObject> gridSystem = LevelGrid.Instance.gridSystem;
@@ -224,6 +244,11 @@ namespace AnotherRealm
             return validGridPositionsList;
         }
 
+        public static int GetHorizontalCellsOccupied(BoxCollider gridCollider)
+        {
+            int value = Mathf.CeilToInt(gridCollider.size.x / LevelGrid.Instance.GetCellSize());
+            return value;
+        }
 
         //Damage Methods
         public static List<InflictedStatusEffectData> TryInflictStatusEffects(CharacterGridUnit attacker,  GridUnit target, List<ChanceOfInflictingStatusEffect> tryApplyStatusEffects)
@@ -289,6 +314,11 @@ namespace AnotherRealm
             if(target.unitType == CombatUnitType.Object)
             {
                 return skillTargets.Contains(FantasyCombatTarget.Object);
+            }
+
+            if (!skillOwner) //Skill Owner null if a combat direct interactable skill
+            {
+                return true;
             }
 
             //From this point Onwards, Target must be a Character Grid Unit

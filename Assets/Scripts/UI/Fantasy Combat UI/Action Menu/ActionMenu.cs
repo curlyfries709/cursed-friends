@@ -2,10 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using TMPro;
 
 public class ActionMenu : MonoBehaviour
 {
     [SerializeField] Transform playerTransform;
+    [SerializeField] TextMeshProUGUI attackText;
     [Header("Tactics")]
     [SerializeField] GameObject tacticAvailable;
     [SerializeField] GameObject tacticUsed;
@@ -25,8 +27,6 @@ public class ActionMenu : MonoBehaviour
     {
         canvasGroup = GetComponent<CanvasGroup>();
         camTransform = Camera.main.transform;
-
-       
     }
 
     private void OnEnable()
@@ -65,7 +65,10 @@ public class ActionMenu : MonoBehaviour
         }
     }
 
-
+    public void AllowInteraction(bool allow)
+    {
+        attackText.text = allow ? "Interact" : "Attack";
+    }
 
     public void Enable(bool enable)
     {

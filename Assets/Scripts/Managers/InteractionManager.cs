@@ -57,6 +57,11 @@ public class InteractionManager : MonoBehaviour
         }
     }
 
+    public bool CanInteractWith(CombatDirectInteractable interactable)
+    {
+        return interactable == currentAllowedInteraction;
+    }
+
 
     private void SetShowInteractCanvas(bool show)
     {
@@ -76,16 +81,18 @@ public class InteractionManager : MonoBehaviour
             if (interactable != currentAllowedInteraction)
             {
                 currentAllowedInteraction?.ShowInteractUI(false);
+                currentAllowedInteraction = interactable;
+                currentAllowedInteraction.ShowInteractUI(true);
             }
-            
-            currentAllowedInteraction = interactable;
-            currentAllowedInteraction.ShowInteractUI(true);
         }
         else if(!allowInteraction && interactable == currentAllowedInteraction)
         {
             currentAllowedInteraction?.ShowInteractUI(false);
             currentAllowedInteraction = null;
         }
+
+        if (FantasyCombatManager.Instance.InCombat())
+            FantasyCombatManager.Instance.SetCombatInteractionAvailable(currentAllowedInteraction != null);
     }
 
     public void OnRadiusEnter(Interact interactable, Transform interactor)
