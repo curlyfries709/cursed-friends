@@ -7,12 +7,13 @@ using DG.Tweening;
 
 public class SelectInteractableSkill : CombatInteractableBaseSkill, ITurnEndEvent
 {
+    [Title("Components")]
+    [SerializeField] ObjectHealth myHealth; 
     [Title("Trigger Condition")]
     [SerializeField] bool triggerOnAnyHit = false;
     [SerializeField] bool triggerOnWeaknessHit = false;
     [SerializeField] bool triggerOnKO = false;
 
-    ObjectHealth myHealth;
     Tween currentRumbleTween;
 
     protected override void Awake()
@@ -25,12 +26,11 @@ public class SelectInteractableSkill : CombatInteractableBaseSkill, ITurnEndEven
 
     private void OnEnable()
     {
-        Debug.Log("Is Set: " + (myUnit.Health() as ObjectHealth) != null);
         if (triggerOnAnyHit)
             Health.UnitHit += OnHit;
 
         if (triggerOnWeaknessHit)
-            (myUnit.Health() as ObjectHealth).WeaknessHit += OnHit;
+            myHealth.WeaknessHit += OnHit;
 
         if (triggerOnKO)
             Health.UnitKOed += OnKO;
@@ -57,7 +57,6 @@ public class SelectInteractableSkill : CombatInteractableBaseSkill, ITurnEndEven
 
     protected virtual void EnterRumbleState() //This occurs when trigger condition met but waiting for turn end event to trigger skill.
     {
-        Debug.Log("Enter rumble State");
         currentRumbleTween = myUnitMoveTransform.DOShakeRotation(5, new Vector3(0, 0, 5), 15, 90, false).SetLoops(-1, LoopType.Yoyo);
         FantasyCombatManager.Instance.AddTurnEndEventToQueue(this);
     }

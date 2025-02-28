@@ -206,6 +206,7 @@ MonoBehaviour:
   forceTypeToApply: 0
   forceDirection: 0
   forceDistance: 0
+  myHealth: {fileID: 8207204874810354286}
   triggerOnAnyHit: 0
   triggerOnWeaknessHit: 1
   triggerOnKO: 0
