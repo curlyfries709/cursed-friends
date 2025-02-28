@@ -389,7 +389,7 @@ public abstract class UnitStats : MonoBehaviour
 
     public bool IsImmuneToForces()
     {
-        return hasForceImmunity || equipment.HasForceImmunity();
+        return hasForceImmunity || (equipment ? equipment.HasForceImmunity() : false);
     }
 
     public bool IsImmuneToStatusEffect(StatusEffectData statusEffect)

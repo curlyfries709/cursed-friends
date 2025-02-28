@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using AnotherRealm;
 using Sirenix.Utilities;
+using Sirenix.OdinInspector;
 
 public struct AffinityDamage
 {
@@ -97,6 +98,11 @@ public class TheCalculator : MonoBehaviour
     [Range(0, 1)]
     [SerializeField] float weaponScalingConstant = 0.01f;
     [SerializeField] float backStabAngleCheck = 15f;
+    [Header("Fired Up Data")]
+    [SerializeField] int fpBasicGainAmount = 5;
+    [SerializeField] int fpEnhancedGainAmount = 10;
+    [Space(10)]
+    [SerializeField] int fpLossAmount = 25;
 
     //DAMAGE FORMULA:
     //((((Phys/Mag Attack + Weapon Attack) * Skill Power amplifier) – Armour) + Rand int between -3%damage - +3% damage)x Resistance Modifier.
@@ -107,7 +113,7 @@ public class TheCalculator : MonoBehaviour
             Instance = this;
     }
 
-    public int CalculateRawDamage(CharacterGridUnit attacker, bool isMagicalAttack, PowerGrade skillPowerGrade, out bool isCritical, bool canCrit = true)
+    public int CalculateRawDamage(GridUnit attacker, bool isMagicalAttack, PowerGrade skillPowerGrade, out bool isCritical, bool canCrit = true)
     {
         isCritical = false;
 
@@ -457,8 +463,8 @@ public class TheCalculator : MonoBehaviour
 
     public int CalculateFPGain(bool isEnhancedAction, int numOfSEApplied = 0)
     {
-        int gain = isEnhancedAction ? FantasyCombatManager.Instance.fpEnhancedGainAmount : FantasyCombatManager.Instance.fpBasicGainAmount;
-        int SEGain = numOfSEApplied * FantasyCombatManager.Instance.fpEnhancedGainAmount;
+        int gain = isEnhancedAction ? fpEnhancedGainAmount : fpBasicGainAmount;
+        int SEGain = numOfSEApplied * fpEnhancedGainAmount;
 
         if (isEnhancedAction) //A Special Hit that applied SE. So Earn FP For The Special Hit & Applied SE.
         {
@@ -470,6 +476,11 @@ public class TheCalculator : MonoBehaviour
         }
 
         return gain;
+    }
+
+    public int CalculateNewFPAfterLoss(int currentFP)
+    {
+        return Mathf.Max(currentFP - fpLossAmount, 0);
     }
 
     public DamageData ExtractDamageDataFromAttackData(GridUnit target, AttackData attackData, DamageType damageType, bool updateDamage = true)

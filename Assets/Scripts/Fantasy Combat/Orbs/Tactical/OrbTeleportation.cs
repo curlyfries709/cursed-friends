@@ -62,7 +62,7 @@ public class OrbTeleportation : PlayerBaseSkill, IOrb
         yield return new WaitForSeconds(teleportWaitTime);
 
         //Hide Units.
-        myUnit.unitAnimator.ShowModel(false);
+        myCharacter.unitAnimator.ShowModel(false);
 
         if (selectedUnit)
         {
@@ -91,7 +91,7 @@ public class OrbTeleportation : PlayerBaseSkill, IOrb
             LevelGrid.Instance.RemoveUnitFromGrid(selectedUnit);
 
         //Show & Set New Grid Pos
-        myUnit.unitAnimator.ShowModel(true);
+        myCharacter.unitAnimator.ShowModel(true);
         myUnit.SetGridPositions();
 
         if (selectedUnit)
@@ -114,8 +114,6 @@ public class OrbTeleportation : PlayerBaseSkill, IOrb
         //Call Action Complete
         FantasyCombatManager.Instance.ActionComplete();
     }
-
-
 
     //Validation
     private bool IsValidUnitSelected()

@@ -238,7 +238,7 @@ public class PowerOfFriendship : MonoBehaviour
                 totalDamage = totalDamage + rawDamage;
             }
 
-            enemy.Health().TakeDamage(GetAttackData(totalDamage), DamageType.Ultimate);
+            enemy.CharacterHealth().TakeDamage(GetAttackData(totalDamage), DamageType.Ultimate);
         }
     }
 

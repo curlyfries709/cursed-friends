@@ -5,9 +5,10 @@ using UnityEngine;
 
 public interface ITurnEndEvent
 {
-    public int turnEndEventOrder { get; set; }
     void PlayTurnEndEvent();
     void OnEventCancelled(); //Called when another turn end event cancels it.
+
+    public float GetTurnEndEventOrder();
 
     List<System.Type> GetEventTypesThatCancelThis();
 }

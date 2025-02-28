@@ -23,13 +23,13 @@ public class PlayerInteractSkill : PlayerBaseSkill
     public override void SkillCancelled(bool showActionMenu = true)
     {
         base.SkillCancelled(showActionMenu);
-
-        selectedInteractable?.GetInteractableSkill().ShowAffectedGridPositions(false);
         selectedInteractable = null;
     }
 
     protected override void SetSelectedUnits()
     {
+        highlightableData.Clear();
+
         bool foundInteractable = false;
 
         foreach (GridPosition gridPosition in selectedGridPositions)
@@ -44,10 +44,9 @@ public class PlayerInteractSkill : PlayerBaseSkill
 
                     if (selectedInteractable != interactable)
                     {
-                        selectedInteractable?.GetInteractableSkill().ShowAffectedGridPositions(false);
                         selectedInteractable = interactable;
-                        selectedInteractable.GetInteractableSkill().SetInteractorData(myUnit, myUnitMoveTransform);
-                        selectedInteractable.GetInteractableSkill().ShowAffectedGridPositions(true);
+                        selectedInteractable?.GetInteractableSkill().SetInteractorData(myCharacter, myUnitMoveTransform);
+                        highlightableData[gridPosition] = selectedInteractable?.GetInteractableSkill().GetHighlightable(); 
                     }
                 }
             }
@@ -55,7 +54,6 @@ public class PlayerInteractSkill : PlayerBaseSkill
 
         if (!foundInteractable)
         {
-            selectedInteractable?.GetInteractableSkill().ShowAffectedGridPositions(false);
             selectedInteractable = null;
         }
     }

@@ -8,7 +8,7 @@ public class ERegeneration : EnchantmentEffect, ITurnStartEvent
     {
         HealData healData = new HealData(owner, GetPercentageAsValue(owner.stats.Vitality));
 
-        owner.Health().Heal(healData);
+        owner.CharacterHealth().Heal(healData);
         Health.RaiseHealthChangeEvent(true);
     }
 
@@ -16,7 +16,7 @@ public class ERegeneration : EnchantmentEffect, ITurnStartEvent
     {
         //We use On New Turn instead of on Owner turn start because On New Turn gets triggered before Turn Start events are checked.
         base.OnNewTurn(actingUnit, turnNumber);
-        if (actingUnit == owner && !owner.Health().isKOed)
+        if (actingUnit == owner && !owner.CharacterHealth().isKOed)
             FantasyCombatManager.Instance.AddTurnStartEventToQueue(this);
     }
 

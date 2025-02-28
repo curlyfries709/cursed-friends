@@ -79,7 +79,7 @@ public abstract class StatusEffect : MonoBehaviour
 
         if (effectData.loseFPEachTurn)
         {
-            myUnit.Health().LoseFP();
+            myUnit.CharacterHealth().LoseFP();
         }
         
         if(turnsRemaining == 0)
@@ -173,7 +173,7 @@ public abstract class StatusEffect : MonoBehaviour
         attackData.canCrit = false;
         attackData.canEvade = false;
 
-        myUnit.Health().TakeStatusEffectDamage(attackData, healthPercentToLost);
+        myUnit.CharacterHealth().TakeStatusEffectDamage(attackData, healthPercentToLost);
     }
 
     //VISUAL & UI
@@ -185,7 +185,7 @@ public abstract class StatusEffect : MonoBehaviour
         if (!effectData.effectVisualPrefab) { return; }
 
         //Spawn UI
-        healthUISEPrefab = Instantiate(effectData.effectVisualPrefab, myUnit.Health().GetStatusEffectUIHeader());
+        healthUISEPrefab = Instantiate(effectData.effectVisualPrefab, myUnit.CharacterHealth().GetStatusEffectUIHeader());
 
         PlayerGridUnit playerGridUnit = myUnit as PlayerGridUnit;
 

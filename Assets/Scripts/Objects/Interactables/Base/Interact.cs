@@ -81,7 +81,7 @@ public abstract class Interact : MonoBehaviour
         Vector3 desiredRotation = Quaternion.LookRotation(CombatFunctions.GetCardinalDirectionAsVector(interactor.transform)).eulerAngles;
         interactor.Warp(LevelGrid.Instance.gridSystem.GetWorldPosition(interactor.GetCurrentGridPositions()[0]), Quaternion.Euler(new Vector3(0, desiredRotation.y, 0)));
 
-        GridSystemVisual.Instance.HideAllGridVisuals(true);
+        GridSystemVisual.Instance.HideAllGridVisuals();
 
         List<GridUnit> targetedUnits = new List<GridUnit>(targets)
         {

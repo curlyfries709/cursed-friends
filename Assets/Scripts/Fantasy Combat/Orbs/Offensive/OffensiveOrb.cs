@@ -34,7 +34,7 @@ public class OffensiveOrb : PlayerOffensiveSkill, IOrb
             
             BeginSkill(returnToGridPosTime, delayBeforeReturn, true, orbData);//Unit Position Updated here
 
-            myUnit.unitAnimator.ShowWeapon(false);
+            myCharacter.unitAnimator.ShowWeapon(false);
             ActivateVisuals(true);
 
             //Attack
@@ -53,13 +53,13 @@ public class OffensiveOrb : PlayerOffensiveSkill, IOrb
     private void OnActionComplete()
     {
         FantasyCombatManager.Instance.ActionComplete -= OnActionComplete;
-        myUnit.unitAnimator.ShowWeapon(true);
+        myCharacter.unitAnimator.ShowWeapon(true);
     }
 
     private void SetParentConstraint()
     {
         ConstraintSource constraintSource = new ConstraintSource();
-        constraintSource.sourceTransform = myUnit.unitAnimator.GetRightHand();
+        constraintSource.sourceTransform = myCharacter.unitAnimator.GetRightHand();
         constraintSource.weight = 1;
 
         orbParentConstraint.SetSource(0, constraintSource);

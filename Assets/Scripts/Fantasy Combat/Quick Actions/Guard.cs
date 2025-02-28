@@ -30,7 +30,7 @@ public class Guard : PlayerBaseSkill
         {
             BeginSkill(0, actionDisplayTime, false);//Unit Position Updated here
 
-            myUnit.Health().Guard(true);
+            myCharacter.CharacterHealth().Guard(true);
 
             //Setup Cam
             orbitPoint.localRotation = Quaternion.Euler(orbitPointStartingRotation);

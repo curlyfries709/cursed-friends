@@ -138,21 +138,27 @@ public class Flee : MonoBehaviour, IControls
         yield return new WaitForSeconds(fader.fadeInTime);
 
         ActivateConfirmFleeUI(false, false);
-        GridSystemVisual.Instance.HideAllGridVisuals(true);
+        GridSystemVisual.Instance.HideAllGridVisuals();
 
         //Activate All Players
         foreach (PlayerGridUnit player in PartyManager.Instance.GetActivePlayerParty())
         {
-            player.Health().BattleComplete(); //Restore Any KOED Units to 1 Health.
+            player.CharacterHealth().BattleComplete(); //Restore Any KOED Units to 1 Health.
             player.ActivateUnit(true);
             player.unitAnimator.ResetAnimatorToRoamState();
         }
 
-        //Restore Surviving Enemies
-        foreach (CharacterGridUnit enemy in FantasyCombatManager.Instance.GetEnemyCombatParticipants(false, true))
+        //Restore Surviving Units
+        foreach (GridUnit unit in FantasyCombatManager.Instance.GetAllCombatUnits(false))
         {
-            enemy.Health().ResetVitals();
-            enemy.GetComponent<EnemyStateMachine>().WarpBackToPatrol();
+            if(unit is PlayerGridUnit) { continue; }
+
+            unit.Health().ResetVitals();
+
+            if(unit.TryGetComponent(out EnemyStateMachine stateMachine))
+            {
+                stateMachine.WarpBackToPatrol();
+            }  
         }
 
         //End Combat
@@ -194,7 +200,7 @@ public class Flee : MonoBehaviour, IControls
             return FleeResult.InMultipleCells;
         }
 
-        CharacterGridUnit closestEnemy = CombatFunctions.GetClosestUnitOfTypeOrDefault(player, FantasyCombatTarget.Enemy);
+        GridUnit closestEnemy = CombatFunctions.GetClosestUnitOfTypeOrDefault(player, FantasyCombatTarget.Enemy);
 
         //Check Distance
         if(PathFinding.Instance.GetPathLengthInGridUnits(player.GetCurrentGridPositions()[0], closestEnemy.GetGridPositionsOnTurnStart()[0], player) < minPathDistanceFromEnemiesToFlee)

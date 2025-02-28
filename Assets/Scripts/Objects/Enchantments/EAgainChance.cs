@@ -8,7 +8,7 @@ public class EAgainChance : EnchantmentEffect
     {
         base.OnUnitTurnStart();
 
-        if (!owner.Health().isFiredUp)
+        if (!owner.CharacterHealth().isFiredUp)
         {
             int randNum = Random.Range(0, 101);
 

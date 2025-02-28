@@ -60,7 +60,7 @@ public abstract class PlayerBaseChainAttack : PlayerOffensiveSkill
     protected void ShowMovementGridPos()
     {
         List<GridPosition> movementGridPos = new List<GridPosition>(myUnit.GetGridPositionsOnTurnStart());
-        GridSystemVisual.Instance.ShowValidMovementGridPositions(movementGridPos, myUnit, true);
+        GridSystemVisual.Instance.ShowValidMovementGridPositions(movementGridPos, myCharacter, true);
     }
 
     //Other Overrides
@@ -77,7 +77,7 @@ public abstract class PlayerBaseChainAttack : PlayerOffensiveSkill
             if (RequireSkillDirectionSelection())
             {
                 HUDManager.Instance.UpdateSelectedSkill(skillName);
-                FantasyCombatManager.Instance.BeginChainAttackAreaSelection(myUnit, this);
+                FantasyCombatManager.Instance.BeginChainAttackAreaSelection(myCharacter, this);
             }
             else
             {

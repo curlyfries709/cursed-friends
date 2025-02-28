@@ -55,7 +55,6 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
     [SerializeField] int knockbackDamageMaxPercentage = 25;
     [Header("Suction")]
     [SerializeField] float suctionAnimTime = 0.5f;
-    public int turnEndEventOrder { get; set; }
 
     public struct ApplyForceData
     {
@@ -121,7 +120,6 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
     private void Awake()
     {
         Instance = this;
-        turnEndEventOrder = transform.GetSiblingIndex();
     }
 
     public void PrepareToApplyForceToUnit(GridUnit attacker, GridUnit target, SkillForceData inForceData, int damage, bool isReflected)
@@ -444,7 +442,7 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
                 int rawDamage = bouncingUnitsDamageData[target];
 
                 //If Unit Guarding or KOed Player (they remain on grid) do not take damage.
-                if (!characterAtPos || (characterAtPos && !characterAtPos.Health().isGuarding && !characterAtPos.Health().isKOed)) //This means a disabled player that gets knocked by enemy would take damage :O
+                if (!characterAtPos || (characterAtPos && !characterAtPos.CharacterHealth().isGuarding && !characterAtPos.CharacterHealth().isKOed)) //This means a disabled player that gets knocked by enemy would take damage :O
                 {
                     unitAtKnockbackPos.Health().TakeBumpDamage(GetRandomBumpDamage(rawDamage)); //Damage Other Unit At Pos
                 }
@@ -565,7 +563,7 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
     private bool ShouldUnitAtKnockbackPosAttack(CharacterGridUnit unitAtKnockbackPos, CharacterGridUnit target)
     {
         return /*!target.Health().isKOed && */unitAtKnockbackPos && target && unitAtKnockbackPos.team != target.team
-            && unitAtKnockbackPos.Health().CanTriggerAssistAttack();
+            && unitAtKnockbackPos.CharacterHealth().CanTriggerAssistAttack();
     }
 
     private bool WillUnitAtKnockbackPosTakeDamage(CharacterGridUnit unitAtKnockbackPos, CharacterGridUnit target)
@@ -618,6 +616,11 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
         //If reached, force Type is not valid.
         Debug.LogError("INVALID FORCE TYPE PROVIDED. Please set to KnockbalAll or SuctionAll");
         return Vector3.zero;
+    }
+
+    public float GetTurnEndEventOrder()
+    {
+        return transform.GetSiblingIndex();
     }
 
     public List<System.Type> GetEventTypesThatCancelThis()

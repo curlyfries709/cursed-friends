@@ -40,7 +40,7 @@ public class FiredUpEvent : MonoBehaviour, ITurnStartEvent
 
     private void OnNewTurn(CharacterGridUnit firedUpUnit, int turnNumber)
     {
-        if(!firedUpUnit.Health().isFiredUp && firedUpUnit.Health().CanTriggerFiredUp())
+        if(!firedUpUnit.CharacterHealth().isFiredUp && firedUpUnit.CharacterHealth().CanTriggerFiredUp())
         {
             this.firedUpUnit = firedUpUnit;
             FantasyCombatManager.Instance.AddTurnStartEventToQueue(this);

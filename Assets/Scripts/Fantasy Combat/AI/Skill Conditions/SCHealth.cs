@@ -16,7 +16,7 @@ public class SCHealth : AISkillCondition
 
     public override bool IsConditionMet(CharacterGridUnit myUnit, CharacterGridUnit preferredTarget, List<GridUnit> selectedUnits, GridPosition hypotheticalGridPos, AIBaseSkill skill)
     {
-        float healthToEvaluate = unitHealthAtThreshold ? myUnit.Health().GetHealthNormalized() : preferredTarget.Health().GetHealthNormalized();
+        float healthToEvaluate = unitHealthAtThreshold ? myUnit.CharacterHealth().GetHealthNormalized() : preferredTarget.CharacterHealth().GetHealthNormalized();
 
         if (evaluateConditionAtEachMovePosition)
         {

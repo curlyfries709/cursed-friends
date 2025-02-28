@@ -34,7 +34,6 @@ public class Evade : MonoBehaviour, ITurnEndEvent
     [SerializeField] float counterAttackerRadius = 0.8f;
 
     //Caches
-    public int turnEndEventOrder { get; set; }
 
     GridUnit attacker;
     public CharacterGridUnit counterAttacker { get; private set; } = null;
@@ -53,7 +52,6 @@ public class Evade : MonoBehaviour, ITurnEndEvent
     private void Awake()
     {
         Instance = this;
-        turnEndEventOrder = transform.GetSiblingIndex();
 
         playerCounterCanvas.GetComponent<CombatEventCanvas>().SetDuration(counterCanvasDisplayTime);
         enemyCounterCanvas.GetComponent<CombatEventCanvas>().SetDuration(counterCanvasDisplayTime);
@@ -252,6 +250,10 @@ public class Evade : MonoBehaviour, ITurnEndEvent
     {
         TriggerEvadeEvent -= TriggerEvade;
     }
+    public float GetTurnEndEventOrder()
+    {
+        return transform.GetSiblingIndex(); 
+    }
 
     public float GetCounterCanvasDisplayTime()
     {
@@ -262,5 +264,6 @@ public class Evade : MonoBehaviour, ITurnEndEvent
     {
         return otherEventTypesThatCancelThis;
     }
+
 
 }

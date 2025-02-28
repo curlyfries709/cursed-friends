@@ -7,13 +7,14 @@ using AnotherRealm;
 using System.Linq;
 using System;
 using Sirenix.Utilities;
+using Unity.VisualScripting;
 
 public abstract class BaseSkill : MonoBehaviour, ICombatAction
 {
     //IMPORTANT VARIABLES
     [PropertyOrder(-9)]
     [Title("Unit")]
-    [SerializeField] protected CharacterGridUnit myUnit;
+    [SerializeField] protected GridUnit myUnit;
     [Title("Target Behaviour")]
     [Tooltip("Can this skill only target one unit? Leave false to target multiple")]
     [SerializeField] protected bool isSingleTarget; //Target Area is automatically 1X1 for this.
@@ -58,6 +59,7 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     [SerializeField] protected int forceDistance = 0;
 
     //Event
+    protected CharacterGridUnit myCharacter;
     public Action<CharacterGridUnit> SkillOwnerSet;
 
     //State Variables
@@ -74,7 +76,9 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
 
     //Storage
     protected List<GridPosition> selectedGridPositions = new List<GridPosition>();
+
     protected List<GridUnit> selectedUnits = new List<GridUnit>();
+    protected Dictionary<GridPosition, IHighlightable> highlightableData = new Dictionary<GridPosition, IHighlightable>(); //For Grid Visual
 
     protected List<GridUnit> skillTargets { get; private set; } = new List<GridUnit>();
 
@@ -113,6 +117,7 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     {
         mySkillData = skillData;
         myUnit = skillPrefabSetter.characterGridUnit;
+        myCharacter = skillPrefabSetter.characterGridUnit;
         moveTransformGridCollider = myUnit.gridCollider;
 
         unitCameraRootTransform.parent = skillPrefabSetter.cameraRootTransform;
@@ -121,7 +126,7 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         transform.parent = skillPrefabSetter.skillHeader;
         HandyFunctions.ResetTransform(transform, true);
 
-        SkillOwnerSet?.Invoke(myUnit);
+        SkillOwnerSet?.Invoke(myCharacter);
     }
 
     public virtual void BeginAction()
@@ -189,6 +194,7 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     protected virtual void SetSelectedUnits()
     {
         selectedUnits.Clear();
+        highlightableData.Clear();
 
         if (isTargetSelfOnlySkill)
         {
@@ -197,6 +203,8 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
 
         foreach (GridPosition gridPosition in selectedGridPositions)
         {
+            GridUnit foundUnit = null;
+
             if (GetTargetingCondition(gridPosition))
             {
                 GridUnit selectedUnit = LevelGrid.Instance.GetUnitAtGridPosition(gridPosition);
@@ -204,8 +212,11 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
                 if (!selectedUnits.Contains(selectedUnit) && CombatFunctions.IsUnitValidTarget(targets, myUnit, selectedUnit))
                 {
                     selectedUnits.Add(selectedUnit);
+                    foundUnit = selectedUnit;
                 }
             }
+
+            highlightableData[gridPosition] = foundUnit?.GetHighlightable();
         }
     }
 
@@ -776,7 +787,7 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
             return forceTypeToApply;
         }
 
-        switch (CombatFunctions.GetRelationWithTarget(myUnit, target))
+        switch (CombatFunctions.GetRelationWithTarget(myCharacter, target))
         {
             case FantasyCombatTarget.Ally:
                 return SkillForceType.SuctionAll;

@@ -4,8 +4,6 @@ using System;
 
 public class MercifulDoom : StatusEffect, ITurnEndEvent
 {
-    public int turnEndEventOrder { get; set; }
-
     const int mercifulDoomDuration = 3;
 
     public override void OnEffectApplied()
@@ -13,7 +11,6 @@ public class MercifulDoom : StatusEffect, ITurnEndEvent
         turnsRemaining = mercifulDoomDuration; //Overwrite turns remaining as this SE is special and should only last 3 turns.
 
         //Display Visual Effect.
-        turnEndEventOrder = 70;
         SpawnVisual();
 
         //This is necessary, if SE applied during a counterattack.
@@ -61,6 +58,11 @@ public class MercifulDoom : StatusEffect, ITurnEndEvent
 
     protected override void CalculateNewStatValue(bool resetValues) { }
     protected override void OnStatusStacked() { }
+
+    public float GetTurnEndEventOrder()
+    {
+        return 70;
+    }
 
     public List<Type> GetEventTypesThatCancelThis()
     {

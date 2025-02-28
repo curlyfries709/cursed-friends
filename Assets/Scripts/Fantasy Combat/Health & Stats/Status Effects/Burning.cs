@@ -4,12 +4,9 @@ using System;
 
 public class Burning : StatusEffect, ITurnEndEvent
 {
-    public int turnEndEventOrder { get; set; }
-
     public override void OnEffectApplied()
     {
         //Display Visual Effect.
-        turnEndEventOrder = 85;
         SpawnVisual();
 
         //Burning Cancels out Frozen
@@ -53,6 +50,11 @@ public class Burning : StatusEffect, ITurnEndEvent
 
     protected override void CalculateNewStatValue(bool resetValues) { }
     protected override void OnStatusStacked(){}
+
+    public float GetTurnEndEventOrder()
+    {
+        return 85;
+    }
 
     public List<Type> GetEventTypesThatCancelThis()
     {

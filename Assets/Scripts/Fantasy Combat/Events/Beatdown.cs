@@ -191,12 +191,12 @@ public class Beatdown : MonoBehaviour
             }
 
             //Gift Attacker Enhanced FP
-            attacker.Health().GainFP(FantasyCombatManager.Instance.fpEnhancedGainAmount);
+            attacker.CharacterHealth().GainFP(TheCalculator.Instance.CalculateFPGain(true));
         }
 
         foreach(CharacterGridUnit target in beatenUpUnits)
         {
-            target.Health().TakeDamage(targetDamageDict[target], DamageType.Ultimate);
+            target.CharacterHealth().TakeDamage(targetDamageDict[target], DamageType.Ultimate);
         }
     }
 
@@ -264,7 +264,7 @@ public class Beatdown : MonoBehaviour
         //Cure Knockdown
         foreach (CharacterGridUnit player in beatenUpUnits)
         {
-            if (player.Health().isKOed)
+            if (player.CharacterHealth().isKOed)
             {
                 beatdownSurvived = false;
             }

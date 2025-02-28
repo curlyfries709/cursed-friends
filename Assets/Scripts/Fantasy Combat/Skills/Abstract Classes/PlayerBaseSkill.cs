@@ -71,7 +71,6 @@ public abstract class PlayerBaseSkill : BaseSkill
     //Events
     public static Action<PlayerGridUnit, PlayerBaseSkill> PlayerUsedSkill;
 
-
     public enum SkillCostType
     {
         HP,
@@ -89,6 +88,7 @@ public abstract class PlayerBaseSkill : BaseSkill
             myUnitMoveTransform = myUnit.transform;
             moveTransformGridCollider = myUnit.gridCollider;
             player = myUnit as PlayerGridUnit;
+            myCharacter = player;
         }    
     }
 
@@ -170,27 +170,25 @@ public abstract class PlayerBaseSkill : BaseSkill
     {
         if (isGridSelectionRequired)
         {
-            GridSystemVisual.Instance.ShowValidTargetAndSelectedGridPositions(validTargetGridPositions, selectedGridPositions, selectedUnits, true);
+            GridSystemVisual.Instance.ShowGridVisuals(validTargetGridPositions, GridSystemVisual.VisualType.SkillTargetArea);
         }
-        else
-        {
-            GridSystemVisual.Instance.ShowOnlySelectedGridPositions(selectedGridPositions, selectedUnits, true);
-        }
+
+        GridSystemVisual.Instance.ShowGridVisuals(this, selectedGridPositions, highlightableData, GridSystemVisual.VisualType.SkillAOE);
+        HUDManager.Instance.UpdateTurnOrderNames(selectedUnits);
     }
 
     protected void HideSelectedSkillGridVisual()
     {
+        GridSystemVisual.Instance.HideGridVisualsOfType(GridSystemVisual.VisualType.ObjectAOE);
+        GridSystemVisual.Instance.HideGridVisualsOfType(GridSystemVisual.VisualType.SkillAOE);
+
         if (isGridSelectionRequired)
         {
-            GridSystemVisual.Instance.ShowValidTargetAndSelectedGridPositions(validTargetGridPositions, selectedGridPositions, selectedUnits, false);
+            GridSystemVisual.Instance.HideGridVisualsOfType(GridSystemVisual.VisualType.SkillTargetArea);
         }
-        else
-        {
-            GridSystemVisual.Instance.ShowOnlySelectedGridPositions(selectedGridPositions, selectedUnits, false);
-        }
+
+        HUDManager.Instance.UpdateTurnOrderNames(new List<GridUnit>());
     }
-
-
 
     //DOERS
     
@@ -200,22 +198,22 @@ public abstract class PlayerBaseSkill : BaseSkill
 
         player.lastUsedSkill = this;
 
-        myUnit.unitAnimator.PrepareToTriggerSkill(); //Speed Set to 0 & Cancel Skill Feedback Reset
+        myCharacter.unitAnimator.PrepareToTriggerSkill(); //Speed Set to 0 & Cancel Skill Feedback Reset
 
         //Warp Unit into Position & Rotation in an attempt to remove camera jitter.
         Vector3 desiredRotation = Quaternion.LookRotation(GetCardinalDirectionAsVector()).eulerAngles;
         myUnit.Warp(LevelGrid.Instance.gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0]), Quaternion.Euler(new Vector3(0, desiredRotation.y, 0)));
 
         //Set Times
-        myUnit.returnToGridPosTime = returnToGridPosTime;
-        myUnit.delayBeforeReturn = delayBeforeReturn;
+        myCharacter.returnToGridPosTime = returnToGridPosTime;
+        myCharacter.delayBeforeReturn = delayBeforeReturn;
         deactivateCamDelay = delayBeforeReturn;
 
         skillTriggered = true;
         ControlsManager.Instance.DisableControls();
         HUDManager.Instance.UpdateSelectedSkill("");
 
-        GridSystemVisual.Instance.HideAllGridVisuals(true);
+        GridSystemVisual.Instance.HideAllGridVisuals();
         HUDManager.Instance.UpdateTurnOrderNames(new List<GridUnit>());
 
         SetUnitsToShow();
@@ -229,13 +227,13 @@ public abstract class PlayerBaseSkill : BaseSkill
         switch (costType)
         {
             case SkillCostType.SP:
-                myUnit.Health().SpendSP(GetCost());
+                myCharacter.CharacterHealth().SpendSP(GetCost());
                 break;
             case SkillCostType.FP:
-                myUnit.Health().SpendFP(GetCost());
+                myCharacter.CharacterHealth().SpendFP(GetCost());
                 break;
             case SkillCostType.HP:
-                myUnit.Health().SpendHP(GetCost());
+                myCharacter.CharacterHealth().SpendHP(GetCost());
                 break;
         }
 
@@ -467,7 +465,7 @@ public abstract class PlayerBaseSkill : BaseSkill
             if (conditionToUse || isGridCycle)
             {
                 GridUnit unitAtPos = LevelGrid.Instance.GetUnitAtGridPosition(gridPosition);
-                if (!CombatFunctions.IsUnitValidTarget(targets, myUnit, unitAtPos)) { continue; }
+                if (!CombatFunctions.IsUnitValidTarget(targets, myCharacter, unitAtPos)) { continue; }
 
                 autoSelectedUnit = unitAtPos;
 
@@ -537,7 +535,7 @@ public abstract class PlayerBaseSkill : BaseSkill
 
             if (conditionToUse && unitAtPos)
             {
-                bool canTargetThisUnit = CombatFunctions.IsUnitValidTarget(targets, myUnit, unitAtPos);
+                bool canTargetThisUnit = CombatFunctions.IsUnitValidTarget(targets, myCharacter, unitAtPos);
 
                 if (canTargetThisUnit)
                 {
@@ -572,12 +570,12 @@ public abstract class PlayerBaseSkill : BaseSkill
         //Something like Guarding which is just an action without needing to select a Unit doesn't Require Unit Selection.
         bool canTriggerSkill = requiresUnitSelection ? CanTriggerTargetSelectionSkill() : CanTriggerSelfSkill();
 
-        if(myUnit.CanTriggerSkill == null)
+        if(myCharacter.CanTriggerSkill == null)
         {
             return canTriggerSkill;
         }
 
-        return myUnit.CanTriggerSkill() && canTriggerSkill;
+        return myCharacter.CanTriggerSkill() && canTriggerSkill;
     }
 
     public bool CanAffordSkill()
@@ -585,11 +583,11 @@ public abstract class PlayerBaseSkill : BaseSkill
         switch (costType)
         {
             case SkillCostType.SP:
-                return GetCost() <= myUnit.Health().currentSP;
+                return GetCost() <= myCharacter.CharacterHealth().currentSP;
             case SkillCostType.FP:
-                return GetCost() <= myUnit.Health().currentFP;
+                return GetCost() <= myCharacter.CharacterHealth().currentFP;
             case SkillCostType.HP:
-               return GetCost() < myUnit.Health().currentHealth;
+               return GetCost() < myCharacter.CharacterHealth().currentHealth;
             default:
                 return true;
         }
@@ -644,7 +642,7 @@ public abstract class PlayerBaseSkill : BaseSkill
 
     protected bool IsUnitStandingInMoreCellsThanNeccesary()
     {
-        return CombatFunctions.IsUnitStandingInMoreCellsThanNeccesary(myUnit);
+        return CombatFunctions.IsUnitStandingInMoreCellsThanNeccesary(myCharacter);
     }
 
     public PlayerGridUnit GetSkillOwner()
@@ -708,12 +706,12 @@ public abstract class PlayerBaseSkill : BaseSkill
         }
         else if (costType == SkillCostType.HP)
         {
-            return Mathf.RoundToInt(((float)percentageCost / 100) * myUnit.stats.GetVitalityWithoutBonus());
+            return Mathf.RoundToInt(((float)percentageCost / 100) * myCharacter.stats.GetVitalityWithoutBonus());
         }
         else
         {
             //Must Be FP
-            return Mathf.RoundToInt(((float)percentageCost / 100) * myUnit.Health().MaxFP()); 
+            return Mathf.RoundToInt(((float)percentageCost / 100) * myCharacter.CharacterHealth().MaxFP()); 
         }
     }
 
@@ -721,6 +719,7 @@ public abstract class PlayerBaseSkill : BaseSkill
     public void ExternalSetup(PlayerGridUnit newSkillOwner, string newSkillName, FantasyCombatCollectionManager collectionManager)
     {
         myUnit = newSkillOwner;
+        myCharacter = newSkillOwner;
         player = newSkillOwner;
 
         myUnitMoveTransform = newSkillOwner.transform;

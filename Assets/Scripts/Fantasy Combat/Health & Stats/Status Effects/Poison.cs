@@ -5,12 +5,9 @@ using System;
 
 public class Poison : StatusEffect, ITurnEndEvent
 {
-    public int turnEndEventOrder { get; set; }
-
     public override void OnEffectApplied()
     {
         //Display Visual Effect.
-        turnEndEventOrder = 90;
         SpawnVisual();
 
         //This is necessary, if SE applied during a counterattack.
@@ -40,7 +37,7 @@ public class Poison : StatusEffect, ITurnEndEvent
     public void PlayTurnEndEvent()
     {
         ApplyStatusEffectDamageToUnit(5);
-        myUnit.Health().TakeSPLoss(5);
+        myUnit.CharacterHealth().TakeSPLoss(5);
 
         StatusEffectManager.Instance.PlayDamageTurnEndEvent(myUnit);
     }
@@ -52,6 +49,11 @@ public class Poison : StatusEffect, ITurnEndEvent
 
     protected override void CalculateNewStatValue(bool resetValues) { }
     protected override void OnStatusStacked() { }
+
+    public float GetTurnEndEventOrder()
+    {
+        return 90;
+    }
 
     public List<Type> GetEventTypesThatCancelThis()
     {

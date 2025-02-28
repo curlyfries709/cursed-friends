@@ -52,13 +52,10 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     [SerializeField] float baseActionTime = 800;
     [SerializeField] float maxActionTimeIncrement = 5;
     [SerializeField] int NSpeedTurnToDecreaseIncrement = 10;
-    [Title("Fired Up Data")]
-    public int fpBasicGainAmount = 3;
-    public int fpEnhancedGainAmount = 5;
-    [Space(10)]
-    public int fpLossAmount = 20;
+    [Title("Event")]
+    [SerializeField] Transform selectionInteractionEventHeader;
     [Header("TEST")]
-    [SerializeField] bool beginCombatOnPlay = true;
+    [SerializeField] bool beginCombatOnPlay = false;
     [SerializeField] BattleStarter.CombatAdvantage combatAdvantageType;
     [SerializeField] EnemyIntiateCombat testBattleTrigger;
     [Space(10)]
@@ -95,6 +92,8 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
     //Turn Order Lists & Dicts
     List<CharacterGridUnit> allCharacterCombatUnits = new List<CharacterGridUnit>();
+    List<GridUnit> allSelectInteractablesInScene = new List<GridUnit>();
+
     List<CharacterGridUnit> turnOrder = new List<CharacterGridUnit>();
     
     Dictionary<CharacterGridUnit, float> unitCurrentActionTimeDict = new Dictionary<CharacterGridUnit, float>();
@@ -141,6 +140,8 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     public Action<BattleResult, IBattleTrigger> CombatEnded;
     public Action BattleRestarted;
 
+    public Func<GridUnit> ObjectInSceneSetPosition;
+
     public Action<CharacterGridUnit, int> OnNewTurn; //Turn Owner, Turn Number
     public Action OnTurnFinished;
     public Action ActionComplete;
@@ -179,9 +180,8 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         CombatEnded += OnCombatEnd;
         ControlsManager.Instance.SubscribeToPlayerInput(myActionMap, this);
 
-        //Test Events
-        if (beginCombatOnPlay)
-            SavingLoadingManager.Instance.NewSceneLoadComplete += OnSceneLoaded;
+        SavingLoadingManager.Instance.NewSceneLoadComplete += OnSceneLoaded;
+  
     }
 
 
@@ -192,6 +192,19 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
     void OnSceneLoaded(SceneData sceneData)
     {
+        //Tell all selectable objects in scene to set their grid positions
+        allSelectInteractablesInScene.Clear();
+
+        foreach (Func<GridUnit> listener in ObjectInSceneSetPosition.GetInvocationList())
+        {
+            GridUnit unit = listener?.Invoke();
+            allSelectInteractablesInScene.Add(unit);
+        }
+
+        //Test Events
+        if (!beginCombatOnPlay) { return; }
+            
+        Debug.Log("Starting Combat on play");
         SavingLoadingManager.Instance.NewSceneLoadComplete -= OnSceneLoaded;
 
         GetCombatants();
@@ -232,7 +245,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
         foreach (CharacterGridUnit enemy in patrollingEnemiesJoinedDuringBattle)
         {
-            enemy.Health().ResetVitals();
+            enemy.CharacterHealth().ResetVitals();
             enemy.ActivateUnit(true); //InCase They were dead.
             enemy.GetComponent<EnemyStateMachine>().WarpBackToPatrol(); 
         }
@@ -364,8 +377,8 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
             if(unit is CharacterGridUnit character)
             {
-                data.spAtStart = character.Health().currentSP;
-                data.fpAtStart = character.Health().currentFP;
+                data.spAtStart = character.CharacterHealth().currentSP;
+                data.fpAtStart = character.CharacterHealth().currentFP;
             }
 
             data.gridPosAtStart = new List<GridPosition>(unit.GetGridPositionsOnTurnStart());
@@ -398,7 +411,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         CombatSkillManager.Instance.SpawnSkills(unit);
 
         //Setup Health & Status Effects
-        unit.Health().SetupHealthUI();
+        unit.CharacterHealth().SetupHealthUI();
         StatusEffectManager.Instance.IntializeUnitStatusEffects(unit);
     }
 
@@ -538,7 +551,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
             unit.GetComponent<EnemyStateMachine>().FantasyCombatGoAgain();
         }
 
-        unit.Health().Guard(false);
+        unit.CharacterHealth().Guard(false);
     }
 
     public void BeginChainAttackAreaSelection(CharacterGridUnit unit, PlayerBaseSkill selectedSkill)
@@ -1422,7 +1435,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         turnEndEvents.Add(turnEndEvent);
 
         //Order Events By Priority
-        turnEndEvents = turnEndEvents.OrderBy((endEvent) => endEvent.turnEndEventOrder).ToList();
+        turnEndEvents = turnEndEvents.OrderBy((endEvent) => endEvent.GetTurnEndEventOrder()).ToList();
         return true;
     }
 
@@ -1455,8 +1468,9 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
     public void ShowActionMenu(bool show)
     {
-        if(selectedPlayerUnit && !currentSelectedSkill)
-            selectedPlayerUnit.ShowActionMenu(show && !isPassiveHealthUIActive, usedTactic);
+        if(!selectedPlayerUnit || show && currentSelectedSkill) { return; }
+
+        selectedPlayerUnit.ShowActionMenu(show && !isPassiveHealthUIActive, usedTactic);
     }
 
     //Setters
@@ -1579,6 +1593,18 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         defeat.Retry();
     }
 
+    public List<GridUnit> GetAllCombatUnits(bool incluedKOEDUnits)
+    {
+        List<CharacterGridUnit> characters = GetAllCharacterCombatUnits(incluedKOEDUnits);
+
+        if (incluedKOEDUnits)
+        {
+            return characters.Concat(allSelectInteractablesInScene).ToList();
+        }
+
+        return characters.Concat(allSelectInteractablesInScene.Where((unit) => !unit.Health().isKOed)).ToList();
+    }
+
     public List<CharacterGridUnit> GetAllCharacterCombatUnits(bool incluedKOEDUnits)
     {
         if (incluedKOEDUnits)
@@ -1586,7 +1612,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
             return allCharacterCombatUnits;
         }
 
-        return allCharacterCombatUnits.Where((unit) => !unit.Health().isKOed).ToList();
+        return allCharacterCombatUnits.Where((unit) => !unit.CharacterHealth().isKOed).ToList();
     }
 
     public List<PlayerGridUnit> GetPlayerCombatParticipants(bool includeKOEDUnits, bool includeDisabledUnits)
@@ -1595,7 +1621,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
         if (!includeKOEDUnits)
         {
-            listToReturn = listToReturn.Where((unit) => !unit.Health().isKOed).ToList();
+            listToReturn = listToReturn.Where((unit) => !unit.CharacterHealth().isKOed).ToList();
         }
 
         if (!includeDisabledUnits)
@@ -1618,7 +1644,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
         if (!includeKOEDUnits)
         {
-            listToReturn = listToReturn.Where((unit) => !unit.Health().isKOed).ToList();
+            listToReturn = listToReturn.Where((unit) => !unit.CharacterHealth().isKOed).ToList();
         }
 
         if (!includeDisabledUnits)
@@ -1638,7 +1664,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     {
         return currentTurnOwner;
     }
-
 
     public List<GridUnit> GetUnitsToShow()
     {
@@ -1666,6 +1691,21 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         unitObscuredCustomPass.SetActive(show);
     }
 
+    public float GetSelectionInteractionEventPriority()
+    {
+        int eventPriority = selectionInteractionEventHeader.GetSiblingIndex();
+
+        int selectionEventInQueueCount = turnEndEvents.Where((endEvent) => endEvent is SelectInteractableSkill).Count();
+
+        float returnVal = eventPriority + (selectionEventInQueueCount * 0.1f);
+
+        if(returnVal > eventPriority + 1)
+        {
+            Debug.Log("Selection interaction priority's integer is higher than the header sibling index. Update the float 0.1f to be 0.01f");
+        }
+
+        return returnVal;
+    }
 
     public bool InCombat()
     {
@@ -1675,13 +1715,5 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     public string GetActionMapName()
     {
         return myActionMap;
-    }
-
-    public void ShowAllUnits()
-    {
-        foreach (CharacterGridUnit unit in GetAllCharacterCombatUnits(false))
-        {
-            unit.unitAnimator.ShowModel(true);
-        }
     }
 }

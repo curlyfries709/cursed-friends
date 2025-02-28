@@ -10,7 +10,7 @@ public class FiredUp : StatusEffect
 
         //Subscribe to turn Start
         myUnit.BeginTurn += OnTurnStart;
-        myUnit.Health().SetFiredUp(true);
+        myUnit.CharacterHealth().SetFiredUp(true);
     }
 
     public override void IncreaseTurns(int numOfTurns, int buffChange)
@@ -22,8 +22,8 @@ public class FiredUp : StatusEffect
     protected override void EffectEnded()
     {
         //Remove VFX.
-        myUnit.Health().SetFiredUp(false);
-        myUnit.Health().LoseFP(true);
+        myUnit.CharacterHealth().SetFiredUp(false);
+        myUnit.CharacterHealth().LoseFP(true);
 
         RemoveStatusEffect();
         myUnit.BeginTurn -= OnTurnStart;

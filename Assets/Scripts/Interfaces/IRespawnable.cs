@@ -17,14 +17,15 @@ public interface IRespawnable : ISaveable
 
     public int GetDaysToRespawn();
 
-    public virtual void OnRemovedFromRealm(GameObject gameObjectToDeactivate)
+    public virtual void OnRemovedFromRealm(bool deactivateImmediately = true)
     {
         isRemoved = true;
 
         //Set Picked Date
         removedDate = CalendarManager.Instance.currentDate;
 
-        gameObjectToDeactivate?.SetActive(false);
+        if(deactivateImmediately)
+            associatedGameObject?.SetActive(false);
     }
 
     protected void Respawn(GameObject gameObjectToActivate)

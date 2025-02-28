@@ -372,7 +372,7 @@ public class BattleStarter : MonoBehaviour
         {
             CharacterGridUnit enemyGridUnit = enemy.GetComponent<CharacterGridUnit>();
 
-            if (!assignedEnemies.Contains(enemyGridUnit) && !enemyGridUnit.Health().isKOed)
+            if (!assignedEnemies.Contains(enemyGridUnit) && !enemyGridUnit.CharacterHealth().isKOed)
             {
                 //Activate Enemy
                 if (activateUnits)

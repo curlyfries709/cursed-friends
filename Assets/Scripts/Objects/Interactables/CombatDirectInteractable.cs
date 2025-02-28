@@ -90,8 +90,6 @@ public class CombatDirectInteractable : Interact
         }
     }
 
-    public virtual void OnInteractableDestroyed(){}
-
     public bool IsInteractionEnabled()
     {
         return interactionCollider.enabled;

@@ -19,12 +19,6 @@ public class RespawnableCombatDirectInteractable : CombatDirectInteractable, IRe
         associatedGameObject = gameObject;
     }
 
-    public override void OnInteractableDestroyed()
-    {
-        base.OnInteractableDestroyed();
-        ((IRespawnable)this).OnRemovedFromRealm(associatedGameObject);
-    }
-
     public int GetDaysToRespawn()
     {
         return daysToRespawn;

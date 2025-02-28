@@ -64,8 +64,6 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
     [SerializeField] GameObject skillPrefab;
 
      //Caches
-    public int turnEndEventOrder { get; set; }
-    
     int selectedChainAttackIndex = 0;
     int selectedChainReceiverIndex = 0;
 
@@ -96,7 +94,6 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
      private void Start()
      {
         chainTriggeredCanvas.SetDuration(chainTriggeredCanvasDuration);
-        turnEndEventOrder = transform.GetSiblingIndex();
 
         //Clean Chain Attack Header.
         foreach(Transform child in chainAttackScrollRect.content)
@@ -325,19 +322,19 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
     private void RecoverSP()
     {
         int spGain = firstSPRecovery + (SPGainPerChain * (unitsAlreadyTriggeredChainAttack.Count - 1));
-        int currentSP = currentAttacker.Health().currentSP;
+        int currentSP = currentAttacker.CharacterHealth().currentSP;
 
         float animTime = chainTriggeredCanvasDuration - 0.1f;
 
-        chainSPBar.fillAmount = currentAttacker.Health().GetStaminaNormalized();
+        chainSPBar.fillAmount = currentAttacker.CharacterHealth().GetStaminaNormalized();
         chainSPValue.text = currentSP.ToString();
 
         //Gain SP
-        currentAttacker.Health().GainSPInstant(spGain);
+        currentAttacker.CharacterHealth().GainSPInstant(spGain);
 
         //Animate UI.
-        chainSPBar.DOFillAmount(currentAttacker.Health().GetStaminaNormalized(), animTime);
-        DOTween.To(() => currentSP, x => currentSP = x, currentAttacker.Health().currentSP, animTime).OnUpdate(() => chainSPValue.text = currentSP.ToString());
+        chainSPBar.DOFillAmount(currentAttacker.CharacterHealth().GetStaminaNormalized(), animTime);
+        DOTween.To(() => currentSP, x => currentSP = x, currentAttacker.CharacterHealth().currentSP, animTime).OnUpdate(() => chainSPValue.text = currentSP.ToString());
     }
 
     private void SelectRandomChainReceiver()
@@ -439,7 +436,7 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
 
         foreach (CharacterGridUnit enemy in FantasyCombatManager.Instance.GetEnemyCombatParticipants(false, false))
         {
-            if (!enemy.Health().isKnockedDown)
+            if (!enemy.CharacterHealth().isKnockedDown)
             {
                 return false;
             }
@@ -450,7 +447,7 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
 
      private bool CanEnemyTriggerBeatdown()
      {
-         List<PlayerGridUnit> nonKnockedDownPlayers = FantasyCombatManager.Instance.GetPlayerCombatParticipants(false, false).Where((player) => !player.Health().isKnockedDown).ToList();
+         List<PlayerGridUnit> nonKnockedDownPlayers = FantasyCombatManager.Instance.GetPlayerCombatParticipants(false, false).Where((player) => !player.CharacterHealth().isKnockedDown).ToList();
 
          //For Now Monsters cannot trigger beatdown.
          return nonKnockedDownPlayers.Count == 0 && currentAttacker.stats.data.race != Race.Monster;
@@ -596,7 +593,7 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
                 child.gameObject.SetActive(false);
             }
 
-            if (player.Health().isKOed)
+            if (player.CharacterHealth().isKOed)
             {
                 activateUnavailableTint = true;
                 tintHeader.GetChild(2).gameObject.SetActive(true);
@@ -696,7 +693,12 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
         return false;
     }
 
-     //Input
+    public float GetTurnEndEventOrder()
+    {
+        return transform.GetSiblingIndex();
+    }
+
+    //Input
 
     private void OnScroll(InputAction.CallbackContext context)
     {

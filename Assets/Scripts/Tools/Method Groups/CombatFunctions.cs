@@ -304,7 +304,7 @@ namespace AnotherRealm
             return FantasyCombatTarget.Grid;
         }
 
-        public static bool IsUnitValidTarget(List<FantasyCombatTarget> skillTargets, CharacterGridUnit skillOwner, GridUnit target)
+        public static bool IsUnitValidTarget(List<FantasyCombatTarget> skillTargets, GridUnit skillOwner, GridUnit target)
         {
             if (!target)
             {
@@ -316,25 +316,28 @@ namespace AnotherRealm
                 return skillTargets.Contains(FantasyCombatTarget.Object);
             }
 
-            if (!skillOwner) //Skill Owner null if a combat direct interactable skill
+            CharacterGridUnit skillOwnerCharacter = skillOwner as CharacterGridUnit;
+
+            if (!skillOwnerCharacter) //Skill Owner null if a combat direct interactable skill
             {
                 return true;
             }
 
             //From this point Onwards, Target must be a Character Grid Unit
             CharacterGridUnit targetCharacter = target as CharacterGridUnit;
+            
 
             if (skillTargets.Contains(FantasyCombatTarget.Self) && skillOwner == targetCharacter)
             {
                 return true;
             }
 
-            if (skillTargets.Contains(FantasyCombatTarget.Ally) && skillOwner.team == targetCharacter.team)
+            if (skillTargets.Contains(FantasyCombatTarget.Ally) && skillOwnerCharacter.team == targetCharacter.team)
             {
                 return true;
             }
 
-            if (skillTargets.Contains(FantasyCombatTarget.Enemy) && skillOwner.team != targetCharacter.team)
+            if (skillTargets.Contains(FantasyCombatTarget.Enemy) && skillOwnerCharacter.team != targetCharacter.team)
             {
                 return true;
             }
@@ -342,17 +345,17 @@ namespace AnotherRealm
             return false;
         }
 
-        public static bool IsUnitValidTarget(FantasyCombatTarget skillTarget, CharacterGridUnit skillOwner, GridUnit target)
+        public static bool IsUnitValidTarget(FantasyCombatTarget skillTarget, GridUnit skillOwner, GridUnit target)
         {
             List<FantasyCombatTarget> skillTargets = new List<FantasyCombatTarget> { skillTarget };
             return IsUnitValidTarget(skillTargets, skillOwner, target);
         }
 
-        public static List<CharacterGridUnit> GetEligibleTargets(CharacterGridUnit skillOwner, List<FantasyCombatTarget> targetTypes)
+        public static List<GridUnit> GetEligibleTargets(CharacterGridUnit skillOwner, List<FantasyCombatTarget> targetTypes)
         {
-            List<CharacterGridUnit> eligibleTargets = new List<CharacterGridUnit>();
+            List<GridUnit> eligibleTargets = new List<GridUnit>();
 
-            foreach (CharacterGridUnit unit in FantasyCombatManager.Instance.GetAllCharacterCombatUnits(false))
+            foreach (GridUnit unit in FantasyCombatManager.Instance.GetAllCombatUnits(false))
             {
                 if (IsUnitValidTarget(targetTypes, skillOwner, unit))
                 {
@@ -363,21 +366,14 @@ namespace AnotherRealm
             return eligibleTargets;
         }
 
-        public static List<CharacterGridUnit> GetEligibleTargets(CharacterGridUnit skillOwner, FantasyCombatTarget targetType)
+        public static List<GridUnit> GetEligibleTargets(CharacterGridUnit skillOwner, FantasyCombatTarget targetType)
         {
-            List<CharacterGridUnit> eligibleTargets = new List<CharacterGridUnit>();
-            List<FantasyCombatTarget> targetTypeList = new List<FantasyCombatTarget>();
-            targetTypeList.Add(targetType);
-
-            foreach (CharacterGridUnit unit in FantasyCombatManager.Instance.GetAllCharacterCombatUnits(false))
+            List<FantasyCombatTarget> targetTypeList = new List<FantasyCombatTarget>
             {
-                if (IsUnitValidTarget(targetTypeList, skillOwner, unit))
-                {
-                    eligibleTargets.Add(unit);
-                }
-            }
+                targetType
+            };
 
-            return eligibleTargets;
+            return GetEligibleTargets(skillOwner, targetTypeList);
         }
         //Common Methods
         public static void UpdateListIndex(int indexChange, int currentIndex, out int IndexToChange, int listCount)
@@ -597,10 +593,10 @@ namespace AnotherRealm
             return closestTransform;
         }
 
-        public static CharacterGridUnit GetClosestUnitOfTypeOrDefault(CharacterGridUnit yourUnit, FantasyCombatTarget preferredTargetType)
+        public static GridUnit GetClosestUnitOfTypeOrDefault(CharacterGridUnit yourUnit, FantasyCombatTarget preferredTargetType)
         {
             //Filter By Preferred Target Type.
-            List<CharacterGridUnit> allEligbleUnits = GetEligibleTargets(yourUnit, preferredTargetType);
+            List<GridUnit> allEligbleUnits = GetEligibleTargets(yourUnit, preferredTargetType);
 
             //If Empty Revert to enemies, as all allies could be dead but all enemies dead only when Battle is over.
             if (allEligbleUnits.Count == 0)

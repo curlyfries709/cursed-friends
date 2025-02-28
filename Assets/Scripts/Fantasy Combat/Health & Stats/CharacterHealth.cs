@@ -227,7 +227,7 @@ public class CharacterHealth : Health
         }
         else
         {
-            currentFP = Mathf.Max(currentFP - FantasyCombatManager.Instance.fpLossAmount, 0);
+            currentFP = TheCalculator.Instance.CalculateNewFPAfterLoss(currentFP);
         }
 
         UpdateHUD();

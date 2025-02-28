@@ -61,7 +61,7 @@ public class Defeat : MonoBehaviour, IControls
         this.KOEDUnit = KOEDUnit;
         KOCam = KOEDUnit.koCam;
 
-        characterWhoDealtFinalBlow = KOEDUnit.Health().attacker as CharacterGridUnit;
+        characterWhoDealtFinalBlow = KOEDUnit.CharacterHealth().attacker as CharacterGridUnit;
 
         FantasyCombatManager.Instance.ShowHUD(false);
 
@@ -89,7 +89,7 @@ public class Defeat : MonoBehaviour, IControls
     IEnumerator DefeatRoutine()
     {
         yield return new WaitForSeconds(FantasyCombatManager.Instance.GetSkillFeedbackDisplayTime() - 0.15f);
-        KOEDUnit.Health().ActivateHealthVisual(false);
+        KOEDUnit.CharacterHealth().ActivateHealthVisual(false);
         KOEDUnit.unitAnimator.ActivateSlowmo();
         yield return new WaitForSeconds(canvasDelay);
         defeatCanvas.alpha = 1;

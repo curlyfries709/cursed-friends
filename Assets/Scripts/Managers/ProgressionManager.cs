@@ -280,7 +280,7 @@ public class ProgressionManager : MonoBehaviour, ISaveable, IMultiWorldCombatCon
             //Enemy KOED
             foreach (KeyValuePair<PlayerGridUnit, List<CharacterGridUnit>> item in enemiesKOEDWhilePlayerKOEDDict)
             {
-                if(item.Key.Health().isKOed) //Ensure Player is KOED, Could have been revived
+                if(item.Key.CharacterHealth().isKOed) //Ensure Player is KOED, Could have been revived
                     enemiesKOEDWhilePlayerKOEDDict[item.Key].Add(enemy);
             }
         }

@@ -94,7 +94,7 @@ public abstract class AIOffensiveSkill : AIBaseSkill
             targetFeedbacksToPlay.Add(CombatFunctions.GetTargetFeedback(feedbacks, targetAffinity));
 
             //Update Affinity
-            myAI.UpdateAffinities(target, targetAffinity, CombatFunctions.GetElement(myUnit, element, isMagical));
+            myAI.UpdateAffinities(target, targetAffinity, CombatFunctions.GetElement(myCharacter, element, isMagical));
         }
 
         if (isSingleTarget)
@@ -150,12 +150,12 @@ public abstract class AIOffensiveSkill : AIBaseSkill
 
         if(attackTriggerDelay > 0)
         {
-            myUnit.unitAnimator.SetSpeed(myUnit.moveSpeed);
+            myCharacter.unitAnimator.SetSpeed(myCharacter.moveSpeed);
             yield return triggerAnimWaitTime;
         }
 
-        myUnit.unitAnimator.SetSpeed(0);
-        myUnit.unitAnimator.TriggerSkill(animationName);
+        myCharacter.unitAnimator.SetSpeed(0);
+        myCharacter.unitAnimator.TriggerSkill(animationName);
 
         SkillComplete();//Must be called before FantasyCombatManager Action Complete to avoid bug where enemy doesnt act next turn.
     }
@@ -193,7 +193,7 @@ public abstract class AIOffensiveSkill : AIBaseSkill
 
     public void DisplaySkillFeedback() //Called Via a feedback for skills that don't call this via their animation.
     {
-        myUnit.unitAnimator.ShowDamageFeedback(1);
+        myCharacter.unitAnimator.ShowDamageFeedback(1);
     }
 
     protected override void SetUnitsToShow()
@@ -231,7 +231,7 @@ public abstract class AIOffensiveSkill : AIBaseSkill
 
         attackData.attackItem = null;
 
-        attackData.inflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(myUnit, target, inflictedStatusEffects);
+        attackData.inflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(myCharacter, target, inflictedStatusEffects);
         attackData.forceData = GetSkillForceData(target);
 
         attackData.isPhysical = !isMagical;

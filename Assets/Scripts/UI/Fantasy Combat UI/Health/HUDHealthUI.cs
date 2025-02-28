@@ -44,7 +44,7 @@ public class HUDHealthUI : MonoBehaviour
 
     public void UpdateHealth(PlayerGridUnit unit)
     {
-        int newHealth = unit.Health().currentHealth;
+        int newHealth = unit.CharacterHealth().currentHealth;
         int currentHealth = Mathf.RoundToInt(HPBar.fillAmount * unit.stats.Vitality);
 
 
@@ -64,12 +64,12 @@ public class HUDHealthUI : MonoBehaviour
             DOTween.To(() => currentHealth, x => currentHealth = x, newHealth, HUDManager.Instance.healthBarAnimationTime).OnUpdate(() => HPValue.text = currentHealth.ToString());
         }
             
-        HPBar.DOFillAmount(unit.Health().GetHealthNormalized(), HUDManager.Instance.healthBarAnimationTime).OnComplete(() => ResetHealthToDefaultColor());
+        HPBar.DOFillAmount(unit.CharacterHealth().GetHealthNormalized(), HUDManager.Instance.healthBarAnimationTime).OnComplete(() => ResetHealthToDefaultColor());
     }
 
     public void UpdateSP(PlayerGridUnit unit)
     {
-        int newSP = unit.Health().currentSP;
+        int newSP = unit.CharacterHealth().currentSP;
         int currentSP = Mathf.RoundToInt(SPBar.fillAmount * unit.stats.Stamina);
 
         Color newColor = newSP > currentSP ? SPDefaultColor : HUDManager.Instance.SPLossColor;
@@ -88,19 +88,19 @@ public class HUDHealthUI : MonoBehaviour
             DOTween.To(() => currentSP, x => currentSP = x, newSP, HUDManager.Instance.healthBarAnimationTime).OnUpdate(() => SPValue.text = currentSP.ToString());
         }
 
-        SPBar.DOFillAmount(unit.Health().GetStaminaNormalized(), HUDManager.Instance.healthBarAnimationTime).OnComplete(() => ResetSPToDefaultColor());
+        SPBar.DOFillAmount(unit.CharacterHealth().GetStaminaNormalized(), HUDManager.Instance.healthBarAnimationTime).OnComplete(() => ResetSPToDefaultColor());
     }
 
     public void UpdateFP(PlayerGridUnit unit)
     {
-        float currentFP = unit.Health().GetFPNormalized();
+        float currentFP = unit.CharacterHealth().GetFPNormalized();
 
         if (currentFP > 1 && firedUpFilledCircle)
         {
             firedUpFilledCircle.SetActive(false);
         }
 
-        firedUpMeter.DOFillAmount(unit.Health().GetFPNormalized(), HUDManager.Instance.healthBarAnimationTime).OnComplete(() => firedUpFilledCircle?.SetActive(currentFP >= 1));
+        firedUpMeter.DOFillAmount(unit.CharacterHealth().GetFPNormalized(), HUDManager.Instance.healthBarAnimationTime).OnComplete(() => firedUpFilledCircle?.SetActive(currentFP >= 1));
     }
 
     public void ShowFiredUpSun(bool show)
@@ -172,16 +172,16 @@ public class HUDHealthUI : MonoBehaviour
             SPValue.color = SPDefaultColor;
 
         //Set Health
-        HPBar.fillAmount = unit.Health().GetHealthNormalized();
+        HPBar.fillAmount = unit.CharacterHealth().GetHealthNormalized();
 
         if(HPValue)
-            HPValue.text = unit.Health().currentHealth.ToString();
+            HPValue.text = unit.CharacterHealth().currentHealth.ToString();
 
         //Set SP
-        SPBar.fillAmount = unit.Health().GetStaminaNormalized();
+        SPBar.fillAmount = unit.CharacterHealth().GetStaminaNormalized();
 
         if(SPValue)
-            SPValue.text = unit.Health().currentSP.ToString();
+            SPValue.text = unit.CharacterHealth().currentSP.ToString();
 
         //Clear Status Effect Header
         foreach (Transform child in statusEffectsHeader.GetComponent<ScrollRect>().content)
@@ -196,7 +196,7 @@ public class HUDHealthUI : MonoBehaviour
             firedUpFilledCircle.SetActive(false);
         }
             
-        firedUpMeter.fillAmount = unit.Health().GetFPNormalized();
+        firedUpMeter.fillAmount = unit.CharacterHealth().GetFPNormalized();
     }
 
     //Getters

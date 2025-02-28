@@ -104,7 +104,7 @@ public abstract class CounterAttack : MonoBehaviour, ICombatAction
     {
         AttackData attackData = GetAttackData(target, allowKnockback, powerGrade);
 
-        Health targetHealth = target.Health();
+        Health targetHealth = target.CharacterHealth();
 
         DamageData damageData = targetHealth.TakeDamage(attackData, DamageType.Default);
         Affinity affinity = damageData != null ? damageData.affinityToAttack : Affinity.None;
@@ -114,7 +114,7 @@ public abstract class CounterAttack : MonoBehaviour, ICombatAction
             isReflectAffinity = true;
         }
 
-        AffinityFeedback feedbacks = target.Health().GetDamageFeedbacks(CombatFunctions.GetVFXSpawnTransform(hitVFXSpawnOffsets, target), hitVFX);
+        AffinityFeedback feedbacks = target.CharacterHealth().GetDamageFeedbacks(CombatFunctions.GetVFXSpawnTransform(hitVFXSpawnOffsets, target), hitVFX);
 
         targetFeedbackToPlay = CombatFunctions.GetTargetFeedback(feedbacks, affinity);
     }

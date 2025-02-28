@@ -131,7 +131,7 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
 
         MoveToAttack();
 
-        myUnit.unitAnimator.TriggerSkill(animationTriggerName);
+        myCharacter.unitAnimator.TriggerSkill(animationTriggerName);
 
         CombatFunctions.PlayAttackFeedback(attackAffinity, attackFeedbacks);
     }
@@ -193,19 +193,19 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
 
     protected override void SetUnitsToShow()
     {
-        List<GridUnit> targetedUnits = CombatFunctions.SetOffensiveSkillUnitsToShow(myUnit, selectedUnits, forceDistance);
+        List<GridUnit> targetedUnits = CombatFunctions.SetOffensiveSkillUnitsToShow(myCharacter, selectedUnits, forceDistance);
         FantasyCombatManager.Instance.SetUnitsToShow(targetedUnits);
     }
 
     //GETTERS
     protected AttackData GetAttackData(GridUnit target)
     {
-        AttackData attackData = new AttackData(myUnit, CombatFunctions.GetElement(myUnit, skillElement, isMagical), GetDamage(), skillTargets.Count);
+        AttackData attackData = new AttackData(myUnit, CombatFunctions.GetElement(myCharacter, skillElement, isMagical), GetDamage(), skillTargets.Count);
 
         attackData.attackItem = skillItem;
         attackData.canEvade = !(isUnevadable || (this is PlayerBaseChainAttack));
 
-        attackData.inflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(myUnit, target, inflictedStatusEffects);
+        attackData.inflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(myCharacter, target, inflictedStatusEffects);
         attackData.forceData = GetSkillForceData(target);
 
         attackData.isPhysical = !isMagical;
@@ -223,9 +223,19 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
         return TheCalculator.Instance.CalculateRawDamage(myUnit, isMagical, powerGrade, out isCritical);
     }
 
+    public Element GetSkillElement()
+    {
+        return CombatFunctions.GetElement(myCharacter, skillElement, isMagical);
+    }
+
+    public Item GetSkillAttackItem()
+    {
+        return skillItem;
+    }
+
     public override int GetSkillIndex()
     {
-        switch (CombatFunctions.GetElement(myUnit, skillElement, isMagical))
+        switch (GetSkillElement())
         {
             case Element.Silver: 
                 return 0;

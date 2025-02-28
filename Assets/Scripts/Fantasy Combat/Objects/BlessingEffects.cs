@@ -137,7 +137,7 @@ public class BlessingEffects : MonoBehaviour, ITurnStartEvent
             int SPHeal = Mathf.RoundToInt(unitToHeal.stats.Stamina * ((float)activeBlessing.spIncrease / 100));
 
             HealData healData = new HealData(unitToHeal, HPHeal, SPHeal, 0, false);
-            unitToHeal.Health().Heal(healData);
+            unitToHeal.CharacterHealth().Heal(healData);
         }
     }
 

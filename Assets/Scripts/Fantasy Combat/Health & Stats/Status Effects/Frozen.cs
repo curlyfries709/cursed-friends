@@ -16,7 +16,7 @@ public class Frozen : StatusEffect
 
         SpawnVisual();
         myUnit.unitAnimator.Freeze(true);
-        myUnit.Health().Guard(false);
+        myUnit.CharacterHealth().Guard(false);
 
         //Frozen Cancels Out Burning
         StatusEffectManager.Instance.CureStatusEffect(myUnit, "Burning");

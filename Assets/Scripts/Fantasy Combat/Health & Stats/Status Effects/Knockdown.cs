@@ -9,14 +9,14 @@ public class Knockdown : StatusEffect
         StatusEffectManager.Instance.LoseFiredUp(myUnit);
 
         //Display Knockdown Text
-        myUnit.Health().ShowKnockdownText();
+        myUnit.CharacterHealth().ShowKnockdownText();
 
-        myUnit.Health().SetKnockDown(true);
+        myUnit.CharacterHealth().SetKnockDown(true);
 
         myUnit.unitAnimator.SetBool(myUnit.unitAnimator.animIDKnockdown, true);
 
         //Lose FP
-        myUnit.Health().LoseFP();
+        myUnit.CharacterHealth().LoseFP();
 
         //Subscribe to turn Start
         myUnit.BeginTurn += OnTurnStart;
@@ -30,7 +30,7 @@ public class Knockdown : StatusEffect
     protected override void EffectEnded()
     {
         myUnit.unitAnimator.SetBool(myUnit.unitAnimator.animIDKnockdown, false);
-        myUnit.Health().SetKnockDown(false);
+        myUnit.CharacterHealth().SetKnockDown(false);
         RemoveStatusEffect();
         myUnit.BeginTurn -= OnTurnStart;
     }

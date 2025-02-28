@@ -33,7 +33,7 @@ public class SBValiantParty : StrategicBonusChecker
 
         foreach (PlayerGridUnit player in FantasyCombatManager.Instance.GetPlayerCombatParticipants(true, true))
         {
-            if (Mathf.RoundToInt(player.Health().currentHealth) > thresholdToAchieveBonus)
+            if (Mathf.RoundToInt(player.CharacterHealth().currentHealth) > thresholdToAchieveBonus)
             {
                 return;
             }

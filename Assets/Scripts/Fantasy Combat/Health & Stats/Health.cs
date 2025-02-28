@@ -145,7 +145,7 @@ public abstract class Health : MonoBehaviour, ISaveable
                 break;
             default:
                 CharacterHealth characterHealth = this as CharacterHealth;
-                newDamageData = TheCalculator.Instance.CalculateDamageReceived(attackData, myCharacter, damageType, characterHealth ? characterHealth.isGuarding : false);
+                newDamageData = TheCalculator.Instance.CalculateDamageReceived(attackData, myUnit, damageType, characterHealth ? characterHealth.isGuarding : false);
                 break;
         }
 
@@ -440,7 +440,7 @@ public abstract class Health : MonoBehaviour, ISaveable
 
     public void TryGiveAttackerFP(bool isEnhancedAction, int numOfSEApplied = 0)
     {
-        AttackerAsCharacter()?.Health().GainFP(TheCalculator.Instance.CalculateFPGain(isEnhancedAction, numOfSEApplied));
+        AttackerAsCharacter()?.CharacterHealth().GainFP(TheCalculator.Instance.CalculateFPGain(isEnhancedAction, numOfSEApplied));
     }
 
     //GETTERS
@@ -572,7 +572,7 @@ public abstract class Health : MonoBehaviour, ISaveable
     }
 
     //SETTERS
-    public void ActivateHealthVisual(bool show)
+    public virtual void ActivateHealthVisual(bool show)
     {
         healthUI.Fade(show);
     }
@@ -581,6 +581,7 @@ public abstract class Health : MonoBehaviour, ISaveable
     {
         healthUI.DeactivateImmediate();
     }
+
     public void ActivateStatusEffectHealthVisual(bool show)
     {
         healthUI.NameOnlyMode();
@@ -590,11 +591,6 @@ public abstract class Health : MonoBehaviour, ISaveable
     public void SetBuffsToApplyVisual(List<ChanceOfInflictingStatusEffect> buffs)
     {
         healthUI.SetBuffsToDisplay(buffs);
-    }
-
-    public void ActivateBuffHealthVisual()
-    {
-        healthUI.ShowBuffsOnly();
     }
 
     protected void SetIntializationData()
@@ -607,7 +603,6 @@ public abstract class Health : MonoBehaviour, ISaveable
 
         isPlayer = myCharacter as PlayerGridUnit;
     }
-
 
     public UnitHealthUI GetHealthUI()
     {
@@ -639,4 +634,6 @@ public abstract class Health : MonoBehaviour, ISaveable
     {
         return attacker as CharacterGridUnit;
     }
+
+
 }

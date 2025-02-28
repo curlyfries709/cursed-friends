@@ -50,7 +50,7 @@ public class PlayerUsePotion : PlayerBaseSkill
         {
             if (canTargetSelf)
             {
-                potionDrinker = myUnit;
+                potionDrinker = myCharacter;
             }
             else
             {
@@ -88,12 +88,12 @@ public class PlayerUsePotion : PlayerBaseSkill
         ActivateVisuals(true);
         feedbackToPlay?.PlayFeedbacks();
 
-        myUnit.unitAnimator.TriggerSkill("Drink");
+        myCharacter.unitAnimator.TriggerSkill("Drink");
 
         yield return new WaitForSeconds(acitvatePotionTime);
 
         //Activate Potion Effect
-        potionEffect.ActivateEffect(potionDrinker, myUnit, collectionManager);
+        potionEffect.ActivateEffect(potionDrinker, myCharacter, collectionManager);
     }
 
     IEnumerator PassPotionRoutine()
@@ -102,11 +102,11 @@ public class PlayerUsePotion : PlayerBaseSkill
         ActivateVisuals(true);
         feedbackToPlay?.PlayFeedbacks();
 
-        myUnit.unitAnimator.TriggerSkill("Throw");
+        myCharacter.unitAnimator.TriggerSkill("Throw");
 
         yield return new WaitForSeconds(passPotionAnimDelay);
 
-        if(!potionDrinker.Health().isKnockedDown && !potionDrinker.Health().isKOed)
+        if(!potionDrinker.CharacterHealth().isKnockedDown && !potionDrinker.CharacterHealth().isKOed)
             potionDrinker.unitAnimator.TriggerSkill("Drink");
 
         yield return new WaitForSeconds(acitvatePotionTime - passPotionAnimDelay);
@@ -115,16 +115,16 @@ public class PlayerUsePotion : PlayerBaseSkill
 
         yield return new WaitForSeconds(passPotionAnimDelay);
         //Activate Potion Effect
-        potionEffect.ActivateEffect(potionDrinker, myUnit, collectionManager);
+        potionEffect.ActivateEffect(potionDrinker, myCharacter, collectionManager);
     }
 
     private void SetupCamera()
     {
         //Set Rotations.
-        myUnit.statusEffectCamTarget.localRotation = Quaternion.Euler(orbitStartingRotation);
+        myCharacter.statusEffectCamTarget.localRotation = Quaternion.Euler(orbitStartingRotation);
         potionDrinker.statusEffectCamTarget.localRotation = Quaternion.Euler(orbitStartingRotation);
 
-        orbitPoint = myUnit.statusEffectCamTarget;
+        orbitPoint = myCharacter.statusEffectCamTarget;
         UpdateBlendListSettings();
     }
 
@@ -170,6 +170,7 @@ public class PlayerUsePotion : PlayerBaseSkill
     public void Setup(PlayerGridUnit playerGridUnit, BasicPotionEffect potionEffect, FantasyCombatCollectionManager collectionManager)
     {
         myUnit = playerGridUnit;
+        myCharacter = playerGridUnit;
         player = playerGridUnit;
 
         myUnitMoveTransform = playerGridUnit.transform;

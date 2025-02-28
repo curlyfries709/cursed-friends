@@ -342,7 +342,7 @@ public class Equipment : MonoBehaviour
     public void AdjustWearerHealth()
     {
         if(myWearer)
-            myWearer.Health().AdjustCurrentVitals();
+            myWearer.CharacterHealth().AdjustCurrentVitals();
     }
 
     //SETTERS

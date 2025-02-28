@@ -145,7 +145,7 @@ public class StatusEffectManager : MonoBehaviour
         else
         {
             //Not already applied.
-            GameObject header = unit.Health().GetStatusEffectHeader();
+            GameObject header = unit.CharacterHealth().GetStatusEffectHeader();
 
             StatusEffect newStatusEffect = header.AddComponent(statusEffectType) as StatusEffect;
 
@@ -251,12 +251,12 @@ public class StatusEffectManager : MonoBehaviour
 
     private IEnumerator showDisabledUnitRoutine(CharacterGridUnit unit)
     {
-        unit.Health().DeactivateHealthVisualImmediate();
+        unit.CharacterHealth().DeactivateHealthVisualImmediate();
         yield return new WaitForSeconds(showDisabledUnitDelay);
         disablingStatusEffectCam.gameObject.SetActive(true);
-        unit.Health().ActivateStatusEffectHealthVisual(true);
+        unit.CharacterHealth().ActivateStatusEffectHealthVisual(true);
         yield return new WaitForSeconds(unitDisabledDisplayTime);
-        unit.Health().ActivateStatusEffectHealthVisual(false);
+        unit.CharacterHealth().ActivateStatusEffectHealthVisual(false);
         FantasyCombatManager.Instance.ActionComplete();
         disablingStatusEffectCam.gameObject.SetActive(false);
     }
@@ -296,10 +296,10 @@ public class StatusEffectManager : MonoBehaviour
     {
         float waitTime = unit.IsAlreadyAtCorrectPos() ? 0.15f : turnEndEffectDelay;
 
-        unit.Health().DeactivateHealthVisualImmediate();
+        unit.CharacterHealth().DeactivateHealthVisualImmediate();
         yield return new WaitForSeconds(waitTime);
         Health.RaiseHealthChangeEvent(true);
-        yield return new WaitUntil(() => unit.Health().GetHealthUI().showingSkillFeedback == false);
+        yield return new WaitUntil(() => unit.CharacterHealth().GetHealthUI().showingSkillFeedback == false);
         FantasyCombatManager.Instance.ActionComplete();
     }
 
@@ -611,7 +611,7 @@ public class StatusEffectManager : MonoBehaviour
         if(!character) { return false; }
 
         //Check if unit is guarding
-        if (character.Health().isGuarding && effectData.canBeGuarded)
+        if (character.CharacterHealth().isGuarding && effectData.canBeGuarded)
         {
             //Don't apply any effects because target guarded it.
             return false;

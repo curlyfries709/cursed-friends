@@ -55,7 +55,7 @@ public class PlayerSupportSkill : PlayerBaseSkill
         {
             CharacterGridUnit targetChar = unit as CharacterGridUnit;
             StatusEffectManager.Instance.TriggerNewlyAppliedEffects(targetChar);
-            targetChar.Health().ActivateBuffHealthVisual();
+            targetChar.CharacterHealth().GetHealthUI().ShowBuffsOnly();
         }
     }
 
@@ -68,7 +68,7 @@ public class PlayerSupportSkill : PlayerBaseSkill
         ApplyAllEffects();
 
         //Trigger Skill
-        myUnit.unitAnimator.TriggerSkill(animationTriggerName);
+        myCharacter.unitAnimator.TriggerSkill(animationTriggerName);
 
         //Play Feedback
         feedbackToPlay?.PlayFeedbacks();
@@ -96,7 +96,7 @@ public class PlayerSupportSkill : PlayerBaseSkill
                 StatusEffectManager.Instance.ApplyStatusEffect(effect.statusEffect, targetChar, myUnit, myUnit.stats.SEDuration, effect.buffChange);
             }
 
-            targetChar.Health().SetBuffsToApplyVisual(appliedStatusEffects);
+            targetChar.CharacterHealth().SetBuffsToApplyVisual(appliedStatusEffects);
         }
     }
 

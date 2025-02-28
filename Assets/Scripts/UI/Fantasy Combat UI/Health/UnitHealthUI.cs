@@ -47,6 +47,7 @@ public class UnitHealthUI : FadeUI
     public float displayTime { get; private set; } = 1;
 
     bool dataShown = true;
+    bool hasSetName = false;
     public bool showingSkillFeedback { get; private set; } = false;
     bool showSPChange = false;
     bool showingBuffsOnly = false;
@@ -55,6 +56,7 @@ public class UnitHealthUI : FadeUI
     List<bool> buffsExtensionData = new List<bool>();
 
     private Color outerHeartDefaultColor;
+
     CharacterGridUnit myCharacter;
 
     //Events
@@ -64,14 +66,14 @@ public class UnitHealthUI : FadeUI
     {
         base.Awake();
         outerHeartDefaultColor = outerHeart.color;
-        nameText.text = "";
     }
 
     private void OnEnable()
     {
-        if (myCharacter && nameText.text == "")
+        if (myCharacter && !hasSetName)
         {
             nameText.text = EnemyDatabase.Instance.GetEnemyDisplayName(myCharacter, myCharacter.stats.data);
+            hasSetName = true;
         }
     }
     //Setup
@@ -83,6 +85,7 @@ public class UnitHealthUI : FadeUI
         if (!myCharacter)
         {
             nameText.text = unit.unitName;
+            hasSetName = true;
         }
 
         outerHeart.fillAmount = healthNormalized;
@@ -100,7 +103,7 @@ public class UnitHealthUI : FadeUI
         bool showHealthChange = true;
         showingSkillFeedback = true;
 
-        Debug.Log("Displaying Health Change UI for " + myCharacter.unitName);
+        Debug.Log("Displaying Health Change UI for " + nameText.text);
 
         switch (affinity)
         {
@@ -358,8 +361,6 @@ public class UnitHealthUI : FadeUI
     {
         if (!dataShown) { return; }
 
-        Debug.Log("Resetting Health UI data for: " + myCharacter.unitName);
-
         dataShown = false;
         showSPChange = false;
         fadingIn = false;
@@ -421,18 +422,14 @@ public class UnitHealthUI : FadeUI
         {
             if (HealthUIComplete == null)
             {
-                Debug.Log("Health UI Complete for: " + myCharacter.unitName);
+                Debug.Log("Health UI Complete for: " + nameText.text);
                 FantasyCombatManager.Instance.currentCombatAction?.DisplayUnitHealthUIComplete();
             }
             else
             {
-                Debug.Log("Health UI Event Raised for: " + myCharacter.unitName);
+                Debug.Log("Health UI Event Raised for: " + nameText.text);
                 HealthUIComplete(true);
             }
-        }
-        else
-        {
-            Debug.Log("Show feedback false for: " + myCharacter.unitName);
         }
     }
 

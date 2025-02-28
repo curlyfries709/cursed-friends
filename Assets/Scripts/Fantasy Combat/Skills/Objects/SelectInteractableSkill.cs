@@ -1,0 +1,139 @@
+using Sirenix.OdinInspector;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using DG.Tweening;
+
+public class SelectInteractableSkill : CombatInteractableBaseSkill, ITurnEndEvent
+{
+    [Title("Trigger Condition")]
+    [SerializeField] bool triggerOnAnyHit = false;
+    [SerializeField] bool triggerOnWeaknessHit = false;
+    [SerializeField] bool triggerOnKO = false;
+
+    ObjectHealth myHealth;
+    Tween currentRumbleTween;
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+        myUnitMoveTransform = myUnit.transform;
+        moveTransformGridCollider = myUnit.gridCollider;
+    }
+
+    private void OnEnable()
+    {
+        Debug.Log("Is Set: " + (myUnit.Health() as ObjectHealth) != null);
+        if (triggerOnAnyHit)
+            Health.UnitHit += OnHit;
+
+        if (triggerOnWeaknessHit)
+            (myUnit.Health() as ObjectHealth).WeaknessHit += OnHit;
+
+        if (triggerOnKO)
+            Health.UnitKOed += OnKO;
+    }
+
+    public void PlayTurnEndEvent()
+    {
+        TriggerSkill();
+    }
+
+    protected virtual void OnKO(GridUnit unit)
+    {
+        if(unit != myUnit) { return; }
+
+        EnterRumbleState();
+    }
+
+    protected virtual void OnHit(DamageData damageData)
+    {
+        if(damageData.target != myUnit) { return; }
+
+        EnterRumbleState();
+    }
+
+    protected virtual void EnterRumbleState() //This occurs when trigger condition met but waiting for turn end event to trigger skill.
+    {
+        Debug.Log("Enter rumble State");
+        currentRumbleTween = myUnitMoveTransform.DOShakeRotation(5, new Vector3(0, 0, 5), 15, 90, false).SetLoops(-1, LoopType.Yoyo);
+        FantasyCombatManager.Instance.AddTurnEndEventToQueue(this);
+    }
+
+    protected virtual void TriggerSkill()
+    {
+        currentRumbleTween?.Kill();
+        currentRumbleTween = null;
+
+        BeginAction();
+    }
+
+    public override void ActivateHighlightedUI(bool activate, PlayerBaseSkill selectedBySkill)
+    {
+        myUnit.Health().ActivateHealthVisual(activate);
+
+        if (!activate)
+        {
+            ShowAffectedGridPositions(false);
+            return;
+        }
+
+        bool canShowAOE = false;
+
+        if (triggerOnAnyHit || triggerOnKO)
+        {
+            canShowAOE = true;
+        }
+        else if (triggerOnWeaknessHit)
+        {
+            if (selectedBySkill is PlayerOffensiveSkill attack)
+            {
+                Affinity affinity = TheCalculator.Instance.GetAffinity(myUnit, attack.GetSkillElement(), attack.GetSkillAttackItem());
+
+                canShowAOE = affinity == Affinity.Weak;
+            }
+        }
+
+        if (canShowAOE)
+            ShowAffectedGridPositions(true);
+    }
+
+    protected override void SetRespawnable()
+    {
+        respawnable = myUnit as IRespawnable;
+    }
+
+    private void OnDisable()
+    {
+        if (triggerOnAnyHit)
+            Health.UnitHit -= OnHit;
+
+        if (triggerOnWeaknessHit)
+            myHealth.WeaknessHit -= OnHit;
+
+        if (triggerOnKO)
+            Health.UnitKOed -= OnKO;
+    }
+
+    public override void OnSkillInterrupted(BattleResult battleResult, IBattleTrigger battleTrigger)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void OnEventCancelled()
+    {
+        throw new NotImplementedException();
+    }
+
+    public float GetTurnEndEventOrder()
+    {
+        return FantasyCombatManager.Instance.GetSelectionInteractionEventPriority();
+    }
+
+    public List<Type> GetEventTypesThatCancelThis()
+    {
+        return new List<Type>();
+    }
+}

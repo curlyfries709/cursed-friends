@@ -39,7 +39,7 @@ public class Potion : Item
 
     public void UseOutsideCombat(PlayerGridUnit user)
     {
-        user.Health().OuterCombatRestore(hpGain, spGain, fpGain);
+        user.CharacterHealth().OuterCombatRestore(hpGain, spGain, fpGain);
 
         foreach(StatusEffectData effect in statusEffectsToCure)
         {

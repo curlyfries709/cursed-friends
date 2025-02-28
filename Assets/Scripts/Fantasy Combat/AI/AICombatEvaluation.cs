@@ -33,7 +33,7 @@ namespace AnotherRealm
         public static GridUnit GetPriorityTarget(CharacterGridUnit unitThatRequiresTarget, FantasyCombatTarget preferredTargetType, TargetingBehaviour targetingBehaviour, List<StatusEffectTarget> statusEffectsToPrioritise, List<StatusEffectTarget> statusEffectsToAvoid, Attribute targetAttribute, Race targetRace, string targetName)
         {
             //Filter By Preferred Target Type.
-            List<CharacterGridUnit> allEligbleUnits = CombatFunctions.GetEligibleTargets(unitThatRequiresTarget, preferredTargetType);
+            List<GridUnit> allEligbleUnits = CombatFunctions.GetEligibleTargets(unitThatRequiresTarget, preferredTargetType);
 
             //Filter By Status Effects To Avoid.
             allEligbleUnits = FilterListByStatusEffects(unitThatRequiresTarget, allEligbleUnits, statusEffectsToAvoid, false);
@@ -42,21 +42,21 @@ namespace AnotherRealm
             allEligbleUnits = FilterListByStatusEffects(unitThatRequiresTarget, allEligbleUnits, statusEffectsToPrioritise, true);
 
             //Filter By Behaviour //Can Return null
-            CharacterGridUnit target = GetTargetBasedOnBehaviour(unitThatRequiresTarget, allEligbleUnits, targetingBehaviour, targetAttribute, targetRace, targetName);
+            GridUnit target = GetTargetBasedOnBehaviour(unitThatRequiresTarget, allEligbleUnits, targetingBehaviour, targetAttribute, targetRace, targetName);
 
             return target;
         }
 
 
 
-        private static CharacterGridUnit GetTargetBasedOnBehaviour(CharacterGridUnit unitThatRequiresTarget, List<CharacterGridUnit> eligibleTargets, TargetingBehaviour targetingBehaviour, Attribute targetAttribute, Race targetRace, string targetName)
+        private static GridUnit GetTargetBasedOnBehaviour(CharacterGridUnit unitThatRequiresTarget, List<GridUnit> eligibleTargets, TargetingBehaviour targetingBehaviour, Attribute targetAttribute, Race targetRace, string targetName)
         {
             switch (targetingBehaviour)
             {
                 case TargetingBehaviour.ClosestUnit:
                     return CombatFunctions.GetClosestUnit(eligibleTargets, unitThatRequiresTarget.transform);
                 case TargetingBehaviour.SpecificRace:
-                    List<CharacterGridUnit> filteredList = eligibleTargets.Where(((unit) => unit.stats.data.race == targetRace)).ToList();
+                    List<GridUnit> filteredList = eligibleTargets.Where(((unit) => unit.stats.data.race == targetRace)).ToList();
                     return GetRandomUnit(filteredList);
                 case TargetingBehaviour.SpecificCharacter:
                     return eligibleTargets.FirstOrDefault((unit) => unit.unitName == targetName);
@@ -75,7 +75,7 @@ namespace AnotherRealm
         }
 
 
-        private static CharacterGridUnit GetRandomUnit(List<CharacterGridUnit> eligibleTargets)
+        private static GridUnit GetRandomUnit(List<GridUnit> eligibleTargets)
         {
             if(eligibleTargets.Count == 0) { return null; }
 
@@ -83,12 +83,14 @@ namespace AnotherRealm
             return eligibleTargets[randIndex];
         }
 
-        private static List<CharacterGridUnit> FilterListByStatusEffects(CharacterGridUnit skillOwner, List<CharacterGridUnit> listToFilter, List<StatusEffectTarget> statusEffectTargetingData, bool isPrioritizeList)
+        private static List<GridUnit> FilterListByStatusEffects(CharacterGridUnit skillOwner, List<GridUnit> listToFilter, List<StatusEffectTarget> statusEffectTargetingData, bool isPrioritizeList)
         {
-            List<CharacterGridUnit> returnList = new List<CharacterGridUnit>();
+            List<GridUnit> returnList = new List<GridUnit>();
 
             foreach (CharacterGridUnit unit in listToFilter)
             {
+                if (!unit) { continue; }
+
                 foreach (StatusEffectTarget SETargetData in statusEffectTargetingData)
                 {
                     if (returnList.Contains(unit))

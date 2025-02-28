@@ -9,7 +9,7 @@ public class HideViewBlockers : MonoBehaviour
     [SerializeField] bool onlyShowActiveUnit = false;
     [SerializeField] bool onlyShowTargetsWithoutActiveUnit = false;
 
-    List<GridUnitAnimator> unitAnimators = new List<GridUnitAnimator>();
+    List<GridUnit> units = new List<GridUnit>();
 
     private void OnEnable()
     {
@@ -22,42 +22,41 @@ public class HideViewBlockers : MonoBehaviour
     //CALLED VIA VCAM ON LIVE FUNCTION.
     public void HideViewIntruders()
     {
-        unitAnimators.Clear();
+        units.Clear();
 
-        foreach (CharacterGridUnit unit in FantasyCombatManager.Instance.GetAllCharacterCombatUnits(false))
+        foreach (GridUnit unit in FantasyCombatManager.Instance.GetAllCombatUnits(false))
         {
             if (onlyShowActiveUnit || (onlyShowTargetsWithoutActiveUnit && FantasyCombatManager.Instance.GetUnitsToShow().Contains(unit)))
             {
                 if((onlyShowActiveUnit && unit != FantasyCombatManager.Instance.GetActiveUnit()) || (onlyShowTargetsWithoutActiveUnit && unit == FantasyCombatManager.Instance.GetActiveUnit()))
                 {
-                    unitAnimators.Add(unit.unitAnimator);
-                    unit.unitAnimator.ShowModel(false);
+                    units.Add(unit);
+                    unit.ShowModel(false);
                 }
                 else
                 {
-                    unit.unitAnimator.ShowModel(true);
+                    unit.ShowModel(true);
                 }
             }
             else if (!FantasyCombatManager.Instance.GetUnitsToShow().Contains(unit))
             {
-                unitAnimators.Add(unit.unitAnimator);
-                unit.unitAnimator.ShowModel(false);
+                units.Add(unit);
+                unit.ShowModel(false);
             }
             else
             {
-                unit.unitAnimator.ShowModel(true);
+                unit.ShowModel(true);
             }
         }
     }
 
     public void ShowAll()
     {
-        foreach (GridUnitAnimator unitAnimator in unitAnimators)
+        foreach (GridUnit unit in units)
         {
-            unitAnimator.ShowModel(true);
+            unit.ShowModel(true);
         }
     }
-
  
     private void OnDisable()
     {

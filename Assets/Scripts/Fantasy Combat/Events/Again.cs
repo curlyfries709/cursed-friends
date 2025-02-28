@@ -11,9 +11,6 @@ public class Again : MonoBehaviour, ITurnEndEvent
     [Space(5)]
     [SerializeField] float againCanvasDisplayTime;
 
- 
-    public int turnEndEventOrder { get; set; }
-
     CharacterGridUnit unitGoingAgain;
 
     //Event
@@ -22,20 +19,19 @@ public class Again : MonoBehaviour, ITurnEndEvent
     private void Awake()
     {
         Instance = this;
-        turnEndEventOrder = transform.GetSiblingIndex();
         againCanvas.SetDuration(againCanvasDisplayTime);
     }
 
     public void SetUnitToGoAgain(CharacterGridUnit unit)
     {
-        if (StatusEffectManager.Instance.IsUnitDisabled(unit) || unit.Health().isKOed) { return; }
+        if (StatusEffectManager.Instance.IsUnitDisabled(unit) || unit.CharacterHealth().isKOed) { return; }
         unitGoingAgain = unit;
         FantasyCombatManager.Instance.AddTurnEndEventToQueue(this);
     }
 
     public void PlayTurnEndEvent()
     {
-        if (StatusEffectManager.Instance.IsUnitDisabled(unitGoingAgain) || unitGoingAgain.Health().isKOed)
+        if (StatusEffectManager.Instance.IsUnitDisabled(unitGoingAgain) || unitGoingAgain.CharacterHealth().isKOed)
         {
             //Could Be KOed due to counterattack. Could be disabled due to Status Effect from counterattack.
             FantasyCombatManager.Instance.ActionComplete();
@@ -63,6 +59,11 @@ public class Again : MonoBehaviour, ITurnEndEvent
     public List<Type> GetEventTypesThatCancelThis()
     {
         return new List<Type>();
+    }
+
+    public float GetTurnEndEventOrder()
+    {
+        return transform.GetSiblingIndex();
     }
 
     public void OnEventCancelled()

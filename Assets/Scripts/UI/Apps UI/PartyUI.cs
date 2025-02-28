@@ -155,14 +155,14 @@ public class PartyUI : MonoBehaviour, IControls
         type.text = selectedPlayer.stats.data.raceType.ToString();
 
         //Set Vitals
-        hpText.text = selectedPlayer.Health().currentHealth + "/" + selectedPlayer.stats.Vitality;
-        hpBar.fillAmount = selectedPlayer.Health().GetHealthNormalized();
+        hpText.text = selectedPlayer.CharacterHealth().currentHealth + "/" + selectedPlayer.stats.Vitality;
+        hpBar.fillAmount = selectedPlayer.CharacterHealth().GetHealthNormalized();
 
-        spText.text = selectedPlayer.Health().currentSP + "/" + selectedPlayer.stats.Stamina;
-        spBar.fillAmount = selectedPlayer.Health().GetStaminaNormalized();
+        spText.text = selectedPlayer.CharacterHealth().currentSP + "/" + selectedPlayer.stats.Stamina;
+        spBar.fillAmount = selectedPlayer.CharacterHealth().GetStaminaNormalized();
 
-        fpText.text = selectedPlayer.Health().currentFP + "/" + selectedPlayer.Health().MaxFP();
-        fpBar.fillAmount = selectedPlayer.Health().GetFPNormalized();
+        fpText.text = selectedPlayer.CharacterHealth().currentFP + "/" + selectedPlayer.CharacterHealth().MaxFP();
+        fpBar.fillAmount = selectedPlayer.CharacterHealth().GetFPNormalized();
 
         //Set Experience
         int nextLevelBenchmark = ProgressionManager.Instance.GetNextLevelBenchmark(currentLevel);

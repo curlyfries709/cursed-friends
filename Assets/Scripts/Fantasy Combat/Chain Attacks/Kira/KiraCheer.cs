@@ -42,7 +42,7 @@ public class KiraCheer : PlayerBaseChainAttack
     IEnumerator CheerRoutine()
     {
         //Activate Cam & Play Animation.
-        myUnit.unitAnimator.TriggerSkill("Cheer");
+        myCharacter.unitAnimator.TriggerSkill("Cheer");
         ActivateVisuals(true);
         cheerCanvas.SetActive(true);
         StartCoroutine(CheerCanvasRoutine());
@@ -56,7 +56,7 @@ public class KiraCheer : PlayerBaseChainAttack
 
         FantasyCombatManager.Instance.ActionComplete();
 
-        myUnit.unitAnimator.Idle();
+        myCharacter.unitAnimator.Idle();
     }
 
     IEnumerator CheerCanvasRoutine()

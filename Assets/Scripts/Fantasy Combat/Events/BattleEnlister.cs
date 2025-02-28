@@ -28,7 +28,6 @@ public class BattleEnlister : MonoBehaviour, ITurnEndEvent
     [SerializeField] TextMeshProUGUI canvasMessage;
     [SerializeField] string messageAppendText;
 
-    public int turnEndEventOrder { get; set; }
     Transform orbitPoint;
 
     List<GridPosition> takenGridPositions = new List<GridPosition>();
@@ -37,7 +36,6 @@ public class BattleEnlister : MonoBehaviour, ITurnEndEvent
     private void Awake()
     {
         Instance = this;
-        turnEndEventOrder = 200;
     }
 
     private void OnEnable()
@@ -134,6 +132,11 @@ public class BattleEnlister : MonoBehaviour, ITurnEndEvent
     public void OnEventCancelled()
     {
         //Event Can't Be Cancelled.
+    }
+
+    public float GetTurnEndEventOrder()
+    {
+        return 200;
     }
 
     public List<Type> GetEventTypesThatCancelThis()

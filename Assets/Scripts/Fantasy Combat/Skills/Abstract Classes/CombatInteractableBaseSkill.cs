@@ -2,20 +2,46 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class CombatInteractableBaseSkill : BaseSkill
+public abstract class CombatInteractableBaseSkill : BaseSkill, IHighlightable
 {
+    protected IRespawnable respawnable;
 
-    protected CharacterGridUnit myInteractor;
+    //ABSTRACT
+    protected abstract void SetRespawnable();
 
-    protected abstract void TriggerSkill(CharacterGridUnit myInteractor);
+    public abstract void ActivateHighlightedUI(bool activate, PlayerBaseSkill selectedBySkill);
+    //END ABSTRACT
 
-    public void ShowAffectedGridPositions(bool show)
+    protected void ShowAffectedGridPositions(bool show)
     {
         if (show)
         {
             CalculateSelectedGridPos();
+            GridSystemVisual.Instance.ShowGridVisuals(null, selectedGridPositions, highlightableData, GridSystemVisual.VisualType.ObjectAOE);
         }
+        else
+        {
+            GridSystemVisual.Instance.HideGridVisualsOfType(GridSystemVisual.VisualType.ObjectAOE);
+        }
+    }
 
-        GridSystemVisual.Instance.ShowSelectedObjectAOEVisual(selectedGridPositions, selectedUnits, show);
+    public void OnInteractableDestroyed()
+    {
+        SetRespawnable();
+
+        if (respawnable != null)
+        {
+            respawnable.OnRemovedFromRealm();
+        }
+    }
+
+    public GridUnit GetGridUnit()
+    {
+        return myUnit;
+    }
+
+    public IHighlightable GetHighlightable()
+    {
+        return this;
     }
 }

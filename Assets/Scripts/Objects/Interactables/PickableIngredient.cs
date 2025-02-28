@@ -25,14 +25,13 @@ public class PickableIngredient : Interact, IRespawnable
     public override void HandleInteraction(bool inCombat)
     {
         if (inCombat) { return; }
-        ((IRespawnable)this).OnRemovedFromRealm(gameObject);
+        ((IRespawnable)this).OnRemovedFromRealm();
     }
 
     public int GetDaysToRespawn()
     {
         return daysToRespawn;
     }
-
 
     //SAVING
     public object CaptureState()

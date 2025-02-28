@@ -26,10 +26,12 @@ public class GridUnit : MonoBehaviour
 
     //Cache
     protected Health myHealth;
+    protected IHighlightable myHighlightable;
 
     protected virtual void Awake()
     {
         myHealth = GetComponent<Health>();
+        SetHighlightable();
     }
 
     protected virtual void OnEnable()
@@ -37,7 +39,8 @@ public class GridUnit : MonoBehaviour
         if (!(this is CharacterGridUnit))
         {
             //Only Set Grid Pos for Objects.
-            SetGridPositions();
+            FantasyCombatManager.Instance.ObjectInSceneSetPosition += SetPositionOnSceneLoaded;
+            
         }
     }
 
@@ -71,6 +74,16 @@ public class GridUnit : MonoBehaviour
     }
 
     //GRID HELPERS
+    protected GridUnit SetPositionOnSceneLoaded()
+    {
+        FantasyCombatManager.Instance.ObjectInSceneSetPosition -= SetPositionOnSceneLoaded;
+
+        SetGridPositions();
+        Health().SetupHealthUI();
+
+        return this;
+    }
+
     public void SetGridPositions()
     {
         UpdateTurnStartGridPositions();
@@ -126,10 +139,29 @@ public class GridUnit : MonoBehaviour
         return currentGridPositions;
     }
 
+    //SETTERS
+    protected virtual void SetHighlightable()
+    {
+        myHighlightable = GetComponentInChildren<IHighlightable>();
+    }
+    
+    public virtual void ShowModel(bool show)
+    {
+        foreach(Transform child in modelHeader)
+        {
+            child.gameObject.SetActive(show);
+        }
+    }
+
     //GETTERS
     public List<GridPosition> GetGridPositionsOnTurnStart()
     {
         return gridPositionsOccupied;
+    }
+
+    public IHighlightable GetHighlightable()
+    {
+        return myHighlightable;
     }
 
     public int GetMaxCellsRequired()
@@ -159,11 +191,5 @@ public class GridUnit : MonoBehaviour
     public bool IsObject()
     {
         return myHealth.IsObject();
-    }
-
-    //SETTERS
-    public void ShowSelectionVisual(bool show)
-    {
-        Health().ActivateHealthVisual(show);
     }
 }

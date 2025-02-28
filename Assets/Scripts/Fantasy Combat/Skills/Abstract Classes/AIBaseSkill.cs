@@ -97,17 +97,17 @@ public abstract class AIBaseSkill : BaseSkill
     {
         BeginAction();
 
-        GridSystemVisual.Instance.HideAllGridVisuals(true);
+        GridSystemVisual.Instance.HideAllGridVisuals();
 
-        myUnit.unitAnimator.PrepareToTriggerSkill();  //Speed Set to 0 & Cancel Skill Feedback Reset
+        myCharacter.unitAnimator.PrepareToTriggerSkill();  //Speed Set to 0 & Cancel Skill Feedback Reset
 
         //Warp Unit into Position & Rotation in an attempt to remove camera jitter.
         Vector3 desiredRotation = Quaternion.LookRotation(CombatFunctions.GetCardinalDirectionAsVector(myUnitTransform)).eulerAngles;
         myUnit.Warp(LevelGrid.Instance.gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0]), Quaternion.Euler(new Vector3(0, desiredRotation.y, 0)));
 
         //Set Times
-        myUnit.returnToGridPosTime = returnToGridPosTime;
-        myUnit.delayBeforeReturn = delayBeforeReturn;
+        myCharacter.returnToGridPosTime = returnToGridPosTime;
+        myCharacter.delayBeforeReturn = delayBeforeReturn;
 
         //Set Selected Units & Grid Pos.
         myUnitMoveTransform.localPosition = Vector3.zero;
@@ -131,12 +131,12 @@ public abstract class AIBaseSkill : BaseSkill
 
     protected bool CanTriggerSkill()
     {
-        if (myUnit.CanTriggerSkill == null)
+        if (myCharacter.CanTriggerSkill == null)
         {
             return true;
         }
 
-        bool canTriggerSkill = myUnit.CanTriggerSkill();
+        bool canTriggerSkill = myCharacter.CanTriggerSkill();
 
         if (!canTriggerSkill)
         {
@@ -183,7 +183,7 @@ public abstract class AIBaseSkill : BaseSkill
         foreach (AISkillCondition condition in skillConditions)
         {
             if(condition.evaluateConditionAtEachMovePosition) { continue; }
-            if(!condition.IsConditionMet(myUnit, myAI.preferredTarget as CharacterGridUnit, selectedUnits, myUnit.GetGridPositionsOnTurnStart()[0], this)) { Debug.Log(transform.name + " DID NOT MEET SKILL CONDITIONS");  return null; }
+            if(!condition.IsConditionMet(myCharacter, myAI.preferredTarget as CharacterGridUnit, selectedUnits, myUnit.GetGridPositionsOnTurnStart()[0], this)) { Debug.Log(transform.name + " DID NOT MEET SKILL CONDITIONS");  return null; }
         }
 
         this.myAI = myAI;
@@ -271,7 +271,7 @@ public abstract class AIBaseSkill : BaseSkill
             GridPosition startingGridPos = myAI.positioningBehaviour == PositioningBehaviour.FurthestPositionFromTarget ? closestUnitGridPosition : myUnit.GetCurrentGridPositions()[0];
 
             //Subtract one because Closest Position To Target shouldn't be penalised for having distance of 1 which is shortest possible distance.
-            int distance = Mathf.Max((PathFinding.Instance.GetPathLengthInGridUnits(startingGridPos, currentGridPos, myUnit)) - 1, 0);
+            int distance = Mathf.Max((PathFinding.Instance.GetPathLengthInGridUnits(startingGridPos, currentGridPos, myCharacter)) - 1, 0);
 
             int multiplier = myAI.positioningBehaviour == PositioningBehaviour.FurthestPositionFromTarget ? 2 : -2;
 
@@ -310,7 +310,7 @@ public abstract class AIBaseSkill : BaseSkill
 
             if (offensiveSkill && myAI.shouldRememberAffinities && targetChar)
             {
-                Element skillElement = CombatFunctions.GetElement(myUnit, offensiveSkill.element, offensiveSkill.isMagical); 
+                Element skillElement = CombatFunctions.GetElement(myCharacter, offensiveSkill.element, offensiveSkill.isMagical); 
 
                 if (myAI.IsAffinityRemembered(target, skillElement))
                 {
@@ -372,7 +372,7 @@ public abstract class AIBaseSkill : BaseSkill
         //Evaluate Skill Conditions for Each Move Position if necessary.
         foreach (AISkillCondition condition in skillConditions)
         {
-            if (condition.evaluateConditionAtEachMovePosition && !condition.IsConditionMet(myUnit, myAI.preferredTarget as CharacterGridUnit, selectedUnits, currentGridPos, this)) 
+            if (condition.evaluateConditionAtEachMovePosition && !condition.IsConditionMet(myCharacter, myAI.preferredTarget as CharacterGridUnit, selectedUnits, currentGridPos, this)) 
             {
                 if (myAI.shouldPrintActionScoreDebug)
                     Debug.Log(transform.name + " DID NOT MEET SKILL CONDITIONS");

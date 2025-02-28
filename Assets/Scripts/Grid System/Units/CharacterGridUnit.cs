@@ -4,10 +4,9 @@ using UnityEngine;
 using System;
 using DG.Tweening;
 using Cinemachine;
-using Sirenix.OdinInspector;
-using System.Threading;
 
-public class CharacterGridUnit : GridUnit
+
+public class CharacterGridUnit : GridUnit, IHighlightable
 {
     [Header("Character Profile")]
     public Sprite portrait;
@@ -63,12 +62,12 @@ public class CharacterGridUnit : GridUnit
 
     protected virtual void OnBeginTurn()
     {
-        Health().Guard(false);
+        CharacterHealth().Guard(false);
     }
 
     private void Update()
     {
-        if (Health().isGuarding)
+        if (CharacterHealth().isGuarding)
         {
             CharacterGridUnit activeUnit = FantasyCombatManager.Instance.GetActiveUnit();
 
@@ -129,9 +128,23 @@ public class CharacterGridUnit : GridUnit
     }
 
     //Setters
+    public override void ShowModel(bool show)
+    {
+        unitAnimator.ShowModel(show);
+    }
     public void ActivateFollowCam(bool activate)
     {
         followCam.SetActive(activate);
+    }
+
+    public void ActivateHighlightedUI(bool activate, PlayerBaseSkill selectedBySkill)
+    {
+        myHealth.ActivateHealthVisual(activate);
+    }
+
+    protected override void SetHighlightable()
+    {
+        myHighlightable = this;
     }
 
     //Getters
@@ -151,9 +164,14 @@ public class CharacterGridUnit : GridUnit
         return photoshootAnimator;
     }
 
-    public new CharacterHealth Health()
+    public CharacterHealth CharacterHealth()
     {
         return myHealth as CharacterHealth;
+    }
+
+    public GridUnit GetGridUnit()
+    {
+        return this;
     }
 
 }

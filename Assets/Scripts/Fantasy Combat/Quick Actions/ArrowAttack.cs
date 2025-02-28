@@ -24,9 +24,9 @@ public class ArrowAttack : PlayerOffensiveSkill
             DamageTarget(skillTargets[0]);
 
             //Begin Attack
-            myUnit.unitAnimator.SetupArrowAttackEvent(EnableArrowInHand, ShootArrow);
+            myCharacter.unitAnimator.SetupArrowAttackEvent(EnableArrowInHand, ShootArrow);
             ActivateVisuals(true);
-            myUnit.unitAnimator.TriggerSkill(skillName);
+            myCharacter.unitAnimator.TriggerSkill(skillName);
             
 
             return true;

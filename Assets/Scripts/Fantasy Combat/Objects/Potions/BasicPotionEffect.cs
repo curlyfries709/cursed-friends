@@ -44,7 +44,7 @@ public class BasicPotionEffect : MonoBehaviour
         //Show VFX too.
 
         HealData healData = new HealData(target, potionData.hpGain, potionData.spGain, potionData.fpGain, potionData.canRevive);
-        target.Health().Heal(healData);
+        target.CharacterHealth().Heal(healData);
         Health.RaiseHealthChangeEvent(true);
 
         hasStartedHealthCountdown = true;
@@ -67,12 +67,12 @@ public class BasicPotionEffect : MonoBehaviour
         }
 
         if (potionData.inflictedStatusEffects.Any((effect) => effect.statusEffect.isStatBuffOrDebuff))
-            target.Health().SetBuffsToApplyVisual(potionData.inflictedStatusEffects);
+            target.CharacterHealth().SetBuffsToApplyVisual(potionData.inflictedStatusEffects);
 
         StatusEffectManager.Instance.TriggerNewlyAppliedEffects(target);
 
         if (potionData.inflictedStatusEffects.Any((effect) => effect.statusEffect.isStatBuffOrDebuff))
-            target.Health().ActivateBuffHealthVisual();
+            target.CharacterHealth().GetHealthUI().ShowBuffsOnly();
     }
 
     private void FullCharge(CharacterGridUnit drinker, FantasyCombatCollectionManager collectionManager)

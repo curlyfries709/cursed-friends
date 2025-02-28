@@ -7,7 +7,6 @@ using Sirenix.OdinInspector;
 public class ObjectHealth : Health
 {
     [Header("Object Health")]
-
     [SerializeField] bool canTakeDamage = true;
     [Tooltip("Does hitting its weakness cause it to instantly be destoryed")]
     [SerializeField] bool isWeakHitInstaKo = true;
@@ -51,6 +50,12 @@ public class ObjectHealth : Health
     protected override void KO()
     {
         isKOed = true;
+
+        if (currentDamageData.affinityToAttack == Affinity.Weak)
+        {
+            WeaknessHit?.Invoke(currentDamageData);
+        }
+
         ShowHealthUI(currentDamageData.affinityToAttack, currentDamageData);
         
         //Give FP, then Deplete FP
@@ -81,6 +86,14 @@ public class ObjectHealth : Health
         //Clear current heal data
         currentHealData = null;
     }
+
+    //SETTERS
+    public override void ActivateHealthVisual(bool show)
+    {
+        if (!canTakeDamage) { return; }
+        base.ActivateHealthVisual(show);
+    }
+
     //GETTERS
     public override int MaxHealth()
     {

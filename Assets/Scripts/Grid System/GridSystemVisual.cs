@@ -3,8 +3,7 @@ using UnityEngine;
 using TMPro;
 using Sirenix.OdinInspector;
 using System.Linq;
-using Pathfinding.Graphs.Grid;
-using UnityEngine.Rendering;
+using System;
 
 public class GridSystemVisual : MonoBehaviour
 {
@@ -12,15 +11,18 @@ public class GridSystemVisual : MonoBehaviour
 
     [Header("Values")]
     [SerializeField] int visualsToSpawn = 50;
+    [SerializeField] float objectAOEGridMultiplierScale = 0.75f;
     [Title("Prefab")]
     [SerializeField] GameObject gridSystemVisualSinglePrefab;
     [Space(10)]
     [SerializeField] Transform gridUIHeader;
     [Title("Materials")]
     [SerializeField] Material movementVisualMat;
+    [SerializeField] Material invalidActionAreaMat;
+    [Space(5)]
     [SerializeField] Material selectedAreaVisualMat;
     [SerializeField] Material validTargetAreaVisualMat;
-    [SerializeField] Material invalidActionAreaMat;
+    [Space(5)]
     [SerializeField] Material selectedObjectAOEMat;
     [Title("TEST")]
     [SerializeField] bool showGridPosText = true;
@@ -28,28 +30,39 @@ public class GridSystemVisual : MonoBehaviour
     //Grid System
     private GridSystem<GridObject> gridSystem;
 
-    //Arrays
-    private CellVisualData[,] gridSystemVisualDataArray;
-
     //Storage
-    List<GridPosition> currentValidMovementGridPos = new List<GridPosition>();
-    List<GridPosition> currentValidTargetArea = new List<GridPosition>();
-    List<GridPosition> currentSelectedArea = new List<GridPosition>();
-
     List<CellVisualData> spawnedGridVisuals = new List<CellVisualData>();
-    List<CellVisualData> activeGridVisuals = new List<CellVisualData>();
+    Dictionary<GridPosition, CellVisualData> activeGridVisuals = new Dictionary<GridPosition, CellVisualData>();
 
-    Dictionary<GridPosition, Material> movementMatDict = new Dictionary<GridPosition, Material>();
-    Dictionary<GridPosition, CellVisualData> selectedObjectAOEDict = new Dictionary<GridPosition, CellVisualData>();
+    Dictionary<VisualType, List<CellVisualData>> activeGridVisualsOfType = new Dictionary<VisualType, List<CellVisualData>>();
+
+    Dictionary<GridPosition, CellVisualData> activeObjectAOEVisuals = new Dictionary<GridPosition, CellVisualData>();
+
+    public enum VisualType
+    {
+        Movement,
+        Unoccupiable,
+        SkillTargetArea,
+        SkillAOE,
+        ObjectAOE
+    }
+
     public class CellVisualData
     {
+        //Components
         public GameObject cellGO;
         public MeshRenderer renderer;
         public Collider collider;
-        public Material material;
+
         public TextMeshPro tmp;
 
-        public GridPosition gridPosition; 
+        //DATA
+        public GridPosition gridPosition;
+        public VisualType currentVisualType;
+        public IHighlightable currentHighlightable;
+
+        public SortedList<int, VisualType> activeVisualTypes = new SortedList<int, VisualType>();
+
         public bool inUse = false;
     }
 
@@ -60,10 +73,17 @@ public class GridSystemVisual : MonoBehaviour
 
     public void Setup()
     {
-        gridSystemVisualDataArray = new CellVisualData[LevelGrid.Instance.GetWidth(), LevelGrid.Instance.GetLength()];
         gridSystem = LevelGrid.Instance.gridSystem;
-
         CreateGridVisual();
+
+        //Initialize lists
+        for(int i = 0; i < Enum.GetNames(typeof(VisualType)).Length; ++i)
+        {
+            if((VisualType)i == VisualType.Unoccupiable) { continue; } //Unoccupiable will be grouped with movement. 
+
+            activeGridVisualsOfType[(VisualType)i] = new List<CellVisualData>();
+        }
+
     }
 
     public void CreateGridVisual()
@@ -90,7 +110,6 @@ public class GridSystemVisual : MonoBehaviour
         cellVisual.cellGO = singleGridVisual;
         cellVisual.renderer = singleGridVisual.GetComponentInChildren<MeshRenderer>();
         cellVisual.collider = singleGridVisual.GetComponentInChildren<Collider>();
-        cellVisual.material = cellVisual.renderer.material;
 
         cellVisual.tmp = singleGridVisual.GetComponentInChildren<TextMeshPro>();
 
@@ -99,138 +118,133 @@ public class GridSystemVisual : MonoBehaviour
         return cellVisual;
     }
 
-
-
-    public void ShowValidMovementGridPositions(List<GridPosition> validGridPositions, CharacterGridUnit selectedUnit, bool isPlayer)
+    public void ShowValidMovementGridPositions(List<GridPosition> validGridPositions, CharacterGridUnit movingUnit, bool isPlayer)
     {
-        currentValidMovementGridPos.Clear();
-        movementMatDict.Clear();
+        HideAllGridVisuals();
 
-        HideAllGridVisuals(true);
-
-        foreach(GridPosition validGridPosition in validGridPositions)
+        foreach (GridPosition validGridPosition in validGridPositions)
         {
-            Material moveMatToUse = isPlayer ? movementVisualMat : selectedAreaVisualMat;
+            VisualType moveVisualType = isPlayer ? VisualType.Movement : VisualType.SkillAOE;
 
-            if (gridSystem.GetGridObject(validGridPosition).IsOccupiedByAnyUnit() && selectedUnit != gridSystem.GetGridObject(validGridPosition).GetGridUnit())
+            if (LevelGrid.Instance.IsGridPositionOccupiedByDifferentUnit(movingUnit, validGridPosition, true))
             {
-                moveMatToUse = invalidActionAreaMat;
+                moveVisualType = VisualType.Unoccupiable;
             }
 
-            movementMatDict[validGridPosition] = moveMatToUse;
-
-            ActivateCellVisualAtPos(validGridPosition, moveMatToUse, true);
-            currentValidMovementGridPos.Add(validGridPosition);
+            ActivateCellVisualAtPos(validGridPosition, moveVisualType);
         }
     }
 
-    public void ShowSelectedObjectAOEVisual(List<GridPosition> selectedGridPositions, List<GridUnit> selectedUnits, bool show)
+    public void ShowGridVisuals(PlayerBaseSkill currentPlayerSkill, List<GridPosition> validGridPositions, Dictionary<GridPosition, IHighlightable> gridPosHighlightableDict, VisualType visualType)
     {
-        foreach(GridPosition gridPosition in selectedGridPositions)
+        //Hide Grid Pos based on visual type.
+        HideGridVisualsOfType(visualType, validGridPositions);
+
+        foreach (KeyValuePair<GridPosition, IHighlightable> pair in gridPosHighlightableDict)
         {
-            if (show)
-            {
-                if (selectedObjectAOEDict.ContainsKey(gridPosition)) { return; }
-
-                CellVisualData foundVisual = spawnedGridVisuals.FirstOrDefault((visual) => !visual.inUse);
-                CellVisualData cellVisualData = foundVisual != null ? foundVisual : SpawnNewVisual();
-
-                cellVisualData.inUse = true;
-
-                //Set Position
-                Vector3 worldPos = gridSystem.GetWorldPosition(gridPosition);
-
-                cellVisualData.cellGO.transform.position = worldPos;
-                cellVisualData.cellGO.transform.localScale = Vector3.one * LevelGrid.Instance.GetCellSize() * 0.75f;
-
-                cellVisualData.material = selectedObjectAOEMat;
-                cellVisualData.collider.enabled = false;
-
-                selectedObjectAOEDict[gridPosition] = cellVisualData;
-                cellVisualData.cellGO.SetActive(true);
-            }
-            else
-            {
-                CellVisualData cellVisualData = selectedObjectAOEDict[gridPosition];
-
-                cellVisualData.cellGO.SetActive(false);
-                cellVisualData.inUse = false;
-
-                selectedObjectAOEDict.Remove(gridPosition);
-            }
-        }
-
-        HUDManager.Instance.UpdateTurnOrderNames(show ? selectedUnits : new List<GridUnit>());
-
-        foreach (GridUnit unit in selectedUnits)
-        {
-            unit.ShowSelectionVisual(show);
+            ShowGridVisualOfType(currentPlayerSkill, pair.Key, pair.Value, visualType);
         }
     }
 
-    public void ShowValidTargetAndSelectedGridPositions(List<GridPosition> targetArea, List<GridPosition> selectedGridPositions, List<GridUnit> selectedUnits, bool show)
+    public void ShowGridVisuals(List<GridPosition> validGridPositions, VisualType visualType)
     {
-        ShowHighlightedGridPos(targetArea, currentValidTargetArea, validTargetAreaVisualMat, true, show);
-        currentValidTargetArea = targetArea;
-        ShowOnlySelectedGridPositions(selectedGridPositions, selectedUnits, show, false);
+        //Hide Grid Pos based on visual type.
+        HideGridVisualsOfType(visualType, validGridPositions);
 
-    }
-
-    public void ShowOnlySelectedGridPositions(List<GridPosition> selectedGridPositions, List<GridUnit> selectedUnits, bool show, bool showMovement = true)
-    {
-        ShowHighlightedGridPos(selectedGridPositions, currentSelectedArea, selectedAreaVisualMat, showMovement, show);
-        currentSelectedArea = selectedGridPositions;
-
-        HUDManager.Instance.UpdateTurnOrderNames(show ? selectedUnits : new List<GridUnit>());
-
-        //Also Need To Highlight The selected Units
-        foreach(GridUnit unit in LevelGrid.Instance.GetAllActiveGridUnits())
+        foreach (GridPosition gridPosition in validGridPositions)
         {
-            unit.ShowSelectionVisual(selectedUnits.Contains(unit) && show);
+            ShowGridVisualOfType(null, gridPosition, null, visualType);
         }
     }
 
-    private void ShowHighlightedGridPos(List<GridPosition> highlightedGridPositions, List<GridPosition> positionsToHide, Material material, bool showMovement, bool show)
+    private void ShowGridVisualOfType(PlayerBaseSkill currentPlayerSkill, GridPosition gridPosition, IHighlightable highlightable, VisualType visualType)
     {
-        HideListedGridVisual(positionsToHide);
-
-        if (showMovement || !show)
+        //If the current visual type at pos is higher priority than passed visual type, move on
+        //Prioties from low to high: Move/Invalid -> Valid Target Area -> Skill Selected Area -> Object AOE
+        if (activeGridVisuals.ContainsKey(gridPosition) && activeGridVisuals[gridPosition].currentVisualType > visualType)
         {
-            ShowMovementVisualDuringSelection(highlightedGridPositions, !show);
+            return;
         }
 
-        foreach (GridPosition validGridPosition in highlightedGridPositions)
+        CellVisualData cellVisualData = ActivateCellVisualAtPos(gridPosition, visualType);
+
+        if (highlightable != null && highlightable.GetGridUnit() != FantasyCombatManager.Instance.GetActiveUnit())
         {
-            if (show)
+            cellVisualData.currentHighlightable = highlightable;
+            cellVisualData.currentHighlightable?.ActivateHighlightedUI(true, currentPlayerSkill);
+        }
+    }
+
+    public void HideGridVisualsOfType(VisualType visualType)
+    {
+        List<CellVisualData> currentCellsList = GetActiveListFromType(visualType);
+
+        foreach (CellVisualData cellVisualData in currentCellsList)
+        {
+            DeactivateCellVisual(cellVisualData, !IsMovementType(visualType));
+        }
+
+        currentCellsList.Clear();
+    }
+
+    private void HideGridVisualsOfType(VisualType visualType, List<GridPosition> newGridPosList)
+    {
+        List<CellVisualData> currentCellsList = GetActiveListFromType(visualType);
+        List<CellVisualData> listToHide = currentCellsList.Where((data) => !newGridPosList.Contains(data.gridPosition)).ToList();
+
+        foreach (CellVisualData cellVisualData in listToHide)
+        {
+            DeactivateCellVisual(cellVisualData, !IsMovementType(visualType));
+            currentCellsList.Remove(cellVisualData);
+        }
+    }
+
+    public void HideAllGridVisuals()
+    {
+        //Hide Grid Visual
+        for (int i = activeGridVisuals.Count - 1; i >= 0; i--)
+        {
+            KeyValuePair<GridPosition, CellVisualData> pair = activeGridVisuals.ElementAt(i);
+            DeactivateCellVisual(pair.Value, false);
+        }
+
+        //Clear all lists since nothing is active
+        foreach (KeyValuePair<VisualType, List<CellVisualData>> pair in activeGridVisualsOfType)
+        {
+            pair.Value.Clear();
+        }
+    }
+
+    private CellVisualData ActivateCellVisualAtPos(GridPosition gridPosition, VisualType visualType)
+    {
+        CellVisualData foundCellVisualData;
+
+        //Don't Bother or update if Cell already in use at position.
+        if (visualType == VisualType.ObjectAOE)
+        {
+            foundCellVisualData = activeObjectAOEVisuals.ContainsKey(gridPosition) ? activeObjectAOEVisuals[gridPosition] : null;
+        }
+        else if (activeGridVisuals.ContainsKey(gridPosition))
+        {
+            foundCellVisualData = activeGridVisuals[gridPosition];
+            VisualType currentVisualType = foundCellVisualData.currentVisualType;
+
+            if (currentVisualType != visualType) //Upgrade the visual at the current pos
             {
-                ActivateCellVisualAtPos(validGridPosition, material, currentValidMovementGridPos.Contains(validGridPosition));
-            }
-            else
-            {
-                if (!currentValidMovementGridPos.Contains(validGridPosition))
-                {
-                    DeactivateCellVisual(GetVisualDataAtGridPosition(validGridPosition));
-                }
+                GetActiveListFromType(currentVisualType).Remove(foundCellVisualData);
+
+                int currentVisualTypeIndex = (int)currentVisualType;
+                foundCellVisualData.activeVisualTypes.Add(currentVisualTypeIndex, currentVisualType);
+
+                SetVisualAppearanceByType(foundCellVisualData, visualType);
             }
         }
-    }
-
-    private void ShowMovementVisualDuringSelection(List<GridPosition> highlightedGridPositions, bool hidingSelection)
-    {
-        foreach (GridPosition movePos in currentValidMovementGridPos)
+        else
         {
-            if (!highlightedGridPositions.Contains(movePos) || hidingSelection)
-            {
-                ActivateCellVisualAtPos(movePos, movementMatDict[movePos], true);
-            }
+            foundCellVisualData = null;
         }
-    }
 
-    private CellVisualData ActivateCellVisualAtPos(GridPosition gridPosition, Material material, bool enableVisualCollider)
-    {
-        //Don't Bother if Cell Already in use at position
-        CellVisualData foundCellVisualData = activeGridVisuals.FirstOrDefault((visual) => visual.inUse && visual.gridPosition == gridPosition);
-
+        
         if (foundCellVisualData != null)
         { 
             return foundCellVisualData; 
@@ -257,89 +271,110 @@ public class GridSystemVisual : MonoBehaviour
             cellVisual.tmp.gameObject.SetActive(false);
         }
 
-        //Set Visuals & Data
-        cellVisual.renderer.material = material;
-
-        gridSystemVisualDataArray[gridPosition.x, gridPosition.z] = cellVisual;
-        cellVisual.gridPosition = gridPosition;
-        cellVisual.material = material;
-
-        //Set Collider
-        cellVisual.collider.enabled = enableVisualCollider;
+        //Set Visuals
+        SetVisualAppearanceByType(cellVisual, visualType);
 
         //Set Position
         Vector3 worldPos = gridSystem.GetWorldPosition(gridPosition);
         singleGridVisual.transform.position = worldPos;
-        singleGridVisual.transform.localScale = Vector3.one * LevelGrid.Instance.GetCellSize();
 
         //Set Rotation
         //singleGridVisual.transform.rotation = GetGridVisualRotation(gridPosition);
         //singleGridVisual.transform.rotation = Quaternion.Euler(new Vector3(singleGridVisual.transform.rotation.eulerAngles.x, 0, singleGridVisual.transform.rotation.eulerAngles.z));
 
-        //Activate
+        //Set Data
+        cellVisual.gridPosition = gridPosition;
         cellVisual.inUse = true;
+
+        //Activate
         singleGridVisual.SetActive(true);
 
-        if (!activeGridVisuals.Contains(cellVisual))
-            activeGridVisuals.Add(cellVisual);
+        if(visualType == VisualType.ObjectAOE)
+        {
+            activeObjectAOEVisuals[gridPosition] = cellVisual;
+        }
+        else
+        {
+            activeGridVisuals[gridPosition] = cellVisual;
+        }
 
         return cellVisual;
     }
 
-    public void HideListedGridVisual(List<GridPosition> list)
+    private void SetVisualAppearanceByType(CellVisualData cellVisual, VisualType visualType)
     {
-        foreach(GridPosition pos in list)
-        {
-            CellVisualData foundCell = GetVisualDataAtGridPosition(pos);
-            DeactivateCellVisual(foundCell);
-        }
+        //Set Data
+        cellVisual.currentVisualType = visualType;
+
+        //Set Material
+        Material material = GetGridMaterialFromType(visualType);
+        cellVisual.renderer.material = material;
+
+        //Set Collider
+        cellVisual.collider.enabled = IsMovementType(visualType) ||
+            cellVisual.activeVisualTypes.Any((pair) => pair.Key == (int)VisualType.Movement || pair.Key == (int)VisualType.Unoccupiable);
+
+        //Set Scale
+        cellVisual.cellGO.transform.localScale = Vector3.one
+            * LevelGrid.Instance.GetCellSize() * (visualType == VisualType.ObjectAOE ? objectAOEGridMultiplierScale : 1);
+
+
+        GetActiveListFromType(visualType).Add(cellVisual);
     }
 
-    public void HideAllGridVisuals(bool hideUnitSelection)
-    {
-        //Hide Grid Visual
-        for (int i = activeGridVisuals.Count - 1; i >= 0; i--)
-        {
-            DeactivateCellVisual(activeGridVisuals[i]);
-        }
 
-        //Hide Selected Unit Visuals
-        if (hideUnitSelection)
-        {
-            foreach (GridUnit unit in LevelGrid.Instance.GetAllActiveGridUnits())
-            {
-                unit.ShowSelectionVisual(false);
-            }
-        } 
-    }
-
-    private void DeactivateCellVisual(CellVisualData cellVisual)
+    private void DeactivateCellVisual(CellVisualData cellVisual, bool canDowngrade)
     {
         if(cellVisual == null){ return; }
 
-        gridSystemVisualDataArray[cellVisual.gridPosition.x, cellVisual.gridPosition.z] = null;
+        int activeVisualTypeCount = cellVisual.activeVisualTypes.Count;
+        bool isObjectAOEVisual = cellVisual.currentVisualType == VisualType.ObjectAOE;
+
+        //Check if it can be downgraded. Do not downgrade Object AOE since it can be stacked upon another grid visual. 
+        if (!canDowngrade)
+        {
+            //reset active types list
+            cellVisual.activeVisualTypes.Clear();
+        }
+        else if (!isObjectAOEVisual && activeVisualTypeCount > 0)
+        {
+            //Get New Visual type
+            int newVisualTypeIndex = activeVisualTypeCount - 1;
+            VisualType newVisualType = cellVisual.activeVisualTypes.ElementAt(newVisualTypeIndex).Value;
+
+            //remove from list 
+            cellVisual.activeVisualTypes.RemoveAt(newVisualTypeIndex);
+
+            if (!IsHighlightableType(newVisualType)) //Hide selection if non-highlightable type
+            {
+                cellVisual.currentHighlightable?.ActivateHighlightedUI(false, null);
+            }
+
+            //Update apperance
+            SetVisualAppearanceByType(cellVisual, newVisualType);
+            return;
+        }
+
+        //Cannot be downgraded. Entirely remove visual from grid Position
+        cellVisual.currentHighlightable?.ActivateHighlightedUI(false, null);
+        cellVisual.currentHighlightable = null;
+
         cellVisual.cellGO.SetActive(false);
         cellVisual.inUse = false;
 
-        activeGridVisuals.Remove(cellVisual);
+        if (isObjectAOEVisual)
+        {
+            activeObjectAOEVisuals.Remove(cellVisual.gridPosition);
+        }
+        else
+        {
+            activeGridVisuals.Remove(cellVisual.gridPosition);
+        }
     }
 
-    /* public Transform GetGridVisualTransformAtGridPosition(GridPosition gridPosition)
-     {
-         return gridSystemVisualObjectArray[gridPosition.x, gridPosition.z].transform;
-     }*/
-
-    public GameObject DebugShowVisualAtPosition(GridPosition gridPosition)
+    public GameObject DebugShowVisualAtPosition(GridPosition gridPosition, VisualType visualType)
     {
-        Material moveMatToUse = movementVisualMat;
-        ActivateCellVisualAtPos(gridPosition, moveMatToUse, true);
-
-        return gridSystemVisualDataArray[gridPosition.x, gridPosition.z].cellGO;
-    }
-
-    public CellVisualData GetVisualDataAtGridPosition(GridPosition gridPosition)
-    {
-        return gridSystemVisualDataArray[gridPosition.x, gridPosition.z];
+        return ActivateCellVisualAtPos(gridPosition, visualType).cellGO;
     }
 
     public Quaternion GetGridVisualRotation(GridPosition gridPosition)
@@ -358,5 +393,44 @@ public class GridSystemVisual : MonoBehaviour
         Debug.Log("return Val: " + returnVal.ToString());
         cell.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
         //cell.transform.rotation = Quaternion.LookRotation(hit.normal);*/
+    }
+
+    public Material GetGridMaterialFromType(VisualType visualType)
+    {
+        switch(visualType)
+        {
+            case VisualType.SkillAOE:
+                return selectedAreaVisualMat;
+            case VisualType.SkillTargetArea:
+                return validTargetAreaVisualMat;
+            case VisualType.Movement:
+                return movementVisualMat;
+            case VisualType.Unoccupiable:
+                return invalidActionAreaMat;
+            case VisualType.ObjectAOE:
+                return selectedObjectAOEMat;
+            default:
+                return movementVisualMat;
+        }
+    }
+
+    protected bool IsMovementType(VisualType visualType)
+    {
+        return visualType == VisualType.Movement || visualType == VisualType.Unoccupiable;
+    }
+
+    protected bool IsHighlightableType(VisualType visualType)
+    {
+        return !(IsMovementType(visualType) || visualType == VisualType.SkillTargetArea);
+    }
+
+    protected List<CellVisualData> GetActiveListFromType(VisualType visualType)
+    {
+        if (IsMovementType(visualType))
+        {
+            return activeGridVisualsOfType[VisualType.Movement];
+        }
+
+        return activeGridVisualsOfType[visualType];
     }
 }

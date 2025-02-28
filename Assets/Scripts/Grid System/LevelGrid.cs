@@ -73,7 +73,7 @@ public class LevelGrid : MonoBehaviour
                     GridPosition gridPosition = new GridPosition(x, z);
 
                     //Set Data
-                    Debug.Log(obstacleCollider.name + " Setting dynamic obstacle at grid pos" + gridPosition.ToString());
+                    //Debug.Log(obstacleCollider.name + " Setting dynamic obstacle at grid pos" + gridPosition.ToString());
                     GridObject gridObject = GetGridObjectAtPosition(gridPosition);
 
                     if (gridObject.SetObstacle(modelCollider))
@@ -91,7 +91,7 @@ public class LevelGrid : MonoBehaviour
             foreach (GridPosition gridPosition in setDynamicObstacleData[obstacleCollider])
             {
                 //Set Data
-                Debug.Log(obstacleCollider.name + " removing dynamic obstacle at grid pos" + gridPosition.ToString());
+                //Debug.Log(obstacleCollider.name + " removing dynamic obstacle at grid pos" + gridPosition.ToString());
 
                 GridObject gridObject = GetGridObjectAtPosition(gridPosition);
                 gridObject.RemoveObstacle(modelCollider);

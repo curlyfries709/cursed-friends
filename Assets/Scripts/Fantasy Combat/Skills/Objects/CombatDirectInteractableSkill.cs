@@ -9,7 +9,11 @@ public class CombatDirectInteractableSkill : CombatInteractableBaseSkill
     [Space(10)]
     [SerializeField] protected MMF_Player skillFeedbackToPlay;
 
+    //Interactor Data
+    protected CharacterGridUnit myInteractor;
     protected Transform interactorMoveTransform;
+
+    //Interactable Data
     CombatDirectInteractable myInteractable; 
 
     public void SetInteractorData(CharacterGridUnit interactor, Transform interactorMoveTransform)
@@ -18,34 +22,32 @@ public class CombatDirectInteractableSkill : CombatInteractableBaseSkill
         this.interactorMoveTransform = interactorMoveTransform;
     }
 
-    public void TriggerSkill(CharacterGridUnit myInteractor, CombatDirectInteractable myInteractable)
+    public virtual void TriggerSkill(CharacterGridUnit myInteractor, CombatDirectInteractable myInteractable)
     {
         this.myInteractable = myInteractable;
         this.myInteractor = myInteractor;
 
         BeginAction();
 
-        TriggerSkill(myInteractor);
-    }
-
-    protected override void TriggerSkill(CharacterGridUnit myInteractor)
-    {
         skillFeedbackToPlay.PlayFeedbacks();
     }
 
-    public void OnInteractableDestroyed()
+    public override void ActivateHighlightedUI(bool activate, PlayerBaseSkill selectedBySkill)
     {
-        if (myInteractable is RespawnableCombatDirectInteractable respawnable)
-        {
-            respawnable.OnInteractableDestroyed();
-        }
+        ShowAffectedGridPositions(activate);
     }
 
     public override void OnSkillInterrupted(BattleResult battleResult, IBattleTrigger battleTrigger)
     {
         throw new System.NotImplementedException();
     }
+    //SETTERS
+    protected override void SetRespawnable()
+    {
+        respawnable = myInteractable as IRespawnable;
+    }
 
+    //GETTERS
     protected override Transform GetDirectionTransform()
     {
         //Use interactor's direction
@@ -61,4 +63,6 @@ public class CombatDirectInteractableSkill : CombatInteractableBaseSkill
     {
         return interactableGridCollider;
     }
+
+
 }

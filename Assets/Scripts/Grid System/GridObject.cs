@@ -50,7 +50,7 @@ public class GridObject
 
         if (character)
         {
-            return !character.Health().isKOed;
+            return !character.CharacterHealth().isKOed;
         }
         else
         {
