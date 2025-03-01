@@ -136,11 +136,11 @@ public abstract class AIOffensiveSkill : AIBaseSkill, IOffensiveSkill
 
         if(attackTriggerDelay > 0)
         {
-            myCharacter.unitAnimator.SetSpeed(myCharacter.moveSpeed);
+            myCharacter.unitAnimator.SetMovementSpeed(myCharacter.moveSpeed);
             yield return triggerAnimWaitTime;
         }
 
-        myCharacter.unitAnimator.SetSpeed(0);
+        myCharacter.unitAnimator.SetMovementSpeed(0);
         myCharacter.unitAnimator.TriggerSkill(offensiveSkillData.animationTriggerName);
 
         SkillComplete();//Must be called before FantasyCombatManager Action Complete to avoid bug where enemy doesnt act next turn.

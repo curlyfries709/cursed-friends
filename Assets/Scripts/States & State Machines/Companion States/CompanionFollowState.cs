@@ -24,7 +24,7 @@ public class CompanionFollowState : CompanionBaseState
 
         AlterRoamSpeed(destination);
 
-        stateMachine.animator.SetSpeed(stateMachine.navMeshAgent.velocity.magnitude);
+        stateMachine.animator.SetMovementSpeed(stateMachine.navMeshAgent.velocity.magnitude);
 
         if (HasArrivedAtDestination())
         {

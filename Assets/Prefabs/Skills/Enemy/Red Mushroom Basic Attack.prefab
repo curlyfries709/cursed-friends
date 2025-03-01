@@ -5876,7 +5876,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myUnit: {fileID: 0}
-  mySkillData: {fileID: 11400000, guid: 69fa6cbb53601c8429fe08f2c66bd1f2, type: 2}
   isSingleTarget: 1
   targets: 0200000003000000
   skillShape: 0
@@ -5888,6 +5887,9 @@ MonoBehaviour:
   includeDiagonals: 1
   maxNumCellsFromUnit: 1
   unitCameraRootTransform: {fileID: 3803558352382163684}
+  forceTypeToApply: 0
+  forceDirection: 0
+  forceDistance: 0
   evaluationTransform: {fileID: 0}
   isPrioritySkill: 0
   triggerChance: 100
@@ -5896,38 +5898,43 @@ MonoBehaviour:
   maxSkillCooldown: 0
   skillConditions: []
   blendListCamera: {fileID: 2964844170197100904}
-  isMagical: 0
-  powerGrade: 8
-  knockbackDistance: 0
-  element: 0
-  inflictedStatusEffects:
-  - bonusPercentOfInflictingEffect: 10
-    statusEffect: {fileID: 11400000, guid: ef82e7f8d49dc014887f5bebb16b8ef5, type: 2}
-    numOfTurns: 0
-    buffChange: 0
+  offensiveSkillData:
+    powerGrade: 8
+    isMagical: 0
+    isChargedSkill: 0
+    isUnevadable: 0
+    skillElement: 0
+    skillItem: {fileID: 0}
+    inflictedStatusEffects:
+    - bonusPercentOfInflictingEffect: 10
+      statusEffect: {fileID: 11400000, guid: ef82e7f8d49dc014887f5bebb16b8ef5, type: 2}
+      numOfTurns: 0
+      buffChange: 0
+    attackMultipleUnitsIndividually: 0
+    animationTriggerName: Attack
+    moveToAttack: 1
+    isAttackDistanceAForwardOffset: 0
+    animationAttackDistance: 1
+    moveToTargetTime: 0.4
+    delayBeforeReturn: 0.1
+    returnToGridPosTime: 0.5
+    attackFeedbacks:
+      attackConnectedFeedback: {fileID: 6990079082247814408}
+      attackEvadedFeedback: {fileID: 2420031874421726247}
+      attackReflectedFeedback: {fileID: 0}
+      attackNulledFeedback: {fileID: 0}
+      attackAbsorbedFeedback: {fileID: 0}
+      spawnVFXHeader: {fileID: 0}
   hitVFXPoolHeader: {fileID: 1609788833230646353}
   hitVFXSpawnOffsets:
   - {fileID: 4323609274237294915}
   magicalAttackVFXDestination: {fileID: 0}
-  animationName: Attack
-  moveToAttack: 1
-  animationAttackDistance: 1
   attackTriggerDelay: 0.3
-  moveToTargetTime: 0.4
-  delayBeforeReturn: 0.1
-  returnToGridPosTime: 0.5
   attackStartTransform: {fileID: 0}
   jumpToStartTransform: 0
   jumpTime: 0
   jumpHeight: 0
   postJumpDelay: 0
-  attackFeedbacks:
-    attackConnectedFeedback: {fileID: 6990079082247814408}
-    attackEvadedFeedback: {fileID: 2420031874421726247}
-    attackReflectedFeedback: {fileID: 0}
-    attackNulledFeedback: {fileID: 0}
-    attackAbsorbedFeedback: {fileID: 0}
-    spawnVFXHeader: {fileID: 0}
 --- !u!1 &6897507714678949984
 GameObject:
   m_ObjectHideFlags: 0

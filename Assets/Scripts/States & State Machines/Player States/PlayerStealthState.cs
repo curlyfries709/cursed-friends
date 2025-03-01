@@ -39,7 +39,7 @@ public class PlayerStealthState : PlayerBaseState
 
     private void UpdateAnimator()
     {
-        stateMachine.animator.SetSpeed(stateMachine.animationBlend);
+        stateMachine.animator.SetMovementSpeed(stateMachine.animationBlend);
         stateMachine.animator.SetMotionSpeed(inputMagnitude);
     }
 }

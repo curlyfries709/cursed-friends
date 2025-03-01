@@ -75,7 +75,7 @@ public abstract class Interact : MonoBehaviour
     {
         CharacterGridUnit interactor = FantasyCombatManager.Instance.GetActiveUnit();
 
-        interactor.unitAnimator.SetSpeed(0);
+        interactor.unitAnimator.SetMovementSpeed(0);
 
         //Warp Unit into Position & Rotation in an attempt to remove camera jitter.
         Vector3 desiredRotation = Quaternion.LookRotation(CombatFunctions.GetCardinalDirectionAsVector(interactor.transform)).eulerAngles;

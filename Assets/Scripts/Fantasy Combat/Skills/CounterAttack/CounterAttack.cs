@@ -85,7 +85,7 @@ public abstract class CounterAttack : MonoBehaviour, ICombatAction
     protected void PlayCounterattackAnimation()
     {
         myUnit.unitAnimator.ReturnToNormalSpeed();
-        myUnit.unitAnimator.SetSpeed(0);
+        myUnit.unitAnimator.SetMovementSpeed(0);
         myUnit.unitAnimator.Counter();
         counterAttackFeedback?.PlayFeedbacks();
     }

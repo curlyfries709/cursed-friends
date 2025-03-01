@@ -25,7 +25,7 @@ public class EnemyRetreatState : EnemyBaseState
     {
         LookoutForSuspiciousActivity();
 
-        stateMachine.animator.SetSpeed(stateMachine.navMeshAgent.velocity.magnitude);
+        stateMachine.animator.SetMovementSpeed(stateMachine.navMeshAgent.velocity.magnitude);
 
         InheritTargetRotation(stateMachine.playerLastKnownRot);
 

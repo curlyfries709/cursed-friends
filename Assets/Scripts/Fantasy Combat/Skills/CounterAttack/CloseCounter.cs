@@ -37,7 +37,7 @@ public class CloseCounter : CounterAttack
         Vector3 destinationWithOffset = target.GetClosestPointOnColliderToPosition(gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0])) - (myUnitTransform.forward * animationAttackDistance);
         Vector3 destination = new Vector3(destinationWithOffset.x, myUnitTransform.position.y, destinationWithOffset.z);
 
-        myUnit.unitAnimator.SetSpeed(myUnit.moveSpeed);
+        myUnit.unitAnimator.SetMovementSpeed(myUnit.moveSpeed);
         myUnit.unitAnimator.ActivateSlowmo();
 
         myUnit.transform.DOMove(destination, Evade.Instance.GetCounterCanvasDisplayTime()).OnComplete(() => PlayCounterattackAnimation());

@@ -9,7 +9,7 @@ public class CompanionFantasyCombatState : CompanionBaseState
     public override void EnterState()
     {
         OnNewStateConfig(true, false, false, 1);
-        stateMachine.animator.SetSpeed(0);
+        stateMachine.animator.SetMovementSpeed(0);
         FantasyCombatManager.Instance.CombatEnded += OnCombatEnd;
     }
 

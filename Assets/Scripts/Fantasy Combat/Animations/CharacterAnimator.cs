@@ -36,7 +36,7 @@ public class CharacterAnimator : MonoBehaviour
 
     //Set Speeds
 
-    public void SetSpeed(float value)
+    public void SetMovementSpeed(float value)
     {
         animator.SetFloat(animIDSpeed, value);
     }

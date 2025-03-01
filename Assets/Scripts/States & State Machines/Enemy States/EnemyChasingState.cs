@@ -48,7 +48,7 @@ public class EnemyChasingState : EnemyBaseState
             UpdatePlayerLastKnownData(stateMachine.GetPlayerStateMachine().transform.position, stateMachine.GetPlayerStateMachine().transform.rotation);
         }
 
-        stateMachine.animator.SetSpeed(stateMachine.navMeshAgent.velocity.magnitude);
+        stateMachine.animator.SetMovementSpeed(stateMachine.navMeshAgent.velocity.magnitude);
 
         UpdateIsReady();
 

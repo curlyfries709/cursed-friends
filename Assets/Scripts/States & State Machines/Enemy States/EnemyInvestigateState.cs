@@ -22,7 +22,7 @@ public class EnemyInvestigateState : EnemyBaseState
 
     public override void UpdateState()
     {
-        stateMachine.animator.SetSpeed(stateMachine.navMeshAgent.velocity.magnitude);
+        stateMachine.animator.SetMovementSpeed(stateMachine.navMeshAgent.velocity.magnitude);
 
         if (!stateMachine.GetPlayerStateMachine().InStealth() || stateMachine.GetPlayerStateMachine().moveValue != Vector2.zero)
         {

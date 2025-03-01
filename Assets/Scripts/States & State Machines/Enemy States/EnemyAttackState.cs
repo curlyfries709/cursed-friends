@@ -46,7 +46,7 @@ public class EnemyAttackState : EnemyBaseState
             stateMachine.navMeshAgent.velocity = Vector3.zero;
         }
 
-        stateMachine.animator.SetSpeed(stateMachine.navMeshAgent.velocity.magnitude);
+        stateMachine.animator.SetMovementSpeed(stateMachine.navMeshAgent.velocity.magnitude);
 
         bool canSeePlayer = CanSeeSuspiciousTarget();
 

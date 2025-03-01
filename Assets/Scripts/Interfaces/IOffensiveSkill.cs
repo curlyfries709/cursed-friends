@@ -129,7 +129,7 @@ public interface IOffensiveSkill
         GridUnit skillOwner = offensiveSkillData.skillOwner;
         BaseSkill skill = offensiveSkillData.associatedSkill;
 
-        AttackData attackData = new AttackData(skillOwner, CombatFunctions.GetElement(skillOwner, offensiveSkillData.skillElement, offensiveSkillData.isMagical), GetDamage(out bool isCritical), numOfSkillTargets);
+        AttackData attackData = new AttackData(skillOwner, GetSkillElement(), GetDamage(out bool isCritical), numOfSkillTargets);
 
         attackData.attackItem = offensiveSkillData.skillItem;
         attackData.canEvade = !(offensiveSkillData.isUnevadable || (this is PlayerBaseChainAttack));

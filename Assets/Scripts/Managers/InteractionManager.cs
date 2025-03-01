@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Unity.VisualScripting;
 
 public class InteractionManager : MonoBehaviour
 {
@@ -142,6 +143,11 @@ public class InteractionManager : MonoBehaviour
         {
             UpdateAllowedInteraction(currentAllowedInteraction, false);
         }
+    }
+
+    public bool IsValidCombatInteraction()
+    {
+        return enableInteraction && currentAllowedInteraction != null;
     }
 
     private Interact GetClosestInteractable(List<Interact> interactables)

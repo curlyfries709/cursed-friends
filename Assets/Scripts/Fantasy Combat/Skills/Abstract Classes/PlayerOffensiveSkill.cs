@@ -26,6 +26,11 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill, IOffensiveSkill
     {
         base.Awake();
 
+        if (myUnit)
+        {
+            offensiveSkillData.SetupData(this, myUnit);
+        }
+
         //Generate Pool Reference
         if (hitVFXPoolHeader)
         {

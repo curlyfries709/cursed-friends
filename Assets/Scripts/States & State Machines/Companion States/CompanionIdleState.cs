@@ -16,7 +16,7 @@ public class CompanionIdleState : CompanionBaseState
 
     public override void UpdateState()
     {
-        stateMachine.animator.SetSpeed(stateMachine.navMeshAgent.velocity.magnitude);
+        stateMachine.animator.SetMovementSpeed(stateMachine.navMeshAgent.velocity.magnitude);
 
         if (ShouldMove())
         {

@@ -95,7 +95,7 @@ public class EnemyCombatActingState : EnemyBaseState
 
 
         // update unit animator
-        stateMachine.myGridUnit.unitAnimator.SetSpeed(animationBlend);
+        stateMachine.myGridUnit.unitAnimator.SetMovementSpeed(animationBlend);
 
         for (int i = 0; i < positionList.Count - 1; i++)
         {

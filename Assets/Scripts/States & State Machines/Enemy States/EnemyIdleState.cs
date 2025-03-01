@@ -17,7 +17,7 @@ public class EnemyIdleState : EnemyBaseState
     public override void UpdateState()
     {
         LookoutForSuspiciousActivity();
-        stateMachine.animator.SetSpeed(stateMachine.navMeshAgent.velocity.magnitude);
+        stateMachine.animator.SetMovementSpeed(stateMachine.navMeshAgent.velocity.magnitude);
     }
 
     public override void ExitState()

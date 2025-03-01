@@ -27,7 +27,7 @@ public class EnemyPatrollingState : EnemyBaseState
     {
         LookoutForSuspiciousActivity();
 
-        stateMachine.animator.SetSpeed(stateMachine.navMeshAgent.velocity.magnitude);
+        stateMachine.animator.SetMovementSpeed(stateMachine.navMeshAgent.velocity.magnitude);
 
         if (idleAtWaypoint)
         {

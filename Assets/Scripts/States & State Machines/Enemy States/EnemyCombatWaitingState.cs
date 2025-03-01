@@ -16,7 +16,7 @@ public class EnemyCombatWaitingState : EnemyBaseState
 
     public override void UpdateState()
     {
-        stateMachine.myGridUnit.unitAnimator.SetSpeed(0);
+        stateMachine.myGridUnit.unitAnimator.SetMovementSpeed(0);
     }
 
     public override void ExitState()

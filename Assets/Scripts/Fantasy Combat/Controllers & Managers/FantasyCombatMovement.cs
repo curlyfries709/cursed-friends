@@ -231,7 +231,7 @@ public class FantasyCombatMovement : MonoBehaviour
 
 
         // update unit animator
-        currentPlayerUnit.unitAnimator.SetSpeed(animationBlend);
+        currentPlayerUnit.unitAnimator.SetMovementSpeed(animationBlend);
         currentPlayerUnit.unitAnimator.SetMotionSpeed(inputMagnitude);
     }
 

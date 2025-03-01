@@ -215,7 +215,7 @@ public class GridUnitAnimator : CharacterAnimator
 
     public void PrepareToTriggerSkill()
     {
-        SetSpeed(0);
+        SetMovementSpeed(0);
     }
 
     public void HideStatusEffectsVFX()

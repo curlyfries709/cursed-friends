@@ -670,7 +670,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         if (turnEndEvents.Count > 0)
         {
             ResetUnitsToShow();
-            ITurnEndEvent eventToPlay = turnEndEvents[0]; 
+            ITurnEndEvent eventToPlay = turnEndEvents.ElementAt(0).Value; 
             turnEndEvents.RemoveAt(0);//Must Be called First to avoid a Stack Overflow when a "PlayTurnEndEvent" adds another Turn End Event to Queue. Otherwise it keeps looping and RemoveAt(0) Never gets called if called afterwards.
             eventToPlay.PlayTurnEndEvent();
         }
@@ -1553,7 +1553,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     //Getters
     public bool GetIsCombatInteractionAvailable()
     {
-        bool isCombatInteractionAvailable = InteractionManager.Instance.enableInteraction && (currentSelectedSkill is PlayerInteractSkill || !currentSelectedSkill);
+        bool isCombatInteractionAvailable = InteractionManager.Instance.IsValidCombatInteraction() && (currentSelectedSkill is PlayerInteractSkill || !currentSelectedSkill);
         return isCombatInteractionAvailable;
     }
 
@@ -1574,7 +1574,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
     public bool IsTurnEndEventFirstInQueue(ITurnEndEvent turnEndEvent)
     {
-        return turnEndEvents.Count > 0 && turnEndEvents[0].GetType().Name == turnEndEvent.GetType().Name;
+        return turnEndEvents.Count > 0 && turnEndEvents.ElementAt(0).GetType().Name == turnEndEvent.GetType().Name;
     }
 
     public bool IsUnitInBattle(CharacterGridUnit unit)
