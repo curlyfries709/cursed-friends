@@ -52,7 +52,7 @@ public class Poison : StatusEffect, ITurnEndEvent
 
     public float GetTurnEndEventOrder()
     {
-        return 90;
+        return FantasyCombatManager.Instance.GetStatusEffectEventPriority(effectData.name);
     }
 
     public List<Type> GetEventTypesThatCancelThis()

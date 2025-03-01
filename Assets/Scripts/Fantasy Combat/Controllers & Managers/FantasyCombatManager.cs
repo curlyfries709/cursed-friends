@@ -52,7 +52,8 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     [SerializeField] float baseActionTime = 800;
     [SerializeField] float maxActionTimeIncrement = 5;
     [SerializeField] int NSpeedTurnToDecreaseIncrement = 10;
-    [Title("Event")]
+    [Title("Events")]
+    [SerializeField] Transform statusEffectEventHeader;
     [SerializeField] Transform selectionInteractionEventHeader;
     [Header("TEST")]
     [SerializeField] bool beginCombatOnPlay = false;
@@ -110,8 +111,8 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     List<CharacterGridUnit> spawnedUnitsDuringBattle = new List<CharacterGridUnit>();
 
     //Queues
-    List<ITurnStartEvent> turnStartEvents = new List<ITurnStartEvent>();
-    List<ITurnEndEvent> turnEndEvents = new List<ITurnEndEvent>();
+    SortedList<float, ITurnStartEvent> turnStartEvents = new SortedList<float, ITurnStartEvent>();
+    SortedList<float, ITurnEndEvent> turnEndEvents = new SortedList<float, ITurnEndEvent>();
 
     //Storage
     Dictionary<GridUnit, UnitDataAtBattleStart> dataAtBattleStart = new Dictionary<GridUnit, UnitDataAtBattleStart>();
@@ -1400,16 +1401,14 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     //TURN EVENTS
     public void AddTurnStartEventToQueue(ITurnStartEvent turnStartEvent)
     {
-        turnStartEvents.Add(turnStartEvent);
-        //Order Events By Priority
-        turnStartEvents = turnStartEvents.OrderBy((startEvent) => startEvent.turnStartEventOrder).ToList();
+        turnStartEvents.Add(turnStartEvent.turnStartEventOrder, turnStartEvent);
     }
 
     public bool AddTurnEndEventToQueue(ITurnEndEvent turnEndEvent)
     {
-        foreach (ITurnEndEvent endEvent in turnEndEvents)
+        foreach (KeyValuePair<float, ITurnEndEvent> pair in turnEndEvents)
         {
-            Type eventType = endEvent.GetType();
+            Type eventType = pair.Value.GetType();
 
             if (turnEndEvent.GetEventTypesThatCancelThis().Contains(eventType))
             {
@@ -1422,23 +1421,20 @@ public class FantasyCombatManager : MonoBehaviour, IControls
             //Remove all events that are cancelled by the newly added event. 
             Type eventType = turnEndEvent.GetType();
 
-            if (turnEndEvents[i].GetEventTypesThatCancelThis().Contains(eventType))
+            if (turnEndEvents.ElementAt(i).Value.GetEventTypesThatCancelThis().Contains(eventType))
             {
-                turnEndEvents[i].OnEventCancelled();
+                turnEndEvents.ElementAt(i).Value.OnEventCancelled();
                 turnEndEvents.RemoveAt(i);
             }
         }
 
-        turnEndEvents.Add(turnEndEvent);
-
-        //Order Events By Priority
-        turnEndEvents = turnEndEvents.OrderBy((endEvent) => endEvent.GetTurnEndEventOrder()).ToList();
+        turnEndEvents.Add(turnEndEvent.GetTurnEndEventOrder(), turnEndEvent);
         return true;
     }
 
     public void CancelTurnEndEvent(ITurnEndEvent turnEndEvent)
     {
-        if (turnEndEvents.Remove(turnEndEvent))
+        if (turnEndEvents.Remove(turnEndEvent.GetTurnEndEventOrder()))
         {
             Debug.Log("TURN END EVENT CANCELLED: " + turnEndEvent.GetType().Name);
         }
@@ -1698,13 +1694,44 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     {
         int eventPriority = selectionInteractionEventHeader.GetSiblingIndex();
 
-        int selectionEventInQueueCount = turnEndEvents.Where((endEvent) => endEvent is SelectInteractableSkill).Count();
+        int selectionEventInQueueCount = turnEndEvents.Where((endEvent) => endEvent.Value is SelectInteractableSkill).Count();
 
         float returnVal = eventPriority + (selectionEventInQueueCount * 0.1f);
 
         if(returnVal > eventPriority + 1)
         {
             Debug.Log("Selection interaction priority's integer is higher than the header sibling index. Update the float 0.1f to be 0.01f");
+        }
+
+        return returnVal;
+    }
+
+    public float GetStatusEffectEventPriority(string statusEffectName)
+    {
+        int eventPriority = statusEffectEventHeader.GetSiblingIndex();
+        int childIndex = -1;
+
+        foreach (Transform child in statusEffectEventHeader)
+        {
+            if (child.name == statusEffectName)
+            {
+                childIndex = child.GetSiblingIndex();
+                break;
+            }
+        }
+
+        if (childIndex < 0)
+        {
+            Debug.LogError("Status Effect: " + statusEffectName + 
+                " priority value was not found. Check that a child transform with its name is added unded the statusEffectEventHeader");
+            return eventPriority; 
+        }
+
+        float returnVal = eventPriority + (childIndex * 0.01f);
+
+        if (returnVal > eventPriority + 1)
+        {
+            Debug.Log("Status Effect priority's integer is higher than the header sibling index.");
         }
 
         return returnVal;

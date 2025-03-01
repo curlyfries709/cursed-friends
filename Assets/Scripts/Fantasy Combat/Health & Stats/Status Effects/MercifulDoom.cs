@@ -61,7 +61,7 @@ public class MercifulDoom : StatusEffect, ITurnEndEvent
 
     public float GetTurnEndEventOrder()
     {
-        return 70;
+        return FantasyCombatManager.Instance.GetStatusEffectEventPriority(effectData.name);
     }
 
     public List<Type> GetEventTypesThatCancelThis()

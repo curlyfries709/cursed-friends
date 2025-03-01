@@ -53,7 +53,7 @@ public class Burning : StatusEffect, ITurnEndEvent
 
     public float GetTurnEndEventOrder()
     {
-        return 85;
+        return FantasyCombatManager.Instance.GetStatusEffectEventPriority(effectData.name);
     }
 
     public List<Type> GetEventTypesThatCancelThis()

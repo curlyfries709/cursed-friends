@@ -136,7 +136,7 @@ public class BattleEnlister : MonoBehaviour, ITurnEndEvent
 
     public float GetTurnEndEventOrder()
     {
-        return 200;
+        return transform.GetSiblingIndex();
     }
 
     public List<Type> GetEventTypesThatCancelThis()
