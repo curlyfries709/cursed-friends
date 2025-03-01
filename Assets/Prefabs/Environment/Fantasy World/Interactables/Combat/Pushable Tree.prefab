@@ -59,8 +59,10 @@ MonoBehaviour:
   forceTypeToApply: 0
   forceDirection: 0
   forceDistance: 0
+  myStats: {fileID: 4154924876409287181}
   interactableMoveTransform: {fileID: 3415536293051549402}
   interactableGridCollider: {fileID: 4369608853336884756}
+  skillFeedbackToPlay: {fileID: 0}
 --- !u!1 &976201315273296610
 GameObject:
   m_ObjectHideFlags: 0

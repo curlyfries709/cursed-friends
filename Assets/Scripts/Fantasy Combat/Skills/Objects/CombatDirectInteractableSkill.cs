@@ -1,4 +1,5 @@
 using MoreMountains.Feedbacks;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CombatDirectInteractableSkill : CombatInteractableBaseSkill
@@ -32,9 +33,12 @@ public class CombatDirectInteractableSkill : CombatInteractableBaseSkill
         skillFeedbackToPlay.PlayFeedbacks();
     }
 
-    public override void ActivateHighlightedUI(bool activate, PlayerBaseSkill selectedBySkill)
+    public override Dictionary<GridPosition, IHighlightable> ActivateHighlightedUI(bool activate, PlayerBaseSkill selectedBySkill)
     {
-        ShowAffectedGridPositions(activate);
+        if (activate)
+            CalculateSelectedGridPos();
+
+        return highlightableData;
     }
 
     public override void OnSkillInterrupted(BattleResult battleResult, IBattleTrigger battleTrigger)

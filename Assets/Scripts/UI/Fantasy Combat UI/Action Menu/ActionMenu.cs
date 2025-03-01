@@ -63,9 +63,11 @@ public class ActionMenu : MonoBehaviour
                 canvasGroup.DOFade(1, animationTime).OnComplete(() => AnimationComplete()); ;
             }
         }
+
+        AllowInteraction(FantasyCombatManager.Instance.GetIsCombatInteractionAvailable());
     }
 
-    public void AllowInteraction(bool allow)
+    private void AllowInteraction(bool allow)
     {
         attackText.text = allow ? "Interact" : "Attack";
     }

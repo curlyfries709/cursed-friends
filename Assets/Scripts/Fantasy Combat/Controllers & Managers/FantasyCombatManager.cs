@@ -84,7 +84,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
     bool inCombat = false;
     bool usedTactic = false;
-    bool isCombatInteractionAvailable = false;
     public bool restartingBattle { get; private set; } = false;
 
     [HideInInspector] public bool CombatCinematicPlaying = false; //Set By POF & Duofires, Read by Equipment script to avoid running unnecessary Methods.
@@ -321,7 +320,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
         inCombat = true;
         restartingBattle = false;
-        isCombatInteractionAvailable = false;
         battleTurnNumber = 0;
 
         SetAllActiveCombatUnits();
@@ -336,6 +334,10 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
         //Play Music.
         AudioManager.Instance.PlayBattleMusic(battleTrigger);
+
+        /*Setup active unit data early for listeners to CombatBegun who need it 
+         * E.G Combat Interact when player starts in grid pos inside its interact radius*/
+        activeUnit = turnOrder[0];
 
         //Trigger Event
         CombatBegun?.Invoke(advantageType);
@@ -842,13 +844,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         }
     }
 
-    public void SetCombatInteractionAvailable(bool isAvailable)
-    {
-        if(isCombatInteractionAvailable == isAvailable) { return; }
 
-        isCombatInteractionAvailable = isAvailable;
-        selectedPlayerUnit?.GetActionMenu().AllowInteraction(isCombatInteractionAvailable);
-    }
 
     //TESTING METHOD
     private void GetCombatants()
@@ -1099,8 +1095,9 @@ public class FantasyCombatManager : MonoBehaviour, IControls
             if (!currentSelectedSkill)
             {
                 bool skillSelected = false;
+                bool isCombatInteractionAvailable = GetIsCombatInteractionAvailable();
 
-                if(isCombatInteractionAvailable && selectedPlayerUnit.GetInteractSkill().TrySelectSkill())
+                if (isCombatInteractionAvailable && selectedPlayerUnit.GetInteractSkill().TrySelectSkill())
                 {
                     skillSelected = true;
                     currentSelectedSkill = selectedPlayerUnit.GetInteractSkill();
@@ -1558,6 +1555,12 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     }
 
     //Getters
+    public bool GetIsCombatInteractionAvailable()
+    {
+        bool isCombatInteractionAvailable = InteractionManager.Instance.enableInteraction && (currentSelectedSkill is PlayerInteractSkill || !currentSelectedSkill);
+        return isCombatInteractionAvailable;
+    }
+
     public FantasyCombatMovement GetFantasyCombatMovement()
     {
         return combatMovementController;

@@ -4,26 +4,15 @@ using UnityEngine;
 
 public abstract class CombatInteractableBaseSkill : BaseSkill, IHighlightable
 {
+    [Header("Stats")]
+    [SerializeField] ObjectStats myStats;
     protected IRespawnable respawnable;
 
     //ABSTRACT
     protected abstract void SetRespawnable();
 
-    public abstract void ActivateHighlightedUI(bool activate, PlayerBaseSkill selectedBySkill);
+    public abstract Dictionary<GridPosition, IHighlightable> ActivateHighlightedUI(bool activate, PlayerBaseSkill selectedBySkill);
     //END ABSTRACT
-
-    protected void ShowAffectedGridPositions(bool show)
-    {
-        if (show)
-        {
-            CalculateSelectedGridPos();
-            GridSystemVisual.Instance.ShowGridVisuals(null, selectedGridPositions, highlightableData, GridSystemVisual.VisualType.ObjectAOE);
-        }
-        else
-        {
-            GridSystemVisual.Instance.HideGridVisualsOfType(GridSystemVisual.VisualType.ObjectAOE);
-        }
-    }
 
     public void OnInteractableDestroyed()
     {
@@ -43,5 +32,15 @@ public abstract class CombatInteractableBaseSkill : BaseSkill, IHighlightable
     public IHighlightable GetHighlightable()
     {
         return this;
+    }
+
+    public Element GetAttackElement()
+    {
+        if (!myStats)
+        {
+            return Element.None;
+        }
+
+        return myStats.GetAttackElement();
     }
 }

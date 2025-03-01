@@ -284,14 +284,16 @@ public class ControlsManager : MonoBehaviour
 
     private void ToggleBehaviourBasedOnControls(string newActionMap)
     {
-        if ((FantasyCombatManager.Instance && FantasyCombatManager.Instance.InCombat()) || newActionMap == "Player")
+        bool inCombat = FantasyCombatManager.Instance && FantasyCombatManager.Instance.InCombat();
+
+        if (inCombat || newActionMap == "Player")
         {
             if(newActionMap == "Player")
                 HUDManager.Instance.ShowActiveHud();
 
             StoryManager.Instance.ActivateCinematicMode?.Invoke(false);
 
-            if(newActionMap == "Player" || newActionMap == FantasyCombatManager.Instance.GetActionMapName())
+            if(newActionMap == "Player" || (inCombat && FantasyCombatManager.Instance.GetIsCombatInteractionAvailable()))
                 InteractionManager.Instance.ShowInteractCanvas?.Invoke(true);
         }
         else

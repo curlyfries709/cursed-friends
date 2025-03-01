@@ -127,7 +127,7 @@ public abstract class Interact : MonoBehaviour
 
     public virtual void ShowInteractUI(bool show)
     {
-        if(show && !InteractionManager.Instance.showInteractCanvas) { return; }
+        if(show && !InteractionManager.Instance.enableInteraction) { return; }
 
         interactUI?.Fade(show);
     }

@@ -69,16 +69,19 @@ public class SelectInteractableSkill : CombatInteractableBaseSkill, ITurnEndEven
         BeginAction();
     }
 
-    public override void ActivateHighlightedUI(bool activate, PlayerBaseSkill selectedBySkill)
+    public override Dictionary<GridPosition, IHighlightable> ActivateHighlightedUI(bool activate, PlayerBaseSkill selectedBySkill)
     {
         myUnit.Health().ActivateHealthVisual(activate);
 
-        if (!activate)
+        if (activate)
         {
-            ShowAffectedGridPositions(false);
-            return;
+            CalculateSelectedGridPos();
         }
-
+        else
+        {
+            return highlightableData;
+        }
+            
         bool canShowAOE = false;
 
         if (triggerOnAnyHit || triggerOnKO)
@@ -87,16 +90,29 @@ public class SelectInteractableSkill : CombatInteractableBaseSkill, ITurnEndEven
         }
         else if (triggerOnWeaknessHit)
         {
+            Element skillElement;
+            Item skillItem;
+
             if (selectedBySkill is PlayerOffensiveSkill attack)
             {
-                Affinity affinity = TheCalculator.Instance.GetAffinity(myUnit, attack.GetSkillElement(), attack.GetSkillAttackItem());
-
-                canShowAOE = affinity == Affinity.Weak;
+                skillElement = attack.GetSkillElement();
+                skillItem = attack.GetSkillAttackItem();
             }
+            else if (selectedBySkill is PlayerInteractSkill interact)
+            {
+                skillElement = interact.GetSkillElement();
+                skillItem = interact.GetSkillItem();
+            }
+            else
+            {
+                return null;
+            }
+
+            Affinity affinity = TheCalculator.Instance.GetAffinity(myUnit, skillElement, skillItem);
+            canShowAOE = affinity == Affinity.Weak;
         }
 
-        if (canShowAOE)
-            ShowAffectedGridPositions(true);
+        return canShowAOE ? highlightableData : null;
     }
 
     protected override void SetRespawnable()

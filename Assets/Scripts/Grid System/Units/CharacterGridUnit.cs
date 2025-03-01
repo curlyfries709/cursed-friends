@@ -137,9 +137,10 @@ public class CharacterGridUnit : GridUnit, IHighlightable
         followCam.SetActive(activate);
     }
 
-    public void ActivateHighlightedUI(bool activate, PlayerBaseSkill selectedBySkill)
+    public Dictionary<GridPosition, IHighlightable> ActivateHighlightedUI(bool activate, PlayerBaseSkill selectedBySkill)
     {
         myHealth.ActivateHealthVisual(activate);
+        return null;
     }
 
     protected override void SetHighlightable()

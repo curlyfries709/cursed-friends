@@ -1,4 +1,5 @@
 
+using System;
 using UnityEngine;
 
 public class PlayerInteractSkill : PlayerBaseSkill
@@ -84,6 +85,21 @@ public class PlayerInteractSkill : PlayerBaseSkill
         return false;
     }
 
+    public Element GetSkillElement()
+    {
+        if (!selectedInteractable)
+        {
+            return Element.None;
+        }
+
+        return selectedInteractable.GetInteractableSkill().GetAttackElement();
+    }
+
+    public Item GetSkillItem()
+    {
+        return null;
+    }
+
     protected override bool ShowInteractCanvasWhileSkillSelected()
     {
         return true;
@@ -93,4 +109,6 @@ public class PlayerInteractSkill : PlayerBaseSkill
     {
         return null;
     }
+
+
 }

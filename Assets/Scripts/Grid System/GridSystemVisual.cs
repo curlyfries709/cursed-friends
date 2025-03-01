@@ -4,6 +4,7 @@ using TMPro;
 using Sirenix.OdinInspector;
 using System.Linq;
 using System;
+using static GridSystemVisual;
 
 public class GridSystemVisual : MonoBehaviour
 {
@@ -137,13 +138,7 @@ public class GridSystemVisual : MonoBehaviour
 
     public void ShowGridVisuals(PlayerBaseSkill currentPlayerSkill, List<GridPosition> validGridPositions, Dictionary<GridPosition, IHighlightable> gridPosHighlightableDict, VisualType visualType)
     {
-        //Hide Grid Pos based on visual type.
-        HideGridVisualsOfType(visualType, validGridPositions);
-
-        foreach (KeyValuePair<GridPosition, IHighlightable> pair in gridPosHighlightableDict)
-        {
-            ShowGridVisualOfType(currentPlayerSkill, pair.Key, pair.Value, visualType);
-        }
+        ShowGridVisuals(currentPlayerSkill, validGridPositions, gridPosHighlightableDict, visualType, true);
     }
 
     public void ShowGridVisuals(List<GridPosition> validGridPositions, VisualType visualType)
@@ -157,11 +152,23 @@ public class GridSystemVisual : MonoBehaviour
         }
     }
 
+    private void ShowGridVisuals(PlayerBaseSkill currentPlayerSkill, List<GridPosition> validGridPositions, Dictionary<GridPosition, IHighlightable> gridPosHighlightableDict, VisualType visualType, bool hideOldVisual)
+    {
+        //Hide Grid Pos based on visual type.
+        if(hideOldVisual)
+            HideGridVisualsOfType(visualType, validGridPositions);
+
+        foreach (KeyValuePair<GridPosition, IHighlightable> pair in gridPosHighlightableDict)
+        {
+            ShowGridVisualOfType(currentPlayerSkill, pair.Key, pair.Value, visualType);
+        }
+    }
+
     private void ShowGridVisualOfType(PlayerBaseSkill currentPlayerSkill, GridPosition gridPosition, IHighlightable highlightable, VisualType visualType)
     {
         //If the current visual type at pos is higher priority than passed visual type, move on
         //Prioties from low to high: Move/Invalid -> Valid Target Area -> Skill Selected Area -> Object AOE
-        if (activeGridVisuals.ContainsKey(gridPosition) && activeGridVisuals[gridPosition].currentVisualType > visualType)
+        if (activeGridVisuals.ContainsKey(gridPosition) && activeGridVisuals[gridPosition].currentVisualType >= visualType)
         {
             return;
         }
@@ -171,7 +178,14 @@ public class GridSystemVisual : MonoBehaviour
         if (highlightable != null && highlightable.GetGridUnit() != FantasyCombatManager.Instance.GetActiveUnit())
         {
             cellVisualData.currentHighlightable = highlightable;
-            cellVisualData.currentHighlightable?.ActivateHighlightedUI(true, currentPlayerSkill);
+
+            Dictionary<GridPosition, IHighlightable> affectedPosData = cellVisualData.currentHighlightable?.ActivateHighlightedUI(true, currentPlayerSkill);
+
+            if(affectedPosData != null)
+            {
+                List<GridPosition> affectedGridPosList = affectedPosData.Keys.ToList();
+                ShowGridVisuals(currentPlayerSkill, affectedGridPosList, affectedPosData, VisualType.ObjectAOE, false);
+            }
         }
     }
 
@@ -181,7 +195,10 @@ public class GridSystemVisual : MonoBehaviour
 
         foreach (CellVisualData cellVisualData in currentCellsList)
         {
-            DeactivateCellVisual(cellVisualData, !IsMovementType(visualType));
+            Dictionary<GridPosition, IHighlightable> moreDataToHide = DeactivateCellVisual(cellVisualData, !IsMovementType(visualType));
+
+            if (moreDataToHide != null)
+                HideObjectAOE(moreDataToHide);
         }
 
         currentCellsList.Clear();
@@ -194,8 +211,31 @@ public class GridSystemVisual : MonoBehaviour
 
         foreach (CellVisualData cellVisualData in listToHide)
         {
-            DeactivateCellVisual(cellVisualData, !IsMovementType(visualType));
-            currentCellsList.Remove(cellVisualData);
+            Dictionary<GridPosition, IHighlightable> moreDataToHide = DeactivateCellVisual(cellVisualData, !IsMovementType(visualType));
+
+            if(visualType != VisualType.ObjectAOE)
+                currentCellsList.Remove(cellVisualData);
+
+            if (moreDataToHide != null)
+                HideObjectAOE(moreDataToHide);
+        }
+    }
+
+    private void HideObjectAOE(Dictionary<GridPosition, IHighlightable> affectedPosData)
+    {
+        foreach (KeyValuePair<GridPosition, IHighlightable> pair in affectedPosData)
+        {
+            GridPosition gridPosition = pair.Key;
+
+            if (!activeObjectAOEVisuals.ContainsKey(gridPosition))
+            {
+                continue;
+            }
+
+            Dictionary<GridPosition, IHighlightable> newData = DeactivateCellVisual(activeObjectAOEVisuals[gridPosition], false);
+
+            if (newData != null)
+                HideObjectAOE(newData);
         }
     }
 
@@ -323,9 +363,9 @@ public class GridSystemVisual : MonoBehaviour
     }
 
 
-    private void DeactivateCellVisual(CellVisualData cellVisual, bool canDowngrade)
+    private Dictionary<GridPosition, IHighlightable> DeactivateCellVisual(CellVisualData cellVisual, bool canDowngrade)
     {
-        if(cellVisual == null){ return; }
+        if(cellVisual == null){ return null; }
 
         int activeVisualTypeCount = cellVisual.activeVisualTypes.Count;
         bool isObjectAOEVisual = cellVisual.currentVisualType == VisualType.ObjectAOE;
@@ -352,12 +392,20 @@ public class GridSystemVisual : MonoBehaviour
 
             //Update apperance
             SetVisualAppearanceByType(cellVisual, newVisualType);
-            return;
+            return null;
         }
 
+        GridPosition gridPosition = cellVisual.gridPosition;
+        Dictionary<GridPosition, IHighlightable> returnData = null;
+
         //Cannot be downgraded. Entirely remove visual from grid Position
-        cellVisual.currentHighlightable?.ActivateHighlightedUI(false, null);
-        cellVisual.currentHighlightable = null;
+        if (!isObjectAOEVisual || 
+            !activeGridVisuals.ContainsKey(gridPosition) ||
+            !IsHighlightableType(activeGridVisuals[gridPosition].currentVisualType))
+        {
+            returnData = cellVisual.currentHighlightable?.ActivateHighlightedUI(false, null);
+            cellVisual.currentHighlightable = null;
+        }
 
         cellVisual.cellGO.SetActive(false);
         cellVisual.inUse = false;
@@ -370,6 +418,8 @@ public class GridSystemVisual : MonoBehaviour
         {
             activeGridVisuals.Remove(cellVisual.gridPosition);
         }
+
+        return returnData;
     }
 
     public GameObject DebugShowVisualAtPosition(GridPosition gridPosition, VisualType visualType)
@@ -426,7 +476,11 @@ public class GridSystemVisual : MonoBehaviour
 
     protected List<CellVisualData> GetActiveListFromType(VisualType visualType)
     {
-        if (IsMovementType(visualType))
+        if (visualType == VisualType.ObjectAOE)
+        {
+            return activeObjectAOEVisuals.Values.ToList();
+        }
+        else if (IsMovementType(visualType))
         {
             return activeGridVisualsOfType[VisualType.Movement];
         }

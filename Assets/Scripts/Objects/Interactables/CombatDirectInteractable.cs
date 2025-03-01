@@ -97,7 +97,7 @@ public class CombatDirectInteractable : Interact
 
     public override void ShowInteractUI(bool show)
     {
-        if (show && !InteractionManager.Instance.showInteractCanvas) { return; }
+        if (show && !InteractionManager.Instance.enableInteraction) { return; }
 
         if (FantasyCombatManager.Instance.InCombat())
         {

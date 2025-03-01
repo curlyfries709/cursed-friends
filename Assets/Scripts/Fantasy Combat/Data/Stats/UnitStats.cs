@@ -377,7 +377,7 @@ public abstract class UnitStats : MonoBehaviour
 
     public Element GetAttackElement()
     {
-        Weapon weapon = equipment.Weapon();
+        Weapon weapon = equipment ? equipment.Weapon() : null;
 
         if (weapon)
         {

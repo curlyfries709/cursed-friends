@@ -15,7 +15,7 @@ public class InteractionManager : MonoBehaviour
     Transform interactor;
     List<Interact> currentActiveRadii = new List<Interact>();
 
-    public bool showInteractCanvas { get; private set; }
+    public bool enableInteraction { get; private set; }
     public bool PlayerInDanger { get; private set; }
 
     //Event
@@ -28,13 +28,13 @@ public class InteractionManager : MonoBehaviour
         if (!Instance)
             Instance = this;
 
-        showInteractCanvas = true;
+        enableInteraction = true;
     }
 
     private void OnEnable()
     {
         HandleInteraction += Interact;
-        ShowInteractCanvas += SetShowInteractCanvas;
+        ShowInteractCanvas += SetEnableInteraction;
 
         PlayerStateMachine.PlayerInDanger += SetPlayerInDanger;
         PlayerStateMachine.PlayerWarped += OnPlayerWarped;
@@ -62,11 +62,10 @@ public class InteractionManager : MonoBehaviour
         return interactable == currentAllowedInteraction;
     }
 
-
-    private void SetShowInteractCanvas(bool show)
+    private void SetEnableInteraction(bool enable)
     {
-        showInteractCanvas = show;
-        currentAllowedInteraction?.ShowInteractUI(show);
+        enableInteraction = enable;
+        currentAllowedInteraction?.ShowInteractUI(enable);
     }
 
     private void SetPlayerInDanger(bool inDanger)
@@ -76,7 +75,12 @@ public class InteractionManager : MonoBehaviour
 
     private void UpdateAllowedInteraction(Interact interactable, bool allowInteraction)
     {
-        if (allowInteraction)
+        if (!enableInteraction) //Interaction banned
+        {
+            currentAllowedInteraction?.ShowInteractUI(false);
+            currentAllowedInteraction = null;
+        }
+        else if (allowInteraction)
         {
             if (interactable != currentAllowedInteraction)
             {
@@ -90,9 +94,6 @@ public class InteractionManager : MonoBehaviour
             currentAllowedInteraction?.ShowInteractUI(false);
             currentAllowedInteraction = null;
         }
-
-        if (FantasyCombatManager.Instance.InCombat())
-            FantasyCombatManager.Instance.SetCombatInteractionAvailable(currentAllowedInteraction != null);
     }
 
     public void OnRadiusEnter(Interact interactable, Transform interactor)
@@ -176,7 +177,7 @@ public class InteractionManager : MonoBehaviour
     {
         PlayerStateMachine.PlayerInDanger -= SetPlayerInDanger;
         HandleInteraction -= Interact;
-        ShowInteractCanvas -= SetShowInteractCanvas;
+        ShowInteractCanvas -= SetEnableInteraction;
         PlayerStateMachine.PlayerWarped -= OnPlayerWarped;
     }
 

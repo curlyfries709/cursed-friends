@@ -1,8 +1,10 @@
 
 
+using System.Collections.Generic;
+
 public interface IHighlightable 
 {
-    public void ActivateHighlightedUI(bool activate, PlayerBaseSkill selectedBySkill);
+    public Dictionary<GridPosition, IHighlightable> ActivateHighlightedUI(bool activate, PlayerBaseSkill selectedBySkill);
 
     public GridUnit GetGridUnit();
 }
