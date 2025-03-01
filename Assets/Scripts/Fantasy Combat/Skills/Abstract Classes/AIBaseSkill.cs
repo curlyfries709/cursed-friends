@@ -40,7 +40,6 @@ public abstract class AIBaseSkill : BaseSkill
     protected FantasyCombatAI myAI;
 
     protected float rotationTime;
-    protected bool isCritical;
 
     //Instance Data (Data unique for each unit that uses this skill)
     FantasyCombatAI.InstancedSkillData currentInstancedSkillData;
@@ -251,7 +250,7 @@ public abstract class AIBaseSkill : BaseSkill
         if (offensiveSkill) 
         {
             //+ Skill Power Grade for Offensive Skills
-            totalActionScore = totalActionScore + TheCalculator.Instance.GetPowerGradeMultiplier(offensiveSkill.powerGrade);
+            totalActionScore = totalActionScore + TheCalculator.Instance.GetPowerGradeMultiplier(offensiveSkill.GetOffensiveSkillData().powerGrade);
 
             //+1 For each unit this skill predicts it’ll KO or each unit at low hp...Might be too strong, so not implemented for now.
         }
@@ -310,7 +309,7 @@ public abstract class AIBaseSkill : BaseSkill
 
             if (offensiveSkill && myAI.shouldRememberAffinities && targetChar)
             {
-                Element skillElement = CombatFunctions.GetElement(myCharacter, offensiveSkill.element, offensiveSkill.isMagical); 
+                Element skillElement = CombatFunctions.GetElement(myCharacter, offensiveSkill.GetOffensiveSkillData().skillElement, offensiveSkill.GetOffensiveSkillData().isMagical); 
 
                 if (myAI.IsAffinityRemembered(target, skillElement))
                 {

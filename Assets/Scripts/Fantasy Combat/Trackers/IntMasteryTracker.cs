@@ -22,9 +22,9 @@ public class IntMasteryTracker : BaseMasteryTracker
     {
         if (allPlayersProgressionType[player] == MasteryProgression.ProgressionType.UseMag)
         {
-            PlayerOffensiveSkill offensiveSkill = skill as PlayerOffensiveSkill;
+            IOffensiveSkill offensiveSkill = skill as IOffensiveSkill;
 
-            if (offensiveSkill && offensiveSkill.IsMagical())
+            if (offensiveSkill != null && offensiveSkill.IsMagical())
             {
                 playerCombatProgression[player] = playerCombatProgression[player] + 1;
             }
@@ -41,9 +41,9 @@ public class IntMasteryTracker : BaseMasteryTracker
 
         if (player && allPlayersProgressionType[player] == MasteryProgression.ProgressionType.MagKo && damageData.isKOHit)
         {
-            PlayerOffensiveSkill offensiveSkill = player.lastUsedSkill as PlayerOffensiveSkill;
+            IOffensiveSkill offensiveSkill = player.lastUsedSkill as IOffensiveSkill;
 
-            if (offensiveSkill && offensiveSkill.IsMagical())
+            if (offensiveSkill != null && offensiveSkill.IsMagical())
             {
                 playerCombatProgression[player] = playerCombatProgression[player] + 1;
             }

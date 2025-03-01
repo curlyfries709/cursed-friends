@@ -51628,7 +51628,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myUnit: {fileID: 0}
-  mySkillData: {fileID: 0}
   isSingleTarget: 0
   targets: 0200000003000000
   skillShape: 0
@@ -51640,6 +51639,9 @@ MonoBehaviour:
   includeDiagonals: 1
   maxNumCellsFromUnit: 1
   unitCameraRootTransform: {fileID: 6905932268440507540}
+  forceTypeToApply: 0
+  forceDirection: 0
+  forceDistance: 0
   unlockLevel: 2
   skillName: Quickdraw Fury
   aoeDiagram: {fileID: 8823169526559625960, guid: ed89cc896debcc846965cadf4f2d14d0,
@@ -51652,11 +51654,35 @@ MonoBehaviour:
   isGridSelectionRequired: 0
   blendListCamera: {fileID: 8878902516404866179}
   otherVisualsToToggle: []
+  offensiveSkillData:
+    powerGrade: 7
+    isMagical: 0
+    isChargedSkill: 0
+    isUnevadable: 0
+    skillElement: 0
+    skillItem: {fileID: 0}
+    inflictedStatusEffects: []
+    attackMultipleUnitsIndividually: 0
+    animationTriggerName: Quickdraw
+    moveToAttack: 1
+    isAttackDistanceAForwardOffset: 1
+    animationAttackDistance: 0.5
+    moveToTargetTime: 0
+    delayBeforeReturn: 0.1
+    returnToGridPosTime: 0.35
+    attackFeedbacks:
+      attackConnectedFeedback: {fileID: 3852708042407859984}
+      attackEvadedFeedback: {fileID: 3455637330930279019}
+      attackReflectedFeedback: {fileID: 0}
+      attackNulledFeedback: {fileID: 0}
+      attackAbsorbedFeedback: {fileID: 0}
+      spawnVFXHeader: {fileID: 0}
   powerGrade: 7
   isMagical: 0
   isChargedSkill: 0
-  knockbackDistance: 0
+  isUnevadable: 0
   skillElement: 0
+  skillItem: {fileID: 0}
   inflictedStatusEffects: []
   attackMultipleUnitsIndividually: 0
   hitVFXPoolHeader: {fileID: 3319573785385340174}

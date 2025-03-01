@@ -7,34 +7,17 @@ using DG.Tweening;
 using System.Linq;
 using Sirenix.OdinInspector;
 
-public abstract class AIOffensiveSkill : AIBaseSkill
+public abstract class AIOffensiveSkill : AIBaseSkill, IOffensiveSkill
 {
-    [Title("Skill Data")]
-    public bool isMagical;
-    public PowerGrade powerGrade = PowerGrade.D;
-    [Space(10)]
-    public Element element;
-    [Space(10)]
-    [SerializeField] List<ChanceOfInflictingStatusEffect> inflictedStatusEffects;
+    [Title("OFFENSIVE SKILL DATA")]
+    [SerializeField] protected OffensiveSkillData offensiveSkillData;
     [Title("VFX & Spawn Points")]
     [SerializeField] protected Transform hitVFXPoolHeader;
     [SerializeField] protected List<Transform> hitVFXSpawnOffsets;
     [Space(10)]
-    [ShowIf("isMagical")]
     [SerializeField] protected Transform magicalAttackVFXDestination;
-    [Title("ATTACK ANIMATION DATA")] 
-    [SerializeField] protected string animationName;
-    [Space(5)]
-    [SerializeField] bool moveToAttack = true;
-    [ShowIf("moveToAttack")]
-    [SerializeField] float animationAttackDistance = 1f;
-    [Space(10)]
+    [Title("ATTACK JUMP ANIMATION DATA")] 
     [SerializeField] float attackTriggerDelay = 0.3f;
-    [ShowIf("moveToAttack")]
-    [SerializeField] float moveToTargetTime = 0.25f;
-    [Space(10)]
-    [SerializeField] protected float delayBeforeReturn = 0.1f;
-    [SerializeField] protected float returnToGridPosTime = 0.5f;
     [Space(10)]
     [SerializeField] Transform attackStartTransform;
     [Space(5)]
@@ -46,8 +29,6 @@ public abstract class AIOffensiveSkill : AIBaseSkill
     [SerializeField] float jumpHeight;
     [ShowIf("jumpToStartTransform")]
     [SerializeField] float postJumpDelay = 0;
-    [Title("FEEDBACKS")]
-    [SerializeField] AffinityFeedback attackFeedbacks;
 
     //Storage
     protected List<MMF_Player> targetFeedbacksToPlay = new List<MMF_Player>();
@@ -72,6 +53,12 @@ public abstract class AIOffensiveSkill : AIBaseSkill
         }
     }
 
+    public override void Setup(SkillPrefabSetter skillPrefabSetter, SkillData skillData)
+    {
+        base.Setup(skillPrefabSetter, skillData);
+        offensiveSkillData.SetupData(this, myUnit);
+    }
+
     protected void Attack()
     { 
         targetFeedbacksToPlay.Clear();
@@ -85,7 +72,7 @@ public abstract class AIOffensiveSkill : AIBaseSkill
         {
             int targetIndex = skillTargets.IndexOf(target);
 
-            Affinity targetAffinity = DamageTarget(target);
+            Affinity targetAffinity = IOffensiveSkill().DamageTarget(target, skillTargets.Count, ref anyTargetsWithReflectAffinity);
             allTargetsAffinity.Add(targetAffinity);
 
             GameObject hitVFX = hitVFXPool.Count > 0 ? hitVFXPool[targetIndex] : null;
@@ -94,7 +81,7 @@ public abstract class AIOffensiveSkill : AIBaseSkill
             targetFeedbacksToPlay.Add(CombatFunctions.GetTargetFeedback(feedbacks, targetAffinity));
 
             //Update Affinity
-            myAI.UpdateAffinities(target, targetAffinity, CombatFunctions.GetElement(myCharacter, element, isMagical));
+            myAI.UpdateAffinities(target, targetAffinity, CombatFunctions.GetElement(myCharacter, offensiveSkillData.skillElement, offensiveSkillData.isMagical));
         }
 
         if (isSingleTarget)
@@ -118,7 +105,7 @@ public abstract class AIOffensiveSkill : AIBaseSkill
         //Move Unit to Target & Attack
         StartCoroutine(MoveToTargetThenAttack());
 
-        CombatFunctions.PlayAttackFeedback(attackAffinity, attackFeedbacks);
+        CombatFunctions.PlayAttackFeedback(attackAffinity, offensiveSkillData.attackFeedbacks);
     }
 
     private void DeactiveCam()
@@ -131,13 +118,13 @@ public abstract class AIOffensiveSkill : AIBaseSkill
     {
         FantasyCombatManager.Instance.ActionComplete -= PrepareToDeactivateActionCam;
         //myUnit.unitAnimator.ReturnToNormalSpeed();
-        Invoke("DeactiveCam", delayBeforeReturn);
+        Invoke("DeactiveCam", offensiveSkillData.delayBeforeReturn);
     }
 
     IEnumerator MoveToTargetThenAttack()
     {
-        Vector3 destinationWithOffset = target.GetClosestPointOnColliderToPosition(LevelGrid.Instance.gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0])) - (myUnitTransform.forward * animationAttackDistance);
-        Vector3 destination = new Vector3(destinationWithOffset.x, myUnitTransform.position.y, destinationWithOffset.z);
+        //Vector3 destinationWithOffset = target.GetClosestPointOnColliderToPosition(LevelGrid.Instance.gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0])) - (myUnitTransform.forward * animationAttackDistance);
+        //Vector3 destination = new Vector3(destinationWithOffset.x, myUnitTransform.position.y, destinationWithOffset.z);
 
         if (attackStartTransform)
         {
@@ -145,8 +132,7 @@ public abstract class AIOffensiveSkill : AIBaseSkill
             yield return new WaitForSeconds(jumpTime + postJumpDelay);
         }
 
-        if(moveToAttack)
-            myUnit.transform.DOMove(destination, moveToTargetTime);
+        IOffensiveSkill().MoveToAttack(target, GetSkillOwnerMoveTransform(), myUnitTransform.forward);
 
         if(attackTriggerDelay > 0)
         {
@@ -155,31 +141,9 @@ public abstract class AIOffensiveSkill : AIBaseSkill
         }
 
         myCharacter.unitAnimator.SetSpeed(0);
-        myCharacter.unitAnimator.TriggerSkill(animationName);
+        myCharacter.unitAnimator.TriggerSkill(offensiveSkillData.animationTriggerName);
 
         SkillComplete();//Must be called before FantasyCombatManager Action Complete to avoid bug where enemy doesnt act next turn.
-    }
-
-    protected Affinity DamageTarget(GridUnit target)
-    {
-        AttackData attackData = GetAttackData(target);
-        Health targetHealth = target.Health();
-
-        DamageData damageData = targetHealth.TakeDamage(attackData, DamageType.Default);
-
-        if (damageData != null)
-        {
-            Affinity affinity = damageData.affinityToAttack;
-
-            if (affinity == Affinity.Reflect)
-            {
-                anyTargetsWithReflectAffinity = true;
-            }
-
-            return affinity; //(However Damage dealt & Status effects visual only shown much later)
-        }
-        
-        return Affinity.None;
     }
 
     public void PlayTargetsAffinityFeedback()
@@ -198,8 +162,7 @@ public abstract class AIOffensiveSkill : AIBaseSkill
 
     protected override void SetUnitsToShow()
     {
-        List<GridUnit> targetedUnits = CombatFunctions.SetOffensiveSkillUnitsToShow(myUnit, selectedUnits, forceDistance);
-        FantasyCombatManager.Instance.SetUnitsToShow(targetedUnits);
+        IOffensiveSkill().SetUnitsToShow(selectedUnits, forceDistance);
     }
 
     public override void OnSkillInterrupted(BattleResult battleResult, IBattleTrigger battleTrigger)
@@ -212,40 +175,16 @@ public abstract class AIOffensiveSkill : AIBaseSkill
             feedback?.StopFeedbacks();
         }
 
-        attackFeedbacks.attackAbsorbedFeedback?.StopFeedbacks();
-        attackFeedbacks.attackEvadedFeedback?.StopFeedbacks();
-        attackFeedbacks.attackNulledFeedback?.StopFeedbacks();
-        attackFeedbacks.attackReflectedFeedback?.StopFeedbacks();
-        attackFeedbacks.attackConnectedFeedback.StopFeedbacks();
+        IOffensiveSkill().StopAllSkillFeedbacks();
     }
 
-    protected AttackData GetAttackData(GridUnit target)
+    public OffensiveSkillData GetOffensiveSkillData()
     {
-        if (!isMagical)
-        {
-            element = myUnit.stats.GetAttackElement();
-        }
-
-        AttackData attackData = new AttackData(myUnit, element, GetDamage(), skillTargets.Count);
-        attackData.powerGrade = powerGrade;
-
-        attackData.attackItem = null;
-
-        attackData.inflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(myCharacter, target, inflictedStatusEffects);
-        attackData.forceData = GetSkillForceData(target);
-
-        attackData.isPhysical = !isMagical;
-        attackData.isCritical = isCritical;
-        attackData.isMultiAction = false;
-
-        attackData.canEvade = true;
-        attackData.canCrit = true;
-        
-        return attackData;
+        return offensiveSkillData;
     }
 
-    protected int GetDamage()
+    public IOffensiveSkill IOffensiveSkill()
     {
-        return TheCalculator.Instance.CalculateRawDamage(myUnit, isMagical, powerGrade, out isCritical);
+        return this;
     }
 }

@@ -1,61 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
 using MoreMountains.Feedbacks;
 using System.Linq;
 using Sirenix.OdinInspector;
 using AnotherRealm;
 
 
-public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
+public  abstract class PlayerOffensiveSkill : PlayerBaseSkill, IOffensiveSkill
 {
     [Title("OFFENSIVE SKILL DATA")]
-    [SerializeField] PowerGrade powerGrade = PowerGrade.D;
-    [Header("Bools")]
-    [SerializeField] bool isMagical = false;
-    [Tooltip("Charged skills activate on unit's next turn")]
-    [SerializeField] bool isChargedSkill = false;
-    [Tooltip("Can the skill not be evaded")]
-    [SerializeField] bool isUnevadable = false;
-    [Header("Element, Material & Effects")]
-    [SerializeField] Element skillElement = Element.None;
-    [SerializeField] Item skillItem = null;
-    [Space(10)]
-    [SerializeField] List<ChanceOfInflictingStatusEffect> inflictedStatusEffects;
-    [Header("Behaviour")]
-    [HideIf("isSingleTarget")]
-    [Tooltip("If this skill targets multiple, is each target damaged individually or at the same time. True if at the same time")]
-    [SerializeField] bool attackMultipleUnitsIndividually = false;
+    [SerializeField] protected OffensiveSkillData offensiveSkillData;
     [Title("VFX & Spawn Points")]
     [SerializeField] protected Transform hitVFXPoolHeader;
     [SerializeField] protected List<Transform> hitVFXSpawnOffsets;
-    //[Space(10)]
-    //[ShowIf("isMagical")]
-    //[SerializeField] protected GameObject magicalAttackVFX;
     [Space(10)]
-    [ShowIf("isMagical")]
+    [ShowIf("offensiveSkillData.isMagical")]
     [SerializeField] protected Transform magicalAttackVFXDestination;
-    [Title("ATTACK ANIMATION DATA")]
-    [SerializeField] protected string animationTriggerName;
-    [Space(10)]
-    [Tooltip("This is usually true for Physical Attacks")]
-    [SerializeField] protected bool moveToAttack = true;
-    [Space(10)]
-    [ShowIf("moveToAttack")]
-    [Tooltip("If false, it's Distance between the attacker and target during the attack. Else it's an offset on the attacker's forward")]
-    [SerializeField] protected bool isAttackDistanceAForwardOffset = false;
-    [ShowIf("moveToAttack")]
-    [SerializeField] protected float animationAttackDistance = 1f;
-    [Space(10)]
-    [ShowIf("moveToAttack")]
-    [SerializeField] protected float moveToTargetTime = 0.25f;
-    [Space(10)]
-    [Tooltip("Delay Duration before deactiving Game & Returning to Position")]
-    [SerializeField] protected float delayBeforeReturn = 0.1f;
-    [SerializeField] protected float returnToGridPosTime = 0.35f;
-    [Title("FEEDBACKS")]
-    [SerializeField] AffinityFeedback attackFeedbacks;
 
     //Storage
     protected List<MMF_Player> targetFeedbacksToPlay = new List<MMF_Player>();
@@ -75,24 +36,26 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
         }
     }
 
+    public override void Setup(SkillPrefabSetter skillPrefabSetter, SkillData skillData)
+    {
+        base.Setup(skillPrefabSetter, skillData);
+        offensiveSkillData.SetupData(this, myUnit);
+    }
+
     public override void OnSkillInterrupted(BattleResult battleResult, IBattleTrigger battleTrigger)
     {
-        if(battleResult != BattleResult.Restart) { return; }
+        if (battleResult != BattleResult.Restart) { return; }
         //STOP ALL FEEDBACKS
 
         foreach (var feedback in targetFeedbacksToPlay)
         {
             feedback?.StopFeedbacks();
         }
-        
-        attackFeedbacks.attackAbsorbedFeedback?.StopFeedbacks();
-        attackFeedbacks.attackEvadedFeedback?.StopFeedbacks();
-        attackFeedbacks.attackNulledFeedback?.StopFeedbacks();
-        attackFeedbacks.attackReflectedFeedback?.StopFeedbacks();
-        attackFeedbacks.attackConnectedFeedback.StopFeedbacks();
+
+        IOffensiveSkill().StopAllSkillFeedbacks();
     }
 
-    protected void Attack()
+    protected void Attack() //MOVE SOME FUNCTIONALTY TO INTERFACE
     {
         targetFeedbacksToPlay.Clear();
 
@@ -104,7 +67,7 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
         {
             int targetIndex = skillTargets.IndexOf(target);
 
-            Affinity targetAffinity = DamageTarget(target);
+            Affinity targetAffinity = IOffensiveSkill().DamageTarget(target, skillTargets.Count, ref anyTargetsWithReflectAffinity);
             allTargetsAffinity.Add(targetAffinity);
 
             GameObject hitVFX = hitVFXPool.Count > 0 ? hitVFXPool[targetIndex] : null;
@@ -129,56 +92,10 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
             }
         }
 
-        MoveToAttack();
+        IOffensiveSkill().MoveToAttack(skillTargets[0], GetSkillOwnerMoveTransform(), GetCardinalDirectionAsVector());
 
-        myCharacter.unitAnimator.TriggerSkill(animationTriggerName);
-
-        CombatFunctions.PlayAttackFeedback(attackAffinity, attackFeedbacks);
-    }
-
-
-    private void MoveToAttack()
-    {
-        if (moveToAttack)
-        {
-            Vector3 destinationWithOffset;
-
-            if (!isAttackDistanceAForwardOffset)
-            {
-                destinationWithOffset = skillTargets[0].GetClosestPointOnColliderToPosition(LevelGrid.Instance.gridSystem.GetWorldPosition(myUnit.GetCurrentGridPositions()[0])) - (GetCardinalDirectionAsVector() * animationAttackDistance);
-            }
-            else
-            {
-                //Move Forward
-                destinationWithOffset = myUnit.transform.position + (myUnitMoveTransform.forward.normalized * animationAttackDistance);
-            }
-
-            Vector3 moveDestination = new Vector3(destinationWithOffset.x, myUnitMoveTransform.position.y, destinationWithOffset.z);
-            myUnit.transform.DOMove(moveDestination, moveToTargetTime);
-        }
-    }
-
-    //Damage Methods
-    protected Affinity DamageTarget(GridUnit target)
-    {
-        AttackData attackData = GetAttackData(target);
-
-        Health targetHealth = target.Health();
-        DamageData damageData = targetHealth.TakeDamage(attackData, DamageType.Default);
-
-        if(damageData != null)
-        {
-            Affinity affinity = damageData.affinityToAttack;
-
-            if (affinity == Affinity.Reflect)
-            {
-                anyTargetsWithReflectAffinity = true;
-            }
-
-            return affinity; //(However Damage dealt & Status effects visual only shown much later)
-        }
-        
-        return Affinity.None;
+        myCharacter.unitAnimator.TriggerSkill(offensiveSkillData.animationTriggerName);
+        CombatFunctions.PlayAttackFeedback(attackAffinity, offensiveSkillData.attackFeedbacks);
     }
 
 
@@ -193,49 +110,13 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
 
     protected override void SetUnitsToShow()
     {
-        List<GridUnit> targetedUnits = CombatFunctions.SetOffensiveSkillUnitsToShow(myCharacter, selectedUnits, forceDistance);
-        FantasyCombatManager.Instance.SetUnitsToShow(targetedUnits);
+        IOffensiveSkill().SetUnitsToShow(selectedUnits, forceDistance);
     }
 
     //GETTERS
-    protected AttackData GetAttackData(GridUnit target)
-    {
-        AttackData attackData = new AttackData(myUnit, CombatFunctions.GetElement(myCharacter, skillElement, isMagical), GetDamage(), skillTargets.Count);
-
-        attackData.attackItem = skillItem;
-        attackData.canEvade = !(isUnevadable || (this is PlayerBaseChainAttack));
-
-        attackData.inflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(myCharacter, target, inflictedStatusEffects);
-        attackData.forceData = GetSkillForceData(target);
-
-        attackData.isPhysical = !isMagical;
-        attackData.isCritical = isCritical;
-        attackData.isMultiAction = attackMultipleUnitsIndividually;
-
-        attackData.powerGrade = powerGrade;
-        attackData.canCrit = true;
-
-        return attackData;
-    }
-
-    protected int GetDamage()
-    {
-        return TheCalculator.Instance.CalculateRawDamage(myUnit, isMagical, powerGrade, out isCritical);
-    }
-
-    public Element GetSkillElement()
-    {
-        return CombatFunctions.GetElement(myCharacter, skillElement, isMagical);
-    }
-
-    public Item GetSkillAttackItem()
-    {
-        return skillItem;
-    }
-
     public override int GetSkillIndex()
     {
-        switch (GetSkillElement())
+        switch (IOffensiveSkill().GetSkillElement())
         {
             case Element.Silver: 
                 return 0;
@@ -261,8 +142,13 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill
         }
     }
 
-    public bool IsMagical()
+    public OffensiveSkillData GetOffensiveSkillData()
     {
-        return isMagical;
+        return offensiveSkillData;
+    }
+
+    public IOffensiveSkill IOffensiveSkill()
+    {
+        return this;
     }
 }

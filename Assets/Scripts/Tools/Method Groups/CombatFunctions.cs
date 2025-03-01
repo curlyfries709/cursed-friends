@@ -251,7 +251,7 @@ namespace AnotherRealm
         }
 
         //Damage Methods
-        public static List<InflictedStatusEffectData> TryInflictStatusEffects(CharacterGridUnit attacker,  GridUnit target, List<ChanceOfInflictingStatusEffect> tryApplyStatusEffects)
+        public static List<InflictedStatusEffectData> TryInflictStatusEffects(GridUnit attacker,  GridUnit target, List<ChanceOfInflictingStatusEffect> tryApplyStatusEffects)
         {
             List<InflictedStatusEffectData> successfulStatusEffects = new List<InflictedStatusEffectData>();
             List<ChanceOfInflictingStatusEffect> allStatusEffects = tryApplyStatusEffects.Concat(attacker.stats.Equipment().GetStatusEffectsToInflict()).ToList();
@@ -479,7 +479,7 @@ namespace AnotherRealm
             }
         }
 
-        public static Element GetElement(CharacterGridUnit unit, Element skillElement, bool isMagicalAttack)
+        public static Element GetElement(GridUnit unit, Element skillElement, bool isMagicalAttack)
         {
             if (isMagicalAttack)
             {

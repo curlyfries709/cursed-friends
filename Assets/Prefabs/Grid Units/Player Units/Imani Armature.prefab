@@ -66382,6 +66382,10 @@ MonoBehaviour:
   canPenetrate: 1
   includeDiagonals: 1
   maxNumCellsFromUnit: 1
+  unitCameraRootTransform: {fileID: 0}
+  forceTypeToApply: 0
+  forceDirection: 0
+  forceDistance: 0
   unlockLevel: 1
   skillName: Aero Blast!
   aoeDiagram: {fileID: 1933274626970996876, guid: d19cdd93070ab5a4ab519ab92f6415bd,
@@ -66394,11 +66398,35 @@ MonoBehaviour:
   isGridSelectionRequired: 0
   blendListCamera: {fileID: 8751478041194150564}
   otherVisualsToToggle: []
+  offensiveSkillData:
+    powerGrade: 8
+    isMagical: 0
+    isChargedSkill: 0
+    isUnevadable: 0
+    skillElement: 0
+    skillItem: {fileID: 0}
+    inflictedStatusEffects: []
+    attackMultipleUnitsIndividually: 0
+    animationTriggerName: 
+    moveToAttack: 1
+    isAttackDistanceAForwardOffset: 0
+    animationAttackDistance: 1
+    moveToTargetTime: 0.25
+    delayBeforeReturn: 0.1
+    returnToGridPosTime: 0.35
+    attackFeedbacks:
+      attackConnectedFeedback: {fileID: 0}
+      attackEvadedFeedback: {fileID: 0}
+      attackReflectedFeedback: {fileID: 0}
+      attackNulledFeedback: {fileID: 0}
+      attackAbsorbedFeedback: {fileID: 0}
+      spawnVFXHeader: {fileID: 0}
   powerGrade: 9
   isMagical: 1
   isChargedSkill: 0
-  knockbackDistance: 0
+  isUnevadable: 0
   skillElement: 3
+  skillItem: {fileID: 0}
   inflictedStatusEffects:
   - bonusPercentOfInflictingEffect: 20
     statusEffect: {fileID: 11400000, guid: 7bcc6535eec0872478c894646888fae0, type: 2}
@@ -78118,6 +78146,10 @@ MonoBehaviour:
   canPenetrate: 0
   includeDiagonals: 0
   maxNumCellsFromUnit: 1
+  unitCameraRootTransform: {fileID: 0}
+  forceTypeToApply: 0
+  forceDirection: 0
+  forceDistance: 0
   unlockLevel: 1
   skillName: Aero Sphere
   aoeDiagram: {fileID: 314826410748891515, guid: 34c56ef409a0e554f92f6d481d5cf20d,
@@ -78130,11 +78162,35 @@ MonoBehaviour:
   isGridSelectionRequired: 0
   blendListCamera: {fileID: 2881904170519686574}
   otherVisualsToToggle: []
+  offensiveSkillData:
+    powerGrade: 8
+    isMagical: 0
+    isChargedSkill: 0
+    isUnevadable: 0
+    skillElement: 0
+    skillItem: {fileID: 0}
+    inflictedStatusEffects: []
+    attackMultipleUnitsIndividually: 0
+    animationTriggerName: 
+    moveToAttack: 1
+    isAttackDistanceAForwardOffset: 0
+    animationAttackDistance: 1
+    moveToTargetTime: 0.25
+    delayBeforeReturn: 0.1
+    returnToGridPosTime: 0.35
+    attackFeedbacks:
+      attackConnectedFeedback: {fileID: 0}
+      attackEvadedFeedback: {fileID: 0}
+      attackReflectedFeedback: {fileID: 0}
+      attackNulledFeedback: {fileID: 0}
+      attackAbsorbedFeedback: {fileID: 0}
+      spawnVFXHeader: {fileID: 0}
   powerGrade: 7
   isMagical: 1
   isChargedSkill: 0
-  knockbackDistance: 0
+  isUnevadable: 0
   skillElement: 6
+  skillItem: {fileID: 0}
   inflictedStatusEffects:
   - bonusPercentOfInflictingEffect: 0
     statusEffect: {fileID: 11400000, guid: 4027d716b4c37fc4a8a360bb521dd9c3, type: 2}
@@ -78283,6 +78339,10 @@ MonoBehaviour:
   canPenetrate: 1
   includeDiagonals: 0
   maxNumCellsFromUnit: 3
+  unitCameraRootTransform: {fileID: 0}
+  forceTypeToApply: 0
+  forceDirection: 0
+  forceDistance: 0
   unlockLevel: 2
   skillName: Tornado
   aoeDiagram: {fileID: 1933274626970996876, guid: d19cdd93070ab5a4ab519ab92f6415bd,
@@ -78296,11 +78356,35 @@ MonoBehaviour:
   isGridSelectionRequired: 0
   blendListCamera: {fileID: 7737803204938587779}
   otherVisualsToToggle: []
+  offensiveSkillData:
+    powerGrade: 8
+    isMagical: 0
+    isChargedSkill: 0
+    isUnevadable: 0
+    skillElement: 0
+    skillItem: {fileID: 0}
+    inflictedStatusEffects: []
+    attackMultipleUnitsIndividually: 0
+    animationTriggerName: 
+    moveToAttack: 1
+    isAttackDistanceAForwardOffset: 0
+    animationAttackDistance: 1
+    moveToTargetTime: 0.25
+    delayBeforeReturn: 0.1
+    returnToGridPosTime: 0.35
+    attackFeedbacks:
+      attackConnectedFeedback: {fileID: 0}
+      attackEvadedFeedback: {fileID: 0}
+      attackReflectedFeedback: {fileID: 0}
+      attackNulledFeedback: {fileID: 0}
+      attackAbsorbedFeedback: {fileID: 0}
+      spawnVFXHeader: {fileID: 0}
   powerGrade: 8
   isMagical: 1
   isChargedSkill: 0
-  knockbackDistance: 0
+  isUnevadable: 0
   skillElement: 6
+  skillItem: {fileID: 0}
   inflictedStatusEffects:
   - bonusPercentOfInflictingEffect: 0
     statusEffect: {fileID: 11400000, guid: 4027d716b4c37fc4a8a360bb521dd9c3, type: 2}
@@ -93435,12 +93519,12 @@ PrefabInstance:
     - target: {fileID: 2047365905526684944, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.64913714
+      value: -0.6491372
       objectReference: {fileID: 0}
     - target: {fileID: 2047365905526684944, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.04195626
+      value: 0.041956287
       objectReference: {fileID: 0}
     - target: {fileID: 2047365905526684944, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
@@ -93450,7 +93534,7 @@ PrefabInstance:
     - target: {fileID: 2047365905526684944, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.30697498
+      value: -0.30697492
       objectReference: {fileID: 0}
     - target: {fileID: 2320401858645060829, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
@@ -93569,22 +93653,22 @@ PrefabInstance:
     - target: {fileID: 3072672446226974705, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.6496768
+      value: -0.64967686
       objectReference: {fileID: 0}
     - target: {fileID: 3072672446226974705, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.03254755
+      value: 0.03254753
       objectReference: {fileID: 0}
     - target: {fileID: 3072672446226974705, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.6901935
+      value: 0.69019353
       objectReference: {fileID: 0}
     - target: {fileID: 3072672446226974705, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.3170074
+      value: -0.31700736
       objectReference: {fileID: 0}
     - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
@@ -93610,6 +93694,21 @@ PrefabInstance:
         type: 3}
       propertyPath: animationTriggerName
       value: Attack
+      objectReference: {fileID: 0}
+    - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
+        type: 3}
+      propertyPath: offensiveSkillData.moveToTargetTime
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
+        type: 3}
+      propertyPath: offensiveSkillData.animationTriggerName
+      value: Attack
+      objectReference: {fileID: 0}
+    - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
+        type: 3}
+      propertyPath: offensiveSkillData.animationAttackDistance
+      value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: 3213190854560813519, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}

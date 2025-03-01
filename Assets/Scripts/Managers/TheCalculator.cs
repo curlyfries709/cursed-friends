@@ -380,6 +380,8 @@ public class TheCalculator : MonoBehaviour
         //Update data based on modifiers
         //damageData.isCritical = isCrit;
 
+        /* if originally crit but no longer or new affinity resist, divide damage by crit multiplier */
+
         //Apply other multipliers
         return Mathf.RoundToInt(attackData.rawDamage * externalMultiplier);
     }

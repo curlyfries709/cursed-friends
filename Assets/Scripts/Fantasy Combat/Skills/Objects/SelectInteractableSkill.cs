@@ -93,7 +93,7 @@ public class SelectInteractableSkill : CombatInteractableBaseSkill, ITurnEndEven
             Element skillElement;
             Item skillItem;
 
-            if (selectedBySkill is PlayerOffensiveSkill attack)
+            if (selectedBySkill is IOffensiveSkill attack)
             {
                 skillElement = attack.GetSkillElement();
                 skillItem = attack.GetSkillAttackItem();

@@ -21427,7 +21427,8 @@ MonoBehaviour:
   maxNumCellsFromUnit: 1
   unitCameraRootTransform: {fileID: 0}
   forceTypeToApply: 1
-  skillForceDistance: 2
+  forceDirection: 0
+  forceDistance: 0
   evaluationTransform: {fileID: 3906766474659568652}
   isPrioritySkill: 0
   triggerChance: 40
@@ -21436,9 +21437,35 @@ MonoBehaviour:
   maxSkillCooldown: 0
   skillConditions: []
   blendListCamera: {fileID: 5838632173350480994}
+  offensiveSkillData:
+    powerGrade: 7
+    isMagical: 0
+    isChargedSkill: 0
+    isUnevadable: 0
+    skillElement: 0
+    skillItem: {fileID: 0}
+    inflictedStatusEffects:
+    - bonusPercentOfInflictingEffect: 15
+      statusEffect: {fileID: 11400000, guid: 7bcc6535eec0872478c894646888fae0, type: 2}
+      numOfTurns: 0
+      buffChange: 0
+    attackMultipleUnitsIndividually: 0
+    animationTriggerName: Ram
+    moveToAttack: 1
+    isAttackDistanceAForwardOffset: 0
+    animationAttackDistance: 0.8
+    moveToTargetTime: 0.5
+    delayBeforeReturn: 0.1
+    returnToGridPosTime: 0.5
+    attackFeedbacks:
+      attackConnectedFeedback: {fileID: 8674807122629207490}
+      attackEvadedFeedback: {fileID: 6562358353527456386}
+      attackReflectedFeedback: {fileID: 0}
+      attackNulledFeedback: {fileID: 0}
+      attackAbsorbedFeedback: {fileID: 0}
+      spawnVFXHeader: {fileID: 0}
   isMagical: 0
   powerGrade: 7
-  knockbackDistance: 2
   element: 0
   inflictedStatusEffects:
   - bonusPercentOfInflictingEffect: 15
@@ -42370,12 +42397,42 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
+      propertyPath: offensiveSkillData.moveToTargetTime
+      value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
       propertyPath: attackFeedbacks.attackEvadedFeedback
       value: 
       objectReference: {fileID: 870631688098335561}
     - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
+      propertyPath: offensiveSkillData.returnToGridPosTime
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
       propertyPath: attackFeedbacks.attackConnectedFeedback
+      value: 
+      objectReference: {fileID: 6904708278077902311}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.animationTriggerName
+      value: Attack
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.animationAttackDistance
+      value: 1.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.attackFeedbacks.attackEvadedFeedback
+      value: 
+      objectReference: {fileID: 870631688098335561}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.attackFeedbacks.attackConnectedFeedback
       value: 
       objectReference: {fileID: 6904708278077902311}
     - target: {fileID: 6585296304721455015, guid: cd0a536fc79773444ba225e2ca348bf0,

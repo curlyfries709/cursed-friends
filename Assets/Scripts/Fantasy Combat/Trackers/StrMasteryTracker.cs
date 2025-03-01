@@ -23,9 +23,9 @@ public class StrMasteryTracker : BaseMasteryTracker
     {
         if(allPlayersProgressionType[player] == MasteryProgression.ProgressionType.UsePhys)
         {
-            PlayerOffensiveSkill offensiveSkill = skill as PlayerOffensiveSkill;
+            IOffensiveSkill offensiveSkill = skill as IOffensiveSkill;
 
-            if (offensiveSkill && !offensiveSkill.IsMagical())
+            if (offensiveSkill != null && !offensiveSkill.IsMagical())
             {
                 playerCombatProgression[player] = playerCombatProgression[player] + 1;
             }
@@ -38,9 +38,9 @@ public class StrMasteryTracker : BaseMasteryTracker
 
         if (player && allPlayersProgressionType[player] == MasteryProgression.ProgressionType.PhysKo && damageData.isKOHit)
         {
-            PlayerOffensiveSkill offensiveSkill = player.lastUsedSkill as PlayerOffensiveSkill;
+            IOffensiveSkill offensiveSkill = player.lastUsedSkill as IOffensiveSkill;
 
-            if (offensiveSkill && !offensiveSkill.IsMagical())
+            if (offensiveSkill != null && !offensiveSkill.IsMagical())
             {
                 playerCombatProgression[player] = playerCombatProgression[player] + 1;
             }

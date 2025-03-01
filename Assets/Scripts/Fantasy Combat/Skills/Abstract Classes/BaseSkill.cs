@@ -7,7 +7,6 @@ using AnotherRealm;
 using System.Linq;
 using System;
 using Sirenix.Utilities;
-using Unity.VisualScripting;
 
 public abstract class BaseSkill : MonoBehaviour, ICombatAction
 {
@@ -775,7 +774,7 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         return this;
     }
 
-    protected SkillForceData GetSkillForceData(GridUnit target)
+    public SkillForceData GetSkillForceData(GridUnit target)
     {
         return new SkillForceData(GetForceToApplyToUnit(target), forceDirection, forceDistance);
     }

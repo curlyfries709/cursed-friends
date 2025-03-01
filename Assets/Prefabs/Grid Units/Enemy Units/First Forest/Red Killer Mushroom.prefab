@@ -12328,7 +12328,7 @@ PrefabInstance:
     - target: {fileID: 3278645294636731008, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
       propertyPath: m_RootOrder
-      value: 0
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 3278645294636731008, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
@@ -12784,14 +12784,29 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
+      propertyPath: offensiveSkillData.moveToTargetTime
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
       propertyPath: attackFeedbacks.attackEvadedFeedback
       value: 
       objectReference: {fileID: 4526010665352830266}
     - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
+      propertyPath: offensiveSkillData.returnToGridPosTime
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
       propertyPath: attackFeedbacks.attackConnectedFeedback
       value: 
       objectReference: {fileID: 3955810822784317503}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.animationTriggerName
+      value: Attack
+      objectReference: {fileID: 0}
     - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
       propertyPath: inflictedStatusEffects.Array.data[0].statusEffect
@@ -12800,7 +12815,33 @@ PrefabInstance:
         type: 2}
     - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
+      propertyPath: offensiveSkillData.inflictedStatusEffects.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.attackFeedbacks.attackEvadedFeedback
+      value: 
+      objectReference: {fileID: 4526010665352830266}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.attackFeedbacks.attackConnectedFeedback
+      value: 
+      objectReference: {fileID: 3955810822784317503}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
       propertyPath: inflictedStatusEffects.Array.data[0].bonusPercentOfInflictingEffect
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.inflictedStatusEffects.Array.data[0].statusEffect
+      value: 
+      objectReference: {fileID: 11400000, guid: ef82e7f8d49dc014887f5bebb16b8ef5,
+        type: 2}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.inflictedStatusEffects.Array.data[0].bonusPercentOfInflictingEffect
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6595033599007631545, guid: cd0a536fc79773444ba225e2ca348bf0,

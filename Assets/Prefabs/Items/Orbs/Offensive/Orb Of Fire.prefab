@@ -10003,6 +10003,10 @@ MonoBehaviour:
   canPenetrate: 1
   includeDiagonals: 1
   maxNumCellsFromUnit: 1
+  unitCameraRootTransform: {fileID: 0}
+  forceTypeToApply: 0
+  forceDirection: 0
+  forceDistance: 0
   unlockLevel: 1
   skillName: Orb Of Fire
   aoeDiagram: {fileID: 1933274626970996876, guid: d19cdd93070ab5a4ab519ab92f6415bd,
@@ -10017,12 +10021,39 @@ MonoBehaviour:
   blendListCamera: {fileID: 1831131529217353810}
   otherVisualsToToggle:
   - {fileID: 5474827635177946149}
+  offensiveSkillData:
+    powerGrade: 8
+    isMagical: 1
+    isChargedSkill: 0
+    isUnevadable: 0
+    skillElement: 4
+    skillItem: {fileID: 0}
+    inflictedStatusEffects:
+    - bonusPercentOfInflictingEffect: 25
+      statusEffect: {fileID: 11400000, guid: f62d78cc9a3c2774c867972211d4f60f, type: 2}
+      numOfTurns: 0
+      buffChange: 0
+    attackMultipleUnitsIndividually: 0
+    animationTriggerName: Orb
+    moveToAttack: 0
+    isAttackDistanceAForwardOffset: 0
+    animationAttackDistance: 1
+    moveToTargetTime: 0.25
+    delayBeforeReturn: 0
+    returnToGridPosTime: 0.35
+    attackFeedbacks:
+      attackConnectedFeedback: {fileID: 6723898454422336586}
+      attackEvadedFeedback: {fileID: 4772372411382468400}
+      attackReflectedFeedback: {fileID: 0}
+      attackNulledFeedback: {fileID: 0}
+      attackAbsorbedFeedback: {fileID: 0}
+      spawnVFXHeader: {fileID: 0}
   powerGrade: 8
   isMagical: 1
   isChargedSkill: 0
-  knockbackDistance: 0
+  isUnevadable: 0
   skillElement: 1
-  skillMaterial: 0
+  skillItem: {fileID: 0}
   inflictedStatusEffects:
   - bonusPercentOfInflictingEffect: 25
     statusEffect: {fileID: 11400000, guid: f62d78cc9a3c2774c867972211d4f60f, type: 2}

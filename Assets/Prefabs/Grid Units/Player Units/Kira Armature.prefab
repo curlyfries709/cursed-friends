@@ -8931,6 +8931,10 @@ MonoBehaviour:
   canPenetrate: 0
   includeDiagonals: 0
   maxNumCellsFromUnit: 1
+  unitCameraRootTransform: {fileID: 0}
+  forceTypeToApply: 0
+  forceDirection: 0
+  forceDistance: 0
   unlockLevel: 2
   skillName: Stay Strong!
   aoeDiagram: {fileID: 314826410748891515, guid: 34c56ef409a0e554f92f6d481d5cf20d,
@@ -14864,6 +14868,10 @@ MonoBehaviour:
   canPenetrate: 0
   includeDiagonals: 0
   maxNumCellsFromUnit: 1
+  unitCameraRootTransform: {fileID: 0}
+  forceTypeToApply: 0
+  forceDirection: 0
+  forceDistance: 0
   unlockLevel: 1
   skillName: GO! GO! GO!
   aoeDiagram: {fileID: 314826410748891515, guid: 34c56ef409a0e554f92f6d481d5cf20d,
@@ -21846,6 +21854,10 @@ MonoBehaviour:
   canPenetrate: 1
   includeDiagonals: 0
   maxNumCellsFromUnit: 1
+  unitCameraRootTransform: {fileID: 0}
+  forceTypeToApply: 0
+  forceDirection: 0
+  forceDistance: 0
   unlockLevel: 1
   skillName: Cheer!
   aoeDiagram: {fileID: 314826410748891515, guid: 34c56ef409a0e554f92f6d481d5cf20d,
@@ -21858,11 +21870,35 @@ MonoBehaviour:
   isGridSelectionRequired: 0
   blendListCamera: {fileID: 5469267970826086031}
   otherVisualsToToggle: []
+  offensiveSkillData:
+    powerGrade: 8
+    isMagical: 0
+    isChargedSkill: 0
+    isUnevadable: 0
+    skillElement: 0
+    skillItem: {fileID: 0}
+    inflictedStatusEffects: []
+    attackMultipleUnitsIndividually: 0
+    animationTriggerName: 
+    moveToAttack: 1
+    isAttackDistanceAForwardOffset: 0
+    animationAttackDistance: 1
+    moveToTargetTime: 0.25
+    delayBeforeReturn: 0.1
+    returnToGridPosTime: 0.35
+    attackFeedbacks:
+      attackConnectedFeedback: {fileID: 0}
+      attackEvadedFeedback: {fileID: 0}
+      attackReflectedFeedback: {fileID: 0}
+      attackNulledFeedback: {fileID: 0}
+      attackAbsorbedFeedback: {fileID: 0}
+      spawnVFXHeader: {fileID: 0}
   powerGrade: 8
   isMagical: 0
   isChargedSkill: 0
-  knockbackDistance: 0
+  isUnevadable: 0
   skillElement: 0
+  skillItem: {fileID: 0}
   inflictedStatusEffects: []
   attackMultipleUnitsIndividually: 0
   hitVFXPoolHeader: {fileID: 0}
@@ -33923,22 +33959,22 @@ PrefabInstance:
     - target: {fileID: 2047365905526684944, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.97272336
+      value: -0.61620027
       objectReference: {fileID: 0}
     - target: {fileID: 2047365905526684944, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.23196824
+      value: 0.039827444
       objectReference: {fileID: 0}
     - target: {fileID: 2047365905526684944, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.00000001871258
+      value: 0.7194727
       objectReference: {fileID: 0}
     - target: {fileID: 2047365905526684944, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0.000000004462445
+      value: -0.31791532
       objectReference: {fileID: 0}
     - target: {fileID: 2320401858645060829, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
@@ -34079,6 +34115,26 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 4fea6122f43bed94bbc9f3a5e571b32b,
         type: 3}
+    - target: {fileID: 3072672446226974705, guid: 66583fb9aef479746a55feb12d89b70b,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.6167126
+      objectReference: {fileID: 0}
+    - target: {fileID: 3072672446226974705, guid: 66583fb9aef479746a55feb12d89b70b,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.030896075
+      objectReference: {fileID: 0}
+    - target: {fileID: 3072672446226974705, guid: 66583fb9aef479746a55feb12d89b70b,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.7147914
+      objectReference: {fileID: 0}
+    - target: {fileID: 3072672446226974705, guid: 66583fb9aef479746a55feb12d89b70b,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.32830524
+      objectReference: {fileID: 0}
     - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: costType
@@ -34126,12 +34182,37 @@ PrefabInstance:
       objectReference: {fileID: 1594511477393773813}
     - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
+      propertyPath: offensiveSkillData.moveToTargetTime
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
+        type: 3}
       propertyPath: attackFeedbacks.attackEvadedFeedback
       value: 
       objectReference: {fileID: 7080753430271401828}
     - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: attackFeedbacks.attackConnectedFeedback
+      value: 
+      objectReference: {fileID: 6499974968880617097}
+    - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
+        type: 3}
+      propertyPath: offensiveSkillData.animationTriggerName
+      value: Attack
+      objectReference: {fileID: 0}
+    - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
+        type: 3}
+      propertyPath: offensiveSkillData.animationAttackDistance
+      value: 1.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
+        type: 3}
+      propertyPath: offensiveSkillData.attackFeedbacks.attackEvadedFeedback
+      value: 
+      objectReference: {fileID: 7080753430271401828}
+    - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
+        type: 3}
+      propertyPath: offensiveSkillData.attackFeedbacks.attackConnectedFeedback
       value: 
       objectReference: {fileID: 6499974968880617097}
     - target: {fileID: 3353153955528960019, guid: 66583fb9aef479746a55feb12d89b70b,

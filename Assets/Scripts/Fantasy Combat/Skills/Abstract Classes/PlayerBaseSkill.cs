@@ -65,7 +65,6 @@ public abstract class PlayerBaseSkill : BaseSkill
 
     //Other Variables
     protected bool skillTriggered = false;
-    protected bool isCritical = false;
 
     float deactivateCamDelay = 0;
     //Events

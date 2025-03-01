@@ -32,7 +32,7 @@ public class OffensiveOrb : PlayerOffensiveSkill, IOrb
             //Setup Orb Parent
             SetParentConstraint();
             
-            BeginSkill(returnToGridPosTime, delayBeforeReturn, true, orbData);//Unit Position Updated here
+            BeginSkill(offensiveSkillData.returnToGridPosTime, offensiveSkillData.delayBeforeReturn, true, orbData);//Unit Position Updated here
 
             myCharacter.unitAnimator.ShowWeapon(false);
             ActivateVisuals(true);

@@ -21,7 +21,7 @@ public class BasicPhysicalAttack : PlayerOffensiveSkill
     {
         if (CanTriggerSkill(true))
         {
-            BeginSkill(returnToGridPosTime, delayBeforeReturn, true);//Unit Position Updated here
+            BeginSkill(offensiveSkillData.returnToGridPosTime, offensiveSkillData.delayBeforeReturn, true);//Unit Position Updated here
 
             ActivateVisuals(true);
 

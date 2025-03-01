@@ -10247,7 +10247,8 @@ MonoBehaviour:
   maxNumCellsFromUnit: 1
   unitCameraRootTransform: {fileID: 8887227743278794658}
   forceTypeToApply: 1
-  skillForceDistance: 1
+  forceDirection: 0
+  forceDistance: 0
   unlockLevel: 1
   skillName: Heavy Blade
   aoeDiagram: {fileID: 314826410748891515, guid: 34c56ef409a0e554f92f6d481d5cf20d,
@@ -10261,11 +10262,39 @@ MonoBehaviour:
   isGridSelectionRequired: 0
   blendListCamera: {fileID: 4549452295022180222}
   otherVisualsToToggle: []
+  offensiveSkillData:
+    powerGrade: 6
+    isMagical: 0
+    isChargedSkill: 0
+    isUnevadable: 0
+    skillElement: 0
+    skillItem: {fileID: 0}
+    inflictedStatusEffects:
+    - bonusPercentOfInflictingEffect: 0
+      statusEffect: {fileID: 11400000, guid: 7bcc6535eec0872478c894646888fae0, type: 2}
+      numOfTurns: 0
+      buffChange: 0
+    attackMultipleUnitsIndividually: 0
+    animationTriggerName: HeavyBlade
+    moveToAttack: 1
+    isAttackDistanceAForwardOffset: 0
+    animationAttackDistance: 1
+    moveToTargetTime: 0.8
+    delayBeforeReturn: 0.1
+    returnToGridPosTime: 0.35
+    attackFeedbacks:
+      attackConnectedFeedback: {fileID: 4961257258988864406}
+      attackEvadedFeedback: {fileID: 8219714117970021498}
+      attackReflectedFeedback: {fileID: 0}
+      attackNulledFeedback: {fileID: 0}
+      attackAbsorbedFeedback: {fileID: 0}
+      spawnVFXHeader: {fileID: 0}
   powerGrade: 6
   isMagical: 0
   isChargedSkill: 0
-  knockbackDistance: 1
+  isUnevadable: 0
   skillElement: 0
+  skillItem: {fileID: 0}
   inflictedStatusEffects:
   - bonusPercentOfInflictingEffect: 0
     statusEffect: {fileID: 11400000, guid: 7bcc6535eec0872478c894646888fae0, type: 2}
