@@ -1,45 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using MoreMountains.Feedbacks;
-using System.Linq;
 using Sirenix.OdinInspector;
-using AnotherRealm;
 
 
 public  abstract class PlayerOffensiveSkill : PlayerBaseSkill, IOffensiveSkill
 {
     [Title("OFFENSIVE SKILL DATA")]
     [SerializeField] protected OffensiveSkillData offensiveSkillData;
-    [Title("VFX & Spawn Points")]
-    [SerializeField] protected Transform hitVFXPoolHeader;
-    [SerializeField] protected List<Transform> hitVFXSpawnOffsets;
-    [Space(10)]
-    [ShowIf("offensiveSkillData.isMagical")]
-    [SerializeField] protected Transform magicalAttackVFXDestination;
-
-    //Storage
-    protected List<MMF_Player> targetFeedbacksToPlay = new List<MMF_Player>();
-    private List<GameObject> hitVFXPool = new List<GameObject>();
-
-    protected override void Awake()
-    {
-        base.Awake();
-
-        if (myUnit)
-        {
-            offensiveSkillData.SetupData(this, myUnit);
-        }
-
-        //Generate Pool Reference
-        if (hitVFXPoolHeader)
-        {
-            foreach (Transform child in hitVFXPoolHeader)
-            {
-                hitVFXPool.Add(child.gameObject);
-            }
-        }
-    }
 
     public override void Setup(SkillPrefabSetter skillPrefabSetter, SkillData skillData)
     {
@@ -51,71 +19,16 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill, IOffensiveSkill
     {
         if (battleResult != BattleResult.Restart) { return; }
         //STOP ALL FEEDBACKS
+        //FIND A WAY TO STOP TARGET FEEDBACKS IF PLAYING Maybe just loop through targets and tell them to stop. 
+        //Of Health subscribes to battle restart on stops feedback.
 
-        foreach (var feedback in targetFeedbacksToPlay)
-        {
-            feedback?.StopFeedbacks();
-        }
 
         IOffensiveSkill().StopAllSkillFeedbacks();
     }
 
-    protected void Attack() //MOVE SOME FUNCTIONALTY TO INTERFACE
+    public void OnDamageDealtToTarget(GridUnit target, DamageData damageData)
     {
-        targetFeedbacksToPlay.Clear();
-
-        Affinity attackAffinity = Affinity.None;
-
-        List<Affinity> allTargetsAffinity = new List<Affinity>();
-
-        foreach (GridUnit target in skillTargets)
-        {
-            int targetIndex = skillTargets.IndexOf(target);
-
-            Affinity targetAffinity = IOffensiveSkill().DamageTarget(target, skillTargets.Count, ref anyTargetsWithReflectAffinity);
-            allTargetsAffinity.Add(targetAffinity);
-
-            GameObject hitVFX = hitVFXPool.Count > 0 ? hitVFXPool[targetIndex] : null;
-
-            AffinityFeedback feedbacks = target.Health().GetDamageFeedbacks(CombatFunctions.GetVFXSpawnTransform(hitVFXSpawnOffsets, target), hitVFX);
-            targetFeedbacksToPlay.Add(CombatFunctions.GetTargetFeedback(feedbacks, targetAffinity));
-        }
-
-        if (isSingleTarget)
-        {
-            attackAffinity = allTargetsAffinity[0];
-
-            if (magicalAttackVFXDestination)
-                magicalAttackVFXDestination.transform.position = skillTargets[0].camFollowTarget.position;
-        }
-        else
-        {
-            //If all targets Evaded
-            if(allTargetsAffinity.Distinct().Count() == 1 && allTargetsAffinity[0] == Affinity.Evade)
-            {
-                attackAffinity = Affinity.Evade;
-            }
-        }
-
-        IOffensiveSkill().MoveToAttack(skillTargets[0], GetSkillOwnerMoveTransform(), GetCardinalDirectionAsVector());
-
-        myCharacter.unitAnimator.TriggerSkill(offensiveSkillData.animationTriggerName);
-        CombatFunctions.PlayAttackFeedback(attackAffinity, offensiveSkillData.attackFeedbacks);
-    }
-
-
-    public void PlayTargetsAffinityFeedback()
-    {
-        //Called Via A feedback
-        foreach(var feedback in targetFeedbacksToPlay)
-        {
-            feedback?.PlayFeedbacks();
-        }
-    }
-
-    protected override void SetUnitsToShow()
-    {
-        IOffensiveSkill().SetUnitsToShow(selectedUnits, forceDistance);
+        //Do nothing
     }
 
     //GETTERS

@@ -53,9 +53,6 @@ public class AffinityFeedback
     public MMF_Player attackReflectedFeedback;
     public MMF_Player attackNulledFeedback;
     public MMF_Player attackAbsorbedFeedback;
-    [Space(10)]
-    [Tooltip("This is only for DAMAGE Feedbacks esthablished in an IDAMAGEABLE class")]
-    public Transform spawnVFXHeader;
 }
 
 

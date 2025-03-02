@@ -254,9 +254,9 @@ public class StatusEffectManager : MonoBehaviour
         unit.CharacterHealth().DeactivateHealthVisualImmediate();
         yield return new WaitForSeconds(showDisabledUnitDelay);
         disablingStatusEffectCam.gameObject.SetActive(true);
-        unit.CharacterHealth().ActivateStatusEffectHealthVisual(true);
+        unit.CharacterHealth().ActivateNameOnlyUI(true);
         yield return new WaitForSeconds(unitDisabledDisplayTime);
-        unit.CharacterHealth().ActivateStatusEffectHealthVisual(false);
+        unit.CharacterHealth().ActivateNameOnlyUI(false);
         FantasyCombatManager.Instance.ActionComplete();
         disablingStatusEffectCam.gameObject.SetActive(false);
     }

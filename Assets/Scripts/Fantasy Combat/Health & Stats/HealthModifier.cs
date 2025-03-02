@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public class AttackData : HealthChangeData
 {
@@ -10,7 +11,6 @@ public class AttackData : HealthChangeData
 
     //Damage Data
     public PowerGrade powerGrade = PowerGrade.C;
-    public int rawDamage = 0;
 
     public int numOfTargets = 1;
 
@@ -22,6 +22,10 @@ public class AttackData : HealthChangeData
     public bool canEvade = true;
     public bool canCrit = true;
 
+    //HIT VFX
+    public GameObject hitVFX = null;
+    public Vector3 hitVFXPos;
+
     public AttackData(AttackData attackData)
     {
         attacker = attackData.attacker;
@@ -30,7 +34,7 @@ public class AttackData : HealthChangeData
         attackItem = attackData.attackItem;
 
         powerGrade = attackData.powerGrade;
-        rawDamage = attackData.rawDamage;
+        HPChange = attackData.HPChange;
 
         numOfTargets = attackData.numOfTargets;
         isPhysical = attackData.isPhysical;
@@ -50,14 +54,14 @@ public class AttackData : HealthChangeData
     public AttackData(GridUnit attacker, int rawDamage)
     {
         this.attacker = attacker;
-        this.rawDamage = rawDamage;
+        HPChange = rawDamage;
     }
 
     public AttackData(GridUnit attacker, Element attackElement, int rawDamage, int numOfTargets)
     {
         this.attacker = attacker;
         this.attackElement = attackElement;
-        this.rawDamage = rawDamage;
+        HPChange = rawDamage;
         this.numOfTargets = numOfTargets;
     }
 
@@ -65,7 +69,7 @@ public class AttackData : HealthChangeData
     {
         this.attacker = attacker;
         this.attackItem = attackItem;
-        this.rawDamage = rawDamage;
+        HPChange = rawDamage;
         this.numOfTargets = numOfTargets;
     }
 }
@@ -79,8 +83,6 @@ public class DamageData : HealthChangeData
     public Affinity affinityToAttack = Affinity.None;
     public AttackData hitByAttackData = null;
     public DamageType damageType = DamageType.Default;
-
-    public int damageReceived = 0;
 
     //Bools
     public bool isBackstab = false;
@@ -103,7 +105,7 @@ public class DamageData : HealthChangeData
         this.attacker = attacker;
 
         this.affinityToAttack = affinityToAttack;
-        this.damageReceived = damageReceived;
+        HPChange = damageReceived;
 
         targetHealth = target?.Health();
     }
@@ -114,7 +116,7 @@ public class DamageData : HealthChangeData
         this.attacker = attacker;
 
         this.affinityToAttack = affinityToAttack;
-        this.damageReceived = damageReceived;
+        HPChange = damageReceived;
 
         this.hitByAttackData = hitByAttackData;
 
@@ -136,7 +138,8 @@ public class DamageData : HealthChangeData
         hitByAttackData = null;
         damageType = DamageType.Default;
 
-        damageReceived = 0;
+        HPChange = 0;
+        SPChange = 0;
         inflictedStatusEffects.Clear();
 
         //Bools
@@ -161,9 +164,7 @@ public class HealData: HealthChangeData
     public GridUnit target = null;
     public CharacterGridUnit healer = null; //If null, then source of healing must be via item E.G Potion, Blessing.
 
-    public int HPRestore = 0;
-    public int SPRestore = 0;
-    public int FPRestore = 0;
+    public int FPChange = 0;
 
     //Bools
     public bool canRevive = false;
@@ -172,15 +173,15 @@ public class HealData: HealthChangeData
     public HealData(GridUnit target, int HPRestore)
     {
         this.target = target;
-        this.HPRestore = HPRestore;
+        HPChange = HPRestore;
     }
 
     public HealData(GridUnit target, int HPRestore, int SPRestore, int FPRestore, bool canRevive)
     {
         this.target = target;
-        this.HPRestore = HPRestore;
-        this.SPRestore = SPRestore;
-        this.FPRestore = FPRestore;
+        HPChange = HPRestore;
+        SPChange = SPRestore;
+        FPChange = FPRestore;
         this.canRevive = canRevive;
     }
 
@@ -188,24 +189,35 @@ public class HealData: HealthChangeData
     {
         this.target = target;
         this.healer = healer;
-        this.HPRestore = HPRestore;
+        HPChange = HPRestore;
         this.canRevive = canRevive;
     }
 
     public bool IsOnlyFPRestore()
     {
-        return FPRestore > 0 && HPRestore == 0 && SPRestore == 0;
+        return FPChange > 0 && HPChange == 0 && SPChange == 0;
     }
 }
 
 public abstract class HealthChangeData //Just a base class defining shared data
 {
-    public SkillForceData forceData = new SkillForceData(SkillForceType.None, SkillForceDirectionType.PositionDirection, 0);
+    //Numbers
+    public int HPChange = 0;
+    public int SPChange = 0;
+
+    public SkillForceData? forceData = null;
     public List<InflictedStatusEffectData> inflictedStatusEffects = new List<InflictedStatusEffectData>();
 
     public List<HealthChangeModifier> appliedModifiers = new List<HealthChangeModifier>();
 
     public bool isCritical = false;
+
+
+    //Getters
+    public bool IsVitalsChanged()
+    {
+        return HPChange > 0 || SPChange > 0;
+    }
 }
 
 public class HealthChangeModifier

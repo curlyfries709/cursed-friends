@@ -270,14 +270,6 @@ public abstract class PlayerBaseSkill : BaseSkill
         EnableOtherVisuals(false);
     }
 
-    protected virtual void SetUnitsToShow()
-    {
-        List<GridUnit> targetedUnits = new List<GridUnit>(selectedUnits);
-        targetedUnits.Add(myUnit);
-
-        FantasyCombatManager.Instance.SetUnitsToShow(targetedUnits);
-    }
-
     protected void ActivateVisuals(bool activate)
     {
         if (blendListCamera)

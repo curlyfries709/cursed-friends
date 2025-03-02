@@ -167,13 +167,14 @@ public abstract class StatusEffect : MonoBehaviour
         StatusEffectManager.Instance.StatusEffectEnded(myUnit, this);
     }
 
-    protected void ApplyStatusEffectDamageToUnit(int healthPercentToLost)
+    protected void ApplyStatusEffectDamageToUnit(int healthPercentLoss, int SPPercentLoss = 0)
     {
-        AttackData attackData = new AttackData(inflictor, 0);
+        AttackData attackData = new AttackData(inflictor, healthPercentLoss);
+        attackData.SPChange = SPPercentLoss;
         attackData.canCrit = false;
         attackData.canEvade = false;
 
-        myUnit.CharacterHealth().TakeStatusEffectDamage(attackData, healthPercentToLost);
+        myUnit.CharacterHealth().TakeDamage(attackData, DamageType.StatusEffect);
     }
 
     //VISUAL & UI

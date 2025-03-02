@@ -14,7 +14,7 @@ public class BasicPotionEffect : MonoBehaviour
     {
         hasStartedHealthCountdown = false;
 
-        FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(Affinity.None, false, false, dataDisplayExtension);
+        FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(Affinity.None, false, false, false, dataDisplayExtension);
 
         if (potionData.hpGain > 0 || potionData.spGain > 0 || potionData.fpGain > 0)
         {

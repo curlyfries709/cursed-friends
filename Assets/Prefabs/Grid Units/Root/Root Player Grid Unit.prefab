@@ -182,6 +182,7 @@ MonoBehaviour:
   includeDiagonals: 0
   maxNumCellsFromUnit: 1
   unitCameraRootTransform: {fileID: 0}
+  unitTransformAttacher: {fileID: 0}
   forceTypeToApply: 0
   forceDirection: 0
   forceDistance: 0
@@ -729,7 +730,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1048484730138022234}
-  m_LocalRotation: {x: 0.030896068, y: 0.7147915, z: -0.3283053, w: -0.6167125}
+  m_LocalRotation: {x: 0.030896075, y: 0.7147914, z: -0.32830524, w: -0.6167126}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3211,6 +3212,7 @@ MonoBehaviour:
   includeDiagonals: 0
   maxNumCellsFromUnit: 1
   unitCameraRootTransform: {fileID: 0}
+  unitTransformAttacher: {fileID: 0}
   forceTypeToApply: 0
   forceDirection: 0
   forceDistance: 0
@@ -3225,31 +3227,31 @@ MonoBehaviour:
   isGridSelectionRequired: 0
   blendListCamera: {fileID: 7133464858037155811}
   otherVisualsToToggle: []
-  powerGrade: 8
-  isMagical: 0
-  isChargedSkill: 0
-  isUnevadable: 0
-  skillElement: 0
-  skillItem: {fileID: 0}
-  inflictedStatusEffects: []
-  attackMultipleUnitsIndividually: 0
-  hitVFXPoolHeader: {fileID: 0}
-  hitVFXSpawnOffsets: []
-  magicalAttackVFXDestination: {fileID: 0}
-  animationTriggerName: 
-  moveToAttack: 1
-  isAttackDistanceAForwardOffset: 0
-  animationAttackDistance: 0.8
-  moveToTargetTime: 0.3
-  delayBeforeReturn: 0.1
-  returnToGridPosTime: 0.5
-  attackFeedbacks:
-    attackConnectedFeedback: {fileID: 0}
-    attackEvadedFeedback: {fileID: 0}
-    attackReflectedFeedback: {fileID: 0}
-    attackNulledFeedback: {fileID: 0}
-    attackAbsorbedFeedback: {fileID: 0}
-    spawnVFXHeader: {fileID: 0}
+  offensiveSkillData:
+    powerGrade: 8
+    isMagical: 0
+    isChargedSkill: 0
+    isUnevadable: 0
+    skillElement: 0
+    skillItem: {fileID: 0}
+    inflictedStatusEffects: []
+    attackMultipleUnitsIndividually: 0
+    animationTriggerName: 
+    preAttackAutoMover: {fileID: 0}
+    postAttackAutoMover: {fileID: 0}
+    preMoveTargetTransform: {fileID: 0}
+    attackDistanceBetweenTarget: 0.5
+    delayBeforeReturn: 0.1
+    returnToGridPosTime: 0.35
+    attackFeedbacks:
+      attackConnectedFeedback: {fileID: 0}
+      attackEvadedFeedback: {fileID: 0}
+      attackReflectedFeedback: {fileID: 0}
+      attackNulledFeedback: {fileID: 0}
+      attackAbsorbedFeedback: {fileID: 0}
+    HitVFXPoolHeader: {fileID: 0}
+    projectileAttackVFXDestinationsHeader: {fileID: 0}
+    spawnedHitVFX: []
 --- !u!1 &6374409388911290995
 GameObject:
   m_ObjectHideFlags: 0
@@ -4437,7 +4439,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4526296241377216008
 Transform:
   m_ObjectHideFlags: 0
@@ -6103,6 +6105,7 @@ MonoBehaviour:
   includeDiagonals: 0
   maxNumCellsFromUnit: 0
   unitCameraRootTransform: {fileID: 0}
+  unitTransformAttacher: {fileID: 0}
   forceTypeToApply: 0
   forceDirection: 0
   forceDistance: 0
@@ -6500,13 +6503,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   healthCanvas: {fileID: 916988227653512909}
   statusEffectVisualHeader: {fileID: 2440555360822318905}
+  hitVFXHeader: {fileID: 4526296241377216008}
   damageFeedbacks:
     attackConnectedFeedback: {fileID: 5224493109697578771}
     attackEvadedFeedback: {fileID: 0}
     attackReflectedFeedback: {fileID: 0}
     attackNulledFeedback: {fileID: 0}
     attackAbsorbedFeedback: {fileID: 0}
-    spawnVFXHeader: {fileID: 4526296241377216008}
   healthState:
     currentHealth: 0
     currentSP: 0

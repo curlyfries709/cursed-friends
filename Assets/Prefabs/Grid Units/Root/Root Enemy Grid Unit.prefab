@@ -147,7 +147,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myUnit: {fileID: 5844313024014791247}
-  skillHeader: {fileID: 6890347965484857086}
   preferredTargetType: 0
   targetingBehaviour: 0
   targetAttribute: 0
@@ -185,7 +184,9 @@ MonoBehaviour:
   baseCharisma: 0
   equipment: {fileID: 6501493684535610738}
   defaultAttackElement: 0
-  knockbackImmunity: 0
+  hasForceImmunity: 0
+  useHitChance: 0
+  hitChance: 0
   buffSTRmultiplier: 1
   buffINTmultiplier: 1
   buffARMmultiplier: 1
@@ -206,6 +207,7 @@ MonoBehaviour:
   naturalArmour: 0
   expGainOnDefeat: 0
   dropItems: []
+  enemySkillSet: []
 --- !u!114 &5555139296692052144
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -237,21 +239,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c38667b090fd5ce4f9731cea1e6a3fbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxFP: 75
-  unitStatusEffectHeader: {fileID: 4660011109298143755}
   healthCanvas: {fileID: 4016623760852422780}
   statusEffectVisualHeader: {fileID: 1935063238202714504}
+  hitVFXHeader: {fileID: 3240358260576174579}
   damageFeedbacks:
     attackConnectedFeedback: {fileID: 6595033599007631545}
     attackEvadedFeedback: {fileID: 0}
     attackReflectedFeedback: {fileID: 0}
     attackNulledFeedback: {fileID: 0}
     attackAbsorbedFeedback: {fileID: 0}
-    spawnVFXHeader: {fileID: 3240358260576174579}
   healthState:
     currentHealth: 0
     currentSP: 0
     currentFP: 0
+  maxFP: 75
+  unitStatusEffectHeader: {fileID: 4660011109298143755}
 --- !u!114 &5844313024014791247
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -266,11 +268,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitName: 
   unitType: 1
+  stats: {fileID: 1144876015171618879}
   camFollowTarget: {fileID: 3632529755678759037}
   modelHeader: {fileID: 4399311656355208596}
   gridCollider: {fileID: 7442956124094620090}
   portrait: {fileID: 0}
-  stats: {fileID: 1144876015171618879}
   team: 1
   moveRange: 2
   moveSpeed: 2
@@ -896,6 +898,7 @@ GameObject:
   - component: {fileID: 2999330142777693895}
   - component: {fileID: 2766786236659591889}
   - component: {fileID: 6501493684535610738}
+  - component: {fileID: 1609236914072826904}
   m_Layer: 0
   m_Name: Model & Equipment
   m_TagString: Untagged
@@ -995,7 +998,6 @@ MonoBehaviour:
   animIDAmbushed: 0
   animIDSleeping: 0
   animIDRevive: 0
-  beginHealthCountdown: 0
 --- !u!114 &6501493684535610738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1012,6 +1014,18 @@ MonoBehaviour:
   equippedArmour: {fileID: 0}
   spawnEquippedWeaponModel: 0
   equippedEnchantment: {fileID: 0}
+--- !u!114 &1609236914072826904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1733616340058417056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18720532766a38346860d38336b2bb26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1758996005558520412
 GameObject:
   m_ObjectHideFlags: 0
@@ -2932,13 +2946,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa75421992f2f9247a57d1436543fa04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectTitleText: Guard
-  interactTitleText: Attack
   allowInteractionWhilePlayerInDanger: 1
   allowInteractionDuringFreeRoam: 1
   allowInteractionDuringCombat: 0
   interactorMustFaceMyForward: 1
   interactUI: {fileID: 4041219402923502116}
+  objectTitleText: Guard
+  interactTitleText: Attack
   attackText: {fileID: 1929297916466612596}
   ambushText: {fileID: 2228805993042556786}
   maxRotationAngleForAmbush: 45
@@ -3291,7 +3305,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myUnit: {fileID: 5844313024014791247}
-  mySkillData: {fileID: 0}
   isSingleTarget: 0
   targets: 
   skillShape: 0
@@ -3303,6 +3316,10 @@ MonoBehaviour:
   includeDiagonals: 0
   maxNumCellsFromUnit: 1
   unitCameraRootTransform: {fileID: 0}
+  unitTransformAttacher: {fileID: 0}
+  forceTypeToApply: 0
+  forceDirection: 0
+  forceDistance: 0
   evaluationTransform: {fileID: 6964741359319232547}
   isPrioritySkill: 0
   triggerChance: 100
@@ -3311,33 +3328,31 @@ MonoBehaviour:
   maxSkillCooldown: 0
   skillConditions: []
   blendListCamera: {fileID: 6202153591883405611}
-  isMagical: 0
-  powerGrade: 8
-  knockbackDistance: 0
-  element: 0
-  inflictedStatusEffects: []
-  hitVFXPoolHeader: {fileID: 0}
-  hitVFXSpawnOffsets: []
-  magicalAttackVFXDestination: {fileID: 0}
-  animationName: Attack
-  moveToAttack: 1
-  animationAttackDistance: 1
-  attackTriggerDelay: 0.3
-  moveToTargetTime: 0.25
-  delayBeforeReturn: 0.1
-  returnToGridPosTime: 0.5
-  attackStartTransform: {fileID: 0}
-  jumpToStartTransform: 0
-  jumpTime: 0
-  jumpHeight: 0
-  postJumpDelay: 0
-  attackFeedbacks:
-    attackConnectedFeedback: {fileID: 0}
-    attackEvadedFeedback: {fileID: 0}
-    attackReflectedFeedback: {fileID: 0}
-    attackNulledFeedback: {fileID: 0}
-    attackAbsorbedFeedback: {fileID: 0}
-    spawnVFXHeader: {fileID: 0}
+  offensiveSkillData:
+    powerGrade: 8
+    isMagical: 0
+    isChargedSkill: 0
+    isUnevadable: 0
+    skillElement: 0
+    skillItem: {fileID: 0}
+    inflictedStatusEffects: []
+    attackMultipleUnitsIndividually: 0
+    animationTriggerName: 
+    preAttackAutoMover: {fileID: 0}
+    postAttackAutoMover: {fileID: 0}
+    preMoveTargetTransform: {fileID: 0}
+    attackDistanceBetweenTarget: 0.5
+    delayBeforeReturn: 0.1
+    returnToGridPosTime: 0.35
+    attackFeedbacks:
+      attackConnectedFeedback: {fileID: 0}
+      attackEvadedFeedback: {fileID: 0}
+      attackReflectedFeedback: {fileID: 0}
+      attackNulledFeedback: {fileID: 0}
+      attackAbsorbedFeedback: {fileID: 0}
+    HitVFXPoolHeader: {fileID: 0}
+    projectileAttackVFXDestinationsHeader: {fileID: 0}
+    spawnedHitVFX: []
 --- !u!1 &6813421990337247190
 GameObject:
   m_ObjectHideFlags: 0

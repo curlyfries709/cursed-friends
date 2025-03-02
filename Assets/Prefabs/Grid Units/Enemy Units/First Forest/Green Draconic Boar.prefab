@@ -9990,6 +9990,60 @@ Transform:
   m_Father: {fileID: 1471223630664468}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: -27.582026}
+--- !u!1 &5023289969007016174
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1648210249612728844}
+  - component: {fileID: 4354547999640427646}
+  m_Layer: 0
+  m_Name: Move To Attack Destination
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1648210249612728844
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5023289969007016174}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3059917066818768602}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4354547999640427646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5023289969007016174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70eff7f7b7fb07346b7092068ffca3d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  triggerCallbackOnComplete: 1
+  movementDuration: 0.5
+  movementEaseType: 1
+  doRotate: 0
+  rotationDuration: 0.5
+  rotationEaseType: 1
+  doJump: 0
+  jumpPower: 0.5
+  numOfJumps: 1
+  nextInSequenceMover: {fileID: 0}
 --- !u!1 &5236357269367513309
 GameObject:
   m_ObjectHideFlags: 0
@@ -15483,6 +15537,60 @@ MonoBehaviour:
   activateOnEnable: 1
   onlyShowActiveUnit: 0
   onlyShowTargetsWithoutActiveUnit: 0
+--- !u!1 &6006933685032537596
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 210806995701044713}
+  - component: {fileID: 5392953224787846249}
+  m_Layer: 0
+  m_Name: Move To Attack Destination
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &210806995701044713
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6006933685032537596}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7546035804882781746}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5392953224787846249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6006933685032537596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70eff7f7b7fb07346b7092068ffca3d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  triggerCallbackOnComplete: 0
+  movementDuration: 0.5
+  movementEaseType: 1
+  doRotate: 0
+  rotationDuration: 0.5
+  rotationEaseType: 1
+  doJump: 0
+  jumpPower: 1
+  numOfJumps: 1
+  nextInSequenceMover: {fileID: 0}
 --- !u!1 &6019491007225038125
 GameObject:
   m_ObjectHideFlags: 0
@@ -21119,6 +21227,88 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c5dbbb1030d96d438905b0e01caa8d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &6931401733123983892
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 338753711610542055}
+  - component: {fileID: 6698577110169772164}
+  - component: {fileID: 4603519847457800189}
+  m_Layer: 0
+  m_Name: Jump Back Movement
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &338753711610542055
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6931401733123983892}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 126, y: 0, z: 94}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3059917066818768602}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6698577110169772164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6931401733123983892}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70eff7f7b7fb07346b7092068ffca3d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  triggerCallbackOnComplete: 1
+  movementDuration: 0.4
+  movementEaseType: 1
+  doRotate: 0
+  rotationDuration: 0.5
+  rotationEaseType: 1
+  doJump: 1
+  jumpPower: 0.5
+  numOfJumps: 1
+  nextInSequenceMover: {fileID: 4354547999640427646}
+--- !u!1773428102 &4603519847457800189
+ParentConstraint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6931401733123983892}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Weight: 1
+  m_TranslationAtRest: {x: 128, y: 0, z: 95}
+  m_RotationAtRest: {x: 0, y: 0, z: 0}
+  m_TranslationOffsets:
+  - {x: 0, y: 0, z: -4}
+  m_RotationOffsets:
+  - {x: 0, y: 180, z: 0}
+  m_AffectTranslationX: 1
+  m_AffectTranslationY: 1
+  m_AffectTranslationZ: 1
+  m_AffectRotationX: 1
+  m_AffectRotationY: 1
+  m_AffectRotationZ: 1
+  m_Active: 1
+  m_IsLocked: 1
+  m_Sources:
+  - sourceTransform: {fileID: 1478649560033103101}
+    weight: 1
 --- !u!1 &6938552558591754563
 GameObject:
   m_ObjectHideFlags: 0
@@ -21399,6 +21589,8 @@ Transform:
   - {fileID: 1190140479283834037}
   - {fileID: 1325346938904849342}
   - {fileID: 2160992375178154722}
+  - {fileID: 338753711610542055}
+  - {fileID: 1648210249612728844}
   m_Father: {fileID: 652822671184354001}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -21426,6 +21618,7 @@ MonoBehaviour:
   includeDiagonals: 1
   maxNumCellsFromUnit: 1
   unitCameraRootTransform: {fileID: 0}
+  unitTransformAttacher: {fileID: 0}
   forceTypeToApply: 1
   forceDirection: 0
   forceDistance: 0
@@ -21451,8 +21644,12 @@ MonoBehaviour:
       buffChange: 0
     attackMultipleUnitsIndividually: 0
     animationTriggerName: Ram
+    preAttackAutoMover: {fileID: 6698577110169772164}
+    postAttackAutoMover: {fileID: 0}
+    preMoveTargetTransform: {fileID: 1648210249612728844}
     moveToAttack: 1
     isAttackDistanceAForwardOffset: 0
+    attackDistanceBetweenTarget: 0.8
     animationAttackDistance: 0.8
     moveToTargetTime: 0.5
     delayBeforeReturn: 0.1
@@ -21464,37 +21661,18 @@ MonoBehaviour:
       attackNulledFeedback: {fileID: 0}
       attackAbsorbedFeedback: {fileID: 0}
       spawnVFXHeader: {fileID: 0}
-  isMagical: 0
-  powerGrade: 7
-  element: 0
-  inflictedStatusEffects:
-  - bonusPercentOfInflictingEffect: 15
-    statusEffect: {fileID: 11400000, guid: 7bcc6535eec0872478c894646888fae0, type: 2}
-    numOfTurns: 0
-    buffChange: 0
+    HitVFXPoolHeader: {fileID: 1190140479283834037}
+    projectileAttackVFXDestinationsHeader: {fileID: 0}
   hitVFXPoolHeader: {fileID: 1190140479283834037}
   hitVFXSpawnOffsets:
   - {fileID: 3447276392999894786}
   magicalAttackVFXDestination: {fileID: 0}
-  animationName: Ram
-  moveToAttack: 1
-  animationAttackDistance: 0.8
   attackTriggerDelay: 0
-  moveToTargetTime: 0.5
-  delayBeforeReturn: 0.1
-  returnToGridPosTime: 0.5
   attackStartTransform: {fileID: 5237167476581410471}
   jumpToStartTransform: 1
   jumpTime: 0.4
   jumpHeight: 0.5
   postJumpDelay: 0.15
-  attackFeedbacks:
-    attackConnectedFeedback: {fileID: 8674807122629207490}
-    attackEvadedFeedback: {fileID: 6562358353527456386}
-    attackReflectedFeedback: {fileID: 0}
-    attackNulledFeedback: {fileID: 0}
-    attackAbsorbedFeedback: {fileID: 0}
-    spawnVFXHeader: {fileID: 0}
 --- !u!1 &7917020975113922253
 GameObject:
   m_ObjectHideFlags: 0
@@ -42397,6 +42575,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
+      propertyPath: offensiveSkillData.HitVFXPoolHeader
+      value: 
+      objectReference: {fileID: 8939571914245578178}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
       propertyPath: offensiveSkillData.moveToTargetTime
       value: 0.15
       objectReference: {fileID: 0}
@@ -42405,6 +42588,11 @@ PrefabInstance:
       propertyPath: attackFeedbacks.attackEvadedFeedback
       value: 
       objectReference: {fileID: 870631688098335561}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.preAttackAutoMover
+      value: 
+      objectReference: {fileID: 5392953224787846249}
     - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
       propertyPath: offensiveSkillData.returnToGridPosTime
@@ -42422,7 +42610,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
+      propertyPath: offensiveSkillData.preMoveTargetTransform
+      value: 
+      objectReference: {fileID: 210806995701044713}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
       propertyPath: offensiveSkillData.animationAttackDistance
+      value: 1.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.attackDistanceBetweenTarget
       value: 1.4
       objectReference: {fileID: 0}
     - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
@@ -44594,6 +44792,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1870300844101935917}
+    - targetCorrespondingSourceObject: {fileID: 4479044921527265821, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 210806995701044713}
     - targetCorrespondingSourceObject: {fileID: 898605385697214635, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
       insertIndex: -1

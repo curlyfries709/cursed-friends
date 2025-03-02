@@ -1,5 +1,59 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &637380562831168733
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4394331289216083344}
+  - component: {fileID: 3817326061053905709}
+  m_Layer: 0
+  m_Name: Move To Attack Destination
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4394331289216083344
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 637380562831168733}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5070125763505651958}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3817326061053905709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 637380562831168733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70eff7f7b7fb07346b7092068ffca3d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  triggerCallbackOnComplete: 1
+  movementDuration: 0.4
+  movementEaseType: 1
+  doRotate: 0
+  rotationDuration: 0.5
+  rotationEaseType: 1
+  doJump: 0
+  jumpPower: 1
+  numOfJumps: 1
+  nextInSequenceMover: {fileID: 0}
 --- !u!1 &886439023789926629
 GameObject:
   m_ObjectHideFlags: 0
@@ -23,12 +77,12 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 886439023789926629}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5070125763505651958}
+  m_Father: {fileID: 792256463019380727}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &905620300698402418
@@ -308,7 +362,6 @@ MonoBehaviour:
   - rid: 4144081926284902414
   - rid: 4144081926284902415
   - rid: 4144081926284902416
-  - rid: 4144081926284902417
   - rid: 4144081926284902418
   KeepPlayModeChanges: 0
   PerformanceMode: 0
@@ -577,95 +630,6 @@ MonoBehaviour:
           m_PropagationSpeed: 343
         Velocity: {x: 0, y: 0, z: 1.5}
         ClearImpulseOnStop: 0
-    - rid: 4144081926284902417
-      type: {class: MMF_Events, ns: MoreMountains.Feedbacks, asm: MoreMountains.Feedbacks}
-      data:
-        Active: 1
-        UniqueID: -700565724
-        Label: Play Target Feedback
-        ChannelMode: 0
-        Channel: 0
-        MMChannelDefinition: {fileID: 0}
-        Chance: 100
-        DisplayColor: {r: 0, g: 0, b: 0, a: 1}
-        Timing:
-          TimescaleMode: 0
-          ExcludeFromHoldingPauses: 0
-          ContributeToTotalDuration: 1
-          InitialDelay: 0.7
-          CooldownDuration: 0
-          InterruptsOnStop: 1
-          NumberOfRepeats: 0
-          RepeatForever: 0
-          DelayBetweenRepeats: 1
-          MMFeedbacksDirectionCondition: 0
-          PlayDirection: 0
-          ConstantIntensity: 0
-          UseIntensityInterval: 0
-          IntensityIntervalMin: 0
-          IntensityIntervalMax: 0
-          Sequence: {fileID: 0}
-          TrackID: 0
-          Quantized: 0
-          TargetBPM: 120
-        RandomizeOutput: 0
-        RandomMultiplier: {x: 0.8, y: 1}
-        RandomizeDuration: 0
-        RandomDurationMultiplier: {x: 0.5, y: 2}
-        UseRange: 0
-        RangeDistance: 5
-        UseRangeFalloff: 0
-        RangeFalloff:
-          serializedVersion: 2
-          m_Curve:
-          - serializedVersion: 3
-            time: 0
-            value: 1
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 1
-            value: 0
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
-            outWeight: 0
-          m_PreInfinity: 2
-          m_PostInfinity: 2
-          m_RotationOrder: 4
-        RemapRangeFalloff: {x: 0, y: 1}
-        Owner: {fileID: 6990079082247814408}
-        DebugActive: 0
-        PlayEvents:
-          m_PersistentCalls:
-            m_Calls:
-            - m_Target: {fileID: 2326371854664917044}
-              m_TargetAssemblyTypeName: AIOffensiveSkill, Assembly-CSharp
-              m_MethodName: PlayTargetsAffinityFeedback
-              m_Mode: 1
-              m_Arguments:
-                m_ObjectArgument: {fileID: 0}
-                m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-                m_IntArgument: 0
-                m_FloatArgument: 0
-                m_StringArgument: 
-                m_BoolArgument: 0
-              m_CallState: 2
-        StopEvents:
-          m_PersistentCalls:
-            m_Calls: []
-        InitializationEvents:
-          m_PersistentCalls:
-            m_Calls: []
-        ResetEvents:
-          m_PersistentCalls:
-            m_Calls: []
     - rid: 4144081926284902418
       type: {class: MMF_Sound, ns: MoreMountains.Feedbacks, asm: MoreMountains.Feedbacks.MMTools}
       data:
@@ -847,6 +811,37 @@ Transform:
   - {fileID: 8157789516377116214}
   m_Father: {fileID: 5070125763505651958}
   m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3867593962268351355
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6897861663161299989}
+  m_Layer: 0
+  m_Name: Skill Owner Transform Attacher
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6897861663161299989
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3867593962268351355}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 792256463019380727}
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3911042688180177189
 GameObject:
@@ -5855,11 +5850,12 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3803558352382163684}
+  - {fileID: 792256463019380727}
   - {fileID: 861063235981560687}
   - {fileID: 1108765876084447456}
   - {fileID: 1609788833230646353}
   - {fileID: 6990032900202066951}
+  - {fileID: 4394331289216083344}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5887,6 +5883,7 @@ MonoBehaviour:
   includeDiagonals: 1
   maxNumCellsFromUnit: 1
   unitCameraRootTransform: {fileID: 3803558352382163684}
+  unitTransformAttacher: {fileID: 6897861663161299989}
   forceTypeToApply: 0
   forceDirection: 0
   forceDistance: 0
@@ -5912,10 +5909,10 @@ MonoBehaviour:
       buffChange: 0
     attackMultipleUnitsIndividually: 0
     animationTriggerName: Attack
-    moveToAttack: 1
-    isAttackDistanceAForwardOffset: 0
-    animationAttackDistance: 1
-    moveToTargetTime: 0.4
+    preAttackAutoMover: {fileID: 3817326061053905709}
+    postAttackAutoMover: {fileID: 0}
+    preMoveTargetTransform: {fileID: 4394331289216083344}
+    attackDistanceBetweenTarget: 1
     delayBeforeReturn: 0.1
     returnToGridPosTime: 0.5
     attackFeedbacks:
@@ -5925,16 +5922,8 @@ MonoBehaviour:
       attackNulledFeedback: {fileID: 0}
       attackAbsorbedFeedback: {fileID: 0}
       spawnVFXHeader: {fileID: 0}
-  hitVFXPoolHeader: {fileID: 1609788833230646353}
-  hitVFXSpawnOffsets:
-  - {fileID: 4323609274237294915}
-  magicalAttackVFXDestination: {fileID: 0}
-  attackTriggerDelay: 0.3
-  attackStartTransform: {fileID: 0}
-  jumpToStartTransform: 0
-  jumpTime: 0
-  jumpHeight: 0
-  postJumpDelay: 0
+    HitVFXPoolHeader: {fileID: 1609788833230646353}
+    projectileAttackVFXDestinationsHeader: {fileID: 0}
 --- !u!1 &6897507714678949984
 GameObject:
   m_ObjectHideFlags: 0
@@ -6209,6 +6198,39 @@ MonoBehaviour:
         MoveToPosition: 0
         ActivateOnPlay: 1
         StopSystemOnInit: 1
+--- !u!1 &7853155643234366362
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 792256463019380727}
+  m_Layer: 0
+  m_Name: Attachers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &792256463019380727
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7853155643234366362}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3803558352382163684}
+  - {fileID: 6897861663161299989}
+  m_Father: {fileID: 5070125763505651958}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8301754152545364544
 GameObject:
   m_ObjectHideFlags: 0

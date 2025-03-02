@@ -34,6 +34,13 @@ public struct SkillForceData
         this.directionType = forceDirectionType;
         this.forceDistance = forceDistance;
     }
+
+    public SkillForceData(SkillForceData newSkillForce)
+    {
+        forceType = newSkillForce.forceType;
+        directionType = newSkillForce.directionType;
+        forceDistance = newSkillForce.forceDistance;
+    }
 }
 
 public class SkillForce : MonoBehaviour, ITurnEndEvent

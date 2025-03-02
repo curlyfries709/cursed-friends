@@ -13,7 +13,7 @@ public class SBUntouched : StrategicBonusChecker
 
     protected override void OnUnitHit(DamageData damageData)
     {
-        if(damageData.target is PlayerGridUnit && damageData.damageReceived > 0 && damageData.affinityToAttack != Affinity.Absorb)
+        if(damageData.target is PlayerGridUnit && damageData.HPChange > 0 && damageData.affinityToAttack != Affinity.Absorb)
         {
             playerDamaged = true;
         }

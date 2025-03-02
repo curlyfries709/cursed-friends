@@ -183,7 +183,7 @@ public class Beatdown : MonoBehaviour
 
             if (targetDamageDict.ContainsKey(target))
             {
-                targetDamageDict[target].rawDamage += damage;
+                targetDamageDict[target].HPChange += damage;
             }
             else
             {

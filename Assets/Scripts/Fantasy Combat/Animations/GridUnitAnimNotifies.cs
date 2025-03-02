@@ -37,6 +37,8 @@ public class GridUnitAnimNotifies : MonoBehaviour
                 {
                     Debug.LogError("Current Combat Action null whilst listener: " + listener.ToString() + " still subscribed to Health.TriggerHealthChangeEvent");
                 }
+
+                Debug.Break();
             }
         }
         else

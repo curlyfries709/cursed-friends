@@ -46,8 +46,9 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     [HideIf("includeDiagonals")]
     [Tooltip("if not including diagonals, use this to define which cells should be removed. (Used when calculating ManhattenDistance)")]
     [SerializeField] int maxNumCellsFromUnit = 1;
-    [Header("Base Components")]
+    [Title("Attachers")]
     [SerializeField] protected Transform unitCameraRootTransform;
+    [SerializeField] protected Transform unitTransformAttacher;
     [Title("Skill Force")]
     [SerializeField] protected SkillForceType forceTypeToApply = SkillForceType.None;
     [Tooltip("Unit Forward: Apply force in direction related to the acting unit's forward direction. PositionDirection: Apply force in direction of (Target.GridPosition - Attacker.GridPosition)")]
@@ -105,6 +106,14 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         impulseSource = GetComponent<CinemachineImpulseSource>();
         canTargetSelf = targets.Contains(FantasyCombatTarget.Self);
         isTargetSelfOnlySkill = canTargetSelf && targets.Count == 1;
+
+        if (myUnit)
+        {
+            if (this is IOffensiveSkill offensiveSkill)
+            {
+                offensiveSkill.GetOffensiveSkillData().SetupData(this, myUnit);
+            }
+        }
     }
 
     //ABSTRACT FUNCS
@@ -122,6 +131,9 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         unitCameraRootTransform.parent = skillPrefabSetter.cameraRootTransform;
         HandyFunctions.ResetTransform(unitCameraRootTransform, true);
 
+        unitTransformAttacher.parent = myUnit.transform;
+        HandyFunctions.ResetTransform(unitTransformAttacher, true);
+
         transform.parent = skillPrefabSetter.skillHeader;
         HandyFunctions.ResetTransform(transform, true);
 
@@ -138,6 +150,8 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
 
     public void DisplayUnitHealthUIComplete()
     {
+        if (!isActive) { return; }
+
         int totalToCheck = anyTargetsWithReflectAffinity ? numOfHealthUIDisplay + 1 : numOfHealthUIDisplay;
 
         healthUIDisplayedCounter++;
@@ -158,8 +172,29 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         EndAction();
     }
 
+    //CALLED VIA FEEDBACKS
+    public virtual void Attack()
+    {
+        if (this is IOffensiveSkill offensiveSkill)
+        {
+            offensiveSkill.Attack(skillTargets, ref anyTargetsWithReflectAffinity);
+        }    
+    }
+
+    public void RaiseHealthChangeEvent(int eventType) //Helpful event for feedbacks to raise. 
+    {
+        ((ICombatAction)this).ActionAnimEventRaised((GridUnitAnimNotifies.EventType)eventType);
+    }
+
+    //END OF CALLED VIA FEEDBACKS
+
     public virtual void EndAction()
     {
+        if (this is IOffensiveSkill offensiveSkill)
+        {
+            offensiveSkill.GetOffensiveSkillData().ReturnVFXToPool();
+        }
+
         FantasyCombatManager.Instance.SetCurrentAction(this, true);
         FantasyCombatManager.Instance.ActionComplete?.Invoke();
     }
@@ -167,6 +202,25 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     protected virtual void SkillComplete()
     {
         FantasyCombatManager.Instance.CombatEnded -= OnSkillInterrupted;
+    }
+
+    protected virtual void SetUnitsToShow()
+    {
+        List<GridUnit> targetedUnits;
+
+        if (this is IOffensiveSkill)
+        {
+            targetedUnits = CombatFunctions.SetOffensiveSkillUnitsToShow(myUnit, selectedUnits, forceDistance);
+        }
+        else
+        {
+            targetedUnits = new List<GridUnit>(selectedUnits)
+            {
+                myUnit
+            };
+        }
+
+        FantasyCombatManager.Instance.SetUnitsToShow(targetedUnits);
     }
 
     protected void SetSkillTargets()
@@ -181,6 +235,11 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         healthUIDisplayedCounter = 0;
         anyTargetsWithReflectAffinity = false;
     }
+
+
+
+
+    //SKILL CALCULATION
 
     protected virtual void CalculateSelectedGridPos()
     {
@@ -774,8 +833,13 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         return this;
     }
 
-    public SkillForceData GetSkillForceData(GridUnit target)
+    public SkillForceData? GetSkillForceData(GridUnit target)
     {
+        if(forceTypeToApply == SkillForceType.None)
+        {
+            return null;
+        }
+
         return new SkillForceData(GetForceToApplyToUnit(target), forceDirection, forceDistance);
     }
 

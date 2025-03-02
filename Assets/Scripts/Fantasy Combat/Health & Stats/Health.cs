@@ -1,13 +1,17 @@
+using AnotherRealm;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public abstract class Health : MonoBehaviour, ISaveable
 {
     [Header("UI")]
     [SerializeField] protected GameObject healthCanvas;
+    [Header("Transform Headers")]
     [SerializeField] protected Transform statusEffectVisualHeader;
+    [SerializeField] protected Transform hitVFXHeader;
     [Header("DAMAGE FEEDBACKS")]
     [SerializeField] protected AffinityFeedback damageFeedbacks;
 
@@ -66,6 +70,7 @@ public abstract class Health : MonoBehaviour, ISaveable
 
     private void Awake()
     {
+        hitVFXHeader.gameObject.SetActive(false);
         SetIntializationData();
     }
 
@@ -108,13 +113,6 @@ public abstract class Health : MonoBehaviour, ISaveable
         return FinalizeDamageData(attackData, damageType);
     }
 
-    public void TakeStatusEffectDamage(AttackData attackData, int healthPercentToRemove)
-    {
-        if (isKOed) { return; }
-
-        FinalizeDamageData(attackData, DamageType.StatusEffect, healthPercentToRemove);
-    }
-
     public virtual void TakeBumpDamage(int damage)
     {
         if (isKOed) { return; }
@@ -137,11 +135,11 @@ public abstract class Health : MonoBehaviour, ISaveable
         switch (damageType)
         {
             case DamageType.StatusEffect:
-                newDamageData = TheCalculator.Instance.CalculateStatusEffectDamage(myCharacter, attackData, optionalNumValue);
+                newDamageData = TheCalculator.Instance.CalculateStatusEffectDamage(myCharacter, attackData);
                 break;
             case DamageType.KnockbackBump:
                 newDamageData = new DamageData(myUnit, null, null);
-                newDamageData.damageReceived = optionalNumValue;
+                newDamageData.HPChange = optionalNumValue;
                 break;
             default:
                 CharacterHealth characterHealth = this as CharacterHealth;
@@ -156,7 +154,7 @@ public abstract class Health : MonoBehaviour, ISaveable
         {
             Evade.Instance.PrepUnitToEvade(attacker, myCharacter);
             currentHealthChangeDatas.Add(null); //Pad the list with null data. 
-            Debug.Log("Adding Null Evade Data for : " + myCharacter.unitName);
+            Debug.Log("Adding Null Evade Data for : " + healthUI.GetUnitDisplayName());
 
             return newDamageData;
         }
@@ -175,7 +173,7 @@ public abstract class Health : MonoBehaviour, ISaveable
         //Knockback or suction
         if (CanApplyForces(newDamageData))
         {
-            SkillForce.Instance.PrepareToApplyForceToUnit(attacker, myUnit, newDamageData.hitByAttackData.forceData, attackData.rawDamage, damageType == DamageType.Reflect);
+            SkillForce.Instance.PrepareToApplyForceToUnit(attacker, myUnit, newDamageData.hitByAttackData.forceData.Value, attackData.HPChange, damageType == DamageType.Reflect);
         }
 
         //Add to list
@@ -189,7 +187,7 @@ public abstract class Health : MonoBehaviour, ISaveable
         //Update attack data
         AttackData attackData = new AttackData(damageData.hitByAttackData);
 
-        attackData.rawDamage = damageData.damageReceived;
+        attackData.HPChange = damageData.HPChange;
         attackData.attacker = myUnit;
         attackData.numOfTargets = 1;
         attackData.canEvade = false;
@@ -209,20 +207,20 @@ public abstract class Health : MonoBehaviour, ISaveable
         if (newHealData.convertToDamage)
         {
             //Create damage data
-            DamageData newDamageData = new DamageData(myUnit, null, Affinity.None, newHealData.HPRestore);
+            DamageData newDamageData = new DamageData(myUnit, null, Affinity.None, newHealData.HPChange);
             currentHealthChangeDatas.Add(newDamageData);
             return;
         }
 
         //Suction only
-        if (newHealData.forceData.forceType == SkillForceType.KnockbackAll)
+        if (newHealData.forceData?.forceType == SkillForceType.KnockbackAll)
             Debug.LogError("HEALING SKILLS SHOULD NOT HAVE FORCE TYPE OF KNOCKBACK ALL. PLEASE FIX");
 
         if (CanApplyForces(newHealData))
         {
-            SkillForce.Instance.PrepareToApplyForceToUnit(attacker, myUnit, newHealData.forceData, 0, false);
+            SkillForce.Instance.PrepareToApplyForceToUnit(attacker, myUnit, newHealData.forceData.Value, 0, false);
         }
-        else if (newHealData.HPRestore <= 0 && !myCharacter) //Do not bother if this is object and only restore SP or FP
+        else if (newHealData.HPChange <= 0 && !myCharacter) //Do not bother if this is object and only restore SP or FP
         {
             return;
         }
@@ -246,7 +244,7 @@ public abstract class Health : MonoBehaviour, ISaveable
             return;
         }
 
-        Debug.Log("Triggering health change Event for: " + myUnit.unitName);
+        Debug.Log("Triggering health change Event for: " + healthUI.GetUnitDisplayName());
         //UnSubscribe from event
         ListenToHealthChangeEvent(false);
 
@@ -275,19 +273,25 @@ public abstract class Health : MonoBehaviour, ISaveable
         }
         else //Else means it's null, so it's an evade
         {
-            Debug.Log("Evade Detected for: " + myUnit.unitName);
+            Debug.Log("Evade Detected for: " + healthUI.GetUnitDisplayName());
         }
     }
 
     protected void TriggerDamageEvent()
     {
         //Update Damage Display Time
-        FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(currentDamageData.affinityToAttack, currentDamageData.isKOHit, currentDamageData.isKnockdownHit);
+        FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(currentDamageData.affinityToAttack, currentDamageData.isKOHit, currentDamageData.isKnockdownHit, currentHealthChangeDatas.Count > 0);
 
         Affinity currentAffinity = currentDamageData.affinityToAttack;
 
         //Update Health
         UpdateHealthFromAffinity(currentAffinity);
+
+        //Update SP if character
+        if(this is CharacterHealth characterHealth)
+        {
+            characterHealth.LoseSP(currentDamageData.SPChange);
+        }
 
         //Update Enemy Database if enemy.
         if (!isPlayer && !IsObject())
@@ -298,6 +302,11 @@ public abstract class Health : MonoBehaviour, ISaveable
         //Raise Hit Event
         UnitHit?.Invoke(currentDamageData);
 
+        SetVFXToPlay(currentDamageData.hitByAttackData);
+
+        //Trigger Feedback
+        CombatFunctions.PlayAffinityFeedback(currentAffinity, damageFeedbacks);
+
         switch (currentAffinity)
         {
             case Affinity.Evade: //Affinity shouldn't be evade if this function is being called.
@@ -306,7 +315,7 @@ public abstract class Health : MonoBehaviour, ISaveable
             case Affinity.Immune:
             case Affinity.Reflect:
             case Affinity.Absorb:
-                ShowHealthUI(currentAffinity, currentDamageData);
+                ShowHealthChangeUI(currentAffinity, currentDamageData);
                 break;
             case Affinity.Weak:
             case Affinity.Resist:
@@ -337,17 +346,14 @@ public abstract class Health : MonoBehaviour, ISaveable
         else if (currentAffinity == Affinity.Absorb)
         {
             //Heal By Damage Dealt
-            currentHealth = currentHealth + currentDamageData.damageReceived;
+            currentHealth = currentHealth + currentDamageData.HPChange;
             currentHealth = Mathf.Min(currentHealth, MaxHealth());
         }
         else
         {
             //Else Deduct Damage.
-            currentHealth = currentHealth - currentDamageData.damageReceived;
+            currentHealth = currentHealth - currentDamageData.HPChange;
         }
-
-        //Prepare Data to be shown.
-        healthUI.SetHPChangeNumberText(currentDamageData.damageReceived);
 
         //Clamp Health
         currentHealth = Mathf.Max(currentHealth, 0);
@@ -368,9 +374,6 @@ public abstract class Health : MonoBehaviour, ISaveable
     public static void RaiseHealthChangeEvent(bool canTrigger)
     {
         TriggerHealthChangeEvent?.Invoke(canTrigger);
-
-        /*if(canTrigger)
-            FantasyCombatManager.Instance.BeginHealthUICountdown();*/
     }
 
     protected void ListenToHealthChangeEvent(bool listen)
@@ -415,12 +418,9 @@ public abstract class Health : MonoBehaviour, ISaveable
 
     //HELPERS
 
-    protected virtual void ShowHealthUI(Affinity affinity, HealthChangeData healthChangeData)
+    public virtual void ShowHealthChangeUI(Affinity affinity, HealthChangeData healthChangeData)
     {
-        bool isHealing = healthChangeData == null ? false :
-            !(healthChangeData is DamageData) || (healthChangeData as DamageData).affinityToAttack == Affinity.Absorb;
-
-        healthUI.DisplayHealthChangeUI(affinity, healthChangeData, GetHealthNormalized(), isHealing, currentHealthChangeDatas.Count > 0);
+        healthUI.DisplayHealthChangeUI(affinity, healthChangeData, GetHealthNormalized());
     }
 
     protected void ClearAllData()
@@ -448,12 +448,12 @@ public abstract class Health : MonoBehaviour, ISaveable
     {
         bool immuneToForces = myUnit.stats.IsImmuneToForces();
 
-        if (immuneToForces)
+        if (immuneToForces || !healthChangeData.forceData.HasValue)
         {
             return false;
         }
 
-        SkillForceType forceType = healthChangeData.forceData.forceType;
+        SkillForceType forceType = healthChangeData.forceData.Value.forceType;
 
         if (healthChangeData is DamageData damageData)
         {
@@ -483,16 +483,16 @@ public abstract class Health : MonoBehaviour, ISaveable
             {
                 if (damageData.affinityToAttack == Affinity.Absorb)
                 {
-                    predictedHealth = predictedHealth + damageData.damageReceived;
+                    predictedHealth = predictedHealth + damageData.HPChange;
                 }
                 else
                 {
-                    predictedHealth = predictedHealth - damageData.damageReceived;
+                    predictedHealth = predictedHealth - damageData.HPChange;
                 }
             }
             else if (healthChangeData is HealData healData)
             {
-                predictedHealth = predictedHealth + healData.HPRestore;
+                predictedHealth = predictedHealth + healData.HPChange;
             }
 
             if (predictedHealth <= 0) //If it ever drops to 0 or below, immediately retun 0 cos at that point they are KOed. 
@@ -502,12 +502,6 @@ public abstract class Health : MonoBehaviour, ISaveable
         }
 
         return predictedHealth;
-    }
-
-    public AffinityFeedback GetDamageFeedbacks(Transform transformToPlayVFX, GameObject VFXToPlay)
-    {
-        SetVFXToPlay(myUnit, damageFeedbacks, transformToPlayVFX, VFXToPlay);
-        return damageFeedbacks;
     }
 
     //SETUPS
@@ -548,27 +542,17 @@ public abstract class Health : MonoBehaviour, ISaveable
         SetupHealthUI();
     }
 
-    public void SetVFXToPlay(GridUnit myUnit, AffinityFeedback feedbacks, Transform transformToPlayVFX, GameObject VFXToPlay)
+    private void SetVFXToPlay(AttackData attackData)
     {
-        //Deactive all children so VFX Doesn't trigger when detached
-        foreach (Transform child in feedbacks.spawnVFXHeader)
-        {
-            child.gameObject.SetActive(false);
-        }
-
-        //Unparent Children
-        feedbacks.spawnVFXHeader.DetachChildren();
+        GameObject VFXToPlay = attackData.hitVFX;
 
         if (!VFXToPlay) { return; }
 
-        VFXToPlay.transform.parent = null;
+        Vector3 position = attackData.hitVFXPos;
 
-        Vector3 spawnHitDestination = myUnit.GetClosestPointOnColliderToPosition(transformToPlayVFX.position) + (transformToPlayVFX.forward.normalized * 0.25f);
-
-        VFXToPlay.transform.position = spawnHitDestination;
-        VFXToPlay.transform.rotation = transformToPlayVFX.rotation;
-
-        VFXToPlay.transform.parent = feedbacks.spawnVFXHeader;
+        VFXToPlay.transform.parent = hitVFXHeader; 
+        VFXToPlay.transform.position = position;
+        VFXToPlay.transform.forward = (attackData.attacker.transform.position - myUnit.transform.position).normalized;
     }
 
     //SETTERS
@@ -577,20 +561,19 @@ public abstract class Health : MonoBehaviour, ISaveable
         healthUI.Fade(show);
     }
 
+    public void ActivateNameOnlyUI(bool show)
+    {
+        healthUI.NameOnlyMode(show);
+    }
+
     public void DeactivateHealthVisualImmediate()
     {
         healthUI.DeactivateImmediate();
     }
 
-    public void ActivateStatusEffectHealthVisual(bool show)
-    {
-        healthUI.NameOnlyMode();
-        healthUI.Fade(show);
-    }
-
     public void SetBuffsToApplyVisual(List<ChanceOfInflictingStatusEffect> buffs)
     {
-        healthUI.SetBuffsToDisplay(buffs);
+        //healthUI.SetBuffsToDisplay(buffs);
     }
 
     protected void SetIntializationData()

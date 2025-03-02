@@ -38,7 +38,6 @@ public abstract class CounterAttack : MonoBehaviour, ICombatAction
 
     List<Transform> hitVFXSpawnOffsets = new List<Transform>();
 
-    MMF_Player targetFeedbackToPlay;
 
     protected virtual void Awake()
     {
@@ -62,6 +61,8 @@ public abstract class CounterAttack : MonoBehaviour, ICombatAction
 
     public void DisplayUnitHealthUIComplete()
     {
+        if (!isActive) { return; }
+
         uiCounter++;
 
         int totalToCheck = isReflectAffinity ? 2 : 1;
@@ -92,7 +93,7 @@ public abstract class CounterAttack : MonoBehaviour, ICombatAction
 
     public void PlayTargetFeedback() //CALLED VIA FEEDBACK
     {
-        targetFeedbackToPlay?.PlayFeedbacks();
+        //DELETE METHOD
     }
 
     public void DealKnockbackDamage(CharacterGridUnit target, PowerGrade powerGrade)
@@ -113,10 +114,6 @@ public abstract class CounterAttack : MonoBehaviour, ICombatAction
         {
             isReflectAffinity = true;
         }
-
-        AffinityFeedback feedbacks = target.CharacterHealth().GetDamageFeedbacks(CombatFunctions.GetVFXSpawnTransform(hitVFXSpawnOffsets, target), hitVFX);
-
-        targetFeedbackToPlay = CombatFunctions.GetTargetFeedback(feedbacks, affinity);
     }
 
 

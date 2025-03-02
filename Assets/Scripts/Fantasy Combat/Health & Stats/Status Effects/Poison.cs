@@ -36,8 +36,7 @@ public class Poison : StatusEffect, ITurnEndEvent
 
     public void PlayTurnEndEvent()
     {
-        ApplyStatusEffectDamageToUnit(5);
-        myUnit.CharacterHealth().TakeSPLoss(5);
+        ApplyStatusEffectDamageToUnit(5, 5);
 
         StatusEffectManager.Instance.PlayDamageTurnEndEvent(myUnit);
     }

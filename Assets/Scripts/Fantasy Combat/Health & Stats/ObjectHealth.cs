@@ -44,7 +44,7 @@ public class ObjectHealth : Health
             WeaknessHit?.Invoke(currentDamageData);
         }
 
-        ShowHealthUI(currentDamageData.affinityToAttack, currentDamageData);
+        ShowHealthChangeUI(currentDamageData.affinityToAttack, currentDamageData);
     }
 
     protected override void KO()
@@ -56,7 +56,7 @@ public class ObjectHealth : Health
             WeaknessHit?.Invoke(currentDamageData);
         }
 
-        ShowHealthUI(currentDamageData.affinityToAttack, currentDamageData);
+        ShowHealthChangeUI(currentDamageData.affinityToAttack, currentDamageData);
         
         //Give FP, then Deplete FP
         TryGiveAttackerFP(true);
@@ -67,21 +67,17 @@ public class ObjectHealth : Health
     protected override void TriggerHealEvent()
     {
         //Update display time
-        FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(Affinity.None, false, false);
+        FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(Affinity.None, false, false, currentHealthChangeDatas.Count > 0);
 
-        int HPRestore = currentHealData.HPRestore;
+        int HPRestore = currentHealData.HPChange;
 
-        //Prepare Data to be shown.
-        if (HPRestore > 0)
-        {
-            healthUI.SetHPChangeNumberText(HPRestore);
-            currentHealth = Mathf.Min(currentHealth + HPRestore, MaxHealth());
-        }
+        //Update HP
+        currentHealth = Mathf.Min(currentHealth + HPRestore, MaxHealth());
 
         //Objects cannot be Revived
 
         //Show Health
-        ShowHealthUI(Affinity.None, currentHealData);
+        ShowHealthChangeUI(Affinity.None, currentHealData);
 
         //Clear current heal data
         currentHealData = null;

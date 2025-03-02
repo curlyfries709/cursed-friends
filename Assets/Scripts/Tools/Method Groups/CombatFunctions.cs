@@ -628,8 +628,10 @@ namespace AnotherRealm
 
         public static List<GridUnit> SetOffensiveSkillUnitsToShow(GridUnit attackingUnit, List<GridUnit> selectedUnits, int knockbackDistance)
         {
-            List<GridUnit> targetedUnits = new List<GridUnit>(selectedUnits);
-            targetedUnits.Add(attackingUnit);
+            List<GridUnit> targetedUnits = new List<GridUnit>(selectedUnits)
+            {
+                attackingUnit
+            };
 
             if (knockbackDistance > 0)
             {
@@ -727,28 +729,39 @@ namespace AnotherRealm
         }
 
         //Feedback
-        public static void PlayAttackFeedback(Affinity attackAffinity, AffinityFeedback attackFeedbacks)
+        public static void PlayAffinityFeedback(Affinity attackAffinity, AffinityFeedback attackFeedbacks)
         {
+            MMF_Player feedbackToPlay;
+
             switch (attackAffinity)
             {
                 case Affinity.Absorb:
-                    attackFeedbacks.attackAbsorbedFeedback?.PlayFeedbacks();
+                    feedbackToPlay = attackFeedbacks.attackAbsorbedFeedback;
                     break;
                 case Affinity.Evade:
-                    attackFeedbacks.attackEvadedFeedback?.PlayFeedbacks();
+                    feedbackToPlay = attackFeedbacks.attackEvadedFeedback;
                     break;
                 case Affinity.Reflect:
-                    attackFeedbacks.attackReflectedFeedback?.PlayFeedbacks();
+                    feedbackToPlay = attackFeedbacks.attackReflectedFeedback;
+                    break;
+                case Affinity.Immune:
+                    feedbackToPlay = attackFeedbacks.attackNulledFeedback;
                     break;
                 default:
-                    //For None, Weak, Resist & Immnune.
-                    attackFeedbacks.attackConnectedFeedback?.PlayFeedbacks();
-
-                    if (!attackFeedbacks.attackConnectedFeedback)
-                        Debug.Log("NO ATTACK CONNECTED FEEDBACK");
-
+                    //For None, Weak & Resist
+                    feedbackToPlay = attackFeedbacks.attackConnectedFeedback;
                     break;
             }
+
+            if (feedbackToPlay == null)
+            {
+                feedbackToPlay = attackFeedbacks.attackConnectedFeedback;
+            }
+
+            feedbackToPlay?.PlayFeedbacks();
+
+            if (!feedbackToPlay)
+                Debug.Log("NO ATTACK FEEDBACK FOR: " + attackAffinity + " AND COULDN'T PLAY DEFAULT ATTACK CONNECTED FEEDBACK");
         }
 
         public static Transform GetVFXSpawnTransform(List<Transform> hitVFXSpawnOffsets, GridUnit target)

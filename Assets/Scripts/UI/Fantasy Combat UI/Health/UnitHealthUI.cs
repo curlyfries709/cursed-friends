@@ -25,6 +25,8 @@ public class UnitHealthUI : FadeUI
     [Header("Timers")]
     [SerializeField] float heartAnimationTime;
     [SerializeField] float damageDealtDisplayTime;
+    [Space(10)]
+    [SerializeField] float statusEffectOnlyDisplayTime;
     [Header("Status Effects")]
     [SerializeField] Transform statusEffectHeader;
     [Header("Affinity Event Text")]
@@ -46,15 +48,16 @@ public class UnitHealthUI : FadeUI
     //Variables
     public float displayTime { get; private set; } = 1;
 
-    bool dataShown = true;
     bool hasSetName = false;
     public bool showingSkillFeedback { get; private set; } = false;
-    bool showSPChange = false;
+
+    //STATUS EFFECT DATA
     bool showingBuffsOnly = false;
 
     List<ChanceOfInflictingStatusEffect> buffsToDisplay = new List<ChanceOfInflictingStatusEffect>();
     List<bool> buffsExtensionData = new List<bool>();
 
+    //CACHE
     private Color outerHeartDefaultColor;
 
     CharacterGridUnit myCharacter;
@@ -96,14 +99,28 @@ public class UnitHealthUI : FadeUI
         ClearStatusEffects();
     }
 
-    public void DisplayHealthChangeUI(Affinity affinity, HealthChangeData healthChangeData, float newNormalizedHealth, bool isHealing, bool shortenedDisplayTime)
+    //Evade passes null healthChangeData so affinity argument is necessay
+    public void DisplayHealthChangeUI(Affinity affinity, HealthChangeData healthChangeData, float newNormalizedHealth)
     {
-        SetDisplayTime(shortenedDisplayTime);
-
-        bool showHealthChange = true;
+        Debug.Log("Displaying Health Change UI for " + nameText.text);
         showingSkillFeedback = true;
 
-        Debug.Log("Displaying Health Change UI for " + nameText.text);
+        //Set Display time
+        displayTime = FantasyCombatManager.Instance.GetSkillFeedbackDisplayTime();
+
+        //Bools
+        bool showStatusEffectOnly = affinity == Affinity.None && !healthChangeData.IsVitalsChanged();
+        bool showHealthChange = !showStatusEffectOnly && 
+            !(affinity == Affinity.Immune || affinity == Affinity.Reflect || affinity == Affinity.Evade);
+
+        ActivateHealthChangeMode(showHealthChange); //Must be called before affinity functions.
+
+        if (showStatusEffectOnly)
+        {
+            ShowBuffsOnly();
+            StartCoroutine(StatusEffectOnlyRoutine(displayTime));
+            return;
+        }
 
         switch (affinity)
         {
@@ -114,21 +131,20 @@ public class UnitHealthUI : FadeUI
                 Resist();
                 break;
             case Affinity.Immune:
-                showHealthChange = false;
                 Immune();
                 break;
             case Affinity.Reflect:
-                showHealthChange = false;
                 Reflect();
                 break;
             case Affinity.Weak:
                 Weak();
                 break;
             case Affinity.Evade:
-                showHealthChange = false;
                 Evade();
                 break;
         }
+
+        if (affinity == Affinity.Evade) { return; } //Exit early if evade. Beyond this point, health change data should be valid.
 
         DamageData damageData = healthChangeData as DamageData;
 
@@ -154,44 +170,117 @@ public class UnitHealthUI : FadeUI
 
         if (!showHealthChange) { return; }
 
+        bool isHealing = healthChangeData == null ? false :
+            !(healthChangeData is DamageData) || (healthChangeData as DamageData).affinityToAttack == Affinity.Absorb;
+
         if (isHealing)
         {
-            ShowHealing(newNormalizedHealth);
+            ShowHealing(newNormalizedHealth, healthChangeData);
         }
         else
         {
-            ShowDamage(newNormalizedHealth);
+            ShowDamage(newNormalizedHealth, healthChangeData);
         }
     }
 
-    private void SetDisplayTime(bool shortenedDisplayTime)
+    //Display Data
+    private void ShowHealing(float newNormalizedHealth, HealthChangeData healthChangeData)
     {
-        displayTime = FantasyCombatManager.Instance.GetSkillFeedbackDisplayTime();
+        int healthChange = healthChangeData.HPChange;
+        int staminaChange = healthChangeData.SPChange;
 
-        if (shortenedDisplayTime)
+        if(healthChange > 0)
         {
-            //displayTime = displayTime * 0.5f;
+            SetHPChangeNumberText(healthChange);
+            healNumberText.gameObject.SetActive(true);
         }
+
+        if (staminaChange > 0)
+        {
+            SetSPChangeNumberText(staminaChange);
+            spLossNumberText.gameObject.SetActive(true);
+        }
+
+        ShowBuffsOnly();
+
+        outerHeart.color = outerHeartHealColour;
+        StartCoroutine(HealingRoutine(newNormalizedHealth));
     }
 
-    public void SetHPChangeNumberText(int num)
+    private void ShowDamage(float newNormalizedHealth, HealthChangeData healthChangeData)
     {
-        dataShown = false;
+        int healthChange = healthChangeData.HPChange;
+        int staminaChange = healthChangeData.SPChange;
+
+        if(healthChange > 0)
+        {
+            SetHPChangeNumberText(healthChange);
+            damageNumberText.gameObject.SetActive(true);
+        }
+
+        if (staminaChange > 0)
+        {
+            SetSPChangeNumberText(staminaChange);
+            spLossNumberText.gameObject.SetActive(true);
+        }
+
+        ShowBuffsOnly();
+
+        outerHeart.color = outerHeartDefaultColor;
+        StartCoroutine(DamageDealtRoutine(newNormalizedHealth));
+    }
+
+    public void ShowBuffsOnly()
+    {
+        //NEEDS TO BE UPDATED.
+
+        /*if (buffsToDisplay.Count > 0)
+        {
+            SetBuffText();
+        }
+        else if (showingBuffsOnly)
+        {
+            Fade(false);
+        }*/
+    }
+
+    //Visual setups
+    private void ActivateHealthChangeMode(bool showHeart)
+    {
+        nameText.gameObject.SetActive(false);
+        gameObject.SetActive(true);
+        heartHeader.SetActive(showHeart);
+        canvasGroup.alpha = 1;
+    }
+
+    private void DefaultMode()
+    {
+        heartHeader.SetActive(true);
+        nameText.gameObject.SetActive(true);
+        //numberText.gameObject.SetActive(false);
+    }
+
+    public void NameOnlyMode(bool activate)
+    {
+        heartHeader.SetActive(false);
+        nameText.gameObject.SetActive(true);
+        Fade(activate);
+    }
+
+    //Data setters
+    private void SetHPChangeNumberText(int num)
+    {
         damageNumberText.text = num.ToString();
         healNumberText.text = num.ToString();
     }
 
-    public void SetSPChangeNumberText(int num)
+    private void SetSPChangeNumberText(int num)
     {
-        dataShown = false;
-        showSPChange = true;
         spLossNumberText.text = num.ToString();
     }
 
-    public void SetBuffsToDisplay(List<ChanceOfInflictingStatusEffect> buffs)
+    /*private void SetBuffsToDisplay(List<ChanceOfInflictingStatusEffect> buffs)
     {
-        dataShown = false;
-
         foreach (ChanceOfInflictingStatusEffect data in buffs)
         {
             if (data.statusEffect.isStatBuffOrDebuff)
@@ -202,61 +291,28 @@ public class UnitHealthUI : FadeUI
         }
     }
 
-    //Display Data
-    private void ShowHealing(float newNormalizedHealth)
+    private void SetBuffText()
     {
-        if (!gameObject.activeInHierarchy)
+        ChanceOfInflictingStatusEffect data = buffsToDisplay[0];
+        string textToAppend = "Up";
+
+        if (data.buffChange < 0)
         {
-            ActivateHealthChangeMode(true);
+            textToAppend = "Down";
         }
 
-        if (showSPChange)
+        string newText = data.statusEffect.buffNickname + " " + textToAppend;
+
+        if (buffsExtensionData[0])
         {
-            spLossNumberText.gameObject.SetActive(true);
+            newText = newText + " " + "extended";
         }
 
-        DisplayBuff();
+        buffText.Setup(newText, StatusEffectManager.Instance.GetBuffColor(data.buffChange));
 
-        healNumberText.gameObject.SetActive(true);
-        outerHeart.color = outerHeartHealColour;
-        StartCoroutine(HealingRoutine(newNormalizedHealth));
-
-        dataShown = true;
-    }
-
-    private void ShowDamage(float newNormalizedHealth)
-    {
-        if (!gameObject.activeInHierarchy)
-        {
-            ActivateHealthChangeMode(true);
-        }
-
-        if (showSPChange)
-        {
-            spLossNumberText.gameObject.SetActive(true);
-        }
-
-        DisplayBuff();
-
-        damageNumberText.gameObject.SetActive(true);
-        outerHeart.color = outerHeartDefaultColor;
-        StartCoroutine(DamageDealtRoutine(newNormalizedHealth));
-
-        dataShown = true;
-    }
-
-    public void ShowBuffsOnly()
-    {
-        if (!gameObject.activeInHierarchy)
-        {
-            ActivateHealthChangeMode(false);
-        }
-
-        showingBuffsOnly = true;
-        DisplayBuff();
-
-        dataShown = true;
-    }
+        buffsToDisplay.RemoveAt(0);
+        buffsExtensionData.RemoveAt(0);
+    }*/
 
     //Data Routines
 
@@ -274,41 +330,41 @@ public class UnitHealthUI : FadeUI
         outerHeart.DOFillAmount(newNormalizedHealth, heartAnimationTime);
     }
 
+    IEnumerator StatusEffectOnlyRoutine(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        Fade(false);
+    }
+
     //Event Texts
 
     private void Weak()
     {
-        ActivateHealthChangeMode(true);
         weakText.SetActive(true);
     }
 
     private void Immune()
     {
-        ActivateHealthChangeMode(false);
         immuneText.SetActive(true);
     }
 
     private void Resist()
     {
-        ActivateHealthChangeMode(true);
         resistText.SetActive(true);
     }
 
     private void Reflect()
     {
-        ActivateHealthChangeMode(false);
         reflectText.SetActive(true);
     }
 
     private void Evade()
     {
-        ActivateHealthChangeMode(false);
         evadeText.SetActive(true);
     }
 
     private void Absorb()
     {
-        ActivateHealthChangeMode(true);
         absorbText.SetActive(true);
     }
 
@@ -340,70 +396,24 @@ public class UnitHealthUI : FadeUI
         //knockdownText.SetActive(true);
     }
 
-    private void ActivateHealthChangeMode(bool showHeart)
-    {
-        nameText.gameObject.SetActive(false);
-        gameObject.SetActive(true);
-        heartHeader.SetActive(showHeart);
-        canvasGroup.alpha = 1;
-    }
-
     private void OnDisable()
     {
-        //Reset Data
-        canvasGroup.alpha = 0;
-        ResetData();
-
-        DefaultMode();
+        ResetData();  
     }
 
     private void ResetData()
     {
-        if (!dataShown) { return; }
+        Debug.Log("Resetting health ui for: " + GetUnitDisplayName());
+        canvasGroup.alpha = 0;
 
-        dataShown = false;
-        showSPChange = false;
         fadingIn = false;
         showingBuffsOnly = false;
         showingSkillFeedback = false;
 
         buffsToDisplay.Clear();
         buffsExtensionData.Clear();
-    }
 
-    public void DisplayBuff()
-    {
-        if (buffsToDisplay.Count > 0)
-        {
-            SetBuffText();
-        }
-        else if (showingBuffsOnly)
-        {
-            Fade(false);
-        }     
-    }
-
-    private void SetBuffText()
-    {
-        ChanceOfInflictingStatusEffect data = buffsToDisplay[0];
-        string textToAppend = "Up";
-
-        if (data.buffChange < 0)
-        {
-            textToAppend = "Down";
-        }
-
-        string newText = data.statusEffect.buffNickname + " " + textToAppend;
-
-        if (buffsExtensionData[0])
-        {
-            newText = newText + " " + "extended";
-        }
-
-        buffText.Setup(newText, StatusEffectManager.Instance.GetBuffColor(data.buffChange));
-
-        buffsToDisplay.RemoveAt(0);
-        buffsExtensionData.RemoveAt(0);
+        DefaultMode();
     }
 
     public override void FadeOutComplete()
@@ -438,19 +448,7 @@ public class UnitHealthUI : FadeUI
         gameObject.SetActive(false);
         HideAllEventText();
         currentTween?.Kill();
-    }
-
-    private void DefaultMode()
-    {
-        heartHeader.SetActive(true);
-        nameText.gameObject.SetActive(true);
-        //numberText.gameObject.SetActive(false);
-    }
-
-    public void NameOnlyMode()
-    {
-        heartHeader.SetActive(false);
-        nameText.gameObject.SetActive(true);
+        currentTween = null;
     }
 
     private void HideAllEventText()
@@ -466,6 +464,12 @@ public class UnitHealthUI : FadeUI
         backStabText.SetActive(false);
         bumpText.SetActive(false);
         guardText.SetActive(false);
+    }
+
+
+    public string GetUnitDisplayName()
+    {
+        return nameText.text;
     }
 
     public Transform StatusEffectHeader()

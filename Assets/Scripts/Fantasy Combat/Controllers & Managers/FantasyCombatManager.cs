@@ -664,7 +664,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         }
 
         StatusEffectManager.Instance.HideTurnEndCam();
-        //activeUnit.ReturnToPosAfterAttack(turnEndEvents.Count > 0);
+
         activeUnit.ReturnToPosAfterAttack(false);
 
         if (turnEndEvents.Count > 0)
@@ -810,7 +810,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         }
     }
 
-    public void UpdateDamageDataDisplayTime(Affinity affinity, bool isKO, bool isKnockdown, float customExtension = 0)
+    public void UpdateDamageDataDisplayTime(Affinity affinity, bool isKO, bool isKnockdown, bool shortenedDisplayTime, float customExtension = 0)
     {
         float newCalculatedDisplayTime = skillFeedbackDisplayTime + GetExtensionTimeBasedOnAffinity(affinity, isKO, isKnockdown) + customExtension;
 
@@ -1454,7 +1454,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         //Cancel All Turn End Events
         for (int i = turnEndEvents.Count - 1; i >= 0; i--)
         { 
-            turnEndEvents[i].OnEventCancelled();
+            turnEndEvents.ElementAt(i).Value.OnEventCancelled();
             turnEndEvents.RemoveAt(i);
         }
     }

@@ -26,7 +26,7 @@ public class SBNoMove : StrategicBonusChecker
 
         if (!player || hasMoved) { return; }
 
-        hasMoved = damageData.hitByAttackData.forceData.forceDistance > 0;
+        hasMoved = damageData.hitByAttackData.forceData.HasValue ? damageData.hitByAttackData.forceData.Value.forceDistance > 0 : false;
     }
 
     protected override void OnPlayerUseSkill(PlayerGridUnit player, PlayerBaseSkill skill)

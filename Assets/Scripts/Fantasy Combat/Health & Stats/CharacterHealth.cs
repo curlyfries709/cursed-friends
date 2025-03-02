@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using Sirenix.Serialization;
+using AnotherRealm;
 
 public class CharacterHealth : Health
 {
@@ -29,41 +30,35 @@ public class CharacterHealth : Health
     //EVENTS
     public void TriggerEvadeEvent() //Called via Evade class
     {
-        Debug.Log("Triggering Evade Event for: " + myCharacter.unitName);
+        Debug.Log("Triggering Evade Event for: " + healthUI.GetUnitDisplayName());
         currentHealthChangeDatas.RemoveAt(0); //Remove the null data from the list. 
 
         //Update Damage Display Time
-        FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(Affinity.Evade, false, false);
+        FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(Affinity.Evade, false, false, currentHealthChangeDatas.Count > 0);
+
+        //Play Feedback
+        CombatFunctions.PlayAffinityFeedback(Affinity.Evade, damageFeedbacks);
 
         //Gain FP
         GainFP(TheCalculator.Instance.CalculateFPGain(true));
 
-        ShowHealthUI(Affinity.Evade, null);
+        ShowHealthChangeUI(Affinity.Evade, null);
     }
 
     protected override void TriggerHealEvent()
     {
         //Update display time
-        FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(Affinity.None, false, false);
+        FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(Affinity.None, false, false, currentHealthChangeDatas.Count > 0);
 
-        int SPRestore = currentHealData.SPRestore;
-        int HPRestore = currentHealData.HPRestore;
-        int FPRestore = currentHealData.FPRestore;
+        int SPRestore = currentHealData.SPChange;
+        int HPRestore = currentHealData.HPChange;
+        int FPRestore = currentHealData.FPChange;
 
-        //Prepare Data to be shown.
-        if (SPRestore > 0)
-        {
-            healthUI.SetSPChangeNumberText(SPRestore);
-            currentSP = Mathf.Min(currentSP + SPRestore, MaxSP());
-        }
+        //Update Vitals
+        currentSP = Mathf.Min(currentSP + SPRestore, MaxSP());
+        currentHealth = Mathf.Min(currentHealth + HPRestore, MaxHealth());
 
-        if (HPRestore > 0)
-        {
-            healthUI.SetHPChangeNumberText(HPRestore);
-            currentHealth = Mathf.Min(currentHealth + HPRestore, MaxHealth());
-        }
-
-        if(FPRestore > 0)
+        if (FPRestore > 0)
         {
             GainFP(FPRestore, false);
         }
@@ -85,7 +80,7 @@ public class CharacterHealth : Health
         ApplyAndActivateStatusEffects(currentHealData.inflictedStatusEffects);
 
         //Show Health
-        ShowHealthUI(Affinity.None, currentHealData);
+        ShowHealthChangeUI(Affinity.None, currentHealData);
 
         //Clear current heal data
         currentHealData = null;
@@ -112,12 +107,12 @@ public class CharacterHealth : Health
             TryGiveAttackerFP(currentDamageData.isCritical || currentDamageData.isBackstab || currentDamageData.isKnockdownHit || currentDamageData.isKOHit, numberOfSEApplied);
         }
 
-        ShowHealthUI(currentDamageData.affinityToAttack, currentDamageData);
+        ShowHealthChangeUI(currentDamageData.affinityToAttack, currentDamageData);
     }
 
     protected override void KO()
     {
-        ShowHealthUI(currentDamageData.affinityToAttack, currentDamageData);
+        ShowHealthChangeUI(currentDamageData.affinityToAttack, currentDamageData);
         isKOed = true;
 
         myCharacter.unitAnimator.KO();
@@ -167,14 +162,12 @@ public class CharacterHealth : Health
         return 0;
     }
 
-    public void TakeSPLoss(int percentage)
+    public void LoseSP(int amount)
     {
-        int amount = Mathf.RoundToInt((percentage / 100f) * myCharacter.stats.GetStaminaWithoutBonus());
+        if(amount == 0) { return; }
         currentSP = Mathf.Max(0, currentSP - amount);
-
-        //Update Health UI Number.
-        healthUI.SetSPChangeNumberText(amount);
     }
+
     public void OuterCombatRestore(int hpGain, int spGain, int fpGain)
     {
         currentHealth = Mathf.Min(currentHealth + hpGain, MaxHealth());
@@ -202,9 +195,9 @@ public class CharacterHealth : Health
         }
     }
 
-    protected override void ShowHealthUI(Affinity affinity, HealthChangeData healthChangeData)
+    public override void ShowHealthChangeUI(Affinity affinity, HealthChangeData healthChangeData)
     {
-        base.ShowHealthUI(affinity, healthChangeData);
+        base.ShowHealthChangeUI(affinity, healthChangeData);
         UpdateHUD();
     }
 

@@ -190,48 +190,48 @@ public class TheCalculator : MonoBehaviour
         switch (damageData.affinityToAttack)
         {
             case Affinity.Immune:
-                damageData.damageReceived = 0;
+                damageData.HPChange = 0;
                 break;
             case Affinity.Weak:
                 ObjectHealth objectHealth = target.Health() as ObjectHealth;
 
                 if(objectHealth && objectHealth.IsWeakHitKO())
                 {
-                    damageData.damageReceived = objectHealth.MaxHealth();
+                    damageData.HPChange = objectHealth.MaxHealth();
                 }
                 else
                 {
-                    damageData.damageReceived = Mathf.RoundToInt(damageReduced * weakDamageMultiplier);
+                    damageData.HPChange = Mathf.RoundToInt(damageReduced * weakDamageMultiplier);
                 }
                 break;
             case Affinity.Resist:
-                damageData.damageReceived = Mathf.RoundToInt(damageReduced * (1f - (resistDamageReductionPercent / 100f)));
+                damageData.HPChange = Mathf.RoundToInt(damageReduced * (1f - (resistDamageReductionPercent / 100f)));
                 break;
             case Affinity.Reflect:
                 if (damageType == DamageType.Reflect)
                 {
                     damageData.affinityToAttack = Affinity.Immune; //Update Affinity as to avoid looping reflects
-                    damageData.damageReceived = 0;
+                    damageData.HPChange = 0;
                 }
                 else
                 {
                     //Reflected Damage does not include armour reduction. 
-                    damageData.damageReceived = modifiedDamage;
+                    damageData.HPChange = modifiedDamage;
                 }
                 break;
             default:
-                damageData.damageReceived = damageReduced;
+                damageData.HPChange = damageReduced;
                 break;
         }
 
         if (isTargetGuarding)
         {
             //Further Reduce Damage by Guard Reduction
-            damageData.damageReceived = Mathf.RoundToInt(damageData.damageReceived * (1f - (guardDamageReductionPercent / 100f)));
+            damageData.HPChange = Mathf.RoundToInt(damageData.HPChange * (1f - (guardDamageReductionPercent / 100f)));
         }
         else if (damageData.isBackstab)
         {
-            damageData.damageReceived = Mathf.RoundToInt(damageData.damageReceived * backStabMultiplier);
+            damageData.HPChange = Mathf.RoundToInt(damageData.HPChange * backStabMultiplier);
         }
 
         //Update isKnockdown Data
@@ -278,11 +278,11 @@ public class TheCalculator : MonoBehaviour
         //Apply multipliers based on game Difficulty 
         if (damageType != DamageType.Reflect)
         {
-            damageData.damageReceived = DamageDifficultyMultiplier(damageData.damageReceived, attacker is PlayerGridUnit);
+            damageData.HPChange = DamageDifficultyMultiplier(damageData.HPChange, attacker is PlayerGridUnit);
         }
 
         //Check if KO hit
-        damageData.isKOHit = damageData.affinityToAttack != Affinity.Absorb && damageData.damageReceived >= target.Health().GetPredictedCurrentHealth();
+        damageData.isKOHit = damageData.affinityToAttack != Affinity.Absorb && damageData.HPChange >= target.Health().GetPredictedCurrentHealth();
 
         /*Apply PostDamageCalculatedModifiers here. 
          * If we ever implement something like an endure where a KOHit leaves them with 1HP instead, as this depends on damage to be properly calculated to modify*/
@@ -290,13 +290,22 @@ public class TheCalculator : MonoBehaviour
         return damageData;
     }
 
-    public DamageData CalculateStatusEffectDamage(CharacterGridUnit target, AttackData attackData, int healthPercent)
+    public DamageData CalculateStatusEffectDamage(CharacterGridUnit target, AttackData attackData)
     {
+        int healthPercent = attackData.HPChange;
+        int staminaPercent = attackData.SPChange;
+
+        //If lose 100% use their current vitality/stamina, otherwise use their base vitality/stamina. 
         int health = healthPercent >= 100 ? target.stats.Vitality : target.stats.GetVitalityWithoutBonus();
-        int amount = Mathf.RoundToInt((healthPercent / 100f) * health);
-        attackData.rawDamage = amount;
+        int stamina = staminaPercent >= 100 ? target.stats.Stamina : target.stats.GetStaminaWithoutBonus();
+
+        int healthAmount = Mathf.RoundToInt((healthPercent / 100f) * health);
+        int staminaAmount = Mathf.RoundToInt((staminaPercent / 100f) * stamina);
+
+        attackData.HPChange = healthAmount;
 
         DamageData damageData = ExtractDamageDataFromAttackData(target, attackData, DamageType.StatusEffect);
+        damageData.SPChange = staminaAmount;
 
         return damageData;
     }
@@ -306,7 +315,7 @@ public class TheCalculator : MonoBehaviour
         if (healData.healer) //If null, then source of healing must be via item E.G Potion, Blessing.
         {
             int rawHealAmount = CalculateRawHeal(healData.healer, out healData.isCritical);
-            healData.HPRestore = rawHealAmount;
+            healData.HPChange = rawHealAmount;
         }
 
         healData.inflictedStatusEffects = FilterInvalidStatusEffects(healData.target, healData.inflictedStatusEffects);
@@ -383,7 +392,7 @@ public class TheCalculator : MonoBehaviour
         /* if originally crit but no longer or new affinity resist, divide damage by crit multiplier */
 
         //Apply other multipliers
-        return Mathf.RoundToInt(attackData.rawDamage * externalMultiplier);
+        return Mathf.RoundToInt(attackData.HPChange * externalMultiplier);
     }
 
     private void ApplyHealModifiers(GridUnit target, CharacterGridUnit healer, ref HealData healData)
@@ -497,7 +506,7 @@ public class TheCalculator : MonoBehaviour
 
         if (updateDamage)
         {
-            damageData.damageReceived = attackData.rawDamage;
+            damageData.HPChange = attackData.HPChange;
         }
 
         CharacterGridUnit character = target as CharacterGridUnit;

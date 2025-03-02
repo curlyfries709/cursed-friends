@@ -66162,6 +66162,59 @@ Transform:
   m_Father: {fileID: 76842317029035721}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7057181453986334842
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 763634777588922262}
+  - component: {fileID: 2948646907406772354}
+  m_Layer: 0
+  m_Name: Move To Attack Desintation
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &763634777588922262
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7057181453986334842}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9025724587329184361}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2948646907406772354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7057181453986334842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70eff7f7b7fb07346b7092068ffca3d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  triggerCallbackOnComplete: 0
+  movementDuration: 0.5
+  movementEaseType: 1
+  doRotate: 0
+  rotationDuration: 0.5
+  rotationEaseType: 1
+  doJump: 0
+  jumpPower: 1
+  numOfJumps: 1
 --- !u!1 &7093013216967538674
 GameObject:
   m_ObjectHideFlags: 0
@@ -66383,6 +66436,7 @@ MonoBehaviour:
   includeDiagonals: 1
   maxNumCellsFromUnit: 1
   unitCameraRootTransform: {fileID: 0}
+  unitTransformAttacher: {fileID: 0}
   forceTypeToApply: 0
   forceDirection: 0
   forceDistance: 0
@@ -66408,8 +66462,12 @@ MonoBehaviour:
     inflictedStatusEffects: []
     attackMultipleUnitsIndividually: 0
     animationTriggerName: 
+    preAttackAutoMover: {fileID: 0}
+    postAttackAutoMover: {fileID: 0}
+    preMoveTargetTransform: {fileID: 0}
     moveToAttack: 1
     isAttackDistanceAForwardOffset: 0
+    attackDistanceBetweenTarget: 0.5
     animationAttackDistance: 1
     moveToTargetTime: 0.25
     delayBeforeReturn: 0.1
@@ -66421,35 +66479,11 @@ MonoBehaviour:
       attackNulledFeedback: {fileID: 0}
       attackAbsorbedFeedback: {fileID: 0}
       spawnVFXHeader: {fileID: 0}
-  powerGrade: 9
-  isMagical: 1
-  isChargedSkill: 0
-  isUnevadable: 0
-  skillElement: 3
-  skillItem: {fileID: 0}
-  inflictedStatusEffects:
-  - bonusPercentOfInflictingEffect: 20
-    statusEffect: {fileID: 11400000, guid: 7bcc6535eec0872478c894646888fae0, type: 2}
-    numOfTurns: 1
-    buffChange: 0
-  attackMultipleUnitsIndividually: 0
+    HitVFXPoolHeader: {fileID: 0}
+    projectileAttackVFXDestinationsHeader: {fileID: 0}
   hitVFXPoolHeader: {fileID: 0}
   hitVFXSpawnOffsets: []
   magicalAttackVFXDestination: {fileID: 0}
-  animationTriggerName: Chain
-  moveToAttack: 0
-  isAttackDistanceAForwardOffset: 0
-  animationAttackDistance: 1
-  moveToTargetTime: 0.25
-  delayBeforeReturn: 0.1
-  returnToGridPosTime: 0
-  attackFeedbacks:
-    attackConnectedFeedback: {fileID: 581517538867968719}
-    attackEvadedFeedback: {fileID: 0}
-    attackReflectedFeedback: {fileID: 0}
-    attackNulledFeedback: {fileID: 0}
-    attackAbsorbedFeedback: {fileID: 0}
-    spawnVFXHeader: {fileID: 0}
 --- !u!1 &7293967207847883537
 GameObject:
   m_ObjectHideFlags: 0
@@ -78147,6 +78181,7 @@ MonoBehaviour:
   includeDiagonals: 0
   maxNumCellsFromUnit: 1
   unitCameraRootTransform: {fileID: 0}
+  unitTransformAttacher: {fileID: 0}
   forceTypeToApply: 0
   forceDirection: 0
   forceDistance: 0
@@ -78163,57 +78198,37 @@ MonoBehaviour:
   blendListCamera: {fileID: 2881904170519686574}
   otherVisualsToToggle: []
   offensiveSkillData:
-    powerGrade: 8
-    isMagical: 0
+    powerGrade: 6
+    isMagical: 1
     isChargedSkill: 0
     isUnevadable: 0
-    skillElement: 0
+    skillElement: 6
     skillItem: {fileID: 0}
     inflictedStatusEffects: []
     attackMultipleUnitsIndividually: 0
-    animationTriggerName: 
-    moveToAttack: 1
+    animationTriggerName: Aero
+    preAttackAutoMover: {fileID: 0}
+    postAttackAutoMover: {fileID: 0}
+    preMoveTargetTransform: {fileID: 0}
+    moveToAttack: 0
     isAttackDistanceAForwardOffset: 0
+    attackDistanceBetweenTarget: 0.5
     animationAttackDistance: 1
     moveToTargetTime: 0.25
     delayBeforeReturn: 0.1
     returnToGridPosTime: 0.35
     attackFeedbacks:
-      attackConnectedFeedback: {fileID: 0}
-      attackEvadedFeedback: {fileID: 0}
+      attackConnectedFeedback: {fileID: 5844814543583302706}
+      attackEvadedFeedback: {fileID: 8524020582032026441}
       attackReflectedFeedback: {fileID: 0}
       attackNulledFeedback: {fileID: 0}
       attackAbsorbedFeedback: {fileID: 0}
       spawnVFXHeader: {fileID: 0}
-  powerGrade: 7
-  isMagical: 1
-  isChargedSkill: 0
-  isUnevadable: 0
-  skillElement: 6
-  skillItem: {fileID: 0}
-  inflictedStatusEffects:
-  - bonusPercentOfInflictingEffect: 0
-    statusEffect: {fileID: 11400000, guid: 4027d716b4c37fc4a8a360bb521dd9c3, type: 2}
-    numOfTurns: 0
-    buffChange: 0
-  attackMultipleUnitsIndividually: 0
+    HitVFXPoolHeader: {fileID: 0}
+    projectileAttackVFXDestinationsHeader: {fileID: 0}
   hitVFXPoolHeader: {fileID: 0}
   hitVFXSpawnOffsets: []
   magicalAttackVFXDestination: {fileID: 7690849523112602109}
-  animationTriggerName: Aero
-  moveToAttack: 0
-  isAttackDistanceAForwardOffset: 0
-  animationAttackDistance: 0
-  moveToTargetTime: 0
-  delayBeforeReturn: 0
-  returnToGridPosTime: 0
-  attackFeedbacks:
-    attackConnectedFeedback: {fileID: 5844814543583302706}
-    attackEvadedFeedback: {fileID: 8524020582032026441}
-    attackReflectedFeedback: {fileID: 0}
-    attackNulledFeedback: {fileID: 0}
-    attackAbsorbedFeedback: {fileID: 0}
-    spawnVFXHeader: {fileID: 0}
 --- !u!1 &8301375243776457058
 GameObject:
   m_ObjectHideFlags: 0
@@ -78340,6 +78355,7 @@ MonoBehaviour:
   includeDiagonals: 0
   maxNumCellsFromUnit: 3
   unitCameraRootTransform: {fileID: 0}
+  unitTransformAttacher: {fileID: 0}
   forceTypeToApply: 0
   forceDirection: 0
   forceDistance: 0
@@ -78357,61 +78373,37 @@ MonoBehaviour:
   blendListCamera: {fileID: 7737803204938587779}
   otherVisualsToToggle: []
   offensiveSkillData:
-    powerGrade: 8
-    isMagical: 0
+    powerGrade: 7
+    isMagical: 1
     isChargedSkill: 0
     isUnevadable: 0
-    skillElement: 0
+    skillElement: 6
     skillItem: {fileID: 0}
     inflictedStatusEffects: []
     attackMultipleUnitsIndividually: 0
-    animationTriggerName: 
-    moveToAttack: 1
+    animationTriggerName: Tornado
+    preAttackAutoMover: {fileID: 0}
+    postAttackAutoMover: {fileID: 0}
+    preMoveTargetTransform: {fileID: 0}
+    moveToAttack: 0
     isAttackDistanceAForwardOffset: 0
+    attackDistanceBetweenTarget: 0.5
     animationAttackDistance: 1
     moveToTargetTime: 0.25
     delayBeforeReturn: 0.1
     returnToGridPosTime: 0.35
     attackFeedbacks:
-      attackConnectedFeedback: {fileID: 0}
-      attackEvadedFeedback: {fileID: 0}
+      attackConnectedFeedback: {fileID: 6867597392820812117}
+      attackEvadedFeedback: {fileID: 6973727643644492559}
       attackReflectedFeedback: {fileID: 0}
       attackNulledFeedback: {fileID: 0}
       attackAbsorbedFeedback: {fileID: 0}
       spawnVFXHeader: {fileID: 0}
-  powerGrade: 8
-  isMagical: 1
-  isChargedSkill: 0
-  isUnevadable: 0
-  skillElement: 6
-  skillItem: {fileID: 0}
-  inflictedStatusEffects:
-  - bonusPercentOfInflictingEffect: 0
-    statusEffect: {fileID: 11400000, guid: 4027d716b4c37fc4a8a360bb521dd9c3, type: 2}
-    numOfTurns: 0
-    buffChange: 0
-  - bonusPercentOfInflictingEffect: 0
-    statusEffect: {fileID: 11400000, guid: 7bcc6535eec0872478c894646888fae0, type: 2}
-    numOfTurns: 0
-    buffChange: 0
-  attackMultipleUnitsIndividually: 0
+    HitVFXPoolHeader: {fileID: 0}
+    projectileAttackVFXDestinationsHeader: {fileID: 0}
   hitVFXPoolHeader: {fileID: 0}
   hitVFXSpawnOffsets: []
   magicalAttackVFXDestination: {fileID: 0}
-  animationTriggerName: Tornado
-  moveToAttack: 0
-  isAttackDistanceAForwardOffset: 0
-  animationAttackDistance: 0
-  moveToTargetTime: 0
-  delayBeforeReturn: 0
-  returnToGridPosTime: 0
-  attackFeedbacks:
-    attackConnectedFeedback: {fileID: 6867597392820812117}
-    attackEvadedFeedback: {fileID: 6973727643644492559}
-    attackReflectedFeedback: {fileID: 0}
-    attackNulledFeedback: {fileID: 0}
-    attackAbsorbedFeedback: {fileID: 0}
-    spawnVFXHeader: {fileID: 0}
 --- !u!1 &8425161349610407903
 GameObject:
   m_ObjectHideFlags: 0
@@ -93437,7 +93429,7 @@ PrefabInstance:
     - target: {fileID: 109663842487794580, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_XAxis.Value
-      value: -111.97451
+      value: -116.86631
       objectReference: {fileID: 0}
     - target: {fileID: 109663842487794580, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
@@ -93519,22 +93511,22 @@ PrefabInstance:
     - target: {fileID: 2047365905526684944, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.6491372
+      value: -0.61620027
       objectReference: {fileID: 0}
     - target: {fileID: 2047365905526684944, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.041956287
+      value: 0.039827444
       objectReference: {fileID: 0}
     - target: {fileID: 2047365905526684944, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.69471365
+      value: 0.71947265
       objectReference: {fileID: 0}
     - target: {fileID: 2047365905526684944, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.30697492
+      value: -0.31791532
       objectReference: {fileID: 0}
     - target: {fileID: 2320401858645060829, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
@@ -93653,22 +93645,22 @@ PrefabInstance:
     - target: {fileID: 3072672446226974705, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.64967686
+      value: -0.6167126
       objectReference: {fileID: 0}
     - target: {fileID: 3072672446226974705, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.03254753
+      value: 0.030896068
       objectReference: {fileID: 0}
     - target: {fileID: 3072672446226974705, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.69019353
+      value: 0.7147914
       objectReference: {fileID: 0}
     - target: {fileID: 3072672446226974705, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.31700736
+      value: -0.32830524
       objectReference: {fileID: 0}
     - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
@@ -93702,18 +93694,33 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
+      propertyPath: offensiveSkillData.preAttackAutoMover
+      value: 
+      objectReference: {fileID: 2948646907406772354}
+    - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
+        type: 3}
       propertyPath: offensiveSkillData.animationTriggerName
       value: Attack
       objectReference: {fileID: 0}
     - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
+      propertyPath: offensiveSkillData.preMoveTargetTransform
+      value: 
+      objectReference: {fileID: 763634777588922262}
+    - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
+        type: 3}
       propertyPath: offensiveSkillData.animationAttackDistance
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3116910644278044820, guid: 66583fb9aef479746a55feb12d89b70b,
+        type: 3}
+      propertyPath: offensiveSkillData.attackDistanceBetweenTarget
       value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: 3213190854560813519, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_XAxis.Value
-      value: -111.97451
+      value: -116.86631
       objectReference: {fileID: 0}
     - target: {fileID: 3213190854560813519, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
@@ -93828,7 +93835,7 @@ PrefabInstance:
     - target: {fileID: 4476694326282756250, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.636752
+      value: 4.4603167
       objectReference: {fileID: 0}
     - target: {fileID: 4476694326282756250, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
@@ -93838,7 +93845,7 @@ PrefabInstance:
     - target: {fileID: 4476694326282756250, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.8709713
+      value: 2.259552
       objectReference: {fileID: 0}
     - target: {fileID: 4476694326282756250, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
@@ -93973,22 +93980,22 @@ PrefabInstance:
     - target: {fileID: 5286381071316735686, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.6490833
+      value: -0.616149
       objectReference: {fileID: 0}
     - target: {fileID: 5286381071316735686, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.042781807
+      value: 0.04061105
       objectReference: {fileID: 0}
     - target: {fileID: 5286381071316735686, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.69510347
+      value: 0.7198764
       objectReference: {fileID: 0}
     - target: {fileID: 5286381071316735686, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.30609122
+      value: -0.3170001
       objectReference: {fileID: 0}
     - target: {fileID: 5576398410277316956, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
@@ -94158,7 +94165,7 @@ PrefabInstance:
     - target: {fileID: 7040493965547089320, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_XAxis.Value
-      value: -111.97451
+      value: -116.86631
       objectReference: {fileID: 0}
     - target: {fileID: 7040493965547089320, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
@@ -94258,7 +94265,7 @@ PrefabInstance:
     - target: {fileID: 8731849764759956152, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       propertyPath: m_XAxis.Value
-      value: -111.97451
+      value: -116.86631
       objectReference: {fileID: 0}
     - target: {fileID: 8731849764759956152, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
@@ -94321,6 +94328,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 2951749745923321899}
+    - targetCorrespondingSourceObject: {fileID: 4511210628182345316, guid: 66583fb9aef479746a55feb12d89b70b,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 763634777588922262}
     - targetCorrespondingSourceObject: {fileID: 877938980120587013, guid: 66583fb9aef479746a55feb12d89b70b,
         type: 3}
       insertIndex: -1
@@ -94408,6 +94419,12 @@ Transform:
 --- !u!4 &8921515181459993079 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4041220152395044346, guid: 66583fb9aef479746a55feb12d89b70b,
+    type: 3}
+  m_PrefabInstance: {fileID: 4889460705449042957}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &9025724587329184361 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4511210628182345316, guid: 66583fb9aef479746a55feb12d89b70b,
     type: 3}
   m_PrefabInstance: {fileID: 4889460705449042957}
   m_PrefabAsset: {fileID: 0}

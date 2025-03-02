@@ -48,7 +48,7 @@ public class HealthUIBuffText : FadeUI
         base.FadeOutComplete();
 
         if(healthUI)
-            healthUI.DisplayBuff();
+            healthUI.ShowBuffsOnly();
 
         currentTween.Kill();
         transform.localPosition = origin;

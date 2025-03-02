@@ -41674,6 +41674,60 @@ MonoBehaviour:
         ResetEvents:
           m_PersistentCalls:
             m_Calls: []
+--- !u!1 &7823179918959288325
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6662980462137061517}
+  - component: {fileID: 5177006791546860873}
+  m_Layer: 0
+  m_Name: Move To Attack Destination
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6662980462137061517
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7823179918959288325}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5492739717181330180}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5177006791546860873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7823179918959288325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70eff7f7b7fb07346b7092068ffca3d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  triggerCallbackOnComplete: 0
+  movementDuration: 0.15
+  movementEaseType: 1
+  doRotate: 0
+  rotationDuration: 0.5
+  rotationEaseType: 1
+  doJump: 0
+  jumpPower: 1
+  numOfJumps: 1
+  nextInSequenceMover: {fileID: 0}
 --- !u!1 &7881937298800244408
 GameObject:
   m_ObjectHideFlags: 0
@@ -46934,6 +46988,7 @@ MonoBehaviour:
   includeDiagonals: 1
   maxNumCellsFromUnit: 1
   unitCameraRootTransform: {fileID: 0}
+  unitTransformAttacher: {fileID: 0}
   forceTypeToApply: 0
   forceDirection: 0
   forceDistance: 0
@@ -46963,8 +47018,12 @@ MonoBehaviour:
       buffChange: -1
     attackMultipleUnitsIndividually: 0
     animationTriggerName: Cry
+    preAttackAutoMover: {fileID: 0}
+    postAttackAutoMover: {fileID: 0}
+    preMoveTargetTransform: {fileID: 0}
     moveToAttack: 0
     isAttackDistanceAForwardOffset: 0
+    attackDistanceBetweenTarget: 0.5
     animationAttackDistance: 1
     moveToTargetTime: 0.25
     delayBeforeReturn: 0.1
@@ -46976,40 +47035,17 @@ MonoBehaviour:
       attackNulledFeedback: {fileID: 0}
       attackAbsorbedFeedback: {fileID: 0}
       spawnVFXHeader: {fileID: 0}
-  isMagical: 1
-  powerGrade: 9
-  element: 5
-  inflictedStatusEffects:
-  - bonusPercentOfInflictingEffect: 20
-    statusEffect: {fileID: 11400000, guid: 2dc60e246c4e75547b41aeb8d2340b54, type: 2}
-    numOfTurns: 0
-    buffChange: 0
-  - bonusPercentOfInflictingEffect: 100
-    statusEffect: {fileID: 11400000, guid: 5e4234184bd011f49b94efebd1880d78, type: 2}
-    numOfTurns: 0
-    buffChange: -1
+    HitVFXPoolHeader: {fileID: 0}
+    projectileAttackVFXDestinationsHeader: {fileID: 0}
   hitVFXPoolHeader: {fileID: 0}
   hitVFXSpawnOffsets: []
   magicalAttackVFXDestination: {fileID: 0}
-  animationName: Cry
-  moveToAttack: 0
-  animationAttackDistance: 1.4
   attackTriggerDelay: 0
-  moveToTargetTime: 0
-  delayBeforeReturn: 0.1
-  returnToGridPosTime: 0.5
   attackStartTransform: {fileID: 0}
   jumpToStartTransform: 0
   jumpTime: 0
   jumpHeight: 0
   postJumpDelay: 0
-  attackFeedbacks:
-    attackConnectedFeedback: {fileID: 4639628127701628204}
-    attackEvadedFeedback: {fileID: 8753105973005466139}
-    attackReflectedFeedback: {fileID: 0}
-    attackNulledFeedback: {fileID: 0}
-    attackAbsorbedFeedback: {fileID: 0}
-    spawnVFXHeader: {fileID: 0}
 --- !u!1 &9150624011698259835
 GameObject:
   m_ObjectHideFlags: 0
@@ -48006,6 +48042,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
+      propertyPath: offensiveSkillData.HitVFXPoolHeader
+      value: 
+      objectReference: {fileID: 7730373144381479826}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
       propertyPath: offensiveSkillData.moveToTargetTime
       value: 0.15
       objectReference: {fileID: 0}
@@ -48014,6 +48055,11 @@ PrefabInstance:
       propertyPath: attackFeedbacks.attackEvadedFeedback
       value: 
       objectReference: {fileID: 1971849621230947609}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.preAttackAutoMover
+      value: 
+      objectReference: {fileID: 5177006791546860873}
     - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
       propertyPath: offensiveSkillData.returnToGridPosTime
@@ -48031,7 +48077,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
+      propertyPath: offensiveSkillData.preMoveTargetTransform
+      value: 
+      objectReference: {fileID: 6662980462137061517}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
       propertyPath: offensiveSkillData.animationAttackDistance
+      value: 1.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.attackDistanceBetweenTarget
       value: 1.4
       objectReference: {fileID: 0}
     - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
@@ -50280,6 +50336,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1061957350572057981}
+    - targetCorrespondingSourceObject: {fileID: 4479044921527265821, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6662980462137061517}
     - targetCorrespondingSourceObject: {fileID: 898605385697214635, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
       insertIndex: -1

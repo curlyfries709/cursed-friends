@@ -183,6 +183,11 @@ public class GridUnit : MonoBehaviour
         return GetVerticalCellsOccupied() * CombatFunctions.GetHorizontalCellsOccupied(gridCollider);
     }
 
+    public Collider GetModelCollider()
+    {
+        return gridCollider;
+    }
+
     public Health Health()
     {
         return myHealth;

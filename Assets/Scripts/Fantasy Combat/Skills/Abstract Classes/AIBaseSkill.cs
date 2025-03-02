@@ -62,18 +62,6 @@ public abstract class AIBaseSkill : BaseSkill
         public Direction directionToTriggerSkill;
     }
 
-   /* protected override void Awake()
-    {
-        base.Awake();
-
-        myStateMachine = myUnit.GetComponent<EnemyStateMachine>();
-
-        myUnitTransform = myUnit.transform;
-        myUnitMoveTransform = evaluationTransform;
-
-        SetEvaluationCollider();
-    }*/
-
     public override void Setup(SkillPrefabSetter skillPrefabSetter, SkillData skillData)
     {
         base.Setup(skillPrefabSetter, skillData);
@@ -125,8 +113,6 @@ public abstract class AIBaseSkill : BaseSkill
         if (HasCooldown())
             currentInstancedSkillData.currentCooldown = UnityEngine.Random.Range(minSkillCooldown, maxSkillCooldown + 1);
     }
-
-    protected abstract void SetUnitsToShow();
 
     protected bool CanTriggerSkill()
     {
