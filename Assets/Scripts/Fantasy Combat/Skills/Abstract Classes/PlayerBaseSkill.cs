@@ -138,7 +138,7 @@ public abstract class PlayerBaseSkill : BaseSkill
         }
     }
 
-    public abstract bool TryTriggerSkill(); //Call TurnCompleteWhenSkillSuccesfullyTriggered. //Also Must get weapon information too when dealing damage.
+    public abstract bool TryTriggerSkill(); //Call TurnCompleteWhenSkillSuccesfullyTriggered.
     public virtual void SkillCancelled(bool showActionMenu = true)
     {
         HideSelectedSkillGridVisual();
@@ -197,7 +197,7 @@ public abstract class PlayerBaseSkill : BaseSkill
 
         player.lastUsedSkill = this;
 
-        myCharacter.unitAnimator.PrepareToTriggerSkill(); //Speed Set to 0 & Cancel Skill Feedback Reset
+        myCharacter.unitAnimator.ResetMovementSpeed(); //Speed Set to 0
 
         //Warp Unit into Position & Rotation in an attempt to remove camera jitter.
         Vector3 desiredRotation = Quaternion.LookRotation(GetCardinalDirectionAsVector()).eulerAngles;

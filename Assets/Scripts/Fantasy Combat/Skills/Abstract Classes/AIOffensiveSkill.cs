@@ -61,4 +61,8 @@ public abstract class AIOffensiveSkill : AIBaseSkill, IOffensiveSkill
     {
         return this;
     }
+    public virtual bool ShouldMoveToAttack()
+    {
+        return offensiveSkillData.preAttackAutoMover;
+    }
 }

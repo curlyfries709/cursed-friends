@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
 
-public class SCRange : AISkillCondition
+public class SCTriggerRange : AISkillTriggerCondition
 {
     [Title("Range Conditions")]
     [Tooltip("Leave false to only compare with units selected by skill. Otherwise true for all non-KO enemies in battle")]

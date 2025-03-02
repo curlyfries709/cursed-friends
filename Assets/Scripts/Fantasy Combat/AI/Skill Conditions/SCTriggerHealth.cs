@@ -4,7 +4,7 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 
 
-public class SCHealth : AISkillCondition
+public class SCTriggerHealth : AISkillTriggerCondition
 {
     [Title("Health Conditions")]
     [SerializeField] protected bool unitHealthAtThreshold;

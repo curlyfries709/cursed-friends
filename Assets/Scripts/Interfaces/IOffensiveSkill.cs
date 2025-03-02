@@ -25,9 +25,6 @@ public class OffensiveSkillData
     public Item skillItem = null;
     [Space(10)]
     public List<ChanceOfInflictingStatusEffect> inflictedStatusEffects;
-    [Title("ATTACK BEHAVIOUR")]
-    [Tooltip("If this skill targets multiple, is each target damaged individually or at the same time. True if at the same time")]
-    public bool attackMultipleUnitsIndividually = false;
     [Title("ATTACK ANIMATION DATA")]
     public string animationTriggerName;
     [Space(10)]
@@ -111,6 +108,8 @@ public interface IOffensiveSkill
     public OffensiveSkillData GetOffensiveSkillData();
     public IOffensiveSkill IOffensiveSkill();
 
+    public bool ShouldMoveToAttack();
+
     public void OnDamageDealtToTarget(GridUnit target, DamageData damageData);
     //END ABSTRACT
 
@@ -153,18 +152,18 @@ public interface IOffensiveSkill
             attackAffinity = allTargetsAffinity[0];
         }
 
-        //Should Move to attack
-        AutoMover mover = offensiveSkillData.preAttackAutoMover;
-
         /*MOVE BEFORE TRIGGER OPTIONS:
          *1) Use an AutoMover component for the movment and this code will trigger it
          *2) Use a MMF_Player feedback for the movement.
          *3) For simpler movement, use a MMF_Player feedback unity event to trigger movement via an AutoMoverComponent
          */
-        if (mover)
+        if (ShouldMoveToAttack())
         {
+            //Should Move to attack
+            AutoMover mover = offensiveSkillData.preAttackAutoMover;
+
             //Set Move To Destination
-            if(offensiveSkillData.preMoveTargetTransform)
+            if (offensiveSkillData.preMoveTargetTransform)
                 offensiveSkillData.preMoveTargetTransform.position = SetMoveToAttackDestination(skillTargets.Count == 1 ? skillTargets[0] : null);
 
             //Play Movement
@@ -253,7 +252,7 @@ public interface IOffensiveSkill
 
         attackData.isPhysical = !offensiveSkillData.isMagical;
         attackData.isCritical = isCritical;
-        attackData.isMultiAction = offensiveSkillData.attackMultipleUnitsIndividually;
+        attackData.isMultiAction = skill.IsMultiActionSkill();
 
         attackData.powerGrade = offensiveSkillData.powerGrade;
         attackData.canCrit = true;

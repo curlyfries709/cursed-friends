@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Pathfinding;
 using UnityEngine.UIElements;
+using System;
 
 public class PathFinding : MonoBehaviour
 {
@@ -139,6 +140,26 @@ public class PathFinding : MonoBehaviour
             {
                 listToReturn.Add(neighbourGridPos);
             }
+        }
+
+        return listToReturn;
+    }
+
+    public List<GridPosition> GetGridPositionOccupiedByUnitNeighbours(GridPosition gridPosition, List<GridUnit> unitsToIgnore, bool includeDiagonals, bool includeKOedUnits, Func<GridUnit, bool> IsValidUnit)
+    {
+        List<GridPosition> listToReturn = new List<GridPosition>();
+
+        foreach (GridPosition neighbourGridPos in GetNeighbourList(gridPosition, includeDiagonals))
+        {
+            GridUnit unitAtPos = LevelGrid.Instance.GetUnitAtGridPosition(gridPosition);
+            bool isNotUnitToIgnore = unitAtPos && !unitsToIgnore.Contains(unitAtPos);
+
+            if (!isNotUnitToIgnore) { continue; }
+
+            if (IsValidUnit == null  || IsValidUnit(unitAtPos))
+            {
+                listToReturn.Add(neighbourGridPos);
+            } 
         }
 
         return listToReturn;

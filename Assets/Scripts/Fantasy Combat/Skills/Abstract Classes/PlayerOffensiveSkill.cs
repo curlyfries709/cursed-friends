@@ -15,6 +15,25 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill, IOffensiveSkill
         offensiveSkillData.SetupData(this, myUnit);
     }
 
+    public override bool TryTriggerSkill()
+    {
+        if (CanTriggerSkill(true))
+        {
+            BeginSkill(offensiveSkillData.returnToGridPosTime, offensiveSkillData.delayBeforeReturn, true);//Unit Position Updated here
+
+            ActivateVisuals(true);
+
+            //Attack
+            Attack(); //Damage Target Called in here.
+
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public override void OnSkillInterrupted(BattleResult battleResult, IBattleTrigger battleTrigger)
     {
         if (battleResult != BattleResult.Restart) { return; }
@@ -26,7 +45,7 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill, IOffensiveSkill
         IOffensiveSkill().StopAllSkillFeedbacks();
     }
 
-    public void OnDamageDealtToTarget(GridUnit target, DamageData damageData)
+    public virtual void OnDamageDealtToTarget(GridUnit target, DamageData damageData)
     {
         //Do nothing
     }
@@ -68,5 +87,10 @@ public  abstract class PlayerOffensiveSkill : PlayerBaseSkill, IOffensiveSkill
     public IOffensiveSkill IOffensiveSkill()
     {
         return this;
+    }
+
+    public virtual bool ShouldMoveToAttack()
+    {
+        return offensiveSkillData.preAttackAutoMover;
     }
 }

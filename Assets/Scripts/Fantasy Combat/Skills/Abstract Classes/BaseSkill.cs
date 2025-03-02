@@ -144,8 +144,6 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     {
         FantasyCombatManager.Instance.CombatEnded += OnSkillInterrupted;
         FantasyCombatManager.Instance.SetCurrentAction(GetSkillAction(), false);
-
-        ResetHealthUIData();
     }
 
     public void DisplayUnitHealthUIComplete()
@@ -162,7 +160,7 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         {
             OnAllHealthUIComplete();
 
-            //Reset Data
+            //Reset health Data
             ResetHealthUIData();
         }
     }
@@ -195,8 +193,16 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
             offensiveSkill.GetOffensiveSkillData().ReturnVFXToPool();
         }
 
+        ResetData();
+
         FantasyCombatManager.Instance.SetCurrentAction(this, true);
         FantasyCombatManager.Instance.ActionComplete?.Invoke();
+    }
+
+    protected virtual void ResetData()
+    {
+        ResetHealthUIData();
+        skillTargets.Clear();
     }
 
     protected virtual void SkillComplete()
@@ -226,7 +232,7 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     protected void SetSkillTargets()
     {
         skillTargets = new List<GridUnit>(selectedUnits);
-        numOfHealthUIDisplay = skillTargets.Count;
+        numOfHealthUIDisplay = AffectTargetsIndividually() ? 1 : skillTargets.Count;
     }
 
     private void ResetHealthUIData()
@@ -235,9 +241,6 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         healthUIDisplayedCounter = 0;
         anyTargetsWithReflectAffinity = false;
     }
-
-
-
 
     //SKILL CALCULATION
 
@@ -267,7 +270,7 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
             {
                 GridUnit selectedUnit = LevelGrid.Instance.GetUnitAtGridPosition(gridPosition);
 
-                if (!selectedUnits.Contains(selectedUnit) && CombatFunctions.IsUnitValidTarget(targets, myUnit, selectedUnit))
+                if (!selectedUnits.Contains(selectedUnit) && IsUnitValidTarget(selectedUnit))
                 {
                     selectedUnits.Add(selectedUnit);
                     foundUnit = selectedUnit;
@@ -797,6 +800,11 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     {
         return moveTransformGridCollider;
     }
+    protected bool IsUnitValidTarget(GridUnit target)
+    {
+        return CombatFunctions.IsUnitValidTarget(targets, myUnit, target);
+    }
+
     protected List<GridPosition> GetGridPositionsAtHypotheticalPos(Vector3 newWorldPosition)
     {
         return CombatFunctions.GetGridPositionsAtHypotheticalPos(newWorldPosition, GetSkillOwnerMoveTransform(), GetSkillOwnerMoveGridCollider());
@@ -841,6 +849,16 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         }
 
         return new SkillForceData(GetForceToApplyToUnit(target), forceDirection, forceDistance);
+    }
+
+    public virtual bool IsMultiActionSkill()
+    {
+        return false;
+    }
+
+    public virtual bool AffectTargetsIndividually()
+    {
+        return false;
     }
 
     private SkillForceType GetForceToApplyToUnit(GridUnit target)

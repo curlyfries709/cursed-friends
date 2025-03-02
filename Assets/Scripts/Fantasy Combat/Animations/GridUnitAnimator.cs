@@ -213,7 +213,7 @@ public class GridUnitAnimator : CharacterAnimator
         }
     }
 
-    public void PrepareToTriggerSkill()
+    public void ResetMovementSpeed()
     {
         SetMovementSpeed(0);
     }

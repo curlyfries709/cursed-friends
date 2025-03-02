@@ -4,7 +4,6 @@ using UnityEngine;
 using AnotherRealm;
 using Sirenix.OdinInspector;
 
-
 public abstract class AIBaseSkill : BaseSkill
 {
     [Title("Components")]
@@ -22,7 +21,7 @@ public abstract class AIBaseSkill : BaseSkill
     [Range(0, 7)]
     [SerializeField] protected int maxSkillCooldown = 0;
     [Space(5)]
-    [SerializeField] List<AISkillCondition> skillConditions;
+    [SerializeField] List<AISkillTriggerCondition> skillConditions;
     [Space(20)]
     [Header("VISUALS")]
     [SerializeField] protected GameObject blendListCamera;
@@ -86,7 +85,7 @@ public abstract class AIBaseSkill : BaseSkill
 
         GridSystemVisual.Instance.HideAllGridVisuals();
 
-        myCharacter.unitAnimator.PrepareToTriggerSkill();  //Speed Set to 0 & Cancel Skill Feedback Reset
+        myCharacter.unitAnimator.ResetMovementSpeed();  //Speed Set to 0 & Cancel Skill Feedback Reset
 
         //Warp Unit into Position & Rotation in an attempt to remove camera jitter.
         Vector3 desiredRotation = Quaternion.LookRotation(CombatFunctions.GetCardinalDirectionAsVector(myUnitTransform)).eulerAngles;
@@ -165,7 +164,7 @@ public abstract class AIBaseSkill : BaseSkill
         if (randNum > triggerChance){ return null; }
 
         //Evaluate Skill Condition & Immediately return null if not met.
-        foreach (AISkillCondition condition in skillConditions)
+        foreach (AISkillTriggerCondition condition in skillConditions)
         {
             if(condition.evaluateConditionAtEachMovePosition) { continue; }
             if(!condition.IsConditionMet(myCharacter, myAI.preferredTarget as CharacterGridUnit, selectedUnits, myUnit.GetGridPositionsOnTurnStart()[0], this)) { Debug.Log(transform.name + " DID NOT MEET SKILL CONDITIONS");  return null; }
@@ -355,7 +354,7 @@ public abstract class AIBaseSkill : BaseSkill
         if(newSkillData == null) { return null; } //Means no units were selected.
 
         //Evaluate Skill Conditions for Each Move Position if necessary.
-        foreach (AISkillCondition condition in skillConditions)
+        foreach (AISkillTriggerCondition condition in skillConditions)
         {
             if (condition.evaluateConditionAtEachMovePosition && !condition.IsConditionMet(myCharacter, myAI.preferredTarget as CharacterGridUnit, selectedUnits, currentGridPos, this)) 
             {
