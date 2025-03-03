@@ -53,7 +53,7 @@ public abstract class StrategicBonusChecker : MonoBehaviour
     {
     }
 
-    protected virtual void OnPlayerUseSkill(PlayerGridUnit player, PlayerBaseSkill skill)
+    protected virtual void OnPlayerUseSkill(PlayerGridUnit player, BaseSkill skill)
     {
 
     }

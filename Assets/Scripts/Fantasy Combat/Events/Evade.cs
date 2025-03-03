@@ -10,6 +10,11 @@ using AnotherRealm;
 public class Evade : MonoBehaviour, ITurnEndEvent
 {
     public static Evade Instance { get; private set; }
+
+    [Header("Mode")]
+    [Tooltip("When there are multiple valid counterattacks, how should we pick? Speed: Highest Speed. Score: Highest Score (Power Grade + Num of targets) and Random")]
+    [SerializeField] TriggerMode triggerMode = TriggerMode.Speed;
+    [Header("Distance")]
     [Range(0.5f, 1)]
     [SerializeField] float evadeDistance = 0.5f;
     [Header("Timers")]
@@ -48,6 +53,13 @@ public class Evade : MonoBehaviour, ITurnEndEvent
     public Action<GridUnit, CharacterGridUnit> UnitEvaded;
     public Action<CharacterGridUnit> CounterTriggered;
     public Action<bool> TriggerEvadeEvent;
+
+    public enum TriggerMode
+    {
+        Speed,
+        Score,
+        Random
+    }
 
     private void Awake()
     {
@@ -140,13 +152,12 @@ public class Evade : MonoBehaviour, ITurnEndEvent
         counterAttackToPlay = null;
         counterAttacker = null;
 
-        //Check if evader in Range & Affinity of Attack. 
+        //Check if evader can counter
         foreach (CharacterGridUnit evader in targets)
         {
-            if (TheCalculator.Instance.CanCounter(attacker, evader.counterAttack.GetAttackElement()) && IsEvaderInRangeForCounter(evader))
+            if (evader.counterAttack.CanTrigger(attacker))
             {
-                //Then Check if has higher speed than current eligible unit
-                if (!eligibleCounterAttackUnit || evader.stats.Speed > eligibleCounterAttackUnit.stats.Speed)
+                if (UpdateCurrentCounterAttacker(evader, eligibleCounterAttackUnit))
                 {
                     eligibleCounterAttackUnit = evader;
                 }
@@ -165,25 +176,21 @@ public class Evade : MonoBehaviour, ITurnEndEvent
         FantasyCombatManager.Instance.ActionComplete += ReturnAllTargetsToPos;
     }
 
-    private bool IsEvaderInRangeForCounter(CharacterGridUnit evader)
+    private bool UpdateCurrentCounterAttacker(CharacterGridUnit evader, CharacterGridUnit currentCounterattacker)
     {
-        foreach (GridPosition evaderGridPosition in evader.GetGridPositionsOnTurnStart())
+        if (!currentCounterattacker){ return true; }
+
+        switch (triggerMode)
         {
-            GridPosition closestAttackerGridPos = LevelGrid.Instance.gridSystem.GetGridPosition(attacker.GetClosestPointOnColliderToPosition(evader.transform.position));
-            GridPosition gridPositionDistance = evaderGridPosition - closestAttackerGridPos;
-
-            int xDistance = Mathf.Abs(gridPositionDistance.x);
-            int zDistance = Mathf.Abs(gridPositionDistance.z);
-
-            int counterRange = evader.counterAttack.GetRange();
-
-            if((xDistance == 0 || zDistance == 0) && xDistance <= counterRange && zDistance <= counterRange)
-            {
-                return true;
-            }
+            case TriggerMode.Speed:
+               return evader.stats.Speed > currentCounterattacker.stats.Speed;
+            case TriggerMode.Score:
+                return evader.counterAttack.GetActionScore() > currentCounterattacker.counterAttack.GetActionScore();
+            case TriggerMode.Random:
+                return UnityEngine.Random.Range(0, 2) == 1;
+            default:
+                return false;
         }
-
-        return false;
     }
 
     private void SetupUI()

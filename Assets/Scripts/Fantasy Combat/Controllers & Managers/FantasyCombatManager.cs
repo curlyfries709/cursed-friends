@@ -42,6 +42,8 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     [SerializeField] float resistDisplayExtension = 0.15f;
     [SerializeField] float knockdownDisplayExtension = 0.35f;
     [SerializeField] float unitKOedExtension = 0.85f;
+    [Space(5)]
+    [SerializeField] float shortentedDisplayTimeMultiplier = 0.5f;
     [Header("AI Action Delays")]
     public float onTurnStartDelay = 0.25f;
     public float actDelayIfNoMove = 0.25f;
@@ -74,7 +76,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     CharacterGridUnit currentTurnOwner = null; //The Owner of the current Turn.
 
     PlayerGridUnit selectedPlayerUnit = null;
-    PlayerBaseSkill currentSelectedSkill = null;
+    PlayerBaseSkill currentSelectedSkill = null; //Null whilst skill being peformed.
 
     float currentSkillFeedbackDisplayTime = 0;
 
@@ -813,6 +815,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     public void UpdateDamageDataDisplayTime(Affinity affinity, bool isKO, bool isKnockdown, bool shortenedDisplayTime, float customExtension = 0)
     {
         float newCalculatedDisplayTime = skillFeedbackDisplayTime + GetExtensionTimeBasedOnAffinity(affinity, isKO, isKnockdown) + customExtension;
+        newCalculatedDisplayTime = newCalculatedDisplayTime * (shortenedDisplayTime ? shortentedDisplayTimeMultiplier : 1);
 
         if (newCalculatedDisplayTime > currentSkillFeedbackDisplayTime)
         {
@@ -1473,6 +1476,9 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
         newAction.isActive = !isComplete;
         currentCombatAction = isComplete ? null : newAction;
+
+        if (!isComplete)
+            currentSelectedSkill = null;
 
         Debug.Log("NEW ACTION: " + newAction.ToString() + " isComplete: " + isComplete);
     }

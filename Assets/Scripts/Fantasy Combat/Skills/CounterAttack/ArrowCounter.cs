@@ -5,7 +5,7 @@ using DG.Tweening;
 
 public class ArrowCounter : CounterAttack
 {
-    [Header("ATTACK ANIMATION DATA")]
+    /*[Header("ATTACK ANIMATION DATA")]
     [Space(10)]
     [Header("Timers")]
     [SerializeField] float arrowFlightTime = 0.06f;
@@ -74,5 +74,9 @@ public class ArrowCounter : CounterAttack
         //Spawn Arrow Hit Effect.
         arrow.transform.GetChild(0).parent = null;
         Destroy(arrow);
+    }*/
+    public override void OnSkillInterrupted(BattleResult battleResult, IBattleTrigger battleTrigger)
+    {
+        throw new System.NotImplementedException();
     }
 }

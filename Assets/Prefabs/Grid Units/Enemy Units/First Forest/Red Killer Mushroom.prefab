@@ -249,8 +249,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 6886916323567122530}
-  m_RootOrder: 1
+  m_Father: {fileID: 8622331978077356115}
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!198 &279506532040868311
 ParticleSystem:
@@ -10938,6 +10938,38 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &4690284712400429569
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8622331978077356115}
+  m_Layer: 0
+  m_Name: HIT VFX POOL
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8622331978077356115
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4690284712400429569}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1852459135510235690}
+  m_Father: {fileID: 6886916323567122530}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5214380903590017953
 GameObject:
   m_ObjectHideFlags: 0
@@ -11685,65 +11717,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.6, y: 3.09, z: 1.76}
   m_Center: {x: 0, y: 0, z: 0.34}
---- !u!1 &6639171778554268909
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4220149529214475519}
-  - component: {fileID: 8622007798310739348}
-  m_Layer: 0
-  m_Name: Hit VFX Offset
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4220149529214475519
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6639171778554268909}
-  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
-  m_LocalPosition: {x: 0, y: 0.966, z: 0.8160019}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 6886916323567122530}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1773428102 &8622007798310739348
-ParentConstraint:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6639171778554268909}
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Weight: 1
-  m_TranslationAtRest: {x: 120.58, y: 0.966, z: 87.404}
-  m_RotationAtRest: {x: 0, y: 0, z: 0}
-  m_TranslationOffsets:
-  - {x: 0, y: 0.966, z: 0.8160019}
-  m_RotationOffsets:
-  - {x: 0, y: 180, z: 0}
-  m_AffectTranslationX: 1
-  m_AffectTranslationY: 1
-  m_AffectTranslationZ: 1
-  m_AffectRotationX: 1
-  m_AffectRotationY: 1
-  m_AffectRotationZ: 1
-  m_Active: 1
-  m_IsLocked: 1
-  m_Sources:
-  - sourceTransform: {fileID: 1296564982975158299}
-    weight: 1
 --- !u!1 &7762719330370671799
 GameObject:
   m_ObjectHideFlags: 0
@@ -12380,6 +12353,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.HitVFXPoolHeader
+      value: 
+      objectReference: {fileID: 8622331978077356115}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.returnToGridPosTime
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.attackDistanceBetweenTarget
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.attackFeedbacks.attackConnectedFeedback
+      value: 
+      objectReference: {fileID: 680946480100941596}
     - target: {fileID: 3632529755678759037, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
       propertyPath: m_LocalPosition.y
@@ -12615,11 +12608,6 @@ PrefabInstance:
       propertyPath: hitVFX
       value: 
       objectReference: {fileID: 980224322016801292}
-    - target: {fileID: 5732004729761704220, guid: cd0a536fc79773444ba225e2ca348bf0,
-        type: 3}
-      propertyPath: vfxSpawnOffset
-      value: 
-      objectReference: {fileID: 4220149529214475519}
     - target: {fileID: 5732004729761704220, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
       propertyPath: counterAttackFeedback
@@ -16236,11 +16224,7 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 898605385697214635, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1852459135510235690}
-    - targetCorrespondingSourceObject: {fileID: 898605385697214635, guid: cd0a536fc79773444ba225e2ca348bf0,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4220149529214475519}
+      addedObject: {fileID: 8622331978077356115}
     - targetCorrespondingSourceObject: {fileID: 1785545307253579906, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
       insertIndex: -1

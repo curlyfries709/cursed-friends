@@ -31663,7 +31663,6 @@ MonoBehaviour:
       statusEffect: {fileID: 11400000, guid: f62d78cc9a3c2774c867972211d4f60f, type: 2}
       numOfTurns: 0
       buffChange: 0
-    attackMultipleUnitsIndividually: 0
     animationTriggerName: Tail
     preAttackAutoMover: {fileID: 0}
     postAttackAutoMover: {fileID: 0}
@@ -31677,7 +31676,6 @@ MonoBehaviour:
       attackReflectedFeedback: {fileID: 0}
       attackNulledFeedback: {fileID: 0}
       attackAbsorbedFeedback: {fileID: 0}
-      spawnVFXHeader: {fileID: 0}
     HitVFXPoolHeader: {fileID: 7502569061707157888}
     projectileAttackVFXDestinationsHeader: {fileID: 0}
 --- !u!1 &2501894289766542289
@@ -47340,6 +47338,38 @@ Transform:
   m_Father: {fileID: 740056363956905121}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0.19708143, y: 1.6966548, z: -46.228893}
+--- !u!1 &2740971067543008953
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6200163276935757999}
+  m_Layer: 0
+  m_Name: VFX Destination Header
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6200163276935757999
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2740971067543008953}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 3928704871100204740}
+  m_Father: {fileID: 824982644691422854}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2777668959144377727
 GameObject:
   m_ObjectHideFlags: 0
@@ -136389,6 +136419,37 @@ Transform:
   m_Father: {fileID: 3314119478140407164}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: -30.382603, y: 6.246006, z: 15.665457}
+--- !u!1 &7951147238099449541
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3928704871100204740}
+  m_Layer: 0
+  m_Name: VFX Desitination
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3928704871100204740
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7951147238099449541}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6200163276935757999}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7959145915112588506
 GameObject:
   m_ObjectHideFlags: 0
@@ -138011,7 +138072,7 @@ MonoBehaviour:
         PlayEvents:
           m_PersistentCalls:
             m_Calls:
-            - m_Target: {fileID: 3448984833457931359}
+            - m_Target: {fileID: 0}
               m_TargetAssemblyTypeName: CounterAttack, Assembly-CSharp
               m_MethodName: PlayTargetFeedback
               m_Mode: 1
@@ -139160,6 +139221,57 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: validTargetArea.y
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.skillElement
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.preAttackAutoMover
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.returnToGridPosTime
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.preMoveTargetTransform
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.inflictedStatusEffects.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.projectileAttackVFXDestinationsHeader
+      value: 
+      objectReference: {fileID: 6200163276935757999}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.attackFeedbacks.attackConnectedFeedback
+      value: 
+      objectReference: {fileID: 7824699922960371925}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.inflictedStatusEffects.Array.data[0].statusEffect
+      value: 
+      objectReference: {fileID: 11400000, guid: f62d78cc9a3c2774c867972211d4f60f,
+        type: 2}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.inflictedStatusEffects.Array.data[0].bonusPercentOfInflictingEffect
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 3632529755678759037, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
       propertyPath: m_LocalPosition.y
@@ -139316,11 +139428,6 @@ PrefabInstance:
       propertyPath: moveSpeed
       value: 4
       objectReference: {fileID: 0}
-    - target: {fileID: 5844313024014791247, guid: cd0a536fc79773444ba225e2ca348bf0,
-        type: 3}
-      propertyPath: counterAttack
-      value: 
-      objectReference: {fileID: 3448984833457931359}
     - target: {fileID: 6268646062620546586, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
       propertyPath: m_TrackedObjectOffset.y
@@ -141570,6 +141677,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 4916858571356812956}
+    - targetCorrespondingSourceObject: {fileID: 898605385697214635, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6200163276935757999}
     - targetCorrespondingSourceObject: {fileID: 1785545307253579906, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
       insertIndex: -1
@@ -141583,10 +141694,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 8445390080304858719}
-    - targetCorrespondingSourceObject: {fileID: 6245259564189594802, guid: cd0a536fc79773444ba225e2ca348bf0,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3448984833457931359}
   m_SourcePrefab: {fileID: 100100000, guid: cd0a536fc79773444ba225e2ca348bf0, type: 3}
 --- !u!4 &824982644691422854 stripped
 Transform:
@@ -141684,39 +141791,6 @@ MonoBehaviour:
   activateOnEnable: 1
   onlyShowActiveUnit: 1
   onlyShowTargetsWithoutActiveUnit: 0
---- !u!1 &5882000122000980639 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6245259564189594802, guid: cd0a536fc79773444ba225e2ca348bf0,
-    type: 3}
-  m_PrefabInstance: {fileID: 507377949202026029}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &3448984833457931359
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5882000122000980639}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66545f2ec1c02de419e9920c018f1a15, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  myUnit: {fileID: 6201942900366556258}
-  counterAttackFeedback: {fileID: 7824699922960371925}
-  hitVFX: {fileID: 5277927995896049643}
-  vfxSpawnOffset: {fileID: 4266085294712819265}
-  range: 3
-  powerGrade: 8
-  knockbackDistance: 0
-  isMagical: 1
-  inflictedStatusEffects:
-  - bonusPercentOfInflictingEffect: 0
-    statusEffect: {fileID: 11400000, guid: f62d78cc9a3c2774c867972211d4f60f, type: 2}
-    numOfTurns: 0
-    buffChange: 0
-  projectileDestination: {fileID: 3533398599197189064}
-  delayBeforeReturn: 0.1
 --- !u!114 &6201942900366556258 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5844313024014791247, guid: cd0a536fc79773444ba225e2ca348bf0,

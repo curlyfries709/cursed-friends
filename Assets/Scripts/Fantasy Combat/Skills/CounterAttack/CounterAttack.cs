@@ -2,169 +2,170 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
-using AnotherRealm;
-using MoreMountains.Feedbacks;
+using System;
 
-public abstract class CounterAttack : MonoBehaviour, ICombatAction
+public class CounterAttack : BaseSkill, IOffensiveSkill
 {
-    //Counter Attacks can never occur diagonally. 
-    [Title("Setup")]
-    [SerializeField] protected CharacterGridUnit myUnit;
-    [Title("Visuals")]
-    [SerializeField] protected MMF_Player counterAttackFeedback;
-    [Space(5)]
-    [SerializeField] GameObject hitVFX;
-    [SerializeField] Transform vfxSpawnOffset;
+    [Title("OFFENSIVE SKILL DATA")]
+    [SerializeField] protected OffensiveSkillData offensiveSkillData;
     [Title("COUNTER DATA")]
-    [SerializeField] int range = 1;
-    [Space(5)]
-    [SerializeField] PowerGrade powerGrade = PowerGrade.D;
-    [Range(0,9)]
-    [SerializeField] int knockbackDistance = 0;
-    [Space(10)]
-    [Tooltip("Counterattacks Default to Natural or Weapon Element/Material ")]
-    [SerializeField] bool isMagical;
-    [Space(10)]
-    [SerializeField] List<ChanceOfInflictingStatusEffect> inflictedStatusEffects;
+    [Tooltip("Optional conditions for counter to trigger. All must be true")]
+    [SerializeField] protected List<SkillTriggerCondition> triggerConditions = new List<SkillTriggerCondition>();
 
-    //Cache
-    protected bool isCritical;
-    protected Transform myUnitTransform;
-
-    //State Variables
-    public bool isActive { get; set; } = false;
-    bool isReflectAffinity = false;
-    int uiCounter = 0;
-
-    List<Transform> hitVFXSpawnOffsets = new List<Transform>();
-
-
-    protected virtual void Awake()
-    {
-        myUnitTransform = myUnit.transform;
-
-        if(vfxSpawnOffset)
-            hitVFXSpawnOffsets.Add(vfxSpawnOffset);
-    }
-
-    public void BeginAction()
-    {
-        FantasyCombatManager.Instance.SetCurrentAction(this, false);
-        isReflectAffinity = false;
-        uiCounter = 0;
-    }
+    float? currentActionScore = null;
 
     public virtual void TriggerCounterAttack(CharacterGridUnit target)
     {
-        BeginAction();
-    }
+        BeginSkill();
 
-    public void DisplayUnitHealthUIComplete()
-    {
-        if (!isActive) { return; }
-
-        uiCounter++;
-
-        int totalToCheck = isReflectAffinity ? 2 : 1;
-
-        if(uiCounter >= totalToCheck)
+        if (ShouldMoveToAttack())
         {
-            EndAction();
+            //Update mover to ensure counter triggers after counter canvas complete
+            AutoMover mover = offensiveSkillData.preAttackAutoMover;
+            mover.SetMovementDuration(Evade.Instance.GetCounterCanvasDisplayTime());
+            mover.SetCallbackOnComplete(true); //Just in case I forget to set it to true in inspector
+
+            //Attack
+            Attack();
+        }
+        else
+        {
+            StartCoroutine(WaitToAttackRoutine());
         }
     }
-    public void EndAction()
+
+    IEnumerator WaitToAttackRoutine()
     {
-        FantasyCombatManager.Instance.SetCurrentAction(this, true);
-        FantasyCombatManager.Instance.ActionComplete?.Invoke();
+        //Wait until counter canvas complete
+        yield return new WaitForSeconds(Evade.Instance.GetCounterCanvasDisplayTime());
+        Attack();
+    }
+
+    protected void BeginSkill()
+    {
+        BeginAction();
+        PlayerGridUnit player = myCharacter as PlayerGridUnit;
+
+        if(player)
+            player.lastUsedSkill = this;
+
+        //Set Times
+        myCharacter.returnToGridPosTime = offensiveSkillData.returnToGridPosTime;
+        myCharacter.delayBeforeReturn = offensiveSkillData.delayBeforeReturn;
+
+        SetUnitsToShow();
+        SetSkillTargets();
+
+        //Call Event
+        if(player)
+            PlayerBaseSkill.PlayerUsedSkill?.Invoke(player, this);
+    }
+
+    public void OnDamageDealtToTarget(GridUnit target, DamageData damageData){}
+
+    public bool CanTrigger(GridUnit targetToCounter)
+    {
+        if(!(targetToCounter is CharacterGridUnit)) { return false; } //Don't counter objects.
+
+        bool isTargetInRange = IsTargetInRange(targetToCounter);
+
+        if(!isTargetInRange || triggerConditions.Count == 0)
+        {
+            return isTargetInRange;
+        }
+
+        foreach(SkillTriggerCondition condition in triggerConditions)
+        {
+            if (!condition.IsConditionMet(myCharacter, targetToCounter, this))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public float GetActionScore()
+    {
+        if(!currentActionScore.HasValue)
+        {
+            CalculateActionScore();
+        }
+
+        return currentActionScore.Value;
+    }
+
+    protected bool IsTargetInRange(GridUnit targetToCounter)
+    {
+        if(selectedUnits.Count == 0)
+        {
+            CalculateSelectedGridPos();
+        }
+
+        return selectedUnits.Contains(targetToCounter);
+    }
+
+    private void CalculateActionScore()
+    {
+        if (selectedUnits.Count == 0)
+        {
+            CalculateSelectedGridPos();
+        }
+
+        //Since the higher the power, the lower the int, we must do below. 
+        float powerGradeScore = Enum.GetNames(typeof(PowerGrade)).Length - (int)offensiveSkillData.powerGrade;
+
+        //Calculation prioritises power grade
+        //11 + 1.1 = A++ targets 1 unit = 12.1
+        //8 + 4.4 = B+ targets 4 units = 12.4
+        currentActionScore = powerGradeScore + (selectedUnits.Count * 1.1f);
+    }
+    protected override void ResetData()
+    {
+        base.ResetData();
+        currentActionScore = -1;
+    }
+
+    // KNOCKBACK ATTACK DATA. TO BE MOVED TO NEW SEPARATE CLASS
+    public void DealKnockbackDamage(CharacterGridUnit target, PowerGrade powerGrade)
+    {
+        //DealDamage(target, false, powerGrade);
     }
 
     public void PlayBumpAttackAnimation()
     {
-        myUnit.unitAnimator.Counter();
+        //myUnit.unitAnimator.Counter();
     }
 
-    protected void PlayCounterattackAnimation()
-    {
-        myUnit.unitAnimator.ReturnToNormalSpeed();
-        myUnit.unitAnimator.SetMovementSpeed(0);
-        myUnit.unitAnimator.Counter();
-        counterAttackFeedback?.PlayFeedbacks();
-    }
-
-    public void PlayTargetFeedback() //CALLED VIA FEEDBACK
-    {
-        //DELETE METHOD
-    }
-
-    public void DealKnockbackDamage(CharacterGridUnit target, PowerGrade powerGrade)
-    {
-        DealDamage(target, false, powerGrade);
-    }
-
-    protected void DealDamage(CharacterGridUnit target, bool allowKnockback = true, PowerGrade powerGrade = PowerGrade.D)
-    {
-        AttackData attackData = GetAttackData(target, allowKnockback, powerGrade);
-
-        Health targetHealth = target.CharacterHealth();
-
-        DamageData damageData = targetHealth.TakeDamage(attackData, DamageType.Default);
-        Affinity affinity = damageData != null ? damageData.affinityToAttack : Affinity.None;
-
-        if(affinity == Affinity.Reflect)
-        {
-            isReflectAffinity = true;
-        }
-    }
-
-
-    //GETTERS
-    protected AttackData GetAttackData(GridUnit target, bool allowKnockback = true, PowerGrade powerGrade = PowerGrade.D)
-    {
-        AttackData attackData = new AttackData(myUnit, GetAttackElement(), GetDamage(powerGrade), 1);
-
-        int distance = allowKnockback ? knockbackDistance : 0;
-        SkillForceData skillForceData = new SkillForceData();
-
-        skillForceData.forceType = allowKnockback ? SkillForceType.KnockbackAll : SkillForceType.None;
-        skillForceData.directionType = SkillForceDirectionType.UnitForward;
-        skillForceData.forceDistance = distance;
-
-        //attackData.attackItem = skillItem;
-        attackData.canEvade = false;
-
-        attackData.inflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(myUnit, target, inflictedStatusEffects);
-        attackData.forceData = skillForceData;
-
-        attackData.isPhysical = !isMagical;
-        attackData.isCritical = isCritical;
-        attackData.isMultiAction = false;
-
-        return attackData;
-    }
-
-    protected int GetDamage(PowerGrade powerGrade)
-    {
-        return TheCalculator.Instance.CalculateRawDamage(myUnit, isMagical, powerGrade, out isCritical);
-    }
-
-    public int GetRange()
-    {
-        return range;
-    }
-
+    //DOERS
     public void PlayCounterUI()
     {
-        myUnit.GetPhotoShootSet().PlayCounterUI();
+        myCharacter.GetPhotoShootSet().PlayCounterUI();
     }
 
     public void DeactivateCounterUI()
     {
-        myUnit.GetPhotoShootSet().DeactivateSet();
+        myCharacter.GetPhotoShootSet().DeactivateSet();
     }
-    //SETTERS
 
-    public Element GetAttackElement()
+    //GETTERS
+    public IOffensiveSkill IOffensiveSkill()
     {
-        return myUnit.stats.GetAttackElement();
+        return this;
+    }
+
+    public OffensiveSkillData GetOffensiveSkillData()
+    {
+        return offensiveSkillData;
+    }
+
+    public bool ShouldMoveToAttack()
+    {
+        return offensiveSkillData.preAttackAutoMover;
+    }
+
+    public override void OnSkillInterrupted(BattleResult battleResult, IBattleTrigger battleTrigger)
+    {
+        throw new NotImplementedException();
     }
 }

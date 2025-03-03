@@ -60936,7 +60936,6 @@ MonoBehaviour:
     skillElement: 8
     skillItem: {fileID: 0}
     inflictedStatusEffects: []
-    attackMultipleUnitsIndividually: 0
     animationTriggerName: Uproot
     preAttackAutoMover: {fileID: 0}
     postAttackAutoMover: {fileID: 0}
@@ -60950,7 +60949,6 @@ MonoBehaviour:
       attackReflectedFeedback: {fileID: 0}
       attackNulledFeedback: {fileID: 0}
       attackAbsorbedFeedback: {fileID: 0}
-      spawnVFXHeader: {fileID: 0}
     HitVFXPoolHeader: {fileID: 2820286157227533203}
     projectileAttackVFXDestinationsHeader: {fileID: 0}
 --- !u!1 &5432554520462870732
@@ -88986,6 +88984,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.skillElement
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.returnToGridPosTime
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.attackDistanceBetweenTarget
+      value: 1.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.attackFeedbacks.attackConnectedFeedback
+      value: 
+      objectReference: {fileID: 5026592167759040211}
     - target: {fileID: 3632529755678759037, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
       propertyPath: m_LocalPosition.y

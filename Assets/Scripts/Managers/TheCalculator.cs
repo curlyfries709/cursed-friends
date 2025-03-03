@@ -578,23 +578,6 @@ public class TheCalculator : MonoBehaviour
         }
     }
 
-    public bool CanCounter(GridUnit target, Element attackElement)
-    {
-        if(target is CharacterGridUnit character)
-        {
-            //Contact Monster Database and see if Element Data unlocked for Element. If Unlocked & will damage, counter.
-            Affinity affinity = GetAffinity(character, attackElement, null);
-
-            //Still worth countering an immune target as it could inflict status effect. HOWEVER, I HAVE REMOVED IT. DESIGN CHOICE.
-            bool isAttackableAffinity = affinity == Affinity.None || affinity == Affinity.Weak || affinity == Affinity.Resist;
-            bool isAffinityUnlocked = EnemyDatabase.Instance.IsAffinityUnlocked(character, attackElement);
-
-            return isAttackableAffinity && isAffinityUnlocked;
-        }
-
-        return false;
-    }
-
     public bool IsAttackBackStab(GridUnit attacker, GridUnit target, DamageType damageType)
     {
         if(damageType != DamageType.Default)

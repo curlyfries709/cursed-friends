@@ -139,8 +139,6 @@ public class FantasyCombatCollectionManager : MonoBehaviour, IControls, ISaveabl
         }
     }
 
-
-
     private void Awake()
     {
         playerInput = ControlsManager.Instance.GetPlayerInput();

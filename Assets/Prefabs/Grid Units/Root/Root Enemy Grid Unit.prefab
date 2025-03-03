@@ -279,7 +279,7 @@ MonoBehaviour:
   returnToGridPosJumpHeight: 0.25
   guardRotationSpeed: 5
   unitAnimator: {fileID: 2766786236659591889}
-  counterAttack: {fileID: 5732004729761704220}
+  counterAttack: {fileID: 3433299570643280836}
   statusEffectCamTarget: {fileID: 7347420438448859864}
   counterCamTarget: {fileID: 8726922751194337001}
   photoshootAnimator: {fileID: 5540047883485847487}
@@ -3212,7 +3212,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 898605385697214635}
-  - component: {fileID: 5732004729761704220}
+  - component: {fileID: 3433299570643280836}
   m_Layer: 0
   m_Name: COUNTER
   m_TagString: Untagged
@@ -3231,11 +3231,12 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 6014922820138072647}
   m_Father: {fileID: 6290205381351298267}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5732004729761704220
+--- !u!114 &3433299570643280836
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3244,21 +3245,49 @@ MonoBehaviour:
   m_GameObject: {fileID: 6245259564189594802}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d542cb3beec4a744bdcc6c3c7cef73d, type: 3}
+  m_Script: {fileID: 11500000, guid: 17808b1d1a8e40a449e275c5d5702837, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   myUnit: {fileID: 5844313024014791247}
-  counterAttackFeedback: {fileID: 0}
-  hitVFX: {fileID: 0}
-  vfxSpawnOffset: {fileID: 0}
-  range: 1
-  powerGrade: 8
-  knockbackDistance: 0
-  isMagical: 0
-  inflictedStatusEffects: []
-  animationAttackDistance: 1
-  delayBeforeReturn: 0.1
-  returnToGridPosTime: 0.5
+  isSingleTarget: 1
+  targets: 02000000
+  skillShape: 0
+  skillDimensions: {x: 0, y: 0}
+  validTargetArea: {x: 1, y: 1}
+  range: 0
+  originateFromUnitCentre: 0
+  canPenetrate: 0
+  includeDiagonals: 1
+  maxNumCellsFromUnit: 1
+  unitCameraRootTransform: {fileID: 0}
+  unitTransformAttacher: {fileID: 0}
+  forceTypeToApply: 0
+  forceDirection: 0
+  forceDistance: 0
+  offensiveSkillData:
+    powerGrade: 8
+    isMagical: 0
+    isChargedSkill: 0
+    isUnevadable: 1
+    skillElement: 0
+    skillItem: {fileID: 0}
+    inflictedStatusEffects: []
+    animationTriggerName: Counter
+    preAttackAutoMover: {fileID: 5626104354335994402}
+    postAttackAutoMover: {fileID: 0}
+    preMoveTargetTransform: {fileID: 6014922820138072647}
+    attackDistanceBetweenTarget: 0.5
+    delayBeforeReturn: 0.1
+    returnToGridPosTime: 0.35
+    attackFeedbacks:
+      attackConnectedFeedback: {fileID: 0}
+      attackEvadedFeedback: {fileID: 0}
+      attackReflectedFeedback: {fileID: 0}
+      attackNulledFeedback: {fileID: 0}
+      attackAbsorbedFeedback: {fileID: 0}
+    HitVFXPoolHeader: {fileID: 0}
+    projectileAttackVFXDestinationsHeader: {fileID: 0}
+  triggerConditions: []
 --- !u!1 &6424824252631154381
 GameObject:
   m_ObjectHideFlags: 0
@@ -3336,7 +3365,6 @@ MonoBehaviour:
     skillElement: 0
     skillItem: {fileID: 0}
     inflictedStatusEffects: []
-    attackMultipleUnitsIndividually: 0
     animationTriggerName: 
     preAttackAutoMover: {fileID: 0}
     postAttackAutoMover: {fileID: 0}
@@ -3352,7 +3380,60 @@ MonoBehaviour:
       attackAbsorbedFeedback: {fileID: 0}
     HitVFXPoolHeader: {fileID: 0}
     projectileAttackVFXDestinationsHeader: {fileID: 0}
-    spawnedHitVFX: []
+--- !u!1 &6500169462512183824
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6014922820138072647}
+  - component: {fileID: 5626104354335994402}
+  m_Layer: 0
+  m_Name: Move To Attack Destination
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6014922820138072647
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6500169462512183824}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 898605385697214635}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5626104354335994402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6500169462512183824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70eff7f7b7fb07346b7092068ffca3d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  triggerCallbackOnComplete: 1
+  movementDuration: 0.5
+  movementEaseType: 1
+  doRotate: 0
+  rotationDuration: 0.5
+  rotationEaseType: 1
+  doJump: 0
+  jumpPower: 1
+  numOfJumps: 1
+  nextInSequenceMover: {fileID: 0}
 --- !u!1 &6813421990337247190
 GameObject:
   m_ObjectHideFlags: 0

@@ -68,7 +68,7 @@ public abstract class PlayerBaseSkill : BaseSkill
 
     float deactivateCamDelay = 0;
     //Events
-    public static Action<PlayerGridUnit, PlayerBaseSkill> PlayerUsedSkill;
+    public static Action<PlayerGridUnit, BaseSkill> PlayerUsedSkill; //Base Skill argument so counterattack & bump attack can raise it. 
 
     public enum SkillCostType
     {
@@ -114,20 +114,21 @@ public abstract class PlayerBaseSkill : BaseSkill
             if (!ShowInteractCanvasWhileSkillSelected())
                 InteractionManager.Instance.ShowInteractCanvas?.Invoke(false);
 
-            skillTriggered = false;
-
-            selectedGridPositions.Clear();
-            selectedUnits.Clear();
-            validTargetGridPositions.Clear();
-
-            autoSelectedUnit = null;
-
             PlayTutorial();
 
             return true;
         }
 
         return false;
+    }
+
+    protected override void ResetData()
+    {
+        base.ResetData();
+
+        skillTriggered = false;
+        validTargetGridPositions.Clear();
+        autoSelectedUnit = null;
     }
 
     public virtual void SkillSelected()

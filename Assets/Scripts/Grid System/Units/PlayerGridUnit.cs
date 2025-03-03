@@ -33,7 +33,7 @@ public class PlayerGridUnit : CharacterGridUnit
 
     //Cache
     public PlayerSkillset playerSkillset { get; private set; }
-    [HideInInspector] public PlayerBaseSkill lastUsedSkill = null;
+    [HideInInspector] public BaseSkill lastUsedSkill = null;
 
     protected override void Awake()
     {

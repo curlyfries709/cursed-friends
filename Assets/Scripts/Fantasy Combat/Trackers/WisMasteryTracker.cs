@@ -21,7 +21,7 @@ public class WisMasteryTracker : BaseMasteryTracker
         }
     }
 
-    private void OnPlayerUsedSkill(PlayerGridUnit player, PlayerBaseSkill skill)
+    private void OnPlayerUsedSkill(PlayerGridUnit player, BaseSkill skill)
     {
         if (allPlayersProgressionType[player] == MasteryProgression.ProgressionType.UseSupport && skill is PlayerSupportSkill)
         {

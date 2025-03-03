@@ -59,10 +59,6 @@ public class GridUnitAnimator : CharacterAnimator
 
     List<GameObject> equipmentModels = new List<GameObject>();
 
-    //Events
-    //Action arrowAttackEvent;
-    //Action activateArrowEvent;
-
     [System.Serializable]
     public class BodyTransform
     {
@@ -78,24 +74,6 @@ public class GridUnitAnimator : CharacterAnimator
         animNotifies = GetComponent<GridUnitAnimNotifies>();
 
         animNotifies.Setup(myUnit, freeRoamAttackObject);
-    }
-
-
-    //Animation Events
-    public void ShowDamageFeedback(int disableSlowMo)
-    {
-        /*if (cancelSkillFeedbackDisplay)
-        {
-            cancelSkillFeedbackDisplay = false;
-            return;
-        }*/
-
-        //IDamageable.TriggerHealthChangeEvent?.Invoke(beginHealthCountdown);
-
-        if (disableSlowMo == 0)
-        {
-            ActivateSlowmo();
-        }
     }
 
     //Methods
@@ -175,10 +153,12 @@ public class GridUnitAnimator : CharacterAnimator
 
     public void Hit()
     {
-        if (!animator.GetCurrentAnimatorStateInfo(1).IsTag("Hurt"))
+        /*if (!animator.GetCurrentAnimatorStateInfo(1).IsTag("Hurt"))
         {
             animator.SetTrigger(animIDHit);
-        }
+        }*/
+
+        animator.SetTrigger(animIDHit);
     }
 
     public void IdleBeforeReflect()
@@ -288,12 +268,6 @@ public class GridUnitAnimator : CharacterAnimator
         animIDSleeping = Animator.StringToHash("Sleeping");
         animIDRevive = Animator.StringToHash("Revive");
     } 
-
-    public void SetupArrowAttackEvent(Action showAction, Action fireAction)
-    {
-        //activateArrowEvent = showAction;
-        //arrowAttackEvent = fireAction;
-    }
 
     public Transform GetSpine()
     {

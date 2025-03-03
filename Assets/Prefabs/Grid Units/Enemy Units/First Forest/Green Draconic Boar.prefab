@@ -21635,23 +21635,18 @@ MonoBehaviour:
     isMagical: 0
     isChargedSkill: 0
     isUnevadable: 0
-    skillElement: 0
+    skillElement: 8
     skillItem: {fileID: 0}
     inflictedStatusEffects:
     - bonusPercentOfInflictingEffect: 15
       statusEffect: {fileID: 11400000, guid: 7bcc6535eec0872478c894646888fae0, type: 2}
       numOfTurns: 0
       buffChange: 0
-    attackMultipleUnitsIndividually: 0
     animationTriggerName: Ram
     preAttackAutoMover: {fileID: 6698577110169772164}
     postAttackAutoMover: {fileID: 0}
     preMoveTargetTransform: {fileID: 1648210249612728844}
-    moveToAttack: 1
-    isAttackDistanceAForwardOffset: 0
     attackDistanceBetweenTarget: 0.8
-    animationAttackDistance: 0.8
-    moveToTargetTime: 0.5
     delayBeforeReturn: 0.1
     returnToGridPosTime: 0.5
     attackFeedbacks:
@@ -21660,19 +21655,8 @@ MonoBehaviour:
       attackReflectedFeedback: {fileID: 0}
       attackNulledFeedback: {fileID: 0}
       attackAbsorbedFeedback: {fileID: 0}
-      spawnVFXHeader: {fileID: 0}
     HitVFXPoolHeader: {fileID: 1190140479283834037}
     projectileAttackVFXDestinationsHeader: {fileID: 0}
-  hitVFXPoolHeader: {fileID: 1190140479283834037}
-  hitVFXSpawnOffsets:
-  - {fileID: 3447276392999894786}
-  magicalAttackVFXDestination: {fileID: 0}
-  attackTriggerDelay: 0
-  attackStartTransform: {fileID: 5237167476581410471}
-  jumpToStartTransform: 1
-  jumpTime: 0.4
-  jumpHeight: 0.5
-  postJumpDelay: 0.15
 --- !u!1 &7917020975113922253
 GameObject:
   m_ObjectHideFlags: 0
@@ -42217,6 +42201,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.skillElement
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.returnToGridPosTime
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.attackDistanceBetweenTarget
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.attackFeedbacks.attackConnectedFeedback
+      value: 
+      objectReference: {fileID: 289027862973861647}
     - target: {fileID: 3632529755678759037, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
       propertyPath: m_LocalPosition.y
@@ -42572,6 +42576,11 @@ PrefabInstance:
         type: 3}
       propertyPath: animationAttackDistance
       value: 1.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.skillElement
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 6489055486176498312, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}

@@ -61,6 +61,7 @@ public abstract class AIBaseSkill : BaseSkill
         public Direction directionToTriggerSkill;
     }
 
+
     public override void Setup(SkillPrefabSetter skillPrefabSetter, SkillData skillData)
     {
         base.Setup(skillPrefabSetter, skillData);
@@ -95,10 +96,11 @@ public abstract class AIBaseSkill : BaseSkill
         myCharacter.returnToGridPosTime = returnToGridPosTime;
         myCharacter.delayBeforeReturn = delayBeforeReturn;
 
-        //Set Selected Units & Grid Pos.
+        //Reset Evaluation Transform pos
         myUnitMoveTransform.localPosition = Vector3.zero;
         myUnitMoveTransform.localRotation = Quaternion.Euler(Vector3.zero);
-        
+
+        //Set Selected Units & Grid Pos.
         selectedGridPositions = skillDataToUse.targetedGridPositions;
         SetSelectedUnits();
 

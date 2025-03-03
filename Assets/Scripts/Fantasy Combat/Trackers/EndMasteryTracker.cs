@@ -20,7 +20,7 @@ public class EndMasteryTracker : BaseMasteryTracker
         }
     }
 
-    private void OnPlayerUsedSkill(PlayerGridUnit player, PlayerBaseSkill skill)
+    private void OnPlayerUsedSkill(PlayerGridUnit player, BaseSkill skill)
     {
         PlayerUsePotion potionSkill = skill as PlayerUsePotion;
 

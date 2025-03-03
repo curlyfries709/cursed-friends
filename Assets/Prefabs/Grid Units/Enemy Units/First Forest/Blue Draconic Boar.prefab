@@ -47016,16 +47016,11 @@ MonoBehaviour:
       statusEffect: {fileID: 11400000, guid: 5e4234184bd011f49b94efebd1880d78, type: 2}
       numOfTurns: 0
       buffChange: -1
-    attackMultipleUnitsIndividually: 0
     animationTriggerName: Cry
     preAttackAutoMover: {fileID: 0}
     postAttackAutoMover: {fileID: 0}
     preMoveTargetTransform: {fileID: 0}
-    moveToAttack: 0
-    isAttackDistanceAForwardOffset: 0
     attackDistanceBetweenTarget: 0.5
-    animationAttackDistance: 1
-    moveToTargetTime: 0.25
     delayBeforeReturn: 0.1
     returnToGridPosTime: 0.5
     attackFeedbacks:
@@ -47034,18 +47029,8 @@ MonoBehaviour:
       attackReflectedFeedback: {fileID: 0}
       attackNulledFeedback: {fileID: 0}
       attackAbsorbedFeedback: {fileID: 0}
-      spawnVFXHeader: {fileID: 0}
     HitVFXPoolHeader: {fileID: 0}
     projectileAttackVFXDestinationsHeader: {fileID: 0}
-  hitVFXPoolHeader: {fileID: 0}
-  hitVFXSpawnOffsets: []
-  magicalAttackVFXDestination: {fileID: 0}
-  attackTriggerDelay: 0
-  attackStartTransform: {fileID: 0}
-  jumpToStartTransform: 0
-  jumpTime: 0
-  jumpHeight: 0
-  postJumpDelay: 0
 --- !u!1 &9150624011698259835
 GameObject:
   m_ObjectHideFlags: 0
@@ -47508,6 +47493,26 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.skillElement
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.returnToGridPosTime
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.attackDistanceBetweenTarget
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3433299570643280836, guid: cd0a536fc79773444ba225e2ca348bf0,
+        type: 3}
+      propertyPath: offensiveSkillData.attackFeedbacks.attackConnectedFeedback
+      value: 
+      objectReference: {fileID: 7610854029845979204}
     - target: {fileID: 3632529755678759037, guid: cd0a536fc79773444ba225e2ca348bf0,
         type: 3}
       propertyPath: m_LocalPosition.y

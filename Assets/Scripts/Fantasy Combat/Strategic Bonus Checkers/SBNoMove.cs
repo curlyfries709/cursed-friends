@@ -29,7 +29,7 @@ public class SBNoMove : StrategicBonusChecker
         hasMoved = damageData.hitByAttackData.forceData.HasValue ? damageData.hitByAttackData.forceData.Value.forceDistance > 0 : false;
     }
 
-    protected override void OnPlayerUseSkill(PlayerGridUnit player, PlayerBaseSkill skill)
+    protected override void OnPlayerUseSkill(PlayerGridUnit player, BaseSkill skill)
     {
         if (!hasMoved)
             hasMoved = !turnStartGridPos.ContainsKey(player) || !turnStartGridPos[player].All(player.GetGridPositionsOnTurnStart().Contains);

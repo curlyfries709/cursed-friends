@@ -99,4 +99,14 @@ public class AutoMover : MonoBehaviour
             OnCompleteCallback();
         }      
     }
+
+    public void SetCallbackOnComplete(bool newValue)
+    {
+        triggerCallbackOnComplete = newValue;
+    }
+
+    public void SetMovementDuration(float newDuration)
+    {
+        movementDuration = newDuration;
+    }
 }

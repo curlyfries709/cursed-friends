@@ -19,7 +19,7 @@ public class StrMasteryTracker : BaseMasteryTracker
         }
     }
 
-    private void OnPlayerUsedSkill(PlayerGridUnit player, PlayerBaseSkill skill)
+    private void OnPlayerUsedSkill(PlayerGridUnit player, BaseSkill skill)
     {
         if(allPlayersProgressionType[player] == MasteryProgression.ProgressionType.UsePhys)
         {

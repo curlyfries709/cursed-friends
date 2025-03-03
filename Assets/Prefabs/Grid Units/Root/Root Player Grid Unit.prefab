@@ -126,6 +126,38 @@ MonoBehaviour:
   playerTransform: {fileID: 8768347874194456719}
   horizontalOffset: 0.5
   minYPos: 0.5
+--- !u!1 &229072265983795988
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4592977583575441200}
+  m_Layer: 0
+  m_Name: Conditions
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4592977583575441200
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229072265983795988}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5777916368365612153}
+  m_Father: {fileID: 6952033838133606865}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &234064711970642006
 GameObject:
   m_ObjectHideFlags: 0
@@ -730,7 +762,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1048484730138022234}
-  m_LocalRotation: {x: 0.030896075, y: 0.7147914, z: -0.32830524, w: -0.6167126}
+  m_LocalRotation: {x: 0.030896068, y: 0.7147915, z: -0.3283053, w: -0.6167125}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1851,6 +1883,60 @@ Transform:
   m_Father: {fileID: 5082230725888348178}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3341048576031048556
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3651720555562240996}
+  - component: {fileID: 2672196639123871682}
+  m_Layer: 0
+  m_Name: Move To Attack Destination
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3651720555562240996
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3341048576031048556}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6952033838133606865}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2672196639123871682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3341048576031048556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70eff7f7b7fb07346b7092068ffca3d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  triggerCallbackOnComplete: 1
+  movementDuration: 0.5
+  movementEaseType: 1
+  doRotate: 0
+  rotationDuration: 0.5
+  rotationEaseType: 1
+  doJump: 0
+  jumpPower: 1
+  numOfJumps: 1
+  nextInSequenceMover: {fileID: 0}
 --- !u!1 &3348551877760786004
 GameObject:
   m_ObjectHideFlags: 0
@@ -3235,7 +3321,6 @@ MonoBehaviour:
     skillElement: 0
     skillItem: {fileID: 0}
     inflictedStatusEffects: []
-    attackMultipleUnitsIndividually: 0
     animationTriggerName: 
     preAttackAutoMover: {fileID: 0}
     postAttackAutoMover: {fileID: 0}
@@ -3251,7 +3336,6 @@ MonoBehaviour:
       attackAbsorbedFeedback: {fileID: 0}
     HitVFXPoolHeader: {fileID: 0}
     projectileAttackVFXDestinationsHeader: {fileID: 0}
-    spawnedHitVFX: []
 --- !u!1 &6374409388911290995
 GameObject:
   m_ObjectHideFlags: 0
@@ -5906,7 +5990,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6952033838133606865}
-  - component: {fileID: 7976239315635072110}
+  - component: {fileID: 3676537907252697304}
   m_Layer: 0
   m_Name: COUNTER
   m_TagString: Untagged
@@ -5925,11 +6009,13 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 4592977583575441200}
+  - {fileID: 3651720555562240996}
   m_Father: {fileID: 9019951633251880770}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7976239315635072110
+--- !u!114 &3676537907252697304
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5938,21 +6024,50 @@ MonoBehaviour:
   m_GameObject: {fileID: 8568681869903946939}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d542cb3beec4a744bdcc6c3c7cef73d, type: 3}
+  m_Script: {fileID: 11500000, guid: 17808b1d1a8e40a449e275c5d5702837, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   myUnit: {fileID: 3019866007152699496}
-  counterAttackFeedback: {fileID: 0}
-  hitVFX: {fileID: 0}
-  vfxSpawnOffset: {fileID: 0}
-  range: 1
-  powerGrade: 8
-  knockbackDistance: 0
-  isMagical: 0
-  inflictedStatusEffects: []
-  animationAttackDistance: 1
-  delayBeforeReturn: 0
-  returnToGridPosTime: 0.35
+  isSingleTarget: 1
+  targets: 02000000
+  skillShape: 0
+  skillDimensions: {x: 0, y: 0}
+  validTargetArea: {x: 1, y: 1}
+  range: 0
+  originateFromUnitCentre: 0
+  canPenetrate: 0
+  includeDiagonals: 1
+  maxNumCellsFromUnit: 1
+  unitCameraRootTransform: {fileID: 0}
+  unitTransformAttacher: {fileID: 0}
+  forceTypeToApply: 0
+  forceDirection: 0
+  forceDistance: 0
+  offensiveSkillData:
+    powerGrade: 8
+    isMagical: 0
+    isChargedSkill: 0
+    isUnevadable: 1
+    skillElement: 0
+    skillItem: {fileID: 0}
+    inflictedStatusEffects: []
+    animationTriggerName: Counter
+    preAttackAutoMover: {fileID: 2672196639123871682}
+    postAttackAutoMover: {fileID: 0}
+    preMoveTargetTransform: {fileID: 3651720555562240996}
+    attackDistanceBetweenTarget: 1
+    delayBeforeReturn: 0.1
+    returnToGridPosTime: 0.35
+    attackFeedbacks:
+      attackConnectedFeedback: {fileID: 0}
+      attackEvadedFeedback: {fileID: 0}
+      attackReflectedFeedback: {fileID: 0}
+      attackNulledFeedback: {fileID: 0}
+      attackAbsorbedFeedback: {fileID: 0}
+    HitVFXPoolHeader: {fileID: 0}
+    projectileAttackVFXDestinationsHeader: {fileID: 0}
+  triggerConditions:
+  - {fileID: 4592630906469643498}
 --- !u!1 &8648306615138580604
 GameObject:
   m_ObjectHideFlags: 0
@@ -6448,7 +6563,7 @@ MonoBehaviour:
   returnToGridPosJumpHeight: 0.25
   guardRotationSpeed: 5
   unitAnimator: {fileID: 4583862657655864390}
-  counterAttack: {fileID: 7976239315635072110}
+  counterAttack: {fileID: 3676537907252697304}
   statusEffectCamTarget: {fileID: 7853660936054161876}
   counterCamTarget: {fileID: 2516114526080947694}
   photoshootAnimator: {fileID: 1072154361369945026}
@@ -6573,6 +6688,51 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0.89, z: 0}
   m_TimeToStationary: 0.5
+--- !u!1 &9167319707215659844
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5777916368365612153}
+  - component: {fileID: 4592630906469643498}
+  m_Layer: 0
+  m_Name: Affinity Unlocked & Weak/Resist/None
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5777916368365612153
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9167319707215659844}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4592977583575441200}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4592630906469643498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9167319707215659844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2688886474c90144598cd23e3c8f3975, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  affinitiesToIgnore: 010000000200000003000000
 --- !u!1001 &3559199311821554693
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -25,3 +25,8 @@ public abstract class MultiAttackCancellationCondition : SkillCondition
 {
     public abstract bool IsConditionMet(GridUnit attacker, GridUnit target, DamageData targetCalculateDamageData);
 }
+
+public abstract class SkillTriggerCondition: SkillCondition
+{
+    public abstract bool IsConditionMet(GridUnit attacker, GridUnit target, BaseSkill skill);
+}

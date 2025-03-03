@@ -18,7 +18,7 @@ public class IntMasteryTracker : BaseMasteryTracker
         }
     }
 
-    private void OnPlayerUsedSkill(PlayerGridUnit player, PlayerBaseSkill skill)
+    private void OnPlayerUsedSkill(PlayerGridUnit player, BaseSkill skill)
     {
         if (allPlayersProgressionType[player] == MasteryProgression.ProgressionType.UseMag)
         {

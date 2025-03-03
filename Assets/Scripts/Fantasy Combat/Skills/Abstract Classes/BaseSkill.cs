@@ -113,6 +113,10 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
             {
                 offensiveSkill.GetOffensiveSkillData().SetupData(this, myUnit);
             }
+
+            myCharacter = myUnit as CharacterGridUnit;
+            moveTransformGridCollider = myUnit.gridCollider;
+            myUnitMoveTransform = myUnit.transform;
         }
     }
 
@@ -203,6 +207,8 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     {
         ResetHealthUIData();
         skillTargets.Clear();
+        selectedUnits.Clear();
+        selectedGridPositions.Clear();
     }
 
     protected virtual void SkillComplete()

@@ -13,7 +13,7 @@ public class SBItems : StrategicBonusChecker
         FantasyCombatCollectionManager.BlessingUsed += OnUseBless;
     }
 
-    protected override void OnPlayerUseSkill(PlayerGridUnit player, PlayerBaseSkill skill)
+    protected override void OnPlayerUseSkill(PlayerGridUnit player, BaseSkill skill)
     {
         if (skill is PlayerUsePotion || skill is IOrb)
         {

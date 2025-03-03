@@ -17,7 +17,7 @@ public class SBChainAttack : StrategicBonusChecker
         PlayerBaseSkill.PlayerUsedSkill += OnChainAttackTriggered;
     }
 
-    private void OnChainAttackTriggered(PlayerGridUnit player, PlayerBaseSkill skill)
+    private void OnChainAttackTriggered(PlayerGridUnit player, BaseSkill skill)
     {
         if(!(skill is PlayerBaseChainAttack)) { return; }
 

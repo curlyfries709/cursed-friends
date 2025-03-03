@@ -12,7 +12,7 @@ public class RangedCounter : CounterAttack
 
     CharacterGridUnit target = null;
 
-    public override void TriggerCounterAttack(CharacterGridUnit target)
+   /* public override void TriggerCounterAttack(CharacterGridUnit target)
     {
         base.TriggerCounterAttack(target);
 
@@ -35,6 +35,11 @@ public class RangedCounter : CounterAttack
 
         yield return new WaitForSeconds(Evade.Instance.GetCounterCanvasDisplayTime());
         PlayCounterattackAnimation();
+    }*/
+
+    public override void OnSkillInterrupted(BattleResult battleResult, IBattleTrigger battleTrigger)
+    {
+        throw new System.NotImplementedException();
     }
 
 }
