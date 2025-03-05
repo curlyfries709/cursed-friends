@@ -151,7 +151,7 @@ public class Victory : MonoBehaviour, IControls, ISaveable
         this.battleTime = battleTime;
         KOCam = KOEDUnit.koCam;
 
-        playerWhoDealtFinalBlow = KOEDUnit.CharacterHealth().attacker ? KOEDUnit.CharacterHealth().attacker as PlayerGridUnit : FantasyCombatManager.Instance.TeamAttackInitiator as PlayerGridUnit;
+        playerWhoDealtFinalBlow = KOEDUnit.CharacterHealth().mainAttacker ? KOEDUnit.CharacterHealth().mainAttacker as PlayerGridUnit : FantasyCombatManager.Instance.TeamAttackInitiator as PlayerGridUnit;
 
         FantasyCombatManager.Instance.ShowHUD(false);
 

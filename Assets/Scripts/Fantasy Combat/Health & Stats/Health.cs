@@ -33,7 +33,7 @@ public abstract class Health : MonoBehaviour, ISaveable
     protected bool subscribedToHealthUIEvent = false;
     protected bool subscribedToHealthChangeEvent = false;
 
-    public GridUnit attacker { get; protected set; }
+    public GridUnit mainAttacker { get; protected set; }
     public int currentHealth { get; protected set; }
 
     //Data
@@ -123,7 +123,7 @@ public abstract class Health : MonoBehaviour, ISaveable
     protected DamageData FinalizeDamageData(AttackData attackData, DamageType damageType, int optionalNumValue = 0)
     {
         DamageData newDamageData;
-        attacker = attackData != null ? attackData.attacker : null;
+        mainAttacker = attackData != null ? attackData.mainInstigator : null;
 
         //Setup Damage
         if (damageType == DamageType.Default)
@@ -152,7 +152,7 @@ public abstract class Health : MonoBehaviour, ISaveable
         //Subscribe or prep events
         if (currentAffinity == Affinity.Evade)
         {
-            Evade.Instance.PrepUnitToEvade(attacker, myCharacter);
+            Evade.Instance.PrepUnitToEvade(mainAttacker, myCharacter);
             currentHealthChangeDatas.Add(null); //Pad the list with null data. 
             Debug.Log("Adding Null Evade Data for : " + healthUI.GetUnitDisplayName());
 
@@ -173,7 +173,7 @@ public abstract class Health : MonoBehaviour, ISaveable
         //Knockback or suction
         if (CanApplyForces(newDamageData))
         {
-            SkillForce.Instance.PrepareToApplyForceToUnit(attacker, myUnit, newDamageData.hitByAttackData.forceData.Value, attackData.HPChange, damageType == DamageType.Reflect);
+            SkillForce.Instance.PrepareToApplyForceToUnit(mainAttacker, myUnit, newDamageData.hitByAttackData.forceData.Value, attackData.HPChange, damageType == DamageType.Reflect);
         }
 
         //Add to list
@@ -188,14 +188,19 @@ public abstract class Health : MonoBehaviour, ISaveable
         AttackData attackData = new AttackData(damageData.hitByAttackData);
 
         attackData.HPChange = damageData.HPChange;
-        attackData.attacker = myUnit;
+        attackData.mainInstigator = damageData.mainInstigator;
+        attackData.SetSupportInstigators(damageData.supportInstigators);
+
         attackData.numOfTargets = 1;
         attackData.canEvade = false;
         attackData.inflictedStatusEffects = damageData.inflictedStatusEffects;
 
         attackData.appliedModifiers.Clear();
 
-        attacker.Health().TakeDamage(attackData, DamageType.Reflect);
+        foreach(GridUnit instigator in damageData.GetInstigatorList())
+        {
+            instigator.Health().TakeDamage(attackData, DamageType.Reflect);
+        }
     }
 
     //Heal
@@ -218,7 +223,7 @@ public abstract class Health : MonoBehaviour, ISaveable
 
         if (CanApplyForces(newHealData))
         {
-            SkillForce.Instance.PrepareToApplyForceToUnit(attacker, myUnit, newHealData.forceData.Value, 0, false);
+            SkillForce.Instance.PrepareToApplyForceToUnit(mainAttacker, myUnit, newHealData.forceData.Value, 0, false);
         }
         else if (newHealData.HPChange <= 0 && !myCharacter) //Do not bother if this is object and only restore SP or FP
         {
@@ -433,14 +438,20 @@ public abstract class Health : MonoBehaviour, ISaveable
         ListenToHealthUICompleteEvent(false);
 
         //Reset data.
-        attacker = null;
+        mainAttacker = null;
         currentDamageData = null;
         currentHealData = null;
     }
 
     public void TryGiveAttackerFP(bool isEnhancedAction, int numOfSEApplied = 0)
     {
-        AttackerAsCharacter()?.CharacterHealth().GainFP(TheCalculator.Instance.CalculateFPGain(isEnhancedAction, numOfSEApplied));
+        foreach(GridUnit unit  in currentDamageData.GetInstigatorList())
+        {
+            if(unit is CharacterGridUnit attacker)
+            {
+                attacker.CharacterHealth().GainFP(TheCalculator.Instance.CalculateFPGain(isEnhancedAction, numOfSEApplied));
+            }
+        }
     }
 
     //GETTERS
@@ -552,7 +563,7 @@ public abstract class Health : MonoBehaviour, ISaveable
 
         VFXToPlay.transform.parent = hitVFXHeader; 
         VFXToPlay.transform.position = position;
-        VFXToPlay.transform.forward = (attackData.attacker.transform.position - myUnit.transform.position).normalized;
+        VFXToPlay.transform.forward = (attackData.mainInstigator.transform.position - myUnit.transform.position).normalized;
     }
 
     //SETTERS
@@ -613,10 +624,8 @@ public abstract class Health : MonoBehaviour, ISaveable
         return isDataRestored;
     }
 
-    protected CharacterGridUnit AttackerAsCharacter()
+    protected HealthChangeData GetCurrentHealthChangeData()
     {
-        return attacker as CharacterGridUnit;
+        return currentDamageData != null ? currentDamageData : currentHealData;
     }
-
-
 }

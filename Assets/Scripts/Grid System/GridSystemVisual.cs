@@ -18,13 +18,15 @@ public class GridSystemVisual : MonoBehaviour
     [Space(10)]
     [SerializeField] Transform gridUIHeader;
     [Title("Materials")]
-    [SerializeField] Material movementVisualMat;
-    [SerializeField] Material invalidActionAreaMat;
+    [SerializeField] Material movementVisualMat; //Blue
+    [SerializeField] Material invalidActionAreaMat; //Grey
     [Space(5)]
-    [SerializeField] Material selectedAreaVisualMat;
-    [SerializeField] Material validTargetAreaVisualMat;
+    [SerializeField] Material selectedAreaVisualMat; //Red
+    [SerializeField] Material validTargetAreaVisualMat; //Yellow
     [Space(5)]
-    [SerializeField] Material selectedObjectAOEMat;
+    [SerializeField] Material selectedObjectAOEMat; //Orange
+    [Space(5)]
+    [SerializeField] Material teamSkillAllyMat; //Green
     [Title("TEST")]
     [SerializeField] bool showGridPosText = true;
 
@@ -45,6 +47,7 @@ public class GridSystemVisual : MonoBehaviour
         Unoccupiable,
         SkillTargetArea,
         SkillAOE,
+        TeamSkillAlly,
         ObjectAOE
     }
 
@@ -178,6 +181,16 @@ public class GridSystemVisual : MonoBehaviour
         if (highlightable != null && highlightable.GetGridUnit() != FantasyCombatManager.Instance.GetActiveUnit())
         {
             cellVisualData.currentHighlightable = highlightable;
+
+            if(visualType == VisualType.TeamSkillAlly)
+            {
+                //SHOW NAME & (HP OR SP) Depending on skill cost
+                Debug.Log("Implement IHighlightable visual for Team Skill ally!");
+            }
+            else
+            {
+                //REVERT TO DEFAULT MODE (Name & HP) 
+            }
 
             Dictionary<GridPosition, IHighlightable> affectedPosData = cellVisualData.currentHighlightable?.ActivateHighlightedUI(true, currentPlayerSkill);
 
@@ -459,6 +472,8 @@ public class GridSystemVisual : MonoBehaviour
                 return invalidActionAreaMat;
             case VisualType.ObjectAOE:
                 return selectedObjectAOEMat;
+            case VisualType.TeamSkillAlly:
+                return teamSkillAllyMat;
             default:
                 return movementVisualMat;
         }

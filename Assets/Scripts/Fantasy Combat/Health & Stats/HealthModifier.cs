@@ -1,10 +1,9 @@
+using Sirenix.Utilities;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class AttackData : HealthChangeData
 {
-    public GridUnit attacker = null;
-
     //Elements
     public Element attackElement = Element.None;
     public Item attackItem = null;
@@ -26,9 +25,10 @@ public class AttackData : HealthChangeData
     public GameObject hitVFX = null;
     public Vector3 hitVFXPos;
 
+    //CONSTUCTORS
     public AttackData(AttackData attackData)
     {
-        attacker = attackData.attacker;
+        mainInstigator = attackData.mainInstigator;
         
         attackElement = attackData.attackElement;
         attackItem = attackData.attackItem;
@@ -53,13 +53,21 @@ public class AttackData : HealthChangeData
 
     public AttackData(GridUnit attacker, int rawDamage)
     {
-        this.attacker = attacker;
+        this.mainInstigator = attacker;
         HPChange = rawDamage;
     }
 
     public AttackData(GridUnit attacker, Element attackElement, int rawDamage, int numOfTargets)
     {
-        this.attacker = attacker;
+        this.mainInstigator = attacker;
+        this.attackElement = attackElement;
+        HPChange = rawDamage;
+        this.numOfTargets = numOfTargets;
+    }
+    public AttackData(GridUnit attackerThatTriggeredAttack, List<GridUnit> supportAttackers, Element attackElement, int rawDamage, int numOfTargets)
+    {
+        this.mainInstigator = attackerThatTriggeredAttack;
+        SetSupportInstigators(supportAttackers);
         this.attackElement = attackElement;
         HPChange = rawDamage;
         this.numOfTargets = numOfTargets;
@@ -67,7 +75,7 @@ public class AttackData : HealthChangeData
 
     public AttackData(GridUnit attacker, Item attackItem, int rawDamage, int numOfTargets)
     {
-        this.attacker = attacker;
+        this.mainInstigator = attacker;
         this.attackItem = attackItem;
         HPChange = rawDamage;
         this.numOfTargets = numOfTargets;
@@ -76,8 +84,6 @@ public class AttackData : HealthChangeData
 
 public class DamageData : HealthChangeData
 {
-    public GridUnit target;
-    public GridUnit attacker;
     public Health targetHealth;
 
     public Affinity affinityToAttack = Affinity.None;
@@ -93,7 +99,7 @@ public class DamageData : HealthChangeData
     public DamageData(GridUnit target, GridUnit attacker, AttackData hitByAttackData)
     {
         this.target = target;
-        this.attacker = attacker;
+        this.mainInstigator = this.mainInstigator = attacker;
         this.hitByAttackData = hitByAttackData;
 
         targetHealth = target?.Health();
@@ -102,7 +108,7 @@ public class DamageData : HealthChangeData
     public DamageData(GridUnit target, GridUnit attacker, Affinity affinityToAttack, int damageReceived)
     {
         this.target = target;
-        this.attacker = attacker;
+        this.mainInstigator = attacker;
 
         this.affinityToAttack = affinityToAttack;
         HPChange = damageReceived;
@@ -113,7 +119,7 @@ public class DamageData : HealthChangeData
     public DamageData(GridUnit target, GridUnit attacker, Affinity affinityToAttack, int damageReceived, AttackData hitByAttackData)
     {
         this.target = target;
-        this.attacker = attacker;
+        this.mainInstigator = attacker;
 
         this.affinityToAttack = affinityToAttack;
         HPChange = damageReceived;
@@ -132,7 +138,10 @@ public class DamageData : HealthChangeData
         }
 
         if (clearAttacker)
-            attacker = null;
+        {
+            mainInstigator = null;
+            supportInstigators.Clear();
+        }
 
         affinityToAttack = Affinity.None;
         hitByAttackData = null;
@@ -159,11 +168,8 @@ public enum DamageType
     Ultimate //This applies for Duofires, beatdowns & Power Of Friendship
 }
 
-public class HealData: HealthChangeData
+public class HealData: HealthChangeData //If instigator null, then source of healing must be via item E.G Potion, Blessing.
 {
-    public GridUnit target = null;
-    public CharacterGridUnit healer = null; //If null, then source of healing must be via item E.G Potion, Blessing.
-
     public int FPChange = 0;
 
     //Bools
@@ -188,7 +194,7 @@ public class HealData: HealthChangeData
     public HealData(GridUnit target, CharacterGridUnit healer, int HPRestore, bool canRevive)
     {
         this.target = target;
-        this.healer = healer;
+        this.mainInstigator = healer;
         HPChange = HPRestore;
         this.canRevive = canRevive;
     }
@@ -201,22 +207,56 @@ public class HealData: HealthChangeData
 
 public abstract class HealthChangeData //Just a base class defining shared data
 {
-    //Numbers
+    //Characters
+    public GridUnit mainInstigator = null;
+    public List<GridUnit> supportInstigators { get; protected set; } = new List<GridUnit> (); //Set when team skill used.
+
+    public GridUnit target = null;
+
+    //Vitals
     public int HPChange = 0;
     public int SPChange = 0;
 
+    //Data
     public SkillForceData? forceData = null;
     public List<InflictedStatusEffectData> inflictedStatusEffects = new List<InflictedStatusEffectData>();
 
+    //Modifier
     public List<HealthChangeModifier> appliedModifiers = new List<HealthChangeModifier>();
 
+    //Bool
     public bool isCritical = false;
 
+
+    //SETTERS 
+    public void SetSupportInstigators(List<GridUnit> supportInstigators)
+    {
+        this.supportInstigators = new List<GridUnit>(supportInstigators);
+        this.supportInstigators.Remove(mainInstigator);
+    }
 
     //Getters
     public bool IsVitalsChanged()
     {
         return HPChange > 0 || SPChange > 0;
+    }
+
+    public bool IsSingleInstigator()
+    {
+        return supportInstigators.Count == 0;
+    }
+
+    public bool IsInstigatedByTeam()
+    {
+        return supportInstigators.Count > 1;
+    }
+
+    public List<GridUnit> GetInstigatorList()
+    {
+        return new List<GridUnit>(supportInstigators)
+        {
+            mainInstigator
+        };
     }
 }
 

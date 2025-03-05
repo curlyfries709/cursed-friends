@@ -5,6 +5,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Status Effect", menuName = "Configs/Status Effect", order = 5)]
 public class StatusEffectData : ScriptableObject
 {
+    [Header("Data")]
+    public EffectType effectType = EffectType.Negative;
     [Header("Special & Abnormal Effect Behaviour")]
     public Element associatedElement = Element.None;
     [Space(10)]
@@ -19,7 +21,6 @@ public class StatusEffectData : ScriptableObject
     public bool loseFPEachTurn;
 
     [Header("Stat Buff And Debuff Data")]
-    public bool isStatBuffOrDebuff;
     public string buffNickname;
 
     [Header("Visual")]
@@ -30,4 +31,16 @@ public class StatusEffectData : ScriptableObject
     public GameObject unitVFXPrefab;
     [Tooltip("Where on the unit to place the VFX")]
     public BodyPart unitVFXBodyPart;
+
+    public enum EffectType
+    {
+        Negative,
+        Positive,
+        BuffChange
+    }
+
+    public bool IsStatBuffOrDebuff()
+    {
+        return effectType == EffectType.BuffChange;
+    }
 }

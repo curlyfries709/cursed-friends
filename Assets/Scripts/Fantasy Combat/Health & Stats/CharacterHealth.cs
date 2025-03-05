@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using Sirenix.Serialization;
 using AnotherRealm;
+using Sirenix.Utilities;
 
 public class CharacterHealth : Health
 {
@@ -135,7 +136,9 @@ public class CharacterHealth : Health
     {
         if (currentHealth > 0)
         {
-            GridUnit inflictor = currentDamageData != null ? currentDamageData.attacker : currentHealData.healer;
+            HealthChangeData currentHealthChangeData = currentDamageData != null ? currentDamageData : currentHealData;
+            GridUnit inflictor = currentHealthChangeData.mainInstigator;
+
             List<ChanceOfInflictingStatusEffect> statusEffects = new List<ChanceOfInflictingStatusEffect>();
 
             //Apply Status Effects if still alive
@@ -191,7 +194,7 @@ public class CharacterHealth : Health
         {
             //Raise knocked down event
             isKnockedDown = true;
-            KnockdownEvent.UnitKnockdown(attacker);
+            KnockdownEvent.UnitKnockdown(mainAttacker);
         }
     }
 

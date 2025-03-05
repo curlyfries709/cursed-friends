@@ -202,7 +202,7 @@ public class Beatdown : MonoBehaviour
 
     private AttackData GetAttackData(int damage)
     {
-        AttackData attackData = new AttackData(null, Element.None, damage, beatenUpUnits.Count);
+        AttackData attackData = new AttackData(beatdownStarter, new List<GridUnit>(unitsParticipatingInBeatdown), Element.None, damage, beatenUpUnits.Count);
         attackData.canEvade = false;
 
         attackData.isPhysical = true;

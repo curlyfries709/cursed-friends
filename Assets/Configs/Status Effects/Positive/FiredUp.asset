@@ -12,13 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fedd6c9a6fa426742ad8a0791a18f10a, type: 3}
   m_Name: FiredUp
   m_EditorClassIdentifier: 
+  effectType: 1
+  associatedElement: 0
   canBeAppliedOutsideCombat: 0
   preventsUnitFromActing: 0
   hasTurnEndEffect: 0
   canBeGuarded: 0
   banFPGain: 0
   loseFPEachTurn: 0
-  isStatBuffOrDebuff: 0
   buffNickname: 
   effectVisualPrefab: {fileID: 0}
   unitVFXPrefab: {fileID: 7093515178966964432, guid: c12f39926d5041c4cb05e57012c0ef39,

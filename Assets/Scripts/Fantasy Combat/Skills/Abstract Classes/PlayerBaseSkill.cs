@@ -174,12 +174,25 @@ public abstract class PlayerBaseSkill : BaseSkill
         }
 
         GridSystemVisual.Instance.ShowGridVisuals(this, selectedGridPositions, highlightableData, GridSystemVisual.VisualType.SkillAOE);
+
+        if(this is ITeamSkill teamSkill)
+        {
+            GridSystemVisual.Instance.ShowGridVisuals(this, teamSkill.GetAllyGridPositionsFromSkillOwnerCurrentPosition(), 
+                highlightableData, GridSystemVisual.VisualType.TeamSkillAlly);
+        }
+
         HUDManager.Instance.UpdateTurnOrderNames(selectedUnits);
     }
 
     protected void HideSelectedSkillGridVisual()
     {
         GridSystemVisual.Instance.HideGridVisualsOfType(GridSystemVisual.VisualType.ObjectAOE);
+
+        if (this is ITeamSkill)
+        {
+            GridSystemVisual.Instance.HideGridVisualsOfType(GridSystemVisual.VisualType.TeamSkillAlly);
+        }
+
         GridSystemVisual.Instance.HideGridVisualsOfType(GridSystemVisual.VisualType.SkillAOE);
 
         if (isGridSelectionRequired)
@@ -224,18 +237,7 @@ public abstract class PlayerBaseSkill : BaseSkill
         myUnit.MovedToNewGridPos();
 
         //Spend SP, HP or FP.
-        switch (costType)
-        {
-            case SkillCostType.SP:
-                myCharacter.CharacterHealth().SpendSP(GetCost());
-                break;
-            case SkillCostType.FP:
-                myCharacter.CharacterHealth().SpendFP(GetCost());
-                break;
-            case SkillCostType.HP:
-                myCharacter.CharacterHealth().SpendHP(GetCost());
-                break;
-        }
+        SpendSkillCost(myCharacter);
 
         //Use Orb & Begin Charge, if an Orb.
         if (orbData)
@@ -255,7 +257,23 @@ public abstract class PlayerBaseSkill : BaseSkill
         {
             FantasyCombatManager.Instance.ActionComplete += SkillComplete;
         }
-                  
+
+    }
+
+    protected virtual void SpendSkillCost(CharacterGridUnit character)
+    {
+        switch (costType)
+        {
+            case SkillCostType.SP:
+                character.CharacterHealth().SpendSP(GetCost());
+                break;
+            case SkillCostType.FP:
+                character.CharacterHealth().SpendFP(GetCost());
+                break;
+            case SkillCostType.HP:
+                character.CharacterHealth().SpendHP(GetCost());
+                break;
+        }
     }
 
     protected void PrepareToDeactiveBlendCams()
@@ -557,7 +575,7 @@ public abstract class PlayerBaseSkill : BaseSkill
         return newPos;
     }
     //GETTERS
-    protected bool CanTriggerSkill(bool requiresUnitSelection)
+    protected virtual bool CanTriggerSkill(bool requiresUnitSelection)
     {
         //Something like Guarding which is just an action without needing to select a Unit doesn't Require Unit Selection.
         bool canTriggerSkill = requiresUnitSelection ? CanTriggerTargetSelectionSkill() : CanTriggerSelfSkill();
@@ -570,16 +588,21 @@ public abstract class PlayerBaseSkill : BaseSkill
         return myCharacter.CanTriggerSkill() && canTriggerSkill;
     }
 
-    public bool CanAffordSkill()
+    public virtual bool CanAffordSkill()
+    {
+        return CanPlayerAffordSkill(myCharacter);
+    }
+
+    protected bool CanPlayerAffordSkill(CharacterGridUnit character)
     {
         switch (costType)
         {
             case SkillCostType.SP:
-                return GetCost() <= myCharacter.CharacterHealth().currentSP;
+                return GetCost() <= character.CharacterHealth().currentSP;
             case SkillCostType.FP:
-                return GetCost() <= myCharacter.CharacterHealth().currentFP;
+                return GetCost() <= character.CharacterHealth().currentFP;
             case SkillCostType.HP:
-               return GetCost() < myCharacter.CharacterHealth().currentHealth;
+                return GetCost() < character.CharacterHealth().currentHealth;
             default:
                 return true;
         }

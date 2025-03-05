@@ -32,7 +32,7 @@ public class FinMasteryTracker : BaseMasteryTracker
 
     private void OnUnitHit(DamageData damageData) //Not Called if Unit Evaded.
     {
-        PlayerGridUnit player = damageData.attacker as PlayerGridUnit;
+        PlayerGridUnit player = damageData.mainInstigator as PlayerGridUnit;
 
         if (player && allPlayersProgressionType[player] == MasteryProgression.ProgressionType.Hit)
         {

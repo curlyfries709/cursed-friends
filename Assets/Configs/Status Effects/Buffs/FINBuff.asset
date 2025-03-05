@@ -12,14 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fedd6c9a6fa426742ad8a0791a18f10a, type: 3}
   m_Name: FINBuff
   m_EditorClassIdentifier: 
+  effectType: 2
+  associatedElement: 0
   canBeAppliedOutsideCombat: 0
   preventsUnitFromActing: 0
   hasTurnEndEffect: 0
   canBeGuarded: 0
   banFPGain: 0
   loseFPEachTurn: 0
-  buffMultiplier: 1
-  isStatBuffOrDebuff: 1
   buffNickname: FIN
   effectVisualPrefab: {fileID: 2525757107321599195, guid: 108a7ac6293ef734197c03612c17f94b,
     type: 3}
+  unitVFXPrefab: {fileID: 0}
+  unitVFXBodyPart: 0

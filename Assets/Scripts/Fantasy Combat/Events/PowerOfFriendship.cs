@@ -244,7 +244,9 @@ public class PowerOfFriendship : MonoBehaviour
 
     private AttackData GetAttackData(int damage)
     {
-        AttackData attackData = new AttackData(null, Element.None, damage, FantasyCombatManager.Instance.GetEnemyCombatParticipants(false, true).Count);
+        AttackData attackData = new AttackData(FantasyCombatManager.Instance.TeamAttackInitiator, FantasyCombatManager.Instance.GetPlayerCombatParticipants(false, false).Cast<GridUnit>().ToList()
+            , Element.None, damage, FantasyCombatManager.Instance.GetEnemyCombatParticipants(false, true).Count);
+
         attackData.canEvade = false;
 
         attackData.isPhysical = true;

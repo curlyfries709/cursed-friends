@@ -113,6 +113,20 @@ public class TheCalculator : MonoBehaviour
             Instance = this;
     }
 
+    public int CalculateRawDamage(List<GridUnit> attackers, bool isMagicalAttack, PowerGrade skillPowerGrade, out bool isCritical, bool canCrit = true)
+    {
+        int totalDamage = 0;
+        isCritical = false;
+
+        foreach (GridUnit attacker in attackers)
+        {
+            totalDamage = totalDamage + CalculateRawDamage(attacker, isMagicalAttack, skillPowerGrade, out isCritical, canCrit);
+        }
+
+        return totalDamage;
+    }
+
+
     public int CalculateRawDamage(GridUnit attacker, bool isMagicalAttack, PowerGrade skillPowerGrade, out bool isCritical, bool canCrit = true)
     {
         isCritical = false;
@@ -156,7 +170,7 @@ public class TheCalculator : MonoBehaviour
     public DamageData CalculateDamageReceived(AttackData attackData, GridUnit target, DamageType damageType, bool isTargetGuarding)
     {
         //SETUP
-        GridUnit attacker = attackData.attacker;
+        GridUnit attacker = attackData.mainInstigator;
 
         //Setup Damage Data
         DamageData damageData = ExtractDamageDataFromAttackData(target, attackData, damageType, false);
@@ -175,6 +189,12 @@ public class TheCalculator : MonoBehaviour
 
                 return damageData;
             }
+        }
+
+        //If reflect damage and multiple instigators, split the damage across all instigators
+        if(damageType == DamageType.Reflect && attackData.IsInstigatedByTeam())
+        {
+            attackData.HPChange = attackData.HPChange / attackData.GetInstigatorList().Count;
         }
 
         //Get Affinity to attack
@@ -312,21 +332,21 @@ public class TheCalculator : MonoBehaviour
 
     public HealData CalculateHealReceived(HealData healData)
     {
-        if (healData.healer) //If null, then source of healing must be via item E.G Potion, Blessing.
+        if (healData.mainInstigator) //If null, then source of healing must be via item E.G Potion, Blessing.
         {
-            int rawHealAmount = CalculateRawHeal(healData.healer, out healData.isCritical);
+            int rawHealAmount = CalculateRawHeal(healData.mainInstigator, out healData.isCritical);
             healData.HPChange = rawHealAmount;
         }
 
         healData.inflictedStatusEffects = FilterInvalidStatusEffects(healData.target, healData.inflictedStatusEffects);
 
         //Apply Modifiers
-        ApplyHealModifiers(healData.target, healData.healer, ref healData);
+        ApplyHealModifiers(healData.target, healData.mainInstigator, ref healData);
 
         return healData;
     }
 
-    public int CalculateRawHeal(CharacterGridUnit healer, out bool isCritical)
+    public int CalculateRawHeal(GridUnit healer, out bool isCritical)
     {
         int varianceRange = Mathf.RoundToInt(healer.stats.HealEfficacy * (damageVariancePercentage / 100f));
         int variance = UnityEngine.Random.Range(-varianceRange, varianceRange + 1);
@@ -395,7 +415,7 @@ public class TheCalculator : MonoBehaviour
         return Mathf.RoundToInt(attackData.HPChange * externalMultiplier);
     }
 
-    private void ApplyHealModifiers(GridUnit target, CharacterGridUnit healer, ref HealData healData)
+    private void ApplyHealModifiers(GridUnit target, GridUnit healer, ref HealData healData)
     {
 
     }
@@ -496,9 +516,9 @@ public class TheCalculator : MonoBehaviour
 
     public DamageData ExtractDamageDataFromAttackData(GridUnit target, AttackData attackData, DamageType damageType, bool updateDamage = true)
     {
-        DamageData damageData = new DamageData(target, attackData.attacker, attackData);
+        DamageData damageData = new DamageData(target, attackData.mainInstigator, attackData);
 
-        damageData.attacker = attackData.attacker;
+        damageData.mainInstigator = attackData.mainInstigator;
         damageData.hitByAttackData = attackData;
         damageData.isCritical = attackData.isCritical;
         damageData.forceData = attackData.forceData;

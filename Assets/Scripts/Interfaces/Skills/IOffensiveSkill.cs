@@ -3,10 +3,8 @@ using Sirenix.OdinInspector;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening;
 using System.Linq;
 using Sirenix.Utilities;
-using UnityEngine.TextCore.Text;
 
 [System.Serializable]
 public class OffensiveSkillData
@@ -242,12 +240,24 @@ public interface IOffensiveSkill
         GridUnit skillOwner = offensiveSkillData.skillOwner;
         BaseSkill skill = offensiveSkillData.associatedSkill;
 
-        AttackData attackData = new AttackData(skillOwner, GetSkillElement(), GetDamage(out bool isCritical), numOfSkillTargets);
+        ITeamSkill teamSkill = skill as ITeamSkill;
+        bool isTeamSkill = teamSkill != null;
+        bool canCrit = !isTeamSkill;
+
+        List<GridUnit> attackers = new List<GridUnit>() { skillOwner };
+
+        if (isTeamSkill)
+            attackers = teamSkill.GetAttackers().Cast<GridUnit>().ToList();
+
+        AttackData attackData = new AttackData(skillOwner, GetSkillElement(), GetDamage(attackers, out bool isCritical, canCrit), numOfSkillTargets);
+
+        if (isTeamSkill)
+            attackData.SetSupportInstigators(attackers);
 
         attackData.attackItem = offensiveSkillData.skillItem;
         attackData.canEvade = !(offensiveSkillData.isUnevadable || (this is PlayerBaseChainAttack));
 
-        attackData.inflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(skillOwner, target, offensiveSkillData.inflictedStatusEffects);
+        attackData.inflictedStatusEffects = CombatFunctions.TryInflictStatusEffects(attackData.GetInstigatorList(), target, offensiveSkillData.inflictedStatusEffects);
         attackData.forceData = skill.GetSkillForceData(target);
 
         attackData.isPhysical = !offensiveSkillData.isMagical;
@@ -255,15 +265,15 @@ public interface IOffensiveSkill
         attackData.isMultiAction = skill.IsMultiActionSkill();
 
         attackData.powerGrade = offensiveSkillData.powerGrade;
-        attackData.canCrit = true;
+        attackData.canCrit = canCrit;
 
         return attackData;
     }
 
-    private int GetDamage(out bool isCritical)
+    private int GetDamage(List<GridUnit> attackers, out bool isCritical, bool canCrit)
     {
         OffensiveSkillData offensiveSkillData = GetOffensiveSkillData();
-        return TheCalculator.Instance.CalculateRawDamage(offensiveSkillData.skillOwner, offensiveSkillData.isMagical, offensiveSkillData.powerGrade, out isCritical);
+        return TheCalculator.Instance.CalculateRawDamage(attackers, offensiveSkillData.isMagical, offensiveSkillData.powerGrade, out isCritical, canCrit);
     }
 
     //DOERS

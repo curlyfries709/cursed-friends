@@ -66,12 +66,12 @@ public class BasicPotionEffect : MonoBehaviour
             StatusEffectManager.Instance.ApplyStatusEffect(effect.statusEffect, target, giver, effect.numOfTurns, effect.buffChange);
         }
 
-        if (potionData.inflictedStatusEffects.Any((effect) => effect.statusEffect.isStatBuffOrDebuff))
+        if (potionData.inflictedStatusEffects.Any((effect) => effect.statusEffect.IsStatBuffOrDebuff()))
             target.CharacterHealth().SetBuffsToApplyVisual(potionData.inflictedStatusEffects);
 
         StatusEffectManager.Instance.TriggerNewlyAppliedEffects(target);
 
-        if (potionData.inflictedStatusEffects.Any((effect) => effect.statusEffect.isStatBuffOrDebuff))
+        if (potionData.inflictedStatusEffects.Any((effect) => effect.statusEffect.IsStatBuffOrDebuff()))
             target.CharacterHealth().GetHealthUI().ShowBuffsOnly();
     }
 

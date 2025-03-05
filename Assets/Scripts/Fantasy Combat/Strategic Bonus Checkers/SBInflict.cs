@@ -17,7 +17,7 @@ public class SBInflict : StrategicBonusChecker
     {
         PlayerGridUnit player = inflictor as PlayerGridUnit;
 
-        if (player && !effectData.isStatBuffOrDebuff && !(target is PlayerGridUnit))
+        if (player && !effectData.IsStatBuffOrDebuff() && !(target is PlayerGridUnit))
         {
             IncreaseCount();
         }  

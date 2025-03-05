@@ -275,6 +275,18 @@ namespace AnotherRealm
             return successfulStatusEffects;
         }
 
+        public static List<InflictedStatusEffectData> TryInflictStatusEffects(List<GridUnit> attackers, GridUnit target, List<ChanceOfInflictingStatusEffect> tryApplyStatusEffects)
+        {
+            List<InflictedStatusEffectData> successfulStatusEffects = new List<InflictedStatusEffectData>();
+
+            foreach(GridUnit attacker in attackers)
+            {
+                successfulStatusEffects.Concat(TryInflictStatusEffects(attacker, target, tryApplyStatusEffects));
+            }
+
+            return successfulStatusEffects;
+        }
+
         //Targeting Methods
         public static FantasyCombatTarget GetRelationWithTarget(CharacterGridUnit skillOwner, GridUnit target)
         {

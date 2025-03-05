@@ -17,15 +17,15 @@ public class SBConqueror : StrategicBonusChecker
 
     protected override void OnUnitHit(DamageData damageData)
     {
-        if (!damageData.attacker || !(damageData.attacker is PlayerGridUnit)) { return; }
+        if (!damageData.mainInstigator || !(damageData.mainInstigator is PlayerGridUnit)) { return; }
 
         if (attackerName == "")
         {
-            attackerName = damageData.attacker.unitName;
+            attackerName = damageData.mainInstigator.unitName;
         }
 
         //Ensure it's same attacker & is Player.
-        if (damageData.attacker.unitName == attackerName && damageData.isKOHit)
+        if (damageData.mainInstigator.unitName == attackerName && damageData.isKOHit)
         {
             counter++; 
         }

@@ -61,7 +61,7 @@ public class Defeat : MonoBehaviour, IControls
         this.KOEDUnit = KOEDUnit;
         KOCam = KOEDUnit.koCam;
 
-        characterWhoDealtFinalBlow = KOEDUnit.CharacterHealth().attacker as CharacterGridUnit;
+        characterWhoDealtFinalBlow = KOEDUnit.CharacterHealth().mainAttacker as CharacterGridUnit;
 
         FantasyCombatManager.Instance.ShowHUD(false);
 

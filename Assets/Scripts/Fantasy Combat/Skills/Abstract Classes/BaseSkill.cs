@@ -154,7 +154,14 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     {
         if (!isActive) { return; }
 
-        int totalToCheck = anyTargetsWithReflectAffinity ? numOfHealthUIDisplay + 1 : numOfHealthUIDisplay;
+        int skillReflectIncrement = 1;
+
+        if (this is ITeamSkill teamSkill)
+        {
+            skillReflectIncrement = teamSkill.GetAttackers().Count;
+        }
+
+        int totalToCheck = anyTargetsWithReflectAffinity ? numOfHealthUIDisplay + skillReflectIncrement : numOfHealthUIDisplay;
 
         healthUIDisplayedCounter++;
 
@@ -819,6 +826,23 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     protected virtual bool IsGridPositionValid(GridPosition gridPosition)
     {
         return LevelGrid.Instance.gridSystem.IsValidGridPosition(gridPosition) && !LevelGrid.Instance.TryGetObstacleAtPosition(gridPosition, out Collider obstacleData);
+    }
+
+    protected List<GridPosition> GetGridPositionsFromRelativePositionOfSkillOwner(Transform relativeGridPosHeader)
+    {
+        List<GridPosition> gridPositions = new List<GridPosition>();
+
+        foreach (Transform child in relativeGridPosHeader)
+        {
+            GridPosition skillOwnerGridPositionToTriggerSkill = GetGridPositionsAtHypotheticalPos(GetSkillOwnerMoveTransform().position)[0];
+
+            GridPosition gridPosition = new GridPosition(skillOwnerGridPositionToTriggerSkill.x + (int)child.localPosition.x,
+                skillOwnerGridPositionToTriggerSkill.z + (int)child.localPosition.z);
+
+            gridPositions.Add(gridPosition);
+        }
+
+        return gridPositions;
     }
 
     protected bool GetTargetingCondition(GridPosition gridPosition)

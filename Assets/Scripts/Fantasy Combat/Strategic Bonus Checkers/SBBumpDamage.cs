@@ -12,7 +12,7 @@ public class SBBumpDamage : StrategicBonusChecker
 
     protected override void OnUnitHit(DamageData damageData)
     {
-        if (!(damageData.attacker is PlayerGridUnit)) { return; }
+        if (!(damageData.mainInstigator is PlayerGridUnit)) { return; }
 
         if (damageData.damageType == DamageType.KnockbackBump && damageData.isKOHit)
         {

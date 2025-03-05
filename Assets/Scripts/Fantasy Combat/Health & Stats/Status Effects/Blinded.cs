@@ -12,7 +12,6 @@ public class Blinded : StatusEffect
         SpawnVisual();
         CalculateNewStatValue(false);
         myUnit.CanTriggerSkill += DidNotTrip;
-
     }
 
     private bool DidNotTrip()

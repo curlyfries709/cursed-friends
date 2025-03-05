@@ -96,7 +96,7 @@ public abstract class StatusEffect : MonoBehaviour
 
     public virtual void IncreaseTurns(int numOfTurns, int buffChange)
     {
-        if (effectData.isStatBuffOrDebuff)
+        if (effectData.IsStatBuffOrDebuff())
         {
             int oldBuff = currentBuff;
 
@@ -216,7 +216,7 @@ public abstract class StatusEffect : MonoBehaviour
 
     private void UpdateBuffArrow(GameObject healthPrefab)
     {
-        if (!effectData.isStatBuffOrDebuff) { return; }
+        if (!effectData.IsStatBuffOrDebuff()) { return; }
 
         Transform header = healthPrefab.transform.GetChild(buffArrowsIndex);
 

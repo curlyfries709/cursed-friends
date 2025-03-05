@@ -12,14 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fedd6c9a6fa426742ad8a0791a18f10a, type: 3}
   m_Name: ARMBuff
   m_EditorClassIdentifier: 
+  effectType: 2
+  associatedElement: 0
   canBeAppliedOutsideCombat: 0
   preventsUnitFromActing: 0
   hasTurnEndEffect: 0
   canBeGuarded: 0
   banFPGain: 0
   loseFPEachTurn: 0
-  buffMultiplier: 1
-  isStatBuffOrDebuff: 1
   buffNickname: ARM
   effectVisualPrefab: {fileID: 8046616283268595668, guid: 1fcd06ccecd836c409e32dfdae3a8948,
     type: 3}
+  unitVFXPrefab: {fileID: 0}
+  unitVFXBodyPart: 0

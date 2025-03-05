@@ -14,7 +14,7 @@ public class SBUnstoppableFlame : StrategicBonusChecker
 
     protected override void OnUnitHit(DamageData damageData)
     {
-        if (damageData.attacker is PlayerGridUnit player && player.CharacterHealth().isFiredUp && damageData.isKOHit)
+        if (damageData.mainInstigator is PlayerGridUnit player && player.CharacterHealth().isFiredUp && damageData.isKOHit)
         {
             counter++;
 

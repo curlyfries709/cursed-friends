@@ -21,7 +21,7 @@ public class ChaMasteryTracker : BaseMasteryTracker
 
     private void OnUnitDamaged(DamageData damageData)
     {
-        PlayerGridUnit player = damageData.attacker as PlayerGridUnit;
+        PlayerGridUnit player = damageData.mainInstigator as PlayerGridUnit;
 
         if (player && allPlayersProgressionType[player] == MasteryProgression.ProgressionType.Crit && damageData.isCritical)
         {

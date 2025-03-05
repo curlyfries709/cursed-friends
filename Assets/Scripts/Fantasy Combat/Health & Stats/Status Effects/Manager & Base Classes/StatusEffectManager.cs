@@ -641,6 +641,17 @@ public class StatusEffectManager : MonoBehaviour
 
         return true;
     }
+    public bool IsAfflictedWithNegativeEffect(GridUnit unit)
+    {
+        if(unit is CharacterGridUnit character)
+        {
+            return combatUnitStatusEffects.ContainsKey(character) &&
+                 combatUnitStatusEffects[character].Any((effect) => effect.effectData.effectType == StatusEffectData.EffectType.Negative);
+
+        }
+
+        return false;
+    }
 
     public bool HasReducedMovementDueToStatusEffect(CharacterGridUnit unit)
     {
@@ -699,5 +710,6 @@ public class StatusEffectManager : MonoBehaviour
     {
         impulseSource.GenerateImpulse();
     }
+
 
 }

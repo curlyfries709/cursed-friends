@@ -14,7 +14,7 @@ public class SBBackstab : StrategicBonusChecker
 
     protected override void OnUnitHit(DamageData damageData)
     {
-        if (damageData.attacker is PlayerGridUnit && damageData.isBackstab)
+        if (damageData.mainInstigator is PlayerGridUnit && damageData.isBackstab)
         {
             counter++;
 
