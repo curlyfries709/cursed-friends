@@ -8,7 +8,7 @@ using System.Linq;
 using System;
 using Sirenix.Utilities;
 
-public abstract class BaseSkill : MonoBehaviour, ICombatAction
+public abstract class BaseSkill : CombatAction
 {
     //IMPORTANT VARIABLES
     [PropertyOrder(-9)]
@@ -62,9 +62,6 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     protected CharacterGridUnit myCharacter;
     public Action<CharacterGridUnit> SkillOwnerSet;
 
-    //State Variables
-    public bool isActive { get; set; } = false;
-
     //Cache
     protected Transform myUnitMoveTransform;
     protected BoxCollider moveTransformGridCollider;
@@ -80,17 +77,9 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     protected List<GridUnit> selectedUnits = new List<GridUnit>();
     protected Dictionary<GridPosition, IHighlightable> highlightableData = new Dictionary<GridPosition, IHighlightable>(); //For Grid Visual
 
-    protected List<GridUnit> skillTargets { get; private set; } = new List<GridUnit>();
-
     protected bool canTargetKOEDUnits = false;
     protected bool canTargetSelf;
     protected bool isTargetSelfOnlySkill;
-
-    //Counters
-    protected int numOfHealthUIDisplay = 0;
-    protected int healthUIDisplayedCounter = 0;
-
-    protected bool anyTargetsWithReflectAffinity = false;
 
     protected enum SkillShape
     {
@@ -144,41 +133,10 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         SkillOwnerSet?.Invoke(myCharacter);
     }
 
-    public virtual void BeginAction()
+    public override void BeginAction()
     {
         FantasyCombatManager.Instance.CombatEnded += OnSkillInterrupted;
-        FantasyCombatManager.Instance.SetCurrentAction(GetSkillAction(), false);
-    }
-
-    public void DisplayUnitHealthUIComplete()
-    {
-        if (!isActive) { return; }
-
-        int skillReflectIncrement = 1;
-
-        if (this is ITeamSkill teamSkill)
-        {
-            skillReflectIncrement = teamSkill.GetAttackers().Count;
-        }
-
-        int totalToCheck = anyTargetsWithReflectAffinity ? numOfHealthUIDisplay + skillReflectIncrement : numOfHealthUIDisplay;
-
-        healthUIDisplayedCounter++;
-
-        Debug.Log("Health UI Complete Count: " + healthUIDisplayedCounter + " Total: " + totalToCheck);
-
-        if (healthUIDisplayedCounter >= totalToCheck)
-        {
-            OnAllHealthUIComplete();
-
-            //Reset health Data
-            ResetHealthUIData();
-        }
-    }
-
-    protected virtual void OnAllHealthUIComplete()
-    {
-        EndAction();
+        FantasyCombatManager.Instance.BeginAction(GetSkillAction());
     }
 
     //CALLED VIA FEEDBACKS
@@ -186,18 +144,13 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     {
         if (this is IOffensiveSkill offensiveSkill)
         {
-            offensiveSkill.Attack(skillTargets, ref anyTargetsWithReflectAffinity);
+            offensiveSkill.Attack(actionTargets, ref anyTargetsWithReflectAffinity);
         }    
-    }
-
-    public void RaiseHealthChangeEvent(int eventType) //Helpful event for feedbacks to raise. 
-    {
-        ((ICombatAction)this).ActionAnimEventRaised((GridUnitAnimNotifies.EventType)eventType);
     }
 
     //END OF CALLED VIA FEEDBACKS
 
-    public virtual void EndAction()
+    public override void EndAction()
     {
         if (this is IOffensiveSkill offensiveSkill)
         {
@@ -205,15 +158,12 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         }
 
         ResetData();
-
-        FantasyCombatManager.Instance.SetCurrentAction(this, true);
-        FantasyCombatManager.Instance.ActionComplete?.Invoke();
+        FantasyCombatManager.Instance.ActionComplete?.Invoke(GetSkillAction());
     }
 
-    protected virtual void ResetData()
+    protected override void ResetData()
     {
-        ResetHealthUIData();
-        skillTargets.Clear();
+        base.ResetData();
         selectedUnits.Clear();
         selectedGridPositions.Clear();
     }
@@ -240,19 +190,6 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         }
 
         FantasyCombatManager.Instance.SetUnitsToShow(targetedUnits);
-    }
-
-    protected void SetSkillTargets()
-    {
-        skillTargets = new List<GridUnit>(selectedUnits);
-        numOfHealthUIDisplay = AffectTargetsIndividually() ? 1 : skillTargets.Count;
-    }
-
-    private void ResetHealthUIData()
-    {
-        numOfHealthUIDisplay = 0;
-        healthUIDisplayedCounter = 0;
-        anyTargetsWithReflectAffinity = false;
     }
 
     //SKILL CALCULATION
@@ -866,7 +803,7 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
         return mySkillData;
     }
 
-    protected virtual ICombatAction GetSkillAction()
+    protected virtual CombatAction GetSkillAction()
     {
         return this;
     }
@@ -882,11 +819,6 @@ public abstract class BaseSkill : MonoBehaviour, ICombatAction
     }
 
     public virtual bool IsMultiActionSkill()
-    {
-        return false;
-    }
-
-    public virtual bool AffectTargetsIndividually()
     {
         return false;
     }

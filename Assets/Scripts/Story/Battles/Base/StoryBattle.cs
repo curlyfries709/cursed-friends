@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class StoryBattle : MonoBehaviour, IBattleTrigger
+public abstract class StoryBattle : CombatAction, IBattleTrigger
 {
     [Header("Music")]
     [SerializeField] AudioClip customBattleMusic;

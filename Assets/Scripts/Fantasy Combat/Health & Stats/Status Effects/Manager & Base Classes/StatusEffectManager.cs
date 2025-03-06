@@ -22,7 +22,7 @@ public struct InflictedStatusEffectData
     }
 }
 
-public class StatusEffectManager : MonoBehaviour
+public class StatusEffectManager : CombatAction
 {
     public static StatusEffectManager Instance { get; private set; }
 
@@ -239,6 +239,8 @@ public class StatusEffectManager : MonoBehaviour
     //Display Routine
     public void ShowUnitAfflictedByStatusEffect(CharacterGridUnit unit)
     {
+        BeginAction();
+
         orbitPoint = unit.statusEffectCamTarget;
 
         disablingStatusEffectCam.Follow = unit.statusEffectCamTarget;
@@ -257,12 +259,14 @@ public class StatusEffectManager : MonoBehaviour
         unit.CharacterHealth().ActivateNameOnlyUI(true);
         yield return new WaitForSeconds(unitDisabledDisplayTime);
         unit.CharacterHealth().ActivateNameOnlyUI(false);
-        FantasyCombatManager.Instance.ActionComplete();
+        EndAction();
         disablingStatusEffectCam.gameObject.SetActive(false);
     }
 
     public void PlayDamageTurnEndEvent(CharacterGridUnit unit)
     {
+        BeginAction();
+
         //Setup Camera
         orbitPoint = unit.statusEffectCamTarget;
         orbitPoint.localRotation = Quaternion.Euler(Vector3.zero);
@@ -300,7 +304,7 @@ public class StatusEffectManager : MonoBehaviour
         yield return new WaitForSeconds(waitTime);
         Health.RaiseHealthChangeEvent(true);
         yield return new WaitUntil(() => unit.CharacterHealth().GetHealthUI().showingSkillFeedback == false);
-        FantasyCombatManager.Instance.ActionComplete();
+        EndAction();
     }
 
     public void CureStatusEffect(CharacterGridUnit unit, StatusEffectData effectToCure)

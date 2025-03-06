@@ -49,7 +49,7 @@ public abstract class StrategicBonusChecker : MonoBehaviour
     {
     }
 
-    protected virtual void OnActionComplete()
+    protected virtual void OnActionComplete(CombatAction completedAction)
     {
     }
 

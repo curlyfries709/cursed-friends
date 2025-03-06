@@ -4,7 +4,6 @@ using UnityEngine;
 using System;
 using DG.Tweening;
 using Cinemachine;
-using System.Linq;
 using AnotherRealm;
 
 public class Evade : MonoBehaviour, ITurnEndEvent
@@ -225,7 +224,7 @@ public class Evade : MonoBehaviour, ITurnEndEvent
         flasher.Fade(true);
     }
 
-    private void ReturnAllTargetsToPos()
+    private void ReturnAllTargetsToPos(CombatAction completedAction)
     {
         FantasyCombatManager.Instance.ActionComplete -= ReturnAllTargetsToPos;
 
@@ -240,7 +239,7 @@ public class Evade : MonoBehaviour, ITurnEndEvent
         targets.Clear();
     }
 
-    private void ReturnCounterAttackerToPos()
+    private void ReturnCounterAttackerToPos(CombatAction completedAction)
     {
         FantasyCombatManager.Instance.ActionComplete -= ReturnCounterAttackerToPos;
 

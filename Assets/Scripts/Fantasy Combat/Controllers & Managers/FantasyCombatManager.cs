@@ -6,8 +6,6 @@ using System;
 using System.Linq;
 using Sirenix.OdinInspector;
 using AnotherRealm;
-using UnityEngine.Rendering;
-using Unity.VisualScripting;
 
 public enum BattleResult
 {
@@ -22,7 +20,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     public static FantasyCombatManager Instance { get; private set; }
 
     [Title("Controllers & Managers")]
-    [SerializeField] FantasyCombatMovement combatMovementController;
+    [SerializeField] PlayerCombatMovement combatMovementController;
     [SerializeField] FantasyCombatCollectionManager collectionManager;
     [Space(10)]
     [SerializeField] Victory victory;
@@ -86,7 +84,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     bool isPassiveHealthUIActive = false;
 
     bool inCombat = false;
-    bool usedTactic = false;
+
     public bool restartingBattle { get; private set; } = false;
 
     [HideInInspector] public bool CombatCinematicPlaying = false; //Set By POF & Duofires, Read by Equipment script to avoid running unnecessary Methods.
@@ -127,7 +125,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     //PROPERTIES
     public IBattleTrigger battleTrigger { get; private set; }
 
-    public ICombatAction currentCombatAction { get; private set; }
+    public CombatAction currentCombatAction { get; private set; }
 
     //Inputs 
     bool gridSelectionMode = false; //Keyboard & Mouse Only
@@ -144,9 +142,9 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
     public Func<GridUnit> ObjectInSceneSetPosition;
 
-    public Action<CharacterGridUnit, int> OnNewTurn; //Turn Owner, Turn Number
+    public Action<CharacterGridUnit /*Turn Owner*/, int /*Turn Number*/> OnNewTurn;
     public Action OnTurnFinished;
-    public Action ActionComplete;
+    public Action<CombatAction /*Completed Action*/> ActionComplete;
 
     public struct UnitDataAtBattleStart
     {
@@ -185,7 +183,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         SavingLoadingManager.Instance.NewSceneLoadComplete += OnSceneLoaded;
   
     }
-
 
     void Start()
     {
@@ -358,7 +355,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         }
     }
 
-
     private void StoreBattleData(BattleStarter.CombatAdvantage advantageType, bool isRetry)
     {
         battleStartTime = Time.time;
@@ -403,7 +399,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
             StatusEffectManager.Instance.StoreBattleStartData(unit as CharacterGridUnit);
         }
     }
-
 
     public void IntializeUnit(CharacterGridUnit unit)
     {
@@ -471,7 +466,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     private void OnTurnStart()
     {
         battleTurnNumber++;
-        usedTactic = false;
 
         ActiveUserChangeSetup(turnOrder[0], false);
         CalculateActiveUnitsNextTurn();
@@ -610,54 +604,19 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         KOUnitsThisTurn.Clear();
     }
 
-    /*public void BeginHealthUICountdown()
-    {
-        if (!isHealthUICooldownRunning)
-        {
-            StartCoroutine(HealthUIDisplayRoutine(currentSkillFeedbackDisplayTime));
-        }
-    }
-
-    IEnumerator HealthUIDisplayRoutine(float waitTime)
-    {
-        isHealthUICooldownRunning = true;
-        yield return new WaitForSeconds(waitTime);
-        isHealthUICooldownRunning = false;
-        currentSkillFeedbackDisplayTime = 0;
-        ActionComplete();
-    }*/
-
-    /*public void BeginPassiveHealRoutine(CharacterGridUnit unit)
-    {
-        StartCoroutine(PassiveHealRoutine(unit as PlayerGridUnit));
-    }
-
-    IEnumerator PassiveHealRoutine(PlayerGridUnit healingPlayer)
-    {
-        if (healingPlayer && healingPlayer == activeUnit)
-        {
-            isPassiveHealthUIActive = true;
-            ShowActionMenu(false);
-        }
-
-        yield return new WaitForSeconds(skillFeedbackDisplayTime);
-        isPassiveHealthUIActive = false;
-
-        if (isTurnStartEventPlaying)
-        {
-            ActionComplete();
-        }
-        else if (healingPlayer && healingPlayer == activeUnit)
-        {
-            ShowActionMenu(HUDManager.Instance.IsHUDEnabled());
-        }
-    }*/
-
-    private void OnActionComplete()
+    private void OnActionComplete(CombatAction completedAction)
     {
         if (!inCombat) { return; }
 
+        SetCurrentAction(completedAction, true);
+
         currentSkillFeedbackDisplayTime = 0;
+        
+        if(completedAction.IsTactic())
+        {
+            OnTacticCompleted();
+            return;
+        }
 
         if (isTurnStartEventPlaying)
         {
@@ -666,7 +625,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         }
 
         StatusEffectManager.Instance.HideTurnEndCam();
-
         activeUnit.ReturnToPosAfterAttack(false);
 
         if (turnEndEvents.Count > 0)
@@ -680,6 +638,11 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         {
             BeginNextTurn();
         }
+    }
+
+    private void OnTacticCompleted()
+    {
+        BeginGoAgainTurn(activeUnit);
     }
 
     public void BattleInterrupted()
@@ -703,13 +666,6 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         currentSelectedSkill = null;
         
         //TURN END & START EVENTS CLEARED IN ON BATTLE RESTART.
-    }
-
-    public void TacticActivated()
-    {
-        ControlsManager.Instance.SwitchCurrentActionMap(myActionMap);
-        usedTactic = true;
-        ShowActionMenu(true);
     }
 
     private void OnUnitKO(GridUnit unit)
@@ -759,7 +715,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         }
         else
         {
-            ActionComplete();
+            ActionComplete(currentCombatAction);
         }
     }
 
@@ -1165,9 +1121,9 @@ public class FantasyCombatManager : MonoBehaviour, IControls
 
     private void OnTactic(InputAction.CallbackContext context)
     {
-        if (context.action.name != "Tactic") { return; }
+        if (context.action.name != "Tactic" || !selectedPlayerUnit) { return; }
 
-        if (usedTactic)
+        if (selectedPlayerUnit.hasUsedTacticThisTurn)
         {
             AudioManager.Instance.PlaySFX(SFXType.ActionDenied);
             return;
@@ -1466,15 +1422,20 @@ public class FantasyCombatManager : MonoBehaviour, IControls
     {
         if(!selectedPlayerUnit || show && currentSelectedSkill) { return; }
 
-        selectedPlayerUnit.ShowActionMenu(show && !isPassiveHealthUIActive, usedTactic);
+        selectedPlayerUnit.ShowActionMenu(show && !isPassiveHealthUIActive, selectedPlayerUnit.hasUsedTacticThisTurn);
     }
 
     //Setters
-    public void SetCurrentAction(ICombatAction newAction, bool isComplete)
+    public void BeginAction(CombatAction newAction)
+    {
+        SetCurrentAction(newAction, false);
+    }
+
+    private void SetCurrentAction(CombatAction newAction, bool isComplete)
     {
         if(newAction == null) { return; }
 
-        newAction.isActive = !isComplete;
+        newAction.isActionActive = !isComplete;
         currentCombatAction = isComplete ? null : newAction;
 
         if (!isComplete)
@@ -1563,7 +1524,7 @@ public class FantasyCombatManager : MonoBehaviour, IControls
         return isCombatInteractionAvailable;
     }
 
-    public FantasyCombatMovement GetFantasyCombatMovement()
+    public PlayerCombatMovement GetFantasyCombatMovement()
     {
         return combatMovementController;
     }

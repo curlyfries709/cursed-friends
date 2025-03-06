@@ -54,9 +54,14 @@ public class Guard : PlayerBaseSkill
 
     private void GuardComplete()
     {
-        FantasyCombatManager.Instance.ActionComplete();
+        EndAction();
         ActivateVisuals(false);
         //skillTriggered = false;
+    }
+
+    protected override bool ListenForUnitHealthUIComplete()
+    {
+        return false;
     }
 
 }

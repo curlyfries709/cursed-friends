@@ -122,7 +122,7 @@ public abstract class Interact : MonoBehaviour
 
     protected void CombatInteractionComplete()
     {
-        FantasyCombatManager.Instance.ActionComplete();
+        //FantasyCombatManager.Instance.ActionComplete();
     }
 
     public virtual void ShowInteractUI(bool show)

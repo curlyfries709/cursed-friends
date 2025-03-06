@@ -20,7 +20,6 @@ public abstract class AIOffensiveSkill : AIBaseSkill, IOffensiveSkill
         base.Attack();
 
         SkillComplete();//Must be called before FantasyCombatManager Action Complete to avoid bug where enemy doesnt act next turn.
-        FantasyCombatManager.Instance.ActionComplete += PrepareToDeactivateActionCam;
     }
 
     //END CALLED VIA FEEDBACKS
@@ -31,10 +30,10 @@ public abstract class AIOffensiveSkill : AIBaseSkill, IOffensiveSkill
         myAI.UpdateAffinities(target, damageData.affinityToAttack, IOffensiveSkill().GetSkillElement());
     }
 
-    private void PrepareToDeactivateActionCam()
+    public override void EndAction()
     {
-        FantasyCombatManager.Instance.ActionComplete -= PrepareToDeactivateActionCam;
         Invoke("DeactiveCam", offensiveSkillData.delayBeforeReturn);
+        base.EndAction();
     }
 
     private void DeactiveCam()

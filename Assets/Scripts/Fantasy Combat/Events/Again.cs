@@ -3,9 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Again : MonoBehaviour, ITurnEndEvent
+public class Again : CombatAction, ITurnEndEvent
 {
     public static Again Instance { get; private set; }
+    public bool isActive { get; set; }
 
     [SerializeField] CombatEventCanvas againCanvas;
     [Space(5)]
@@ -31,10 +32,12 @@ public class Again : MonoBehaviour, ITurnEndEvent
 
     public void PlayTurnEndEvent()
     {
+        BeginAction();
+
         if (StatusEffectManager.Instance.IsUnitDisabled(unitGoingAgain) || unitGoingAgain.CharacterHealth().isKOed)
         {
             //Could Be KOed due to counterattack. Could be disabled due to Status Effect from counterattack.
-            FantasyCombatManager.Instance.ActionComplete();
+            EndAction();
         }
         else
         {
@@ -71,5 +74,4 @@ public class Again : MonoBehaviour, ITurnEndEvent
         //Event Cannot be cancelled so do nothing
         Debug.Log("AGAIN EVENT CANCELLED!");
     }
-
 }

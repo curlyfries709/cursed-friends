@@ -51,7 +51,7 @@ public class PlayerSupportSkill : PlayerBaseSkill
 
     public void ActivateEffects() //Called Via A feedback
     {
-        foreach(GridUnit unit in skillTargets)
+        foreach(GridUnit unit in actionTargets)
         {
             CharacterGridUnit targetChar = unit as CharacterGridUnit;
             StatusEffectManager.Instance.TriggerNewlyAppliedEffects(targetChar);
@@ -87,7 +87,7 @@ public class PlayerSupportSkill : PlayerBaseSkill
 
     private void ApplyAllEffects()
     {
-        foreach (GridUnit unit in skillTargets)
+        foreach (GridUnit unit in actionTargets)
         {
             CharacterGridUnit targetChar = unit as CharacterGridUnit;
 
@@ -102,14 +102,14 @@ public class PlayerSupportSkill : PlayerBaseSkill
 
     private void UpdateTargetCam()
     {
-        blendListComp.LookAt = skillTargets[0].camFollowTarget;
-        blendListComp.Follow = skillTargets[0].camFollowTarget;
+        blendListComp.LookAt = actionTargets[0].camFollowTarget;
+        blendListComp.Follow = actionTargets[0].camFollowTarget;
     }
 
     IEnumerator SupportSkillRoutine()
     {
         yield return new WaitForSeconds(actionDisplayTime);
-        FantasyCombatManager.Instance.ActionComplete();
+        EndAction();
     }
 
     public override int GetSkillIndex()

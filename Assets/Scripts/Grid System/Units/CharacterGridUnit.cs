@@ -40,6 +40,7 @@ public class CharacterGridUnit : GridUnit, IHighlightable
 
     //Caches
     protected CinemachineFreeLook freeLookPlayerCam;
+    public bool hasUsedTacticThisTurn { get; protected set; } = false;
 
     //Events
     public Action BeginTurn;
@@ -59,10 +60,10 @@ public class CharacterGridUnit : GridUnit, IHighlightable
         BeginTurn += OnBeginTurn;
     }
 
-
     protected virtual void OnBeginTurn()
     {
         CharacterHealth().Guard(false);
+        hasUsedTacticThisTurn = false;
     }
 
     private void Update()
@@ -141,6 +142,11 @@ public class CharacterGridUnit : GridUnit, IHighlightable
     {
         myHealth.ActivateHealthVisual(activate);
         return null;
+    }
+
+    public void UsedTactic()
+    {
+        hasUsedTacticThisTurn = true;
     }
 
     protected override void SetHighlightable()

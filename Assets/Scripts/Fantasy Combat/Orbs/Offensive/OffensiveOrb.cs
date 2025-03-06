@@ -40,8 +40,6 @@ public class OffensiveOrb : PlayerOffensiveSkill, IOrb
             //Attack
             Attack(); //Damage Target Called in here.
 
-            FantasyCombatManager.Instance.ActionComplete += OnActionComplete;
-
             return true;
         }
         else
@@ -50,12 +48,11 @@ public class OffensiveOrb : PlayerOffensiveSkill, IOrb
         }
     }
 
-    private void OnActionComplete()
+    public override void EndAction()
     {
-        FantasyCombatManager.Instance.ActionComplete -= OnActionComplete;
         myCharacter.unitAnimator.ShowWeapon(true);
+        base.EndAction();
     }
-
     private void SetParentConstraint()
     {
         ConstraintSource constraintSource = new ConstraintSource();

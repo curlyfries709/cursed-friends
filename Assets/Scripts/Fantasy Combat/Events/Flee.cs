@@ -7,7 +7,7 @@ using AnotherRealm;
 using UnityEngine.InputSystem;
 using TMPro;
 
-public class Flee : MonoBehaviour, IControls
+public class Flee : CombatAction, IControls
 {
     [Header("Camera")]
     [SerializeField] GameObject mainFleeCam;
@@ -87,6 +87,8 @@ public class Flee : MonoBehaviour, IControls
     private void OnFlee()
     {
         if (fleeing) { return; }
+
+        BeginAction();
 
         fleeing = true;
         ControlsManager.Instance.DisableControls();
@@ -277,5 +279,10 @@ public class Flee : MonoBehaviour, IControls
     private void OnDestroy()
     {
         ControlsManager.Instance.RemoveIControls(this);
+    }
+
+    protected override bool ListenForUnitHealthUIComplete()
+    {
+        return false;
     }
 }

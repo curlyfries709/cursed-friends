@@ -8,7 +8,7 @@ using System.Linq;
 using System;
 using AnotherRealm;
 
-public class FantasyCombatCollectionManager : MonoBehaviour, IControls, ISaveable
+public class FantasyCombatCollectionManager : CombatAction, IControls, ISaveable
 {
     [Header("Components")]
     [SerializeField] PlayerUsePotion usePotion;
@@ -345,6 +345,7 @@ public class FantasyCombatCollectionManager : MonoBehaviour, IControls, ISaveabl
 
     public void OpenWeaponSwitchUI()
     {
+        BeginAction();
         ActivateCollection(false);
         UpdateCollection(currentPlayer.weaponSwitchCam, weaponSwitchUI.gameObject);
         weaponSwitchUI.ActivateUI(currentPlayer, this);
@@ -363,8 +364,7 @@ public class FantasyCombatCollectionManager : MonoBehaviour, IControls, ISaveabl
         {
             FantasyCombatManager.Instance.ShowHUD(true);
             usingTacticsMenu = false;
-
-            FantasyCombatManager.Instance.TacticActivated();
+            EndAction();
         }
         else
         {
@@ -1112,6 +1112,10 @@ public class FantasyCombatCollectionManager : MonoBehaviour, IControls, ISaveabl
         }
     }
 
+    public override bool IsTactic()
+    {
+        return true;
+    }
 
     //Inputs
     private void OnCycle(InputAction.CallbackContext context)
@@ -1253,6 +1257,11 @@ public class FantasyCombatCollectionManager : MonoBehaviour, IControls, ISaveabl
     private void OnDestroy()
     {
         ControlsManager.Instance.RemoveIControls(this);
+    }
+
+    protected override bool ListenForUnitHealthUIComplete()
+    {
+        return false;
     }
 
     //Saving

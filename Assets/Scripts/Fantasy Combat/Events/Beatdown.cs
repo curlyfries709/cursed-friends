@@ -7,7 +7,7 @@ using AnotherRealm;
 using System;
 using System.Linq;
 
-public class Beatdown : MonoBehaviour
+public class Beatdown : CombatAction
 {
     [Header("Power")]
     [SerializeField] PowerGrade beatdownPowerGrade = PowerGrade.C;
@@ -45,7 +45,6 @@ public class Beatdown : MonoBehaviour
     CinemachineImpulseSource impulseSource;
     CinemachineBasicMultiChannelPerlin camNoise;
 
-    List<CharacterGridUnit> beatenUpUnits = new List<CharacterGridUnit>();
     List<CharacterGridUnit> unitsParticipatingInBeatdown = new List<CharacterGridUnit>();
 
     List<GameObject> spawnedFightClouds = new List<GameObject>();
@@ -65,7 +64,7 @@ public class Beatdown : MonoBehaviour
 
     public void TriggerBeatdown(CharacterGridUnit beatdownStarter)
     {
-        FantasyCombatManager.Instance.ActionComplete += BeatdownOver;
+        BeginAction();
 
         this.beatdownStarter = beatdownStarter;
         FantasyCombatManager.Instance.TeamAttackInitiator = beatdownStarter;
@@ -158,7 +157,7 @@ public class Beatdown : MonoBehaviour
     
     private void SpawnFightClouds()
     {
-        foreach(CharacterGridUnit target in beatenUpUnits)
+        foreach(CharacterGridUnit target in actionTargets)
         {
             GameObject fightCloud = Instantiate(fightCloudPrefab, target.transform.position + fightCloudOffset.localPosition, Quaternion.identity);
             spawnedFightClouds.Add(fightCloud);
@@ -194,7 +193,7 @@ public class Beatdown : MonoBehaviour
             attacker.CharacterHealth().GainFP(TheCalculator.Instance.CalculateFPGain(true));
         }
 
-        foreach(CharacterGridUnit target in beatenUpUnits)
+        foreach(CharacterGridUnit target in actionTargets)
         {
             target.CharacterHealth().TakeDamage(targetDamageDict[target], DamageType.Ultimate);
         }
@@ -202,7 +201,7 @@ public class Beatdown : MonoBehaviour
 
     private AttackData GetAttackData(int damage)
     {
-        AttackData attackData = new AttackData(beatdownStarter, new List<GridUnit>(unitsParticipatingInBeatdown), Element.None, damage, beatenUpUnits.Count);
+        AttackData attackData = new AttackData(beatdownStarter, new List<GridUnit>(unitsParticipatingInBeatdown), Element.None, damage, actionTargets.Count);
         attackData.canEvade = false;
 
         attackData.isPhysical = true;
@@ -221,7 +220,7 @@ public class Beatdown : MonoBehaviour
         }
 
         //Show Units
-        foreach (CharacterGridUnit target in beatenUpUnits)
+        foreach (CharacterGridUnit target in actionTargets)
         {
             target.unitAnimator.ShowModel(true);
         }
@@ -236,23 +235,22 @@ public class Beatdown : MonoBehaviour
     {
         float sumRotation = 0;
 
-        foreach(CharacterGridUnit unit in beatenUpUnits)
+        foreach(CharacterGridUnit unit in actionTargets)
         {
             sumRotation = sumRotation + unit.transform.eulerAngles.y;
         }
 
-        float averageRotation = sumRotation / beatenUpUnits.Count;
+        float averageRotation = sumRotation / actionTargets.Count;
         averageRotation = Mathf.Round(averageRotation / 90f) * 90;
 
         beatdownTargetGroupTransform.rotation = Quaternion.Euler(new Vector3(0, averageRotation, 0));
     }
 
-    private void BeatdownOver()
+    public override void EndAction()
     {
-        FantasyCombatManager.Instance.ActionComplete -= BeatdownOver;
-
         beatdownCam.gameObject.SetActive(false);
         ResetAttackerRotation();
+        base.EndAction();
     }
 
     private void Recover()
@@ -262,7 +260,7 @@ public class Beatdown : MonoBehaviour
         bool beatdownSurvived = true;
 
         //Cure Knockdown
-        foreach (CharacterGridUnit player in beatenUpUnits)
+        foreach (CharacterGridUnit player in actionTargets)
         {
             if (player.CharacterHealth().isKOed)
             {
@@ -301,12 +299,13 @@ public class Beatdown : MonoBehaviour
                 //Only Target knocked Down Units.
                 if (StatusEffectManager.Instance.IsUnitKnockedDown(enemy))
                 {
-                    beatenUpUnits.Add(enemy);
+                    actionTargets.Add(enemy);
                 }
             }
 
             //Ordered by Highest Level.
-            beatenUpUnits.OrderByDescending((unit) => unit.stats.level);
+            actionTargets.OrderByDescending((unit) => unit.stats.level);
+            SetActionTargets(actionTargets);
         }
         else
         {
@@ -321,16 +320,16 @@ public class Beatdown : MonoBehaviour
             }
 
             //Set Enemy Targets
-            beatenUpUnits = FantasyCombatManager.Instance.GetPlayerCombatParticipants(false, true).ToList<CharacterGridUnit>();
+            SetActionTargets(FantasyCombatManager.Instance.GetPlayerCombatParticipants(false, true).ToList<GridUnit>());
         }
 
         //In Case there are more attackers than targets.
-        if(unitsParticipatingInBeatdown.Count < beatenUpUnits.Count)
+        if(unitsParticipatingInBeatdown.Count < actionTargets.Count)
         {
-            int amountToRemove = beatenUpUnits.Count - unitsParticipatingInBeatdown.Count;
-            int startIndex = beatenUpUnits.Count - amountToRemove -1;
+            int amountToRemove = actionTargets.Count - unitsParticipatingInBeatdown.Count;
+            int startIndex = actionTargets.Count - amountToRemove -1;
 
-            beatenUpUnits.RemoveRange(startIndex, amountToRemove);
+            actionTargets.RemoveRange(startIndex, amountToRemove);
         }
 
         camNoise = beatdownCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
@@ -341,7 +340,7 @@ public class Beatdown : MonoBehaviour
             beatdownTargetGroup.RemoveMember(target.target);
         }
 
-        foreach (CharacterGridUnit unit in beatenUpUnits)
+        foreach (CharacterGridUnit unit in actionTargets)
         {
             beatdownTargetGroup.AddMember(unit.camFollowTarget, targetGroupWeight, targetGroupRadius);
         }
@@ -355,14 +354,14 @@ public class Beatdown : MonoBehaviour
 
         foreach(CharacterGridUnit attacker in unitsParticipatingInBeatdown)
         {
-            CharacterGridUnit assignedTarget = beatenUpUnits[targetIndex];
+            CharacterGridUnit assignedTarget = actionTargets[targetIndex] as CharacterGridUnit;
 
             unitAssignedTargets[attacker] = assignedTarget;
             unitAssignedGridPosToWorldDict[attacker] = assignedTarget.transform.position;
 
             targetIndex++;
 
-            if(targetIndex >= beatenUpUnits.Count)
+            if(targetIndex >= actionTargets.Count)
             {
                 targetIndex = 0;
             }
@@ -371,7 +370,7 @@ public class Beatdown : MonoBehaviour
 
     private void ClearData()
     {
-        beatenUpUnits.Clear();
+        actionTargets.Clear();
         unitsParticipatingInBeatdown.Clear();
         unitAssignedGridPosToWorldDict.Clear();
         targetDamageDict.Clear();

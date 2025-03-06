@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Linq;
 
-public class PowerOfFriendship : MonoBehaviour
+public class PowerOfFriendship : CombatAction
 {
     [Header("UI Components")]
     [SerializeField] Transform companionHeader;
@@ -56,6 +56,8 @@ public class PowerOfFriendship : MonoBehaviour
 
     public void TriggerPOF(PlayerGridUnit intiator)
     {
+        BeginAction();
+
         ControlsManager.Instance.DisableControls();
 
         currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
@@ -96,7 +98,6 @@ public class PowerOfFriendship : MonoBehaviour
 
     public void UnloadPOF()
     {
-        FantasyCombatManager.Instance.ActionComplete += DeactiveCam;
         StartCoroutine(UnloadPOFRoutine());
     }
 
@@ -210,6 +211,12 @@ public class PowerOfFriendship : MonoBehaviour
         pofCamera.SetActive(true);
     }
 
+    public override void EndAction()
+    {
+        pofDamageCam.SetActive(false);
+        base.EndAction();
+    }
+
     private void SetupData(PlayerGridUnit intiator)
     {
         playersParticipating = FantasyCombatManager.Instance.GetPlayerCombatParticipants(false, false);
@@ -240,6 +247,8 @@ public class PowerOfFriendship : MonoBehaviour
 
             enemy.CharacterHealth().TakeDamage(GetAttackData(totalDamage), DamageType.Ultimate);
         }
+
+        SetActionTargets(FantasyCombatManager.Instance.GetEnemyCombatParticipants(false, true).ToList<GridUnit>());
     }
 
     private AttackData GetAttackData(int damage)
@@ -276,9 +285,5 @@ public class PowerOfFriendship : MonoBehaviour
          return willKO;
      }*/
 
-    public void DeactiveCam()
-    {
-        FantasyCombatManager.Instance.ActionComplete -= DeactiveCam;
-        pofDamageCam.SetActive(false);
-    }
+
 }

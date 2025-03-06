@@ -33,6 +33,7 @@ public class TutorialBattle : StoryBattle, ITurnStartEvent
 
     public void PlayTurnStartEvent()
     {
+        BeginAction();
         DialogueManager.Instance.PlayDialogue(currentTurnNumberEvent.dialogue, false);
         DialogueManager.Instance.DialogueEnded += PlayTutorial;
     }
@@ -49,14 +50,14 @@ public class TutorialBattle : StoryBattle, ITurnStartEvent
         else
         {
             HUDManager.Instance.ShowActiveHud();
-            FantasyCombatManager.Instance.ActionComplete();
+            EndAction();
         }
     }
 
     private void TutorialComplete()
     {
         StoryManager.Instance.TutorialComplete -= TutorialComplete;
-        FantasyCombatManager.Instance.ActionComplete();
+        EndAction();
         HUDManager.Instance.ShowActiveHud();
     }
 
@@ -72,6 +73,11 @@ public class TutorialBattle : StoryBattle, ITurnStartEvent
     public override void TriggerVictoryEvent(GameObject spawnedLoot, float victoryFaderFadeOutTime)
     {
         PlayPostBattleCinematic(postBattleCinematic, spawnedLoot);
+    }
+
+    protected override bool ListenForUnitHealthUIComplete()
+    {
+        return false;
     }
 
     //IBattle Trigger Definitions

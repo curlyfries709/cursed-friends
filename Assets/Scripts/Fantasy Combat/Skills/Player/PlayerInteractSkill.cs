@@ -105,7 +105,7 @@ public class PlayerInteractSkill : PlayerBaseSkill
         return true;
     }
 
-    protected override ICombatAction GetSkillAction()
+    protected override CombatAction GetSkillAction()
     {
         return null;
     }

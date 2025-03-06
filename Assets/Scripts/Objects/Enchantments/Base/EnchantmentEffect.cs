@@ -101,7 +101,7 @@ public abstract class EnchantmentEffect : MonoBehaviour
     {
     }
 
-    protected virtual void OnActionComplete()
+    protected virtual void OnActionComplete(CombatAction completedAction)
     {
     }
 

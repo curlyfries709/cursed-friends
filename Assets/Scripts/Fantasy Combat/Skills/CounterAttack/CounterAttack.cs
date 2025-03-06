@@ -54,7 +54,7 @@ public class CounterAttack : BaseSkill, IOffensiveSkill
         myCharacter.delayBeforeReturn = offensiveSkillData.delayBeforeReturn;
 
         SetUnitsToShow();
-        SetSkillTargets();
+        SetActionTargets(selectedUnits);
 
         //Call Event
         if(player)

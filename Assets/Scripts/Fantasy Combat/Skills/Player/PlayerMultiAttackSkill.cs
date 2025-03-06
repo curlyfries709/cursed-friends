@@ -33,7 +33,7 @@ public class PlayerMultiAttackSkill : PlayerOffensiveSkill
         {
             List<GridUnit> singleTarget = new List<GridUnit>() //Grab first target
             {
-                skillTargets[0]
+                actionTargets[0]
             };
 
             //Attack Target
@@ -50,8 +50,8 @@ public class PlayerMultiAttackSkill : PlayerOffensiveSkill
         {
             if (attackTargetsIndividually)
             {
-                GridUnit hitTarget = skillTargets[0];
-                skillTargets.RemoveAt(0); //Only remove first target
+                GridUnit hitTarget = actionTargets[0];
+                actionTargets.RemoveAt(0); //Only remove first target
 
                 canMoveToAttack = true;
 
@@ -60,7 +60,7 @@ public class PlayerMultiAttackSkill : PlayerOffensiveSkill
             }
             else
             {
-                skillTargets.Clear();
+                actionTargets.Clear();
             }
         }
         else
@@ -85,7 +85,7 @@ public class PlayerMultiAttackSkill : PlayerOffensiveSkill
     protected override void OnAllHealthUIComplete()
     {
         //If skill condition to cancel true or all targets hit, end action
-        if (cancelConditionMet || skillTargets.Count >= 0)
+        if (cancelConditionMet || actionTargets.Count >= 0)
         {
             base.OnAllHealthUIComplete(); //Calls End Action
             return;
@@ -108,7 +108,7 @@ public class PlayerMultiAttackSkill : PlayerOffensiveSkill
         if(adjacentPositions.Count > 0)
         {
             int randIndex = Random.Range(0, adjacentPositions.Count);
-            skillTargets.Add(LevelGrid.Instance.GetUnitAtGridPosition(adjacentPositions[randIndex]));
+            actionTargets.Add(LevelGrid.Instance.GetUnitAtGridPosition(adjacentPositions[randIndex]));
         }
     }
 

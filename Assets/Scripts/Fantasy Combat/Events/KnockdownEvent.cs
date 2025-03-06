@@ -11,7 +11,7 @@ using AnotherRealm;
 using DG.Tweening;
 using MoreMountains.Feedbacks;
 
-public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
+public class KnockdownEvent : CombatAction, ITurnEndEvent
 {
     [Header("Scripts")]
     [SerializeField] Beatdown beatdown;
@@ -129,7 +129,6 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
         {
             alreadySubscribedToEvent = true;
             chainStarter = attackerCharacter;
-            FantasyCombatManager.Instance.GetCurrentTurnOwner().EndTurn += OnTurnEnd;
         }
 
         //Add Turn End Event if player beatdown available or attacker is enemy
@@ -181,6 +180,8 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
      {
         bool isChainStarterPlayer = chainStarter is PlayerGridUnit;
 
+        BeginAction();
+
          if (isChainStarterPlayer)
          {
              TriggerPlayerKnockdownEvent();
@@ -229,7 +230,7 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
          }
 
          Again.Instance.SetUnitToGoAgain(currentAttacker);
-         FantasyCombatManager.Instance.ActionComplete();
+         EndAction();
      }
 
     private void ActivateKnockdownUI(bool show, bool showHud, bool showWorldSpaceUI = true)
@@ -368,14 +369,6 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
             //Means This Chain Attack has no valid target so cannot be activated. Notify Player!
         }
     }
-
-
-
-     private void OnTurnEnd()
-     {
-         FantasyCombatManager.Instance.GetCurrentTurnOwner().EndTurn -= OnTurnEnd;
-         ResetData();
-     }
 
      private bool CanTriggerChainEvent()
      {
@@ -621,8 +614,7 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
     {
         Debug.Log("Knockdown event cancelled");
         canTriggerChainAttack = false;
-        OnTurnEnd();
-
+        ResetData();
 
         knockdownText.Fade(false);
         knockdownSpeedlines.Fade(false);
@@ -634,8 +626,10 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
         return otherEventTypesThatCancelThis;
     }
 
-    private void ResetData()
+
+    protected override void ResetData()
     {
+        base.ResetData();
         alreadySubscribedToEvent = false;
         currentAttacker = null;
         unitsAlreadyTriggeredChainAttack.Clear();
@@ -650,8 +644,8 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
         ListenToChainAttackInput(false);
         chainAttackSetup.SetActive(false);
 
-        if(cancelledViaPlayerInput)
-            FantasyCombatManager.Instance.ActionComplete();
+        if (cancelledViaPlayerInput)
+            EndAction();
      }
 
      private void OnDisable()
@@ -661,10 +655,10 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
 
      private IEnumerator EventSelectionCountdown()
      {
-         yield return new WaitForSeconds(chainSelectionTimeInSecs);
-         //If Timer Exhausted call Action Complete.
-         EndEventSelection();
-         FantasyCombatManager.Instance.ActionComplete();
+        yield return new WaitForSeconds(chainSelectionTimeInSecs);
+        //If Timer Exhausted call Action Complete.
+        EndEventSelection();
+        EndAction();
      }
 
      private void EndEventSelection()
@@ -817,7 +811,10 @@ public class KnockdownEvent : MonoBehaviour, ITurnEndEvent
         }
     }
 
-
+    protected override bool ListenForUnitHealthUIComplete()
+    {
+        return false;
+    }
 
     /*private void OnMoveMouse(InputAction.CallbackContext context)
     {

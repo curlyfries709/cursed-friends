@@ -43,7 +43,7 @@ public struct SkillForceData
     }
 }
 
-public class SkillForce : MonoBehaviour, ITurnEndEvent
+public class SkillForce : CombatAction, ITurnEndEvent
 {
     public static SkillForce Instance { get; private set; }
 
@@ -149,12 +149,13 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
     public void PlayTurnEndEvent()
     {
         //FantasyCombatManager.Instance.UpdateDamageDataDisplayTime(Affinity.None, false, false);
+        BeginAction();
         StartCoroutine(BounceRoutine());
     }
 
     public void OnEventCancelled()
     {
-        ClearData();
+        ResetData();
     }
 
     private void ForceAllUnits(bool triggerEvent)
@@ -408,9 +409,9 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
         Health.RaiseHealthChangeEvent(true);
     }
 
-
-    private void ClearData()
+    protected override void ResetData()
     {
+        base.ResetData();
         //Clear List
         unitsToApplyForce.Clear();
         unitsToBounce.Clear();
@@ -472,13 +473,12 @@ public class SkillForce : MonoBehaviour, ITurnEndEvent
 
         if (!unitBouncing)
         {
-            ClearData();
-            FantasyCombatManager.Instance.ActionComplete();
+            EndAction();
         }
         else
         {
             BounceAllUnits();
-            ClearData();
+            ResetData();
         }
     }
 

@@ -47,7 +47,7 @@ public class FantasyCombatAI : MonoBehaviour
     public Vector3 finalLookDirection { get; private set; }
 
     //Cached Callbacks
-    Action<List<Vector3>> ActionReadyCallback = null;
+    Action<List<GridPosition> /* GridPosition Movement List */, List<Vector3> /* World Position Movement List */> ActionReadyCallback = null;
     MultiPathCallbackData multiPathCallbackData = null;
 
     bool hasAnyDiagonalSkills = false;
@@ -134,7 +134,7 @@ public class FantasyCombatAI : MonoBehaviour
         }
     }
 
-    public void BeginTurn(Action<List<Vector3>> onActionReadyCallback)
+    public void BeginTurn(Action<List<GridPosition>, List<Vector3>> onActionReadyCallback)
     {
         ResetData();
         ActionReadyCallback = onActionReadyCallback;
@@ -231,6 +231,8 @@ public class FantasyCombatAI : MonoBehaviour
     private void QueryPathToDestination(GridPosition destination, Vector3 directionToFace)
     {
         finalLookDirection = directionToFace;
+        Debug.Log("Setting look rotation for: " + EnemyDatabase.Instance.GetEnemyDisplayName(myUnit, myUnit.stats.data) + " " + finalLookDirection.ToString());
+
         //List<GridPosition> gridPosList = PathFinding.Instance.FindPath(myUnit.GetGridPositionsOnTurnStart()[0], destination, myUnit, out int pathLength, true);
         PathFinding.Instance.QueryStartToEndPath(myUnit.GetGridPositionsOnTurnStart()[0], destination, myUnit, SetMovementPath);
     }
@@ -284,6 +286,7 @@ public class FantasyCombatAI : MonoBehaviour
     private void SetMovementPath(Path path)
     {
         List<GridPosition> gridPosList = PathFinding.Instance.GetGridPositionsFromPath(path); //Path returned to pool so path will be null after this line
+        List<GridPosition> gridPosMoveList = new List<GridPosition>();
 
         foreach (GridPosition gridPosition in gridPosList)
         {
@@ -303,10 +306,12 @@ public class FantasyCombatAI : MonoBehaviour
             {
                 moveToPath.Add(LevelGrid.Instance.gridSystem.GetWorldPosition(gridPosition));
             }
+
+            gridPosMoveList.Add(gridPosition);
         }
 
         //Tell Enemy State Machine the action is ready to be performed.
-        ActionReadyCallback?.Invoke(moveToPath);
+        ActionReadyCallback?.Invoke(gridPosMoveList, moveToPath);
     }
 
     public bool IsAffinityRemembered(GridUnit target, Element element)

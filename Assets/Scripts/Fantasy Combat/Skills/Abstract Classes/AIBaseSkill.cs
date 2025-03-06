@@ -106,7 +106,7 @@ public abstract class AIBaseSkill : BaseSkill
 
         SetUnitsToShow();
 
-        SetSkillTargets();
+        SetActionTargets(selectedUnits);
 
         //UpdatePosition
         myUnit.MovedToNewGridPos();

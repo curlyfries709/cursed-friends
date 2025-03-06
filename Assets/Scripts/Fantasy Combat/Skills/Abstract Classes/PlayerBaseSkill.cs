@@ -65,6 +65,7 @@ public abstract class PlayerBaseSkill : BaseSkill
 
     //Other Variables
     protected bool skillTriggered = false;
+    bool deactivateCamOnActionComplete = false;
 
     float deactivateCamDelay = 0;
     //Events
@@ -231,7 +232,7 @@ public abstract class PlayerBaseSkill : BaseSkill
 
         SetUnitsToShow();
 
-        SetSkillTargets();
+        SetActionTargets(selectedUnits);
 
         //UpdatePosition
         myUnit.MovedToNewGridPos();
@@ -249,15 +250,7 @@ public abstract class PlayerBaseSkill : BaseSkill
         //Call Event
         PlayerUsedSkill?.Invoke(player, this);
 
-        if (deactivateCamOnActionComplete)
-        {
-            FantasyCombatManager.Instance.ActionComplete += PrepareToDeactiveBlendCams;  //Subscribe to event to deactivate Cam
-        }
-        else
-        {
-            FantasyCombatManager.Instance.ActionComplete += SkillComplete;
-        }
-
+        this.deactivateCamOnActionComplete = deactivateCamOnActionComplete;
     }
 
     protected virtual void SpendSkillCost(CharacterGridUnit character)
@@ -276,11 +269,16 @@ public abstract class PlayerBaseSkill : BaseSkill
         }
     }
 
-    protected void PrepareToDeactiveBlendCams()
+    public override void EndAction()
     {
         SkillComplete();
-        FantasyCombatManager.Instance.ActionComplete -= PrepareToDeactiveBlendCams;
-        Invoke("DeactivateCam", deactivateCamDelay);
+
+        if (deactivateCamOnActionComplete)
+        {
+            Invoke("DeactivateCam", deactivateCamDelay);
+        }
+
+        base.EndAction();
     }
 
     protected void DeactivateCam()

@@ -28,7 +28,7 @@ public class OrbTeleportation : PlayerBaseSkill, IOrb
 
             originalPosition = myUnit.GetCurrentGridPositions()[0];
             targetGridPosition = selectedGridPositions[0];
-            selectedUnit = selectedUnits.Count > 0 ? skillTargets[0] : null;
+            selectedUnit = selectedUnits.Count > 0 ? actionTargets[0] : null;
 
             StartCoroutine(TeleportRoutine());
 
@@ -112,7 +112,7 @@ public class OrbTeleportation : PlayerBaseSkill, IOrb
         yield return new WaitForSeconds(postTeleportTime);
 
         //Call Action Complete
-        FantasyCombatManager.Instance.ActionComplete();
+        EndAction();
     }
 
     //Validation
@@ -150,4 +150,8 @@ public class OrbTeleportation : PlayerBaseSkill, IOrb
         ActivateVisuals(false);
     }
 
+    protected override bool ListenForUnitHealthUIComplete()
+    {
+        return false;
+    }
 }

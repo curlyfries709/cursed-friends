@@ -31,7 +31,7 @@ public class SBConqueror : StrategicBonusChecker
         }
     }
 
-    protected override void OnActionComplete()
+    protected override void OnActionComplete(CombatAction completedAction)
     {
         if (counter >= countToAchieveBonus)
         {

@@ -7,7 +7,7 @@ using AnotherRealm;
 using Cinemachine;
 using TMPro;
 
-public class BattleEnlister : MonoBehaviour, ITurnEndEvent
+public class BattleEnlister : CombatAction, ITurnEndEvent
 {
     public static BattleEnlister Instance { get; private set; }
 
@@ -53,10 +53,13 @@ public class BattleEnlister : MonoBehaviour, ITurnEndEvent
 
     public void PlayTurnEndEvent()
     {
+        BeginAction();
         takenGridPositions.Clear();
 
-        List<GridUnit> unit = new List<GridUnit>();
-        unit.Add(newParticpants[0]);
+        List<GridUnit> unit = new List<GridUnit>
+        {
+            newParticpants[0]
+        };
 
         FantasyCombatManager.Instance.SetUnitsToShow(unit);
         DisplayNewParticipant(newParticpants[0]);
@@ -85,7 +88,7 @@ public class BattleEnlister : MonoBehaviour, ITurnEndEvent
         yield return new WaitForSeconds(canvas.fadeOutTime);
         cam.gameObject.SetActive(false);
         FantasyCombatManager.Instance.ResetUnitsToShow();
-        FantasyCombatManager.Instance.ActionComplete();
+        EndAction();
     }
 
     //LOGIC
@@ -143,5 +146,10 @@ public class BattleEnlister : MonoBehaviour, ITurnEndEvent
     {
         //Event Can't be Cancelled.
         return new List<Type>();
+    }
+
+    protected override bool ListenForUnitHealthUIComplete()
+    {
+        return false;
     }
 }

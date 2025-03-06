@@ -10,8 +10,6 @@ public class KiraCheer : PlayerBaseChainAttack
     [SerializeField] GameObject cheerCanvas;
     [SerializeField] Transform cheerTextHeader;
 
-    PlayerGridUnit target;
-
     protected override void CalculateAttackAffectedGridPositions()
     {
         selectedGridPositions = new List<GridPosition>(chainPasser.GetCurrentGridPositions());
@@ -22,13 +20,10 @@ public class KiraCheer : PlayerBaseChainAttack
     {
         if (CanTriggerSkill(true))
         {
-            //Since this only targets one unit
-            target = selectedUnits[0] as PlayerGridUnit;
-
             BeginSkill(0,0, false);//Unit Position Updated here
 
             //Add Again Event 
-            Again.Instance.SetUnitToGoAgain(target);
+            Again.Instance.SetUnitToGoAgain(actionTargets[0] as CharacterGridUnit);
 
             //Start Routine.
             StartCoroutine(CheerRoutine());
@@ -54,9 +49,8 @@ public class KiraCheer : PlayerBaseChainAttack
         cheerCanvas.SetActive(false);
         DeactivateCam();
 
-        FantasyCombatManager.Instance.ActionComplete();
-
         myCharacter.unitAnimator.Idle();
+        EndAction();
     }
 
     IEnumerator CheerCanvasRoutine()

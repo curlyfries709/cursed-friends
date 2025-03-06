@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class BlessingEffects : MonoBehaviour, ITurnStartEvent
+public class BlessingEffects : CombatAction, ITurnStartEvent
 {
-
     [Header("UI")]
     [SerializeField] TextMeshProUGUI blessingName;
     [Space(5)]
@@ -52,6 +51,8 @@ public class BlessingEffects : MonoBehaviour, ITurnStartEvent
 
     public void ActivateEffect(PlayerGridUnit blesser)
     {
+        BeginAction();
+
         if (HasRecoveryEffect())
             FantasyCombatManager.Instance.OnNewTurn += OnAnyUnitTurnStart;
 
@@ -89,14 +90,13 @@ public class BlessingEffects : MonoBehaviour, ITurnStartEvent
         yield return new WaitForSeconds(activateBlessingDuration);
         blessUI.SetActive(false);
         blesser.GetPhotoShootSet().DeactivateSet();
-        FantasyCombatManager.Instance.TacticActivated();
         HUDManager.Instance.UpdateBlessing(activeBlessing, turnCounter);
         FantasyCombatCollectionManager.BlessingUsed?.Invoke(blesser);
 
+        EndAction();
+
         //Activate healing
         Health.RaiseHealthChangeEvent(true);
-
-
         collectionManager.BeginBlessingCooldown(activeBlessing, blesser);
     }
 
@@ -251,4 +251,14 @@ public class BlessingEffects : MonoBehaviour, ITurnStartEvent
         return activeBlessing.hpIncrease > 0 || activeBlessing.spIncrease > 0;
     }
 
+
+    public override bool IsTactic()
+    {
+        return true;
+    }
+
+    protected override bool ListenForUnitHealthUIComplete()
+    {
+        return false;
+    }
 }
